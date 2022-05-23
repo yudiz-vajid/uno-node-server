@@ -1,0 +1,33 @@
+{
+    "cSpell.words": [
+        "epiko",
+        "Gsdjk",
+        "kumar",
+        "Parens",
+        "respawn",
+        "Shtfa",
+        "tsnd",
+        "unist",
+        "zrangebyscore"
+    ],
+    "files.exclude": {
+        "**/.git": false,
+        "**/.svn": false,
+        "**/.hg": false,
+        "**/CVS": false,
+        "**/.DS_Store": false,
+        "**/Thumbs.db": false,
+        ".eslintignore": false,
+        "*.json": false,
+        ".eslintrc.js": false,
+        ".gitignore": false,
+        ".nvmrc": false,
+        "yarn.lock": false
+    },
+    "explorerExclude.backup": null,
+    "cSpell.ignoreWords": [],
+    "workbench.colorCustomizations": {
+        "editorCursor.foreground": "#00ff62dc",
+        "terminalCursor.foreground": "#00ff62dc"
+    }
+}

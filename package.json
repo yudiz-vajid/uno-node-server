@@ -1,0 +1,47 @@
+{
+  "name": "sample",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "",
+  "author": "anuj kumar jha <anuj.j@yudiz.com>",
+  "license": "MIT",
+  "scripts": {
+    "dev": "tsnd --respawn ./src/index.ts",
+    "stag": "node ./dist/index.js",
+    "debug": "node --inspect --trace-warnings -r ts-node/register ./src/index.ts"
+  },
+  "dependencies": {
+    "@socket.io/redis-adapter": "^7.2.0",
+    "compression": "^1.7.4",
+    "express": "^4.18.1",
+    "helmet": "^5.1.0",
+    "joi": "^17.6.0",
+    "jsonwebtoken": "^8.5.1",
+    "morgan": "^1.10.0",
+    "nanoid": "^3.3.4",
+    "redis": "^4.1.0",
+    "socket.io": "^4.5.1",
+    "winston": "^3.7.2"
+  },
+  "devDependencies": {
+    "@types/compression": "^1.7.2",
+    "@types/eslint": "^8.4.2",
+    "@types/express": "^4.17.13",
+    "@types/jsonwebtoken": "^8.5.8",
+    "@types/morgan": "^1.9.3",
+    "@types/node": "^17.0.35",
+    "@typescript-eslint/eslint-plugin": "^5.25.0",
+    "@typescript-eslint/parser": "^5.25.0",
+    "eslint": "^8.15.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-import-resolver-typescript": "^2.7.1",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "prettier": "^2.6.2",
+    "ts-node": "^10.7.0",
+    "ts-node-dev": "^1.1.8",
+    "tsconfig-paths": "^4.0.0",
+    "typescript": "^4.6.4"
+  }
+}
