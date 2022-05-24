@@ -6,9 +6,12 @@
   "author": "anuj kumar jha <anuj.j@yudiz.com>",
   "license": "MIT",
   "scripts": {
-    "dev": "tsnd --respawn ./src/index.ts",
+    "test": "ts-node -r tsconfig-paths/register ./src/index.ts",
+    "dev": "tsnd -r tsconfig-paths/register --respawn ./src/index.ts",
     "stag": "node ./dist/index.js",
-    "debug": "node --inspect --trace-warnings -r ts-node/register ./src/index.ts"
+    "debug": "node --inspect --trace-warnings -r tsconfig-paths/register -r ts-node/register ./src/index.ts",
+    "build": "tsc --project tsconfig.json",
+    "build2": "tsc --project tsconfig.json && tscpaths -p tsconfig.json -s ./src -o ./dist"
   },
   "dependencies": {
     "@socket.io/redis-adapter": "^7.2.0",

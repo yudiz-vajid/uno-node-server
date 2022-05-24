@@ -17,11 +17,12 @@
             "type": "pwa-node",
             "request": "launch",
             "name": "Launch index.ts",
-            "runtimeArgs": ["-r", "ts-node/register"],
+            "runtimeArgs": ["-r", "tsconfig-paths/register", "-r", "ts-node/register"],
             "args": [
                 "${workspaceFolder}/src/index.ts",
             ],
             "outputCapture": "std",
+            "runtimeExecutable": "/home/evil/.nvm/versions/node/v16.15.0/bin/node"
         }
     ]
 }

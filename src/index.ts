@@ -12,7 +12,6 @@ process.once('uncaughtException', (ex: any) => {
 
 process.once('unhandledRejection', (ex: any) => {
   log.error(`${_.now()} we have unhandledRejection, ${ex.message}, ${ex.stack}`);
-
   process.exit(1);
 });
 

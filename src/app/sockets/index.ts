@@ -18,7 +18,7 @@ class SocketIO {
       allowUpgrades: true,
       perMessageDeflate: false,
       serveClient: true,
-      // adapter: redis.getAdapter(), // TODO : use redis adapter
+      // adapter: redis.getAdapter(),
       cookie: false,
       transports: ['websocket'],
       path: '/socket.io/',
@@ -36,6 +36,7 @@ class SocketIO {
   // eslint-disable-next-line class-methods-use-this
   async initialize(httpServer: HttpServer) {
     const io = new Server(httpServer, this.options); // this.options
+    io.adapter(redis.getAdapter());
     global.io = io;
     await rootSocket.initialize();
     new SocketManager();
