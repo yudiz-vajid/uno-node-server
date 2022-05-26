@@ -1,13 +1,23 @@
 {
     "cSpell.words": [
         "epiko",
+        "genrand",
         "Gsdjk",
+        "Husain",
+        "Khokhar",
         "kumar",
+        "Makoto",
+        "Matsumoto",
+        "mersenne",
+        "Nishimura",
         "Parens",
+        "plusplus",
         "respawn",
         "Shtfa",
+        "Takuji",
         "tsnd",
         "unist",
+        "Vajid",
         "zrangebyscore"
     ],
     "files.exclude": {
@@ -19,7 +29,7 @@
         "**/Thumbs.db": false,
         ".eslintignore": true,
         "*.json": false,
-        ".eslintrc.js": true,
+        ".eslintrc.js": false,
         ".gitignore": true,
         ".nvmrc": true,
         "yarn.lock": false,

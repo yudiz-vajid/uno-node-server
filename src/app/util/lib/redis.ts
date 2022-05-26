@@ -78,9 +78,9 @@ export default RedisClient;
     redis.publisher.publish('redisEvent', JSON.stringify({ a: 10, b: 20 }));
     then on onMessage we got :> channel : 'redisEvent, message: '{ a: 10, b: 20 }'
 
-    redis.publisher.publish('redisEvent', JSON.stringify({ sTaskName: '', iTabled: '', iUserId: '' }));
+    redis.publisher.publish('redisEvent', JSON.stringify({ sTaskName: '', iTabled: '', iPlayerId: '' }));
      channel : redisEvent
-     message: { sTaskName: '', iTabled: '', iUserId: '' }
+     message: { sTaskName: '', iTabled: '', iPlayerId: '' }
 
 */
 

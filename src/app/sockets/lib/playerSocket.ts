@@ -1,22 +1,29 @@
 /* eslint-disable import/prefer-default-export */
 /* eslint-disable class-methods-use-this */
-import { Socket } from 'socket.io';
+import type { Socket } from 'socket.io';
+import { ISettings } from 'global';
 
 export class PlayerSocket {
-  socket: Socket;
+  private socket: Socket;
 
-  IUserId: string;
+  private iPlayerId: string;
 
-  sAccessToken: string;
+  private iBattleId: string;
+
+  private sAuthToken: string;
+
+  private oSetting: ISettings;
 
   constructor(socket: Socket) {
     this.socket = socket; // - socket = {id: <socketId>, ...other}
-    this.IUserId = socket.data.IUserId;
-    this.sAccessToken = socket.data.sAccessToken;
+    this.iPlayerId = socket.data.iPlayerId;
+    this.iBattleId = socket.data.iBattleId;
+    this.sAuthToken = socket.data.sAuthToken;
+    this.oSetting = socket.data.oSettings;
 
     this.socket.data = {}; // - clean up socket payload
     this.setEventListeners(); // - register listeners
-    log.debug(`${_.now()} client: ${this.IUserId} connected with socketId : ${socket.id}`);
+    log.debug(`${_.now()} client: ${this.iPlayerId} connected with socketId : ${this.socket.id}`);
   }
 
   private setEventListeners() {
@@ -24,21 +31,24 @@ export class PlayerSocket {
     this.socket.on('error', this.errorHandler.bind(this));
     this.socket.on('disconnect', this.disconnect.bind(this));
 
-    // TODO : add event listeners
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    this.socket.on('joinTable', () => {});
   }
 
   private reqPing(body: any, _ack?: () => unknown) {
-    if (typeof _ack === 'function') _ack();
-    log.debug(`${_.now()} client: '${this.IUserId}' => reqPing`);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    if (typeof _ack === 'function') _ack('pong');
+    log.verbose(`${_.now()} client: '${this.iPlayerId}' => ping`);
   }
 
   private async disconnect(reason: string) {
-    log.debug(`${_.now()} client: '${this.IUserId}' disconnected due to ${reason} having  socketId: '${this.socket.id}`);
+    log.debug(`${_.now()} client: ${this.iPlayerId} disconnected with socketId : ${this.socket.id}. reason: ${reason}`);
     try {
       if (reason === 'server namespace disconnect') return;
       // TODO : handle reconnection
     } catch (err: any) {
-      log.debug(`${_.now()} client: '${this.IUserId}' disconnect event failed. reason: ${err.message}`);
+      log.debug(`${_.now()} client: '${this.iPlayerId}' disconnect event failed. reason: ${err.message}`);
     }
   }
 
@@ -49,8 +59,10 @@ export class PlayerSocket {
   public toJSON() {
     return {
       socket: this.socket,
-      IUserId: this.IUserId,
-      sAccessToken: this.sAccessToken,
+      iPlayerId: this.iPlayerId,
+      iBattleId: this.iBattleId,
+      sAuthToken: this.sAuthToken,
+      oSetting: this.oSetting,
     };
   }
 }

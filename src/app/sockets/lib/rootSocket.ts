@@ -1,7 +1,10 @@
+/* eslint-disable no-unsafe-finally */
+/* eslint-disable no-param-reassign */
 /* eslint-disable no-unused-vars */
 /* eslint-disable class-methods-use-this */
-import { Socket } from 'socket.io';
+import type { Socket } from 'socket.io';
 import { PlayerSocket } from './playerSocket';
+import { verifyAuthHeader, verifySettings } from '../../validator';
 
 class RootSocket {
   async initialize() {
@@ -15,14 +18,35 @@ class RootSocket {
   }
 
   // - executes once for each client during connection
-  private async authenticate(socket: Socket, next: (error?: any) => void) {
+  private async authenticate(socket: Socket, next: (error?: any) => void): Promise<boolean> {
     try {
-      // TODO : authenticate
-      if (typeof next === 'function') next();
+      const { error: authError, info: authInfo, value: authValue } = await verifyAuthHeader(socket.handshake.headers);
+      if (authError || !authValue) throw new Error(authInfo);
+
+      const { error: settingsError, info: settingsInfo, value: settingsValue } = await verifySettings(socket.handshake.query);
+      if (settingsError || !settingsValue) throw new Error(settingsInfo);
+
+      const { iBattleId, iPlayerId, sAuthToken } = authValue;
+      const { bMustCollectOnMissTurn, nUnoTime, nTurnMissLimit, nGraceTime, nTurnTime, nStartGameTime } = settingsValue;
+
+      // TODO : validate playerId, battleId, authToken via grpc service
+      const bIsValid = true;
+      if (!bIsValid) throw new Error('player validation failed');
+
+      socket.data.iPlayerId = iPlayerId;
+      socket.data.iBattleId = iBattleId;
+      socket.data.sAuthToken = sAuthToken;
+
+      // TODO : fetch table settings from grpc service
+      const aCardScore: any[] = []; // TODO : until grpc is sorted create dummy score
+      socket.data.oSettings = { bMustCollectOnMissTurn, nUnoTime, nTurnMissLimit, nGraceTime, nTurnTime, nStartGameTime, aCardScore }; // TODO: remove when fetched via grpc
+      next();
+      return true;
     } catch (err: any) {
-      log.error(`Auth Middleware Error : ${err.message}`);
+      next(err.message);
+      log.silly(`authenticate failed : ${err.message}`);
       socket.disconnect();
-      if (typeof next === 'function') next(new Error('Unauthorized'));
+      return false;
     }
   }
 }

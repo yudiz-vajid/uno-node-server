@@ -2,8 +2,8 @@
 /* eslint-disable global-require */
 /* eslint-disable import/no-extraneous-dependencies */
 
-import { Server, ServerOptions } from 'socket.io';
 import { Server as HttpServer } from 'http';
+import { Server, ServerOptions } from 'socket.io';
 import rootSocket from './lib/rootSocket';
 import SocketManager from '../socketManager';
 
@@ -18,11 +18,10 @@ class SocketIO {
       allowUpgrades: true,
       perMessageDeflate: false,
       serveClient: true,
-      // adapter: redis.getAdapter(),
       cookie: false,
       transports: ['websocket'],
       path: '/socket.io/',
-      connectTimeout: 450000, // - 30000 default 45000
+      connectTimeout: 45000, // - ms to wait before rejecting handshake
       allowEIO3: false,
       parser: require('socket.io-parser'),
       cors: {
@@ -33,9 +32,8 @@ class SocketIO {
     };
   }
 
-  // eslint-disable-next-line class-methods-use-this
   async initialize(httpServer: HttpServer) {
-    const io = new Server(httpServer, this.options); // this.options
+    const io = new Server(httpServer, this.options);
     io.adapter(redis.getAdapter());
     global.io = io;
     await rootSocket.initialize();

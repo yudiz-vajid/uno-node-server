@@ -194,9 +194,9 @@ const helper = {
   },
 
   delay: (ttl: number) => new Promise(resolve => setTimeout(resolve, ttl)),
-  getUserKey: (iUserId: string) => `usr:${iUserId}`,
+  getUserKey: (iPlayerId: string) => `usr:${iPlayerId}`,
   getRoomKey: (iChannelId: string) => `rms:${iChannelId}`,
-  getSchedulerKey: (sTaskName: string, iChannelId = '', iUserId = '', host = process.env.HOST) => `sch:${iChannelId}:${sTaskName}:${iUserId}:${host}`,
+  getSchedulerKey: (sTaskName: string, iChannelId = '', iPlayerId = '', host = process.env.HOST) => `sch:${iChannelId}:${sTaskName}:${iPlayerId}:${host}`,
 
   genAckCB: () => {
     return (msg: string) => {

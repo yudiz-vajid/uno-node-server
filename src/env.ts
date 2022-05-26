@@ -1,7 +1,7 @@
 import { IEnvs } from './types/global';
 
 process.env.NODE_ENV = 'dev';
-process.env.PORT = '4000';
+process.env.PORT = '3000';
 process.env.HOST = '127.0.0.1';
 
 process.env.DB_PASSWORD = '';
@@ -25,7 +25,7 @@ const oEnv: IEnvs = {
   },
   // prod: {},
 };
-const winstonLogLevel: 'error' | 'warn' | 'info' | 'http' | 'verbose' | 'debug' | 'silly' = 'debug';
+const winstonLogLevel: 'error' | 'warn' | 'info' | 'http' | 'verbose' | 'debug' | 'silly' = 'silly';
 process.env.LOG_LEVEL = winstonLogLevel;
 
 process.env.BASE_URL = oEnv[process.env.NODE_ENV].BASE_URL;
@@ -45,9 +45,9 @@ export {};
     redis.publisher.publish('redisEvent', JSON.stringify({ a: 10, b: 20 }));
     then on onMessage we got :> channel : 'redisEvent, message: '{ a: 10, b: 20 }'
 
-    redis.publisher.publish('redisEvent', JSON.stringify({ sTaskName: '', iTabled: '', iUserId: '' }));
+    redis.publisher.publish('redisEvent', JSON.stringify({ sTaskName: '', iTabled: '', iPlayerId: '' }));
      channel : redisEvent
-     message: { sTaskName: '', iTabled: '', iUserId: '' }
+     message: { sTaskName: '', iTabled: '', iPlayerId: '' }
 
 */
 

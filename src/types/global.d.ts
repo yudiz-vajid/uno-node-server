@@ -10,4 +10,54 @@ declare interface IEnvs {
   [key: string]: IEnv;
 }
 
-export { IEnv, IEnvs };
+declare interface ICard {
+  iCardId: string;
+  eColor: 'red' | 'green' | 'blue' | 'yellow';
+  nLabel: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+  nScore: number;
+}
+
+declare interface ISettings {
+  bMustCollectOnMissTurn: boolean;
+  nUnoTime: number;
+  nTurnMissLimit: number;
+  nGraceTime: number; // ms
+  nTurnTime: number; // ms
+  nStartGameTime: number; // ms
+  aCardScore: { iCardId: string; nScore: string }[];
+}
+
+declare interface ITable {
+  iTableId: string;
+  iPlayerTurn: string;
+  iSkippedPLayer: string;
+  aPlayerIds: string[];
+  aDrawPile: ICard[];
+  bToSkip: boolean;
+  eState: 'waiting' | 'initialized' | 'running' | 'finished';
+  eTurnDirection: 'clockwise' | 'counter-clockwise';
+  eNextCardColor: '';
+  nDrawCount: number;
+  dCreatedDate: Date;
+  oSettings: ISettings;
+}
+
+declare interface IPlayer {
+  iPlayerId: string;
+  iTableId: string;
+  sPlayerName: string;
+  sSocketId: string;
+  nSeat: number;
+  nScore: number;
+  nUnoTime: number;
+  nGraceTime: number;
+  nMissedTurn: number;
+  nDrawNormal: number;
+  nReconnectionAttempt: number;
+  bSpecialMeterFull: boolean;
+  aHand: ICard[];
+  eState: 'disconnected' | 'playing' | 'left';
+  dCreatedAt: Date;
+}
+
+export { IEnv, IEnvs, ICard, ISettings, ITable, IPlayer };

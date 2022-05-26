@@ -36,6 +36,11 @@ module.exports = {
     ],
     '@typescript-eslint/no-explicit-any': 'off',
   },
+  // overrides: {
+  //   // for enum false error
+  //   "no-shadow": "off",
+  //   "@typescript-eslint/no-shadow": ["error", , { "ignoreTypeValueShadow": true }]
+  // },
   settings: {
     'import/parsers': {
       '@typescript-eslint/parser': ['.ts'],

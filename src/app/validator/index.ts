@@ -1,3 +1,4 @@
 /* eslint-disable import/prefer-default-export */
 
-export { authenticate } from './lib/authenticate';
+export { isValidRequest as verifyAuthHeader } from './lib/verifyAuthHeaders';
+export { isValidRequest as verifySettings } from './lib/verifySettings';
