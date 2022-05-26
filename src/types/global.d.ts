@@ -12,9 +12,13 @@ declare interface IEnvs {
 
 declare interface ICard {
   iCardId: string;
-  eColor: 'red' | 'green' | 'blue' | 'yellow';
+  eColor: 'red' | 'green' | 'blue' | 'yellow' | 'black';
   nLabel: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
   nScore: number;
+  bSkipCard: boolean; // play on same color or label
+  bReverseCard: boolean; // play on same color or label
+  bDrawTwoCard: boolean; // play on same color or label
+  bDrawFourCard: boolean; // only for black(wild) card
 }
 
 declare interface ISettings {
@@ -22,7 +26,7 @@ declare interface ISettings {
   nUnoTime: number;
   nTurnMissLimit: number;
   nGraceTime: number; // ms
-  nTurnTime: number; // ms
+  nTurnTime: number | null; // ms
   nStartGameTime: number; // ms
   aCardScore: { iCardId: string; nScore: string }[];
 }
