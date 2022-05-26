@@ -20,7 +20,12 @@ class RootSocket {
   // - executes once for each client during connection
   private async authenticate(socket: Socket, next: (error?: any) => void): Promise<boolean> {
     try {
-      const { error: authError, info: authInfo, value: authValue } = await verifyAuthHeader(socket.handshake.headers);
+      // prettier-ignore
+      const { error: authError, info: authInfo, value: authValue } = await verifyAuthHeader({
+        i_battle_id: socket.handshake.auth.i_battle_id ?? <any>socket.handshake.headers.i_battle_id,
+        i_player_id: socket.handshake.auth.i_player_id ?? <any>socket.handshake.headers.i_player_id,
+        s_auth_token: socket.handshake.auth.s_auth_token ?? <any>socket.handshake.headers.s_auth_token,
+      });
       if (authError || !authValue) throw new Error(authInfo);
 
       const { error: settingsError, info: settingsInfo, value: settingsValue } = await verifySettings(socket.handshake.query);
