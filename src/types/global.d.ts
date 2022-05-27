@@ -29,12 +29,12 @@ declare interface Card {
 }
 
 declare interface ISettings {
-  bMustCollectOnMissTurn: boolean;
-  nUnoTime: number;
-  nTurnMissLimit: number;
-  nGraceTime: number; // ms
-  nTurnTime: number; // ms
-  nStartGameTime: number; // ms
+  bMustCollectOnMissTurn: boolean | null;
+  nUnoTime: number | null;
+  nTurnMissLimit: number | null;
+  nGraceTime: number | null; // ms
+  nTurnTime: number | null; // ms
+  nStartGameTime: number | null; // ms
   aCardScore: { iCardId: string; nScore: string }[];
 }
 
@@ -67,7 +67,7 @@ declare interface IPlayer {
   nReconnectionAttempt: number;
   bSpecialMeterFull: boolean;
   aHand: Card[]; // TODO: replace with ICard
-  eState: 'disconnected' | 'playing' | 'left';
+  eState: 'waiting' | 'disconnected' | 'playing' | 'left';
   dCreatedAt: Date;
 }
 

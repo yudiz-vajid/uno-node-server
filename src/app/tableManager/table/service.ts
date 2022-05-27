@@ -11,7 +11,7 @@ class Service {
 
   private iSkippedPLayer: string;
 
-  private aPlayerIds: string[];
+  public aPlayerIds: string[];
 
   private aDrawPile: Card[]; // ICard[];
 
@@ -29,7 +29,7 @@ class Service {
 
   private oSettings: ISettings;
 
-  private aParticipant: IPlayer[] = [];
+  public aParticipant: IPlayer[] = [];
 
   constructor(oData: ITable) {
     this.iBattleId = oData.iBattleId;
@@ -56,13 +56,36 @@ class Service {
     return true;
   }
 
+  public async emit(sEventName: string, message: string, oData: any) {
+    try {
+      console.log('emiter for :: ', sEventName);
+      for (const iPlayerId of this.aPlayerIds) {
+        // eslint-disable-next-line no-await-in-loop
+        const playingPlayer = await this.getPlayer(iPlayerId);
+        playingPlayer.emit(sEventName, message, oData);
+      }
+    } catch (err: any) {
+      log.error('table.emit() failed !!!', { reason: err.message, stack: err.stack });
+    }
+  }
+
   public async getPlayer(iPlayerId: string) {
     const oPlayerData: any = await redis.client.json.get(_.getPlayerKey(this.iBattleId, iPlayerId));
-    if (!oPlayerData) return null;
+    if (!oPlayerData) return log.error('error ! player not exist');
     return new Player(oPlayerData);
   }
 
-  public async addParticipant() {}
+  public async addPlayer(iPlayerId: string) {
+    console.log('addPlayer called ...');
+
+    const oPlayerData: any = await redis.client.json.get(_.getPlayerKey(this.iBattleId, iPlayerId));
+    if (!oPlayerData) return null;
+    this.aPlayerIds.push(iPlayerId);
+    await this.save();
+    return this.toJSON();
+  }
+
+  // public async addParticipant() {}
 
   private toJSON(): any {
     return {

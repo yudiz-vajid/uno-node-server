@@ -3,13 +3,26 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable class-methods-use-this */
 
-import { ITable } from 'global';
+import { IPlayer, ISettings, ITable } from 'global';
 import Player from './player';
 import Table from './table';
 
 // eslint-disable-next-line import/prefer-default-export
 class TableManager {
+  defaultTableSettings: ISettings;
+
+  static defaultTableSettings: ISettings;
+
   constructor() {
+    this.defaultTableSettings = {
+      bMustCollectOnMissTurn: true,
+      nUnoTime: null,
+      nTurnMissLimit: null,
+      nGraceTime: null,
+      nTurnTime: null,
+      nStartGameTime: null,
+      aCardScore: [],
+    };
     emitter.on('sch', this.onEvents.bind(this));
     emitter.on('redisEvent', this.onEvents.bind(this));
   }
@@ -32,11 +45,19 @@ class TableManager {
   }
 
   public static async getTable(iBattleId: string) {
-    const oTableData: any = await redis.client.json.get(_.getTableKey(iBattleId));
+    console.log('getTable called...');
+    const oTableData: any = await redis.client.json.GET(_.getTableKey(iBattleId));
     if (!oTableData) return null;
 
-    const aPromise: any[] = [];
-    for (const iPlayerId of oTableData.aPlayerIds) aPromise.push(redis.client.json.get(_.getPlayerKey(iBattleId, iPlayerId)));
+    const aPromise: any[] = []; // To add participant in table
+    console.log('oTableData.aPlayerIds :: ', oTableData);
+    //
+    for (const iPlayerId of oTableData.aPlayerIds) {
+      console.log('iPlayerId :: ', iPlayerId);
+      // eslint-disable-next-line no-await-in-loop
+      console.log(await redis.client.json.get(_.getPlayerKey(iBattleId, iPlayerId)));
+      aPromise.push(redis.client.json.get(_.getPlayerKey(iBattleId, iPlayerId)));
+    }
     const aParticipant = await Promise.all(aPromise);
     if (aParticipant.some(predicate => predicate === null)) log.error('error');
 
@@ -44,26 +65,36 @@ class TableManager {
     return new Table(oTableData);
   }
 
-  public static async createTable(oData: ITable) {
+  public static async createTable(oData: any) {
     const tableData: any = {
-      IBattleId: oData.iBattleId,
-      iPlayerTurn: oData.iPlayerTurn,
-      iSkippedPLayer: oData.iSkippedPLayer,
-      aPlayerIds: oData.aPlayerIds,
-      aDrawPile: oData.aDrawPile,
-      bToSkip: oData.bToSkip,
-      eState: oData.eState,
-      eTurnDirection: oData.eTurnDirection,
-      eNextCardColor: oData.eNextCardColor,
-      nDrawCount: oData.nDrawCount,
-      dCreatedDate: oData.dCreatedDate,
-      oSettings: oData.oSettings,
+      iBattleId: oData.iBattleId,
+      iPlayerTurn: '',
+      iSkippedPLayer: '',
+      aPlayerIds: [],
+      aDrawPile: [],
+      bToSkip: false,
+      eState: 'waiting',
+      eTurnDirection: 'clockwise',
+      eNextCardColor: '',
+      nDrawCount: null,
+      dCreatedDate: new Date(),
+      oSettings: { ...oData.oSettings },
       aParticipant: [],
     };
-    const oTableData: any = await redis.client.json.set(_.getTableKey(oData.iBattleId), '.', tableData);
+    const oTableData: any = await redis.client.json.set(_.getTableKey(tableData.iBattleId), '.', tableData);
     if (!oTableData) return null;
+    return new Table(tableData);
+  }
 
-    return new Table(oTableData);
+  public static async createPlayer(oPlayer: any) {
+    try {
+      // console.log('createPlayer called...', oPlayer);
+      const oTableData: any = await redis.client.json.set(_.getPlayerKey(oPlayer.iBattleId, oPlayer.iPlayerId), '.', oPlayer);
+      if (!oTableData) return null;
+      return new Player(oTableData);
+    } catch (err: any) {
+      return undefined;
+    }
   }
 
   public static async getPlayer(iBattleId: string, iPlayerId: string) {

@@ -31,7 +31,7 @@ class Service {
 
   private aHand: Card[];
 
-  private eState: 'disconnected' | 'playing' | 'left';
+  private eState: 'waiting' | 'disconnected' | 'playing' | 'left';
 
   private dCreatedAt: Date;
 

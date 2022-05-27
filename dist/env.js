@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 process.env.NODE_ENV = 'dev';
-process.env.PORT = '3000';
+process.env.PORT = '3004';
 process.env.HOST = '127.0.0.1';
 process.env.DB_PASSWORD = '';
 const oEnv = {
