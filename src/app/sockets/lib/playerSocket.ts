@@ -1,7 +1,10 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable import/prefer-default-export */
 /* eslint-disable class-methods-use-this */
 import type { Socket } from 'socket.io';
 import { ISettings } from 'global';
+import Channel from './channel';
+import TableManager from '../../tableManager';
 
 export class PlayerSocket {
   private socket: Socket;
@@ -30,9 +33,35 @@ export class PlayerSocket {
     this.socket.on('reqPing', this.reqPing.bind(this));
     this.socket.on('error', this.errorHandler.bind(this));
     this.socket.on('disconnect', this.disconnect.bind(this));
+    this.socket.on('reqJoinTable', this.joinTable.bind(this));
+  }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    this.socket.on('joinTable', () => {});
+  /**
+   * if player is already in the battle, fetch player and table data, and reconnect them to the same battle
+   * if player is not in a battle, create new player, table, and set startGameScheduled time
+   */
+  private async joinTable(_ack: (data: any) => unknown) {
+    if (typeof _ack !== 'function') return false;
+    try {
+      // TODO
+      const table = await TableManager.getTable(this.iBattleId);
+      if (!table) {
+        await TableManager.createTable();
+      }
+      const player = table?.getPlayer(this.iPlayerId);
+      if (!player) table?.addParticipant();
+      // TODO : handle reconnection
+
+      if (!this.socket.eventNames().includes(this.iBattleId)) {
+        const channel = new Channel(this.iBattleId, this.iPlayerId);
+        this.socket.on(this.iBattleId, channel.onEvent.bind(channel));
+      } // - add channel listeners and handle duplicate listeners(mainly while reconnection)
+      _ack({ iPlayerId: this.iPlayerId, iBattleId: this.iBattleId, oSetting: this.oSetting });
+      return true;
+    } catch (err: any) {
+      log.error(`${_.now()} client: '${this.iPlayerId}' joinTable event failed. reason: ${err.message}`);
+      return false;
+    }
   }
 
   private reqPing(body: any, _ack?: () => unknown) {

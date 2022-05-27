@@ -5,7 +5,7 @@
 import { Server as HttpServer } from 'http';
 import { Server, ServerOptions } from 'socket.io';
 import rootSocket from './lib/rootSocket';
-import SocketManager from '../socketManager';
+import TableManager from '../tableManager';
 
 class SocketIO {
   private options: Partial<ServerOptions> | undefined;
@@ -37,7 +37,7 @@ class SocketIO {
     io.adapter(redis.getAdapter());
     global.io = io;
     await rootSocket.initialize();
-    new SocketManager();
+    new TableManager();
     log.info('Socket.io initialized 🔌');
   }
 }

@@ -21,18 +21,25 @@ declare interface ICard {
   bDrawFourCard: boolean; // only for black(wild) card
 }
 
+declare interface Card {
+  nLabel: any;
+  eColor: any;
+  nScore: any;
+  _id: any;
+}
+
 declare interface ISettings {
   bMustCollectOnMissTurn: boolean;
   nUnoTime: number;
   nTurnMissLimit: number;
   nGraceTime: number; // ms
-  nTurnTime: number | null; // ms
+  nTurnTime: number; // ms
   nStartGameTime: number; // ms
   aCardScore: { iCardId: string; nScore: string }[];
 }
 
 declare interface ITable {
-  iTableId: string;
+  iBattleId: string;
   iPlayerTurn: string;
   iSkippedPLayer: string;
   aPlayerIds: string[];
@@ -48,7 +55,7 @@ declare interface ITable {
 
 declare interface IPlayer {
   iPlayerId: string;
-  iTableId: string;
+  iBattleId: string;
   sPlayerName: string;
   sSocketId: string;
   nSeat: number;
@@ -59,9 +66,9 @@ declare interface IPlayer {
   nDrawNormal: number;
   nReconnectionAttempt: number;
   bSpecialMeterFull: boolean;
-  aHand: ICard[];
+  aHand: Card[]; // TODO: replace with ICard
   eState: 'disconnected' | 'playing' | 'left';
   dCreatedAt: Date;
 }
 
-export { IEnv, IEnvs, ICard, ISettings, ITable, IPlayer };
+export { IEnv, IEnvs, ICard, ISettings, ITable, IPlayer, Card }; // TODO : remove Card
