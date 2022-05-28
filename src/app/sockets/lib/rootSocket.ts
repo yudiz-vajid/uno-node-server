@@ -3,7 +3,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable class-methods-use-this */
 import type { Socket } from 'socket.io';
-import { PlayerSocket } from './playerSocket';
+import PlayerSocket from './playerSocket';
 import { verifyAuthHeader, verifySettings } from '../../validator';
 
 class RootSocket {
@@ -31,7 +31,7 @@ class RootSocket {
       const { error: settingsError, info: settingsInfo, value: settingsValue } = await verifySettings(socket.handshake.query);
       if (settingsError || !settingsValue) throw new Error(settingsInfo);
 
-      const { iBattleId, iPlayerId, sAuthToken } = authValue;
+      const { iBattleId, iPlayerId, sPlayerName, sAuthToken } = authValue;
       const { bMustCollectOnMissTurn, nUnoTime, nTurnMissLimit, nGraceTime, nTurnTime, nStartGameTime } = settingsValue;
 
       // TODO : validate playerId, battleId, authToken via grpc service
@@ -40,6 +40,7 @@ class RootSocket {
 
       socket.data.iPlayerId = iPlayerId;
       socket.data.iBattleId = iBattleId;
+      socket.data.sPlayerName = sPlayerName;
       socket.data.sAuthToken = sAuthToken;
 
       // TODO : fetch table settings from grpc service

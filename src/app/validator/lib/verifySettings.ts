@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import { ISettings } from 'global';
+import { ISettings } from '../../../types/global';
 
 const options = {
   errors: {

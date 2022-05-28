@@ -24,9 +24,9 @@ class RedisClient {
 
   async initialize() {
     try {
-      (this.client as any) = createClient(this.options);
-      (this.publisher as any) = createClient(this.options);
-      (this.subscriber as any) = createClient(this.options);
+      (this.client as unknown) = createClient(this.options);
+      (this.publisher as unknown) = createClient(this.options);
+      (this.subscriber as unknown) = createClient(this.options);
 
       await Promise.all([this.client.connect(), this.publisher.connect(), this.subscriber.connect()]);
 
@@ -53,10 +53,10 @@ class RedisClient {
     let _message;
 
     if (channel === '__keyevent@0__:expired') {
-      const [type, channelId, taskName, userId, ip] = message.split(':'); // 'sch:fqr6dlI_2Gg2TcH3_YTfj:assignBot::127.0.0.1'
-      if (ip !== process.env.HOST || type !== 'sch') return false;
-      _channel = type; // 'sch'
-      _message = { taskName, channelId, userId };
+      const [sType, iBattleId, sTaskName, iPlayerId, sHostIp] = message.split(':'); // 'sch:fqr6dlI_2Gg2TcH3_YTfj:assignBot::127.0.0.1' // `sch:${iBattleId}:${sTaskName}:${iPlayerId}:${host}`
+      if (sHostIp !== process.env.HOST || sType !== 'sch') return false;
+      _channel = sType; // 'sch'
+      _message = { sTaskName, iBattleId, iPlayerId };
     } else {
       _channel = channel;
       _message = message;
@@ -85,7 +85,7 @@ export default RedisClient;
 */
 
 /*
-    redis-commander --redis-host redis-16750.c275.us-east-1-4.ec2.cloud.redislabs.com --redis-port 16750 --redis-password 1LUOg6WlPX6eK15Shtfa0iLUGsdjkNlc
+    redis-commander --redis-host redis-14637.c301.ap-south-1-1.ec2.cloud.redislabs.com --redis-port 14637 --redis-password kderTDhubKYjmcW1ilCdjly0fFNdxihJ
     export VIEW_JSON_DEFAULT=all && redis-commander
     redis-cli -h redis-16750.c275.us-east-1-4.ec2.cloud.redislabs.com -p 16750 -a 1LUOg6WlPX6eK15Shtfa0iLUGsdjkNlc
 */

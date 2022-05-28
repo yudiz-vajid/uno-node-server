@@ -1,9 +1,13 @@
 {
     "cSpell.words": [
+        "Cdjly",
+        "dxih",
         "epiko",
         "genrand",
         "Gsdjk",
         "Husain",
+        "jmc",
+        "kder",
         "Khokhar",
         "kumar",
         "Makoto",
@@ -37,7 +41,8 @@
         "*.lock": true,
         ".resources": true,
         "node_modules": true,
-        ".prettierrc.json": true
+        ".prettierrc.json": true,
+        "dist": true
     },
     "explorerExclude.backup": null,
     "cSpell.ignoreWords": [],
