@@ -1,107 +1,151 @@
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable class-methods-use-this */
-import Deck from '../../util/lib/deck';
-import { ITable, ISettings, IPlayer, Card } from '../../../types/global';
 import Player from '../player';
+import { ITable, ITableWithPlayer, RedisJSON } from '../../../types/global';
 
 class Service {
-  private iBattleId: string;
+  private readonly iBattleId: ITableWithPlayer['iBattleId'];
 
-  private iPlayerTurn: string;
+  private iPlayerTurn: ITableWithPlayer['iPlayerTurn'];
 
-  private iSkippedPLayer: string;
+  private iSkippedPLayer: ITableWithPlayer['iSkippedPLayer'];
 
-  public aPlayerIds: string[];
+  private aPlayerId: ITableWithPlayer['aPlayerId'];
 
-  private aDrawPile: Card[]; // ICard[];
+  private aDrawPile: ITableWithPlayer['aDrawPile'];
 
-  private bToSkip: boolean;
+  private aDiscardPile: ITableWithPlayer['aDiscardPile'];
 
-  private eState: 'waiting' | 'initialized' | 'running' | 'finished';
+  private bToSkip: ITableWithPlayer['bToSkip'];
 
-  private eTurnDirection: 'clockwise' | 'counter-clockwise';
+  private eState: ITableWithPlayer['eState'];
 
-  private eNextCardColor: '';
+  private eTurnDirection: ITableWithPlayer['eTurnDirection'];
 
-  private nDrawCount: number;
+  private eNextCardColor: ITableWithPlayer['eNextCardColor'];
 
-  private dCreatedDate: Date;
+  private nDrawCount: ITableWithPlayer['nDrawCount'];
 
-  private oSettings: ISettings;
+  private dCreatedAt: ITableWithPlayer['dCreatedAt'];
 
-  public aParticipant: IPlayer[] = [];
+  private readonly oSettings: ITableWithPlayer['oSettings'];
 
-  constructor(oData: ITable) {
+  private aPlayer: Player[];
+
+  constructor(oData: ITable & { aPlayer?: Player[] }) {
     this.iBattleId = oData.iBattleId;
     this.iPlayerTurn = oData.iPlayerTurn;
     this.iSkippedPLayer = oData.iSkippedPLayer;
-    this.aPlayerIds = oData.aPlayerIds;
-    this.aDrawPile = Deck.aDeck;
+    this.aPlayerId = oData.aPlayerId;
+    this.aDrawPile = oData.aDrawPile;
+    this.aDiscardPile = oData.aDiscardPile;
     this.bToSkip = oData.bToSkip;
     this.eState = oData.eState;
     this.eTurnDirection = oData.eTurnDirection;
     this.eNextCardColor = oData.eNextCardColor;
     this.nDrawCount = oData.nDrawCount;
-    this.dCreatedDate = oData.dCreatedDate;
+    this.dCreatedAt = oData.dCreatedAt;
     this.oSettings = oData.oSettings;
+    this.aPlayer = oData.aPlayer ?? [];
   }
 
   public distributeCards() {
-    return Deck.aDeck.slice(0, 7);
+    // return Deck.aDeck.slice(0, 7);
+    log.info(this.aDrawPile);
   }
 
-  public async save() {
-    const sResponse = await redis.client.json.set(_.getTableKey(this.iBattleId), '.', this.toJSON());
-    if (!sResponse) return false;
-    return true;
-  }
-
-  public async emit(sEventName: string, message: string, oData: any) {
+  public async update(
+    oDate: Partial<Pick<ITable, 'iPlayerTurn' | 'iSkippedPLayer' | 'aPlayerId' | 'aDrawPile' | 'bToSkip' | 'eState' | 'eTurnDirection' | 'eNextCardColor' | 'nDrawCount'>>
+  ) {
     try {
-      console.log('emiter for :: ', sEventName);
-      for (const iPlayerId of this.aPlayerIds) {
-        // eslint-disable-next-line no-await-in-loop
-        const playingPlayer = await this.getPlayer(iPlayerId);
-        playingPlayer.emit(sEventName, message, oData);
-      }
+      const aPromise: Array<Promise<unknown>> = [];
+      const sTableKey = _.getTableKey(this.iBattleId);
+      Object.entries(oDate).forEach(([k, v]) => {
+        switch (k) {
+          case 'iPlayerTurn':
+            this.iPlayerTurn = v as ITable['iPlayerTurn'];
+            aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'iSkippedPLayer':
+            this.iSkippedPLayer = v as ITable['iSkippedPLayer'];
+            aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'aPlayerId':
+            // WARNING: should be called only through Table.addPlayer()
+            this.aPlayerId = v as ITable['aPlayerId'];
+            aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'aDrawPile':
+            this.aDrawPile = v as ITable['aDrawPile'];
+            aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'bToSkip':
+            this.bToSkip = v as ITable['bToSkip'];
+            aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'eState':
+            this.eState = v as ITable['eState'];
+            aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'eTurnDirection':
+            this.eTurnDirection = v as ITable['eTurnDirection'];
+            aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'eNextCardColor':
+            this.eNextCardColor = v as ITable['eNextCardColor'];
+            aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'nDrawCount':
+            this.nDrawCount = v as ITable['nDrawCount'];
+            aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
+            break;
+          default:
+            break;
+        }
+      });
+      const aRedisSetResponse = (await Promise.all(aPromise)) as Array<'OK' | null>;
+      if (aRedisSetResponse.some(ok => !ok)) log.error('Table.update: redis.client.json.SET failed for some key');
+
+      return this.toJSON();
     } catch (err: any) {
-      log.error('table.emit() failed !!!', { reason: err.message, stack: err.stack });
+      log.error(`Error Occurred on Table.update(). reason :${err.message}`);
+      log.silly(this.toJSON());
+      return null;
     }
   }
 
   public async getPlayer(iPlayerId: string) {
-    const oPlayerData: any = await redis.client.json.get(_.getPlayerKey(this.iBattleId, iPlayerId));
-    if (!oPlayerData) return log.error('error ! player not exist');
-    return new Player(oPlayerData);
+    return this.aPlayer.find(oParticipant => oParticipant.toJSON().iPlayerId === iPlayerId) ?? null;
   }
 
-  public async addPlayer(iPlayerId: string) {
-    console.log('addPlayer called ...');
-
-    const oPlayerData: any = await redis.client.json.get(_.getPlayerKey(this.iBattleId, iPlayerId));
-    if (!oPlayerData) return null;
-    this.aPlayerIds.push(iPlayerId);
-    await this.save();
-    return this.toJSON();
+  public async addPlayer(oPlayer: Player) {
+    const oUpdateTable = await this.update({ aPlayerId: [...this.aPlayerId, oPlayer.toJSON().iPlayerId] });
+    if (!oUpdateTable) return false;
+    this.aPlayer.push(oPlayer);
+    return true;
   }
 
-  // public async addParticipant() {}
+  public async emit(sEventName: string, oData: Record<string, unknown>) {
+    try {
+      this.aPlayer.forEach(p => p.emit(sEventName, oData));
+    } catch (err: any) {
+      log.error('Table.emit() failed !!!', { reason: err.message });
+    }
+  }
 
-  private toJSON(): any {
+  public toJSON() {
     return {
       iBattleId: this.iBattleId,
       iPlayerTurn: this.iPlayerTurn,
       iSkippedPLayer: this.iSkippedPLayer,
-      aPlayerIds: this.aPlayerIds,
+      aPlayerId: this.aPlayerId,
       aDrawPile: this.aDrawPile,
       bToSkip: this.bToSkip,
       eState: this.eState,
       eTurnDirection: this.eTurnDirection,
       eNextCardColor: this.eNextCardColor,
       nDrawCount: this.nDrawCount,
-      dCreatedDate: this.dCreatedDate,
+      dCreatedAt: this.dCreatedAt,
       oSettings: this.oSettings,
-      aParticipant: this.aParticipant,
+      aPlayer: this.aPlayer, //  WARNING : dont save using toJSON() as it contain non-existed field 'aPlayer'
     };
   }
 }

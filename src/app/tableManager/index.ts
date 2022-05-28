@@ -1,106 +1,104 @@
-/* eslint-disable no-restricted-syntax */
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable class-methods-use-this */
 
-import { IPlayer, ISettings, ITable } from 'global';
+import { IPlayer, ITable, RedisJSON } from '../../types/global';
+import { Deck } from '../util';
 import Player from './player';
 import Table from './table';
 
-// eslint-disable-next-line import/prefer-default-export
 class TableManager {
-  defaultTableSettings: ISettings;
-
-  static defaultTableSettings: ISettings;
-
   constructor() {
-    this.defaultTableSettings = {
-      bMustCollectOnMissTurn: true,
-      nUnoTime: null,
-      nTurnMissLimit: null,
-      nGraceTime: null,
-      nTurnTime: null,
-      nStartGameTime: null,
-      aCardScore: [],
-    };
-    emitter.on('sch', this.onEvents.bind(this));
-    emitter.on('redisEvent', this.onEvents.bind(this));
+    emitter.on('sch', this.onScheduledEvents.bind(this));
+    emitter.on('redisEvent', this.onScheduledEvents.bind(this));
   }
 
-  async onEvents(body: any, callback: () => Promise<void>) {
-    const { taskName, channelId, userId } = body;
+  async onScheduledEvents(body: { sTaskName: string; iBattleId: string; iPlayerId?: string; [key: string]: any }, callback: () => Promise<void>) {
+    const { sTaskName, iBattleId, iPlayerId, ...oData } = body;
     try {
-      if (!taskName) throw new Error('empty taskName');
-      if (!channelId) throw new Error('empty channelId');
-      await this.executeScheduledTask(taskName, channelId, userId, body, callback);
+      if (!sTaskName) throw new Error('empty sTaskName');
+      if (!iBattleId) throw new Error('empty iBattleId');
+      await this.executeScheduledTask(sTaskName, iBattleId, iPlayerId ?? '', oData, callback);
     } catch (error: any) {
-      log.debug(`Error Occurred on onEvents. sTaskName : ${taskName}. reason :${error.message}`);
+      log.debug(`Error Occurred on TableManager.onScheduledEvents(). sTaskName : ${sTaskName}. reason :${error.message}`);
     }
   }
 
-  // prettier-ignore
-  async executeScheduledTask(taskName: string, channelId: string, userId: string, body: any, callback: () => Promise<void>) {
-    log.verbose(`${_.now()} executeScheduledTask ${taskName}`);
+  // eslint-disable-next-line class-methods-use-this
+  async executeScheduledTask(sTaskName: string, iBattleId: string, iPlayerId: string, oData: { [key: string]: any }, callback: () => Promise<void>) {
+    log.verbose(`${_.now()} executeScheduledTask ${sTaskName}`);
     // TODO : add taskName validation and operations
   }
 
-  public static async getTable(iBattleId: string) {
-    console.log('getTable called...');
-    const oTableData: any = await redis.client.json.GET(_.getTableKey(iBattleId));
-    if (!oTableData) return null;
-
-    const aPromise: any[] = []; // To add participant in table
-    console.log('oTableData.aPlayerIds :: ', oTableData);
-    //
-    for (const iPlayerId of oTableData.aPlayerIds) {
-      console.log('iPlayerId :: ', iPlayerId);
-      // eslint-disable-next-line no-await-in-loop
-      console.log(await redis.client.json.get(_.getPlayerKey(iBattleId, iPlayerId)));
-      aPromise.push(redis.client.json.get(_.getPlayerKey(iBattleId, iPlayerId)));
-    }
-    const aParticipant = await Promise.all(aPromise);
-    if (aParticipant.some(predicate => predicate === null)) log.error('error');
-
-    oTableData.aParticipant = aParticipant;
-    return new Table(oTableData);
-  }
-
-  public static async createTable(oData: any) {
-    const tableData: any = {
-      iBattleId: oData.iBattleId,
-      iPlayerTurn: '',
-      iSkippedPLayer: '',
-      aPlayerIds: [],
-      aDrawPile: [],
-      bToSkip: false,
-      eState: 'waiting',
-      eTurnDirection: 'clockwise',
-      eNextCardColor: '',
-      nDrawCount: null,
-      dCreatedDate: new Date(),
-      oSettings: { ...oData.oSettings },
-      aParticipant: [],
-    };
-    const oTableData: any = await redis.client.json.set(_.getTableKey(tableData.iBattleId), '.', tableData);
-    if (!oTableData) return null;
-    return new Table(tableData);
-  }
-
-  public static async createPlayer(oPlayer: any) {
+  public static async createTable(oData: { iBattleId: ITable['iBattleId']; oSettings: ITable['oSettings'] }) {
     try {
-      // console.log('createPlayer called...', oPlayer);
-      const oTableData: any = await redis.client.json.set(_.getPlayerKey(oPlayer.iBattleId, oPlayer.iPlayerId), '.', oPlayer);
-      if (!oTableData) return null;
-      return new Player(oTableData);
+      const oTableWithParticipant: ITable = {
+        iBattleId: oData.iBattleId,
+        iPlayerTurn: '',
+        iSkippedPLayer: '',
+        aPlayerId: [],
+        aDrawPile: new Deck().getDeck(),
+        aDiscardPile: [],
+        bToSkip: false,
+        eState: 'waiting',
+        eTurnDirection: 'clockwise',
+        eNextCardColor: '',
+        nDrawCount: 0,
+        oSettings: oData.oSettings,
+        dCreatedAt: new Date(),
+      };
+      const sRedisSetResponse = await redis.client.json.SET(_.getTableKey(oTableWithParticipant.iBattleId), '.', oTableWithParticipant as unknown as RedisJSON);
+      if (!sRedisSetResponse) return null;
+      return new Table(oTableWithParticipant);
     } catch (err: any) {
-      return undefined;
+      log.error(`Error Occurred on TableManager,createTable(). reason :${err.message}`);
+      log.silly(oData);
+      return null;
+    }
+  }
+
+  public static async createPlayer(oPlayer: IPlayer) {
+    try {
+      const sRedisSetResponse = await redis.client.json.SET(_.getPlayerKey(oPlayer.iBattleId, oPlayer.iPlayerId), '.', oPlayer as unknown as RedisJSON);
+      if (!sRedisSetResponse) return null;
+      return new Player(oPlayer);
+    } catch (err: any) {
+      log.error(`Error Occurred on TableManager.createPlayer(). reason :${err.message}`);
+      log.silly(oPlayer);
+      return null;
+    }
+  }
+
+  public static async getTable(iBattleId: string) {
+    try {
+      const oTableData = (await redis.client.json.GET(_.getTableKey(iBattleId))) as unknown as ITable | null;
+      if (!oTableData) return null;
+
+      const aPromise: Array<Promise<unknown>> = []; // - To add participant in table
+      oTableData.aPlayerId.forEach(iPlayerId => aPromise.push(redis.client.json.GET(_.getPlayerKey(iBattleId, iPlayerId))));
+
+      const aPlayer = (await Promise.all(aPromise)) as unknown as Array<IPlayer | null>;
+      if (aPlayer.some(p => !p)) log.error('error');
+
+      const aPlayerClassified = aPlayer.map(p => (p ? new Player(p) : null));
+
+      return new Table({ ...oTableData, aPlayer: aPlayerClassified.filter(p => p) as unknown as Array<Player> });
+    } catch (err: any) {
+      log.error(`Error Occurred on TableManager.getTable(). reason :${err.message}`);
+      log.silly(`iBattleId : ${iBattleId}`);
+      return null;
     }
   }
 
   public static async getPlayer(iBattleId: string, iPlayerId: string) {
-    const oPlayerData: any = await redis.client.json.get(_.getPlayerKey(iBattleId, iPlayerId));
-    if (!oPlayerData) return null;
-    return new Player(oPlayerData);
+    try {
+      const oPlayerData = (await redis.client.json.GET(_.getPlayerKey(iBattleId, iPlayerId))) as unknown as IPlayer | null;
+      if (!oPlayerData) return null;
+      return new Player(oPlayerData);
+    } catch (err: any) {
+      log.error(`Error Occurred on TableManager.getPlayer(). reason :${err.message}`);
+      log.silly(`iBattleId : ${iBattleId} iPlayerId : ${iPlayerId}`);
+      return null;
+    }
   }
 }
 

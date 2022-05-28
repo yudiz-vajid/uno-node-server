@@ -17,11 +17,11 @@ const oEnv: IEnvs = {
   },
   stag: {
     BASE_URL: `http://${process.env.HOST}:${process.env.PORT}`,
-    REDIS_DB: 'epiko-stag-redis',
-    REDIS_HOST: '',
-    REDIS_PORT: '',
-    REDIS_USERNAME: '',
-    REDIS_PASSWORD: '',
+    REDIS_DB: '0',
+    REDIS_HOST: 'redis-14637.c301.ap-south-1-1.ec2.cloud.redislabs.com',
+    REDIS_PORT: '14637',
+    REDIS_USERNAME: 'default',
+    REDIS_PASSWORD: 'kderTDhubKYjmcW1ilCdjly0fFNdxihJ',
   },
   // prod: {},
 };

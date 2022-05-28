@@ -1,39 +1,35 @@
-/* eslint-disable class-methods-use-this */
-// import Deck from '../../util/lib/deck';
-// eslint-disable-next-line import/no-cycle
-import Player from '.';
-import { Card, IPlayer } from '../../../types/global';
+import { IPlayer, ITable, RedisJSON } from '../../../types/global';
 
 class Service {
-  private iPlayerId: string;
+  private readonly iPlayerId: IPlayer['iPlayerId'];
 
-  private iBattleId: string;
+  private readonly iBattleId: IPlayer['iBattleId'];
 
-  private sPlayerName: string;
+  private readonly sPlayerName: IPlayer['sPlayerName'];
 
-  private sSocketId: string;
+  private sSocketId: IPlayer['sSocketId'];
 
-  private nSeat: number;
+  private readonly nSeat: IPlayer['nSeat'];
 
-  private nScore: number;
+  private nScore: IPlayer['nScore'];
 
-  private nUnoTime: number;
+  private nUnoTime: IPlayer['nUnoTime'];
 
-  private nGraceTime: number;
+  private nGraceTime: IPlayer['nGraceTime'];
 
-  private nMissedTurn: number;
+  private nMissedTurn: IPlayer['nMissedTurn'];
 
-  private nDrawNormal: number;
+  private nDrawNormal: IPlayer['nDrawNormal'];
 
-  private nReconnectionAttempt: number;
+  private nReconnectionAttempt: IPlayer['nReconnectionAttempt'];
 
-  private bSpecialMeterFull: boolean;
+  private bSpecialMeterFull: IPlayer['bSpecialMeterFull'];
 
-  private aHand: Card[];
+  private aHand: IPlayer['aHand'];
 
-  private eState: 'waiting' | 'disconnected' | 'playing' | 'left';
+  private eState: IPlayer['eState'];
 
-  private dCreatedAt: Date;
+  private readonly dCreatedAt: IPlayer['dCreatedAt'];
 
   constructor(oData: IPlayer) {
     this.iPlayerId = oData.iPlayerId;
@@ -53,25 +49,84 @@ class Service {
     this.dCreatedAt = oData.dCreatedAt;
   }
 
-  public async save() {
-    const sResponse = await redis.client.json.set(_.getPlayerKey(this.iBattleId, this.iPlayerId), '.', this.toJSON());
-    if (!sResponse) return false;
+  // prettier-ignore
+  public async update(oDate: Partial<Pick<IPlayer, 'sSocketId' | 'nScore' | 'nUnoTime' | 'nGraceTime' | 'nMissedTurn' | 'nDrawNormal' | 'nReconnectionAttempt' | 'bSpecialMeterFull' | 'aHand' | 'eState'>>) {
+    try {
+      const aPromise: Array<Promise<unknown>> = [];
+      const sPlayerKey = _.getPlayerKey(this.iBattleId, this.iPlayerId);
+      Object.entries(oDate).forEach(([k, v]) => {
+        switch (k) {
+          case 'sSocketId':
+            this.sSocketId = v as IPlayer['sSocketId'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'nScore':
+            this.nScore = v as IPlayer['nScore'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'nUnoTime':
+            this.nUnoTime = v as IPlayer['nUnoTime'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'nGraceTime':
+            this.nGraceTime = v as IPlayer['nGraceTime'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'nMissedTurn':
+            this.nMissedTurn = v as IPlayer['nMissedTurn'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'nDrawNormal':
+            this.nDrawNormal = v as IPlayer['nDrawNormal'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'nReconnectionAttempt':
+            this.nReconnectionAttempt = v as IPlayer['nReconnectionAttempt'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'bSpecialMeterFull':
+            this.bSpecialMeterFull = v as IPlayer['bSpecialMeterFull'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'aHand':
+            this.aHand = v as IPlayer['aHand'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'eState':
+            this.eState = v as IPlayer['eState'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
+          default:
+            break;
+        }
+      });
+      const aRedisSetResponse = (await Promise.all(aPromise)) as Array<'OK' | null>;
+      if (aRedisSetResponse.some(ok => !ok)) log.error('Player.update() failed. reason: redis.client.json.SET failed for some key');
+
+      return this.toJSON();
+    } catch (err: any) {
+      log.error(`Error Occurred on Player.update(). reason :${err.message}`);
+      log.silly(this.toJSON());
+      return null;
+    }
+  }
+
+  // TODO: reconnection
+  public async reconnect(sSocketId: string, eTableState: ITable['eState']) {
+    const stateMapper = { waiting: 'waiting', initialized: 'waiting', running: 'playing', finished: 'left' };
+    await this.update({ sSocketId, eState: stateMapper[eTableState] as IPlayer['eState'] });
+    log.debug(`${_.now()} client: ${this.iPlayerId} reconnected to table : ${this.iBattleId} with socketId : ${sSocketId}`);
     return true;
   }
 
-  public async get() {
-    const oPlayerData: any = await redis.client.json.get(_.getPlayerKey(this.iBattleId, this.iPlayerId));
-    if (!oPlayerData) return null;
-    return new Player(oPlayerData);
-  }
-
-  async emit(sEventName: string, message: string, oData: any = {}) {
+  public async emit(sEventName: string, oData: Record<string, unknown> = {}) {
     if (!sEventName) return false;
-    if (this.sSocketId) return global.io.to(this.sSocketId).emit(this.iBattleId, message, _.stringify({ sTaskName: sEventName, other: oData })); // cb not supported while broadcasting
+    if (this.sSocketId) global.io.to(this.sSocketId).emit(this.iBattleId, { sTaskName: sEventName, ...oData }); // cb not supported while broadcasting
+    if (process.env.NODE_ENV !== 'prod') global.io.to(this.sSocketId).emit('postman', { sTaskName: sEventName, ...oData });
     return true;
   }
 
-  private toJSON(): any {
+  public toJSON() {
     return {
       iPlayerId: this.iPlayerId,
       iBattleId: this.iBattleId,
