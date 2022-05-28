@@ -8,13 +8,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PlayerSocket = void 0;
+const channel_1 = __importDefault(require("./channel"));
+const tableManager_1 = __importDefault(require("../../tableManager"));
+const util_1 = require("../../util");
 class PlayerSocket {
     constructor(socket) {
         this.socket = socket;
         this.iPlayerId = socket.data.iPlayerId;
         this.iBattleId = socket.data.iBattleId;
+        this.sPlayerName = socket.data.sPlayerName;
         this.sAuthToken = socket.data.sAuthToken;
         this.oSetting = socket.data.oSettings;
         this.socket.data = {};
@@ -25,7 +31,58 @@ class PlayerSocket {
         this.socket.on('reqPing', this.reqPing.bind(this));
         this.socket.on('error', this.errorHandler.bind(this));
         this.socket.on('disconnect', this.disconnect.bind(this));
-        this.socket.on('joinTable', () => { });
+        this.socket.on('reqJoinTable', this.joinTable.bind(this));
+    }
+    joinTable(body, _ack) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (typeof _ack !== 'function')
+                return false;
+            try {
+                let table = yield tableManager_1.default.getTable(this.iBattleId);
+                if (!table)
+                    table = yield tableManager_1.default.createTable({ iBattleId: this.iBattleId, oSettings: this.oSetting });
+                if (!table)
+                    throw new Error('Table not created');
+                let player = yield table.getPlayer(this.iPlayerId);
+                if (!player) {
+                    player = yield tableManager_1.default.createPlayer({
+                        iPlayerId: this.iPlayerId,
+                        iBattleId: this.iBattleId,
+                        sPlayerName: this.sPlayerName,
+                        sSocketId: this.socket.id,
+                        nSeat: table.toJSON().aPlayer.length,
+                        nScore: 0,
+                        nUnoTime: table.toJSON().oSettings.nUnoTime,
+                        nGraceTime: table.toJSON().oSettings.nGraceTime,
+                        nMissedTurn: 0,
+                        nDrawNormal: 0,
+                        nReconnectionAttempt: 0,
+                        bSpecialMeterFull: false,
+                        aHand: [],
+                        eState: 'waiting',
+                        dCreatedAt: new Date(),
+                    });
+                    if (!player)
+                        throw new Error('Player not created');
+                    if (!(yield table.addPlayer(player)))
+                        throw new Error('Player not added to table');
+                }
+                else
+                    yield player.reconnect(this.socket.id, table.toJSON().eState);
+                if (!this.socket.eventNames().includes(this.iBattleId)) {
+                    const channel = new channel_1.default(this.iBattleId, this.iPlayerId);
+                    this.socket.on(this.iBattleId, channel.onEvent.bind(channel));
+                }
+                _ack({ iPlayerId: this.iPlayerId, iBattleId: this.iBattleId, nSeat: player.toJSON().nSeat, success: util_1.response.SUCCESS });
+                table.emit('playerJoined', { iPlayerId: this.iPlayerId, nSeat: player.toJSON().nSeat });
+                return true;
+            }
+            catch (err) {
+                _ack({ success: util_1.response.SUCCESS });
+                log.error(`${_.now()} client: '${this.iPlayerId}' joinTable event failed. reason: ${err.message}`);
+                return false;
+            }
+        });
     }
     reqPing(body, _ack) {
         if (typeof _ack === 'function')
@@ -38,6 +95,12 @@ class PlayerSocket {
             try {
                 if (reason === 'server namespace disconnect')
                     return;
+                const table = yield tableManager_1.default.getTable(this.iBattleId);
+                const player = yield (table === null || table === void 0 ? void 0 : table.getPlayer(this.iPlayerId));
+                if (!player)
+                    return;
+                yield player.update({ eState: 'disconnected' });
+                table === null || table === void 0 ? void 0 : table.emit('playerDisconnected', { iPlayerId: this.iPlayerId });
             }
             catch (err) {
                 log.debug(`${_.now()} client: '${this.iPlayerId}' disconnect event failed. reason: ${err.message}`);
@@ -45,7 +108,7 @@ class PlayerSocket {
         });
     }
     errorHandler(err) {
-        log.error(`${_.now()} socket error: ${err.message}`);
+        log.error(`${_.now()} socket error. iPlayerId: ${this.iPlayerId}, iBattleId: ${this.iBattleId}. reason: ${err.message}`);
     }
     toJSON() {
         return {
@@ -57,4 +120,4 @@ class PlayerSocket {
         };
     }
 }
-exports.PlayerSocket = PlayerSocket;
+exports.default = PlayerSocket;

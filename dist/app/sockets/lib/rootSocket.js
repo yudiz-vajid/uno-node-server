@@ -8,8 +8,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const playerSocket_1 = require("./playerSocket");
+const playerSocket_1 = __importDefault(require("./playerSocket"));
 const validator_1 = require("../../validator");
 class RootSocket {
     initialize() {
@@ -19,7 +22,7 @@ class RootSocket {
     }
     setEventListeners() {
         global.io.use((socket, next) => this.authenticate(socket, next));
-        global.io.on('connection', (socket) => new playerSocket_1.PlayerSocket(socket));
+        global.io.on('connection', (socket) => new playerSocket_1.default(socket));
         global.io.on('error', (err) => log.error(err));
     }
     authenticate(socket, next) {
@@ -36,13 +39,14 @@ class RootSocket {
                 const { error: settingsError, info: settingsInfo, value: settingsValue } = yield (0, validator_1.verifySettings)(socket.handshake.query);
                 if (settingsError || !settingsValue)
                     throw new Error(settingsInfo);
-                const { iBattleId, iPlayerId, sAuthToken } = authValue;
+                const { iBattleId, iPlayerId, sPlayerName, sAuthToken } = authValue;
                 const { bMustCollectOnMissTurn, nUnoTime, nTurnMissLimit, nGraceTime, nTurnTime, nStartGameTime } = settingsValue;
                 const bIsValid = true;
                 if (!bIsValid)
                     throw new Error('player validation failed');
                 socket.data.iPlayerId = iPlayerId;
                 socket.data.iBattleId = iBattleId;
+                socket.data.sPlayerName = sPlayerName;
                 socket.data.sAuthToken = sAuthToken;
                 const aCardScore = [];
                 socket.data.oSettings = { bMustCollectOnMissTurn, nUnoTime, nTurnMissLimit, nGraceTime, nTurnTime, nStartGameTime, aCardScore };
