@@ -53,7 +53,9 @@ class Service {
   }
 
   public async update(
-    oDate: Partial<Pick<ITable, 'iPlayerTurn' | 'iSkippedPLayer' | 'aPlayerId' | 'aDrawPile' | 'bToSkip' | 'eState' | 'eTurnDirection' | 'eNextCardColor' | 'nDrawCount'>>
+    oDate: Partial<
+      Pick<ITable, 'iPlayerTurn' | 'iSkippedPLayer' | 'aPlayerId' | 'aDrawPile' | 'aDiscardPile' | 'bToSkip' | 'eState' | 'eTurnDirection' | 'eNextCardColor' | 'nDrawCount'>
+    >
   ) {
     try {
       const aPromise: Array<Promise<unknown>> = [];

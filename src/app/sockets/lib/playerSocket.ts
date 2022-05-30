@@ -28,14 +28,13 @@ class PlayerSocket {
     this.socket.data = {}; // - clean up socket payload
     this.setEventListeners(); // - register listeners
     log.debug(`${_.now()} client: ${this.iPlayerId} connected with socketId : ${this.socket.id}`);
-    this.joinTable();
   }
 
   private setEventListeners() {
     this.socket.on('reqPing', this.reqPing.bind(this));
     this.socket.on('error', this.errorHandler.bind(this));
     this.socket.on('disconnect', this.disconnect.bind(this));
-    this.socket.on('reqJoinTable', this.joinTable.bind(this));
+    this.joinTable();
   }
 
   /**
