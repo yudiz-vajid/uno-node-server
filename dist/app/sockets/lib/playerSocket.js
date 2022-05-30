@@ -14,7 +14,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const channel_1 = __importDefault(require("./channel"));
 const tableManager_1 = __importDefault(require("../../tableManager"));
-const util_1 = require("../../util");
 class PlayerSocket {
     constructor(socket) {
         this.socket = socket;
@@ -31,12 +30,10 @@ class PlayerSocket {
         this.socket.on('reqPing', this.reqPing.bind(this));
         this.socket.on('error', this.errorHandler.bind(this));
         this.socket.on('disconnect', this.disconnect.bind(this));
-        this.socket.on('reqJoinTable', this.joinTable.bind(this));
+        this.joinTable();
     }
-    joinTable(body, _ack) {
+    joinTable() {
         return __awaiter(this, void 0, void 0, function* () {
-            if (typeof _ack !== 'function')
-                return false;
             try {
                 let table = yield tableManager_1.default.getTable(this.iBattleId);
                 if (!table)
@@ -73,12 +70,10 @@ class PlayerSocket {
                     const channel = new channel_1.default(this.iBattleId, this.iPlayerId);
                     this.socket.on(this.iBattleId, channel.onEvent.bind(channel));
                 }
-                _ack({ iPlayerId: this.iPlayerId, iBattleId: this.iBattleId, nSeat: player.toJSON().nSeat, success: util_1.response.SUCCESS });
                 table.emit('playerJoined', { iPlayerId: this.iPlayerId, nSeat: player.toJSON().nSeat });
                 return true;
             }
             catch (err) {
-                _ack({ success: util_1.response.SUCCESS });
                 log.error(`${_.now()} client: '${this.iPlayerId}' joinTable event failed. reason: ${err.message}`);
                 return false;
             }

@@ -53,6 +53,10 @@ class Service {
                             this.aDrawPile = v;
                             aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v));
                             break;
+                        case 'aDiscardPile':
+                            this.aDiscardPile = v;
+                            aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v));
+                            break;
                         case 'bToSkip':
                             this.bToSkip = v;
                             aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v));
