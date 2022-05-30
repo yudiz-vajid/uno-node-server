@@ -50,11 +50,11 @@ class RedisClient {
             let _channel;
             let _message;
             if (channel === '__keyevent@0__:expired') {
-                const [type, channelId, taskName, userId, ip] = message.split(':');
-                if (ip !== process.env.HOST || type !== 'sch')
+                const [sType, iBattleId, sTaskName, iPlayerId, sHostIp] = message.split(':');
+                if (sHostIp !== process.env.HOST || sType !== 'sch')
                     return false;
-                _channel = type;
-                _message = { taskName, channelId, userId };
+                _channel = sType;
+                _message = { sTaskName, iBattleId, iPlayerId };
             }
             else {
                 _channel = channel;

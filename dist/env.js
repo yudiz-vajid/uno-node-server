@@ -1,25 +1,25 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 process.env.NODE_ENV = 'dev';
-process.env.PORT = '3004';
+process.env.PORT = '3010';
 process.env.HOST = '127.0.0.1';
 process.env.DB_PASSWORD = '';
 const oEnv = {
     dev: {
         BASE_URL: `http://${process.env.HOST}:${process.env.PORT}`,
         REDIS_DB: '0',
-        REDIS_HOST: '127.0.0.1',
-        REDIS_PORT: '6379',
-        REDIS_USERNAME: '',
-        REDIS_PASSWORD: '',
+        REDIS_HOST: 'redis-14637.c301.ap-south-1-1.ec2.cloud.redislabs.com',
+        REDIS_PORT: '14637',
+        REDIS_USERNAME: 'default',
+        REDIS_PASSWORD: 'kderTDhubKYjmcW1ilCdjly0fFNdxihJ',
     },
     stag: {
         BASE_URL: `http://${process.env.HOST}:${process.env.PORT}`,
-        REDIS_DB: 'epiko-stag-redis',
-        REDIS_HOST: '',
-        REDIS_PORT: '',
-        REDIS_USERNAME: '',
-        REDIS_PASSWORD: '',
+        REDIS_DB: '0',
+        REDIS_HOST: 'redis-14637.c301.ap-south-1-1.ec2.cloud.redislabs.com',
+        REDIS_PORT: '14637',
+        REDIS_USERNAME: 'default',
+        REDIS_PASSWORD: 'kderTDhubKYjmcW1ilCdjly0fFNdxihJ',
     },
 };
 const winstonLogLevel = 'silly';

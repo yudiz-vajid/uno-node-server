@@ -182,9 +182,9 @@ const helper = {
         };
     },
     delay: (ttl) => new Promise(resolve => setTimeout(resolve, ttl)),
-    getUserKey: (iPlayerId) => `usr:${iPlayerId}`,
-    getRoomKey: (iChannelId) => `rms:${iChannelId}`,
-    getSchedulerKey: (sTaskName, iChannelId = '', iPlayerId = '', host = process.env.HOST) => `sch:${iChannelId}:${sTaskName}:${iPlayerId}:${host}`,
+    getPlayerKey: (iBattleId, iPlayerId) => `t:${iBattleId}:p:${iPlayerId}`,
+    getTableKey: (iBattleId) => `t:${iBattleId}`,
+    getSchedulerKey: (sTaskName, iBattleId = '', iPlayerId = '', host = process.env.HOST) => `sch:${iBattleId}:${sTaskName}:${iPlayerId}:${host}`,
     genAckCB: () => {
         return (msg) => {
             log.debug(`client:ack -> ${msg}`);

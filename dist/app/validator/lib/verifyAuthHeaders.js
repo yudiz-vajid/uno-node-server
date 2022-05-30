@@ -24,6 +24,7 @@ const options = {
 };
 const Schema = joi_1.default.object().keys({
     i_player_id: joi_1.default.string().min(1).max(500).required(),
+    s_player_name: joi_1.default.string().min(1).max(500).optional().default(''),
     s_auth_token: joi_1.default.string().min(1).max(500).required(),
     i_battle_id: joi_1.default.string().min(1).max(500).required(),
 });
@@ -32,7 +33,7 @@ function isValidRequest(data) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const _result = yield Schema.validateAsync(data, options);
-            const result = { iPlayerId: _result.i_player_id, sAuthToken: _result.s_auth_token, iBattleId: _result.i_battle_id };
+            const result = { iPlayerId: _result.i_player_id, sPlayerName: _result.s_player_name, sAuthToken: _result.s_auth_token, iBattleId: _result.i_battle_id };
             return { error: false, info: '', value: result };
         }
         catch (err) {

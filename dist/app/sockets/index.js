@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const socket_io_1 = require("socket.io");
 const rootSocket_1 = __importDefault(require("./lib/rootSocket"));
-const socketManager_1 = __importDefault(require("../socketManager"));
+const tableManager_1 = __importDefault(require("../tableManager"));
 class SocketIO {
     constructor() {
         this.options = {
@@ -43,7 +43,7 @@ class SocketIO {
             io.adapter(redis.getAdapter());
             global.io = io;
             yield rootSocket_1.default.initialize();
-            new socketManager_1.default();
+            new tableManager_1.default();
             log.info('Socket.io initialized 🔌');
         });
     }

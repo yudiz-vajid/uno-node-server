@@ -3,7 +3,6 @@ import type { Socket } from 'socket.io';
 import Channel from './channel';
 import { ISettings } from '../../../types/global';
 import TableManager from '../../tableManager';
-import { response } from '../../util';
 
 class PlayerSocket {
   private socket: Socket;
@@ -29,6 +28,7 @@ class PlayerSocket {
     this.socket.data = {}; // - clean up socket payload
     this.setEventListeners(); // - register listeners
     log.debug(`${_.now()} client: ${this.iPlayerId} connected with socketId : ${this.socket.id}`);
+    this.joinTable();
   }
 
   private setEventListeners() {
@@ -42,8 +42,7 @@ class PlayerSocket {
    * if player is already in the battle, fetch player and table data, and reconnect them to the same battle
    * if player is not in a battle, create new player, table, and set startGameScheduled time
    */
-  private async joinTable(body: Record<string, never>, _ack?: (data: unknown) => void) {
-    if (typeof _ack !== 'function') return false;
+  private async joinTable() {
     try {
       let table = await TableManager.getTable(this.iBattleId);
       if (!table) table = await TableManager.createTable({ iBattleId: this.iBattleId, oSettings: this.oSetting });
@@ -77,13 +76,10 @@ class PlayerSocket {
         this.socket.on(this.iBattleId, channel.onEvent.bind(channel));
       } // - add channel listeners and handle duplicate listeners(mainly while reconnection)
 
-      _ack({ iPlayerId: this.iPlayerId, iBattleId: this.iBattleId, nSeat: player.toJSON().nSeat, success: response.SUCCESS });
-      // this.socket.emit('resJoinTable', 'success', _.stringify({ iBattleId: this.iBattleId }), _.genAckCB());
       table.emit('playerJoined', { iPlayerId: this.iPlayerId, nSeat: player.toJSON().nSeat });
 
       return true;
     } catch (err: any) {
-      _ack({ success: response.SUCCESS });
       log.error(`${_.now()} client: '${this.iPlayerId}' joinTable event failed. reason: ${err.message}`);
       return false;
     }
