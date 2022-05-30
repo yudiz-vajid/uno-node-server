@@ -1,6 +1,10 @@
 import { IEnvs } from './types/global';
 
+<<<<<<< HEAD
 process.env.NODE_ENV = 'stag';
+=======
+process.env.NODE_ENV = 'dev';
+>>>>>>> dev
 process.env.PORT = '3010';
 process.env.HOST = '127.0.0.1';
 
