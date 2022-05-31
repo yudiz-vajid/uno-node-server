@@ -122,10 +122,31 @@ class Service {
     return this.aPlayer.find(oParticipant => oParticipant.toJSON().iPlayerId === iPlayerId) ?? null;
   }
 
+  public async initializeGame() {
+    console.log('initializeGame called ...');
+    // this.initializeGameTimer();
+  }
+
+  
   public async addPlayer(oPlayer: Player) {
-    const oUpdateTable = await this.update({ aPlayerId: [...this.aPlayerId, oPlayer.toJSON().iPlayerId] });
+    const tablePlayer=[...this.aPlayerId, oPlayer.toJSON().iPlayerId]
+    
+    const ePreviousState = this.eState;
+    const bInitializeTable = tablePlayer.length === this.oSettings.nTotalPlayerCount && this.eState === 'waiting';
+    console.log();
+    
+    this.eState = bInitializeTable ? 'initialized' : this.eState;
+    
+    const oUpdateTable = await this.update({ aPlayerId: tablePlayer });
     if (!oUpdateTable) return false;
     this.aPlayer.push(oPlayer);
+
+    if (ePreviousState === 'waiting' && this.eState === 'initialized') {
+      // this.deleteScheduler('refundOnLongWait'); // TODO :- Add refunc process
+      // this.initializeGame();
+      console.log('Need to start the game....');      
+    }
+
     return true;
   }
 

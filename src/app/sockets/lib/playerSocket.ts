@@ -32,9 +32,10 @@ class PlayerSocket {
 
   private setEventListeners() {
     this.socket.on('reqPing', this.reqPing.bind(this));
+    this.socket.on('reqTableJoin', this.joinTable.bind(this));
     this.socket.on('error', this.errorHandler.bind(this));
     this.socket.on('disconnect', this.disconnect.bind(this));
-    this.joinTable();
+    // this.joinTable();
   }
 
   /**
@@ -81,7 +82,10 @@ class PlayerSocket {
           let p=player.toJSON()
           aParticipant.push({iPlayerId:p.iPlayerId,nSeat:p.nSeat,nCardCount:p.aHand.length})
       }
-      if(table.toJSON().aPlayerId.length===(this.oSetting.nTotalPlayerCount ?? 2))table.emit('resTableState', { table:rest,aPlayer:aParticipant });
+      if(table.toJSON().aPlayerId.length===(this.oSetting.nTotalPlayerCount ?? 2)){
+        
+        table.emit('resTableState', { table:rest,aPlayer:aParticipant });
+      }
       return true;
     } catch (err: any) {
       log.error(`${_.now()} client: '${this.iPlayerId}' joinTable event failed. reason: ${err.message}`);

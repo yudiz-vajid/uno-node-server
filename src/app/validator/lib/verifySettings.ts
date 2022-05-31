@@ -12,11 +12,11 @@ const options = {
 
 const Schema = Joi.object().keys({
   bMustCollectOnMissTurn: Joi.boolean().required(),
-  nUnoTime: Joi.number().required(),
-  nTurnMissLimit: Joi.number().required(),
-  nGraceTime: Joi.number().required(),
-  nTurnTime: Joi.number().required(),
-  nStartGameTime: Joi.number().required(),
+  // nUnoTime: Joi.number().required(),
+  // nTurnMissLimit: Joi.number().required(),
+  // nGraceTime: Joi.number().required(),
+  // nTurnTime: Joi.number().required(),
+  // nStartGameTime: Joi.number().required(),
 });
 
 async function isValidRequest(data: any) {
