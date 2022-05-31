@@ -8,6 +8,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -33,6 +44,7 @@ class PlayerSocket {
         this.joinTable();
     }
     joinTable() {
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 let table = yield tableManager_1.default.getTable(this.iBattleId);
@@ -70,7 +82,14 @@ class PlayerSocket {
                     const channel = new channel_1.default(this.iBattleId, this.iPlayerId);
                     this.socket.on(this.iBattleId, channel.onEvent.bind(channel));
                 }
-                table.emit('playerJoined', { iPlayerId: this.iPlayerId, nSeat: player.toJSON().nSeat });
+                const _b = table.toJSON(), { aDrawPile, aPlayer, aPlayerId } = _b, rest = __rest(_b, ["aDrawPile", "aPlayer", "aPlayerId"]);
+                let aParticipant = [];
+                for (let player of table.toJSON().aPlayer) {
+                    let p = player.toJSON();
+                    aParticipant.push({ iPlayerId: p.iPlayerId, nSeat: p.nSeat, nCardCount: p.aHand.length });
+                }
+                if (table.toJSON().aPlayerId.length === ((_a = this.oSetting.nTotalPlayerCount) !== null && _a !== void 0 ? _a : 2))
+                    table.emit('resTableState', { table: rest, aPlayer: aParticipant });
                 return true;
             }
             catch (err) {

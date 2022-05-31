@@ -183,12 +183,22 @@ const helper = {
     },
     delay: (ttl) => new Promise(resolve => setTimeout(resolve, ttl)),
     getPlayerKey: (iBattleId, iPlayerId) => `t:${iBattleId}:p:${iPlayerId}`,
+    getPlayerCountKey: (iBattleId) => `t:${iBattleId}:playerCount`,
     getTableKey: (iBattleId) => `t:${iBattleId}`,
     getSchedulerKey: (sTaskName, iBattleId = '', iPlayerId = '', host = process.env.HOST) => `sch:${iBattleId}:${sTaskName}:${iPlayerId}:${host}`,
     genAckCB: () => {
         return (msg) => {
             log.debug(`client:ack -> ${msg}`);
         };
+    },
+    omit: (obj, array, deepCloning = false) => {
+        const clonedObject = deepCloning ? helper.deepClone(obj) : helper.clone(obj);
+        const objectKeys = Object.keys(clonedObject);
+        return objectKeys.reduce((acc, elem) => {
+            if (!array.includes(elem))
+                acc[elem] = clonedObject[elem];
+            return acc;
+        }, {});
     },
     getRandomWithProbability: (results, weights) => {
         let s = 0;
