@@ -17,19 +17,30 @@ export declare interface ICard {
   nScore: number;
 
   // CONFIRM: below fields are required ?
-  bSkipCard?: boolean; // play on same color or label
-  bReverseCard?: boolean; // play on same color or label
-  bDrawTwoCard?: boolean; // play on same color or label
-  bDrawFourCard?: boolean; // only for black(wild) card
+  // bSkipCard?: boolean; // play on same color or label
+  // bReverseCard?: boolean; // play on same color or label
+  // bDrawTwoCard?: boolean; // play on same color or label
+  // bDrawFourCard?: boolean; // only for black(wild) card
 }
 
 declare interface ISettings {
   bMustCollectOnMissTurn: boolean;
-  nUnoTime: number;
-  nTurnMissLimit: number;
+  bSkipTurnOnDrawTwoOrFourCard: boolean;
+  bStackingDrawCards:boolean;
+  bVisualEffectOnUnoButton:boolean;
+
+  nTotalGameTime:number; // ms : game lifetime
+  nTurnTime: number; // ms : 
   nGraceTime: number; // ms
-  nTurnTime: number; // ms
-  nStartGameTime: number; // ms
+  nStartingNormalCardCount:number;
+  nStartingSpecialCardCount:number;
+  nStartingActionCardCount:number;
+  nTotalPlayerCount:number,
+  nUnoTime: number;
+  nSpecialMeterFillCount:number;
+  nGameInitializeTime:number;
+  nTotalSkipTurnCount: number;
+  
   aCardScore: Array<number>;
 }
 

@@ -21,7 +21,8 @@ const Schema = Joi.object().keys({
 
 async function isValidRequest(data: any) {
   try {
-    const result: Omit<ISettings, 'aCardScore'> = await Schema.validateAsync(data, options);
+    // const result: Omit<ISettings, 'aCardScore'> = await Schema.validateAsync(data, options);
+    const result: ISettings = await Schema.validateAsync(data, options);
     return { error: false, info: '', value: result };
   } catch (err: any) {
     return { error: true, info: err.details[0]?.message };
