@@ -24,11 +24,6 @@ const options = {
 };
 const Schema = joi_1.default.object().keys({
     bMustCollectOnMissTurn: joi_1.default.boolean().required(),
-    nUnoTime: joi_1.default.number().required(),
-    nTurnMissLimit: joi_1.default.number().required(),
-    nGraceTime: joi_1.default.number().required(),
-    nTurnTime: joi_1.default.number().required(),
-    nStartGameTime: joi_1.default.number().required(),
 });
 function isValidRequest(data) {
     var _a;

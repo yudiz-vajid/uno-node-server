@@ -99,12 +99,25 @@ class Service {
             return (_a = this.aPlayer.find(oParticipant => oParticipant.toJSON().iPlayerId === iPlayerId)) !== null && _a !== void 0 ? _a : null;
         });
     }
+    initializeGame() {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('initializeGame called ...');
+        });
+    }
     addPlayer(oPlayer) {
         return __awaiter(this, void 0, void 0, function* () {
-            const oUpdateTable = yield this.update({ aPlayerId: [...this.aPlayerId, oPlayer.toJSON().iPlayerId] });
+            const tablePlayer = [...this.aPlayerId, oPlayer.toJSON().iPlayerId];
+            const ePreviousState = this.eState;
+            const bInitializeTable = tablePlayer.length === this.oSettings.nTotalPlayerCount && this.eState === 'waiting';
+            console.log();
+            this.eState = bInitializeTable ? 'initialized' : this.eState;
+            const oUpdateTable = yield this.update({ aPlayerId: tablePlayer });
             if (!oUpdateTable)
                 return false;
             this.aPlayer.push(oPlayer);
+            if (ePreviousState === 'waiting' && this.eState === 'initialized') {
+                console.log('Need to start the game....');
+            }
             return true;
         });
     }
