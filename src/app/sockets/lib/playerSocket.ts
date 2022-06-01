@@ -90,7 +90,7 @@ class PlayerSocket {
 
       _ack({ iBattleId: this.iBattleId, iPlayerId: this.iPlayerId, success: response.SUCCESS });
       table.emit('resTableJoin', { iBattleId: this.iBattleId, iPlayerId: this.iPlayerId });
-      if (table.toJSON().aPlayerId.length === (this.oSetting.nTotalPlayerCount ?? 2)) {
+      if (table.toJSON().aPlayerId.length == (this.oSetting.nTotalPlayerCount ?? 2)) {
         table.emit('resTableState', { table: rest, aPlayer: aParticipant });
       }
       return true;
