@@ -27,7 +27,7 @@ class TableManager {
   // eslint-disable-next-line class-methods-use-this
   async executeScheduledTask(sTaskName: string, iBattleId: string, iPlayerId: string, oData: { [key: string]: any }, callback: () => Promise<void>) {
     log.verbose(`${_.now()} executeScheduledTask ${sTaskName}`);
-    if (sTaskName) return false;
+    if (!sTaskName) return false;
     const oTable = await TableManager.getTable(iBattleId);
     if (!oTable) return false;
     switch (sTaskName) {

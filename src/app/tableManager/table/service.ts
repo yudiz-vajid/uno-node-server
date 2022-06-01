@@ -142,7 +142,7 @@ class Service {
       }
       clearInterval(initialTimer);
       // emitter.emit('reqSchedule', 'distributeCard', this.iBattleId);
-      this.setSchedular('distributeCard');
+      this.setSchedular('distributeCard','',5);
     }, 1000);
   }
 
@@ -170,7 +170,7 @@ class Service {
     return true;
   }
 
-  public async distributeCard(oTable: Table) {
+  public async distributeCard(oTable: Table) {  
     if (this.aDrawPile.length <= this.aPlayer.length * 7) return this.emit('resOfError', messages.getString('rummy_not_enough_cards'));
     this.aPlayer.forEach(player => player.setHand(oTable));
     return true;
