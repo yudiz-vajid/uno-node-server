@@ -32,8 +32,8 @@ class RootSocket {
       if (settingsError || !settingsValue) throw new Error(settingsInfo);
 
       const { iBattleId, iPlayerId, sPlayerName, sAuthToken } = authValue;
-      // const { bMustCollectOnMissTurn, nUnoTime, nTurnMissLimit, nGraceTime, nTurnTime, nStartGameTime } = settingsValue;
-      const { 
+
+      const {
         bMustCollectOnMissTurn,
         bSkipTurnOnDrawTwoOrFourCard,
         bStackingDrawCards,
@@ -49,7 +49,7 @@ class RootSocket {
         nSpecialMeterFillCount,
         nGameInitializeTime,
         nTotalSkipTurnCount,
-        aCardScore
+        aCardScore,
       } = settingsValue;
 
       // TODO : validate playerId, battleId, authToken via grpc service
@@ -63,7 +63,7 @@ class RootSocket {
 
       // TODO : fetch table settings from grpc service
       // const aCardScore: any[] = []; // TODO : until grpc is sorted create dummy score
-      socket.data.oSettings = { 
+      socket.data.oSettings = {
         bMustCollectOnMissTurn,
         bSkipTurnOnDrawTwoOrFourCard,
         bStackingDrawCards,
@@ -79,7 +79,8 @@ class RootSocket {
         nSpecialMeterFillCount,
         nGameInitializeTime,
         nTotalSkipTurnCount,
-        aCardScore }; // TODO: remove when fetched via grpc
+        aCardScore,
+      }; // TODO: remove when fetched via grpc
       next();
       return true;
     } catch (err: any) {

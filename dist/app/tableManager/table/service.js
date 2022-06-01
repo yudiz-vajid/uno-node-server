@@ -106,17 +106,16 @@ class Service {
     }
     addPlayer(oPlayer) {
         return __awaiter(this, void 0, void 0, function* () {
-            const tablePlayer = [...this.aPlayerId, oPlayer.toJSON().iPlayerId];
+            const tablePlayerId = [...this.aPlayerId, oPlayer.toJSON().iPlayerId];
             const ePreviousState = this.eState;
-            const bInitializeTable = tablePlayer.length === this.oSettings.nTotalPlayerCount && this.eState === 'waiting';
-            console.log();
+            const bInitializeTable = tablePlayerId.length === this.oSettings.nTotalPlayerCount && this.eState === 'waiting';
             this.eState = bInitializeTable ? 'initialized' : this.eState;
-            const oUpdateTable = yield this.update({ aPlayerId: tablePlayer });
+            const oUpdateTable = yield this.update({ aPlayerId: tablePlayerId });
             if (!oUpdateTable)
                 return false;
             this.aPlayer.push(oPlayer);
             if (ePreviousState === 'waiting' && this.eState === 'initialized') {
-                console.log('Need to start the game....');
+                log.debug('Need to start the game....');
             }
             return true;
         });

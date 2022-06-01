@@ -48,7 +48,7 @@ class TableManager {
     }
     executeScheduledTask(sTaskName, iBattleId, iPlayerId, oData, callback) {
         return __awaiter(this, void 0, void 0, function* () {
-            log.verbose(`${_.now()} executeScheduledTask ${sTaskName} : battle ID ${iBattleId}`);
+            log.verbose(`${_.now()} executeScheduledTask ${sTaskName}`);
         });
     }
     static createTable(oData) {

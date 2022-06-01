@@ -83,11 +83,11 @@ class PlayerSocket {
                     this.socket.on(this.iBattleId, channel.onEvent.bind(channel));
                 }
                 const _b = table.toJSON(), { aDrawPile, aPlayer, aPlayerId } = _b, rest = __rest(_b, ["aDrawPile", "aPlayer", "aPlayerId"]);
-                let aParticipant = [];
-                for (let player of table.toJSON().aPlayer) {
-                    let p = player.toJSON();
+                const aParticipant = [];
+                table.toJSON().aPlayer.forEach(player => {
+                    const p = player.toJSON();
                     aParticipant.push({ iPlayerId: p.iPlayerId, nSeat: p.nSeat, nCardCount: p.aHand.length });
-                }
+                });
                 if (table.toJSON().aPlayerId.length === ((_a = this.oSetting.nTotalPlayerCount) !== null && _a !== void 0 ? _a : 2)) {
                     table.emit('resTableState', { table: rest, aPlayer: aParticipant });
                 }

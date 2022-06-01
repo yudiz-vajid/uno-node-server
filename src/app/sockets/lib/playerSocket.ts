@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 /* eslint-disable no-unused-vars */
 import type { Socket } from 'socket.io';
 import Channel from './channel';
@@ -41,7 +42,7 @@ class PlayerSocket {
   /**
    * if player is already in the battle, fetch player and table data, and reconnect them to the same battle
    * if player is not in a battle, create new player, table, and set startGameScheduled time
-   * when all player joined emit 'resTableState' 
+   * when all player joined emit 'resTableState'
    */
   private async joinTable() {
     try {
@@ -76,15 +77,17 @@ class PlayerSocket {
         const channel = new Channel(this.iBattleId, this.iPlayerId);
         this.socket.on(this.iBattleId, channel.onEvent.bind(channel));
       } // - add channel listeners and handle duplicate listeners(mainly while reconnection)
-      const {aDrawPile,aPlayer,aPlayerId, ...rest} = table.toJSON();  
-      let aParticipant=[]  
-      for (let player of table.toJSON().aPlayer) {
-          let p=player.toJSON()
-          aParticipant.push({iPlayerId:p.iPlayerId,nSeat:p.nSeat,nCardCount:p.aHand.length})
-      }
-      if(table.toJSON().aPlayerId.length===(this.oSetting.nTotalPlayerCount ?? 2)){
-        
-        table.emit('resTableState', { table:rest,aPlayer:aParticipant });
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { aDrawPile, aPlayer, aPlayerId, ...rest } = table.toJSON();
+      const aParticipant: Array<Record<'iPlayerId' | 'nSeat' | 'nCardCount', string | number>> = [];
+      table.toJSON().aPlayer.forEach(player => {
+        const p = player.toJSON();
+        aParticipant.push({ iPlayerId: p.iPlayerId, nSeat: p.nSeat, nCardCount: p.aHand.length });
+      });
+
+      if (table.toJSON().aPlayerId.length === (this.oSetting.nTotalPlayerCount ?? 2)) {
+        table.emit('resTableState', { table: rest, aPlayer: aParticipant });
       }
       return true;
     } catch (err: any) {
