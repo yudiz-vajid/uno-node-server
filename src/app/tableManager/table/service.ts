@@ -1,3 +1,5 @@
+/* eslint-disable import/no-cycle */
+import Table from '.';
 import Player from '../player';
 import { ITable, ITableWithPlayer, RedisJSON } from '../../../types/global';
 
@@ -125,15 +127,34 @@ class Service {
   // eslint-disable-next-line class-methods-use-this
   public async initializeGame() {
     console.log('initializeGame called ...');
-    // this.initializeGameTimer();
+    this.initializeGameTimer();
+  }
+
+  public async initializeGameTimer() {
+    const nBeginCountdown = this.aPlayerId.length === this.oSettings.nTotalPlayerCount ? this.oSettings.nGameInitializeTime / 2 : this.oSettings.nGameInitializeTime;
+    let nBeginCountdownCounter = nBeginCountdown / 1000;
+
+    const initialTimer = setInterval(async () => {
+      if (nBeginCountdownCounter > 1 && nBeginCountdownCounter < 3 && this.eState !== 'running') this.update({ eState: 'initialized' });
+      if (nBeginCountdownCounter > 0) {
+        this.emit('resGameInitializeTimer', { value: (nBeginCountdownCounter -= 1) });
+        return;
+      }
+      clearInterval(initialTimer);
+      // emitter.emit('reqSchedule', 'distributeCard', this.iBattleId);
+      this.setSchedular('distributeCard');
+    }, 1000);
   }
 
   public async addPlayer(oPlayer: Player) {
     const tablePlayerId = [...this.aPlayerId, oPlayer.toJSON().iPlayerId];
 
     const ePreviousState = this.eState;
-    const bInitializeTable = tablePlayerId.length === this.oSettings.nTotalPlayerCount && this.eState === 'waiting';
-
+    console.log(`tablePlayerId.length :: `, tablePlayerId.length);
+    console.log(`this.oSettings.nTotalPlayerCount :: `, this.oSettings.nTotalPlayerCount);
+    // eslint-disable-next-line eqeqeq
+    const bInitializeTable = tablePlayerId.length == this.oSettings.nTotalPlayerCount && this.eState === 'waiting';
+    console.log(`bInitializeTable :: `, bInitializeTable);
     this.eState = bInitializeTable ? 'initialized' : this.eState;
 
     const oUpdateTable = await this.update({ aPlayerId: tablePlayerId });
@@ -142,11 +163,46 @@ class Service {
 
     if (ePreviousState === 'waiting' && this.eState === 'initialized') {
       // this.deleteScheduler('refundOnLongWait'); // TODO :- Add refunc process
-      // this.initializeGame();
-      log.debug('Need to start the game....');
+      this.initializeGame();
+      log.verbose('Need to start the game....');
     }
 
     return true;
+  }
+
+  public async distributeCard(oTable: Table) {
+    if (this.aDrawPile.length <= this.aPlayer.length * 7) return this.emit('resOfError', messages.getString('rummy_not_enough_cards'));
+    this.aPlayer.forEach(player => player.setHand(oTable));
+    return true;
+  }
+
+  public async setSchedular(sTaskName = '', iPlayerId = '', nTimeMS = 0) {
+    try {
+      if (!sTaskName) return false;
+      if (!nTimeMS) return false;
+      await redis.client.pSetEx(_.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId), nTimeMS, sTaskName);
+      return true;
+    } catch (err: any) {
+      log.error(`table.setSchedular() failed.${{ reason: err.message, stack: err.stack }}`);
+      return false;
+    }
+  }
+
+  public async deleteScheduler(sTaskName = '', iPlayerId = '*') {
+    try {
+      const sKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
+      const schedularKeys = await redis.client.keys(sKey); // TODO : non efficient, use scan instead
+      if (!schedularKeys.length) {
+        throw new Error(`schedular doesn't exists`);
+      }
+      const deletionCount = await redis.client.del(schedularKeys);
+      if (!deletionCount) throw new Error(`can't delete key: ${schedularKeys}`);
+      log.silly(`deleted scheduled keys: ${schedularKeys}`);
+      return true;
+    } catch (err: any) {
+      log.error(`table.deleteScheduler(sTaskName: ${sTaskName}, iPlayerId: ${iPlayerId}, iBattleId: ${this.iBattleId}) failed. reason: ${err.message}`);
+      return false;
+    }
   }
 
   public async emit(sEventName: string, oData: Record<string, unknown>) {

@@ -4,6 +4,7 @@ import type { Socket } from 'socket.io';
 import Channel from './channel';
 import { ISettings } from '../../../types/global';
 import TableManager from '../../tableManager';
+import { response } from '../../util';
 
 class PlayerSocket {
   private socket: Socket;
@@ -44,7 +45,8 @@ class PlayerSocket {
    * if player is not in a battle, create new player, table, and set startGameScheduled time
    * when all player joined emit 'resTableState'
    */
-  private async joinTable() {
+  private async joinTable(body: unknown, _ack: (data: unknown) => void) {
+    if (typeof _ack !== 'function') return false;
     try {
       let table = await TableManager.getTable(this.iBattleId);
       if (!table) table = await TableManager.createTable({ iBattleId: this.iBattleId, oSettings: this.oSetting });
@@ -86,6 +88,8 @@ class PlayerSocket {
         aParticipant.push({ iPlayerId: p.iPlayerId, nSeat: p.nSeat, nCardCount: p.aHand.length });
       });
 
+      _ack({ iBattleId: this.iBattleId, iPlayerId: this.iPlayerId, success: response.SUCCESS });
+      table.emit('resTableJoin', { iBattleId: this.iBattleId, iPlayerId: this.iPlayerId });
       if (table.toJSON().aPlayerId.length === (this.oSetting.nTotalPlayerCount ?? 2)) {
         table.emit('resTableState', { table: rest, aPlayer: aParticipant });
       }

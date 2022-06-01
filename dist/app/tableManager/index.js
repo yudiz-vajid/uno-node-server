@@ -49,6 +49,20 @@ class TableManager {
     executeScheduledTask(sTaskName, iBattleId, iPlayerId, oData, callback) {
         return __awaiter(this, void 0, void 0, function* () {
             log.verbose(`${_.now()} executeScheduledTask ${sTaskName}`);
+            if (sTaskName)
+                return false;
+            const oTable = yield TableManager.getTable(iBattleId);
+            if (!oTable)
+                return false;
+            switch (sTaskName) {
+                case 'distributeCard':
+                    yield oTable.distributeCard(oTable);
+                    return true;
+                case 'drawCard':
+                    return true;
+                default:
+                    return false;
+            }
         });
     }
     static createTable(oData) {

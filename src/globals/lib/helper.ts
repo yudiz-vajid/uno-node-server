@@ -204,14 +204,14 @@ const helper = {
       log.debug(`client:ack -> ${msg}`);
     };
   },
-  omit :  (obj:any, array:any, deepCloning = false) =>{
+  omit: (obj: any, array: any, deepCloning = false) => {
     const clonedObject = deepCloning ? helper.deepClone(obj) : helper.clone(obj);
     const objectKeys = Object.keys(clonedObject);
-    return objectKeys.reduce((acc :any, elem) => {
-        if (!array.includes(elem)) acc[elem] = clonedObject[elem];
-        return acc;
+    return objectKeys.reduce((acc: any, elem) => {
+      if (!array.includes(elem)) acc[elem] = clonedObject[elem];
+      return acc;
     }, {});
-},
+  },
 
   getRandomWithProbability: (results: number[], weights: number[]) => {
     let s = 0;

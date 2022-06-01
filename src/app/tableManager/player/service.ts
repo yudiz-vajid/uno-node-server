@@ -1,4 +1,6 @@
+/* eslint-disable import/no-cycle */
 import { IPlayer, ITable, RedisJSON } from '../../../types/global';
+import Table from '../table';
 
 class Service {
   private readonly iPlayerId: IPlayer['iPlayerId'];
@@ -109,6 +111,30 @@ class Service {
       log.silly(this.toJSON());
       return null;
     }
+  }
+
+  public async setHand(oTable: Table) {
+    // TODO :- Distribute 7 cards to user (4+3)
+    // const oTable = await TableManager.getTable(this.iBattleId);
+    if (!oTable) return false;
+    const { aDrawPile, oSettings } = oTable.toJSON();
+
+    const aNormalCards = aDrawPile.filter(card => card.nLabel < 10);
+    const aSpecialCards = aDrawPile.filter(card => card.nLabel > 9 && card.nLabel < 13);
+    const aActionCards = aDrawPile.filter(card => card.nLabel > 12);
+    if (!aNormalCards || !aSpecialCards || !aActionCards) return null;
+
+    const nNormalCardCount = oSettings.nStartingNormalCardCount || 4;
+    const nSpecialCardCount = oSettings.nStartingSpecialCardCount || 3;
+    const nActionCardCount = oSettings.nStartingActionCardCount || 0;
+
+    this.aHand.push(...aNormalCards.splice(0, nNormalCardCount));
+    this.aHand.push(...aSpecialCards.splice(0, nSpecialCardCount));
+    this.aHand.push(...aActionCards.splice(0, nActionCardCount));
+
+    await this.update({ aHand: this.aHand });
+    await oTable.update({ aDrawPile });
+    return true;
   }
 
   // TODO: reconnection

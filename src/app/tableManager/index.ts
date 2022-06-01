@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
@@ -26,7 +27,18 @@ class TableManager {
   // eslint-disable-next-line class-methods-use-this
   async executeScheduledTask(sTaskName: string, iBattleId: string, iPlayerId: string, oData: { [key: string]: any }, callback: () => Promise<void>) {
     log.verbose(`${_.now()} executeScheduledTask ${sTaskName}`);
-    // TODO : add taskName validation and operations
+    if (sTaskName) return false;
+    const oTable = await TableManager.getTable(iBattleId);
+    if (!oTable) return false;
+    switch (sTaskName) {
+      case 'distributeCard':
+        await oTable.distributeCard(oTable);
+        return true;
+      case 'drawCard':
+        return true;
+      default:
+        return false;
+    }
   }
 
   public static async createTable(oData: { iBattleId: ITable['iBattleId']; oSettings: ITable['oSettings'] }) {

@@ -26,21 +26,21 @@ export declare interface ICard {
 declare interface ISettings {
   bMustCollectOnMissTurn: boolean;
   bSkipTurnOnDrawTwoOrFourCard: boolean;
-  bStackingDrawCards:boolean;
-  bVisualEffectOnUnoButton:boolean;
+  bStackingDrawCards: boolean;
+  bVisualEffectOnUnoButton: boolean;
 
-  nTotalGameTime:number; // ms : game lifetime
-  nTurnTime: number; // ms : 
+  nTotalGameTime: number; // ms : game lifetime
+  nTurnTime: number; // ms :
   nGraceTime: number; // ms
-  nStartingNormalCardCount:number;
-  nStartingSpecialCardCount:number;
-  nStartingActionCardCount:number;
-  nTotalPlayerCount:number,
+  nStartingNormalCardCount: number;
+  nStartingSpecialCardCount: number;
+  nStartingActionCardCount: number;
+  nTotalPlayerCount: number;
   nUnoTime: number;
-  nSpecialMeterFillCount:number;
-  nGameInitializeTime:number;
+  nSpecialMeterFillCount: number;
+  nGameInitializeTime: number;
   nTotalSkipTurnCount: number;
-  
+
   aCardScore: Array<number>;
 }
 

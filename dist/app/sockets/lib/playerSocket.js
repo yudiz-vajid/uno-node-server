@@ -25,6 +25,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const channel_1 = __importDefault(require("./channel"));
 const tableManager_1 = __importDefault(require("../../tableManager"));
+const util_1 = require("../../util");
 class PlayerSocket {
     constructor(socket) {
         this.socket = socket;
@@ -43,9 +44,11 @@ class PlayerSocket {
         this.socket.on('error', this.errorHandler.bind(this));
         this.socket.on('disconnect', this.disconnect.bind(this));
     }
-    joinTable() {
+    joinTable(body, _ack) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
+            if (typeof _ack !== 'function')
+                return false;
             try {
                 let table = yield tableManager_1.default.getTable(this.iBattleId);
                 if (!table)
@@ -88,6 +91,8 @@ class PlayerSocket {
                     const p = player.toJSON();
                     aParticipant.push({ iPlayerId: p.iPlayerId, nSeat: p.nSeat, nCardCount: p.aHand.length });
                 });
+                _ack({ iBattleId: this.iBattleId, iPlayerId: this.iPlayerId, success: util_1.response.SUCCESS });
+                table.emit('resTableJoin', { iBattleId: this.iBattleId, iPlayerId: this.iPlayerId });
                 if (table.toJSON().aPlayerId.length === ((_a = this.oSetting.nTotalPlayerCount) !== null && _a !== void 0 ? _a : 2)) {
                     table.emit('resTableState', { table: rest, aPlayer: aParticipant });
                 }
