@@ -95,7 +95,7 @@ class Service {
             if (!oTable)
                 return false;
             const { aDrawPile, oSettings } = oTable.toJSON();
-            const aNormalCards = aDrawPile.filter(card => card.nLabel < 10);
+            const aNormalCards = aDrawPile.filter(card => card.nLabel < 10 && card.eColor !== 'black');
             const aSpecialCards = aDrawPile.filter(card => card.nLabel > 9 && card.nLabel < 13);
             const aActionCards = aDrawPile.filter(card => card.nLabel > 12);
             if (!aNormalCards || !aSpecialCards || !aActionCards)
@@ -107,7 +107,8 @@ class Service {
             this.aHand.push(...aSpecialCards.splice(0, nSpecialCardCount));
             this.aHand.push(...aActionCards.splice(0, nActionCardCount));
             yield this.update({ aHand: this.aHand });
-            yield oTable.update({ aDrawPile });
+            yield oTable.update({ aDrawPile: Object.assign(Object.assign(Object.assign({}, aNormalCards), aActionCards), aSpecialCards) });
+            this.emit('resHand', { aHand: this.aHand });
             return true;
         });
     }
@@ -124,9 +125,9 @@ class Service {
             if (!sEventName)
                 return false;
             if (this.sSocketId)
-                global.io.to(this.sSocketId).emit(this.iBattleId, Object.assign({ sTaskName: sEventName }, oData));
+                global.io.to(this.sSocketId).emit(this.iBattleId, _.stringify(Object.assign({ sTaskName: sEventName }, oData)));
             if (process.env.NODE_ENV !== 'prod')
-                global.io.to(this.sSocketId).emit('postman', Object.assign({ sTaskName: sEventName }, oData));
+                global.io.to(this.sSocketId).emit('postman', _.stringify(Object.assign({ sTaskName: sEventName }, oData)));
             return true;
         });
     }

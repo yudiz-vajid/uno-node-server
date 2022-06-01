@@ -49,7 +49,7 @@ class TableManager {
     executeScheduledTask(sTaskName, iBattleId, iPlayerId, oData, callback) {
         return __awaiter(this, void 0, void 0, function* () {
             log.verbose(`${_.now()} executeScheduledTask ${sTaskName}`);
-            if (sTaskName)
+            if (!sTaskName)
                 return false;
             const oTable = yield TableManager.getTable(iBattleId);
             if (!oTable)

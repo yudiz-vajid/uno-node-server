@@ -117,7 +117,7 @@ class Service {
                     return;
                 }
                 clearInterval(initialTimer);
-                this.setSchedular('distributeCard');
+                this.setSchedular('distributeCard', '', 5);
             }), 1000);
         });
     }
