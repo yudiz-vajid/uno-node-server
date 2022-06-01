@@ -93,7 +93,7 @@ class PlayerSocket {
                 });
                 _ack({ iBattleId: this.iBattleId, iPlayerId: this.iPlayerId, success: util_1.response.SUCCESS });
                 table.emit('resTableJoin', { iBattleId: this.iBattleId, iPlayerId: this.iPlayerId });
-                if (table.toJSON().aPlayerId.length === ((_a = this.oSetting.nTotalPlayerCount) !== null && _a !== void 0 ? _a : 2)) {
+                if (table.toJSON().aPlayerId.length == ((_a = this.oSetting.nTotalPlayerCount) !== null && _a !== void 0 ? _a : 2)) {
                     table.emit('resTableState', { table: rest, aPlayer: aParticipant });
                 }
                 return true;
