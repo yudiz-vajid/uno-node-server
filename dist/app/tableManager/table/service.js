@@ -20,7 +20,7 @@ class Service {
         this.aDiscardPile = oData.aDiscardPile;
         this.bToSkip = oData.bToSkip;
         this.eState = oData.eState;
-        this.eTurnDirection = oData.eTurnDirection;
+        this.bTurnClockwise = oData.bTurnClockwise;
         this.eNextCardColor = oData.eNextCardColor;
         this.nDrawCount = oData.nDrawCount;
         this.dCreatedAt = oData.dCreatedAt;
@@ -65,8 +65,8 @@ class Service {
                             this.eState = v;
                             aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v));
                             break;
-                        case 'eTurnDirection':
-                            this.eTurnDirection = v;
+                        case 'bTurnClockwise':
+                            this.bTurnClockwise = v;
                             aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v));
                             break;
                         case 'eNextCardColor':
@@ -129,42 +129,23 @@ class Service {
     }
     initializeGame() {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('initializeGame called ...');
             this.initializeGameTimer();
         });
     }
     initializeGameTimer() {
         return __awaiter(this, void 0, void 0, function* () {
-            let nBeginCountdownCounter = this.oSettings.nGameInitializeTime / 1000;
-            const initialTimer = setInterval(() => __awaiter(this, void 0, void 0, function* () {
-                if (nBeginCountdownCounter > 1 && nBeginCountdownCounter < 3 && this.eState !== 'running')
-                    this.update({ eState: 'initialized' });
-                if (nBeginCountdownCounter > 0) {
-                    this.emit('resGameInitializeTimer', { value: (nBeginCountdownCounter -= 1) });
-                    return;
-                }
-                clearInterval(initialTimer);
-                this.setSchedular('distributeCard', '', 2000);
-            }), 1000);
+            let nBeginCountdownCounter = this.oSettings.nGameInitializeTime;
+            this.emit('resGameInitializeTimer', { ttl: nBeginCountdownCounter, timestamp: Date.now() });
+            this.setSchedular('gameInitializeTimerExpired', '', nBeginCountdownCounter);
         });
     }
     addPlayer(oPlayer) {
         return __awaiter(this, void 0, void 0, function* () {
             const tablePlayerId = [...this.aPlayerId, oPlayer.toJSON().iPlayerId];
-            const ePreviousState = this.eState;
-            console.log(`tablePlayerId.length :: `, tablePlayerId.length);
-            console.log(`this.oSettings.nTotalPlayerCount :: `, this.oSettings.nTotalPlayerCount);
-            const bInitializeTable = tablePlayerId.length == this.oSettings.nTotalPlayerCount && this.eState === 'waiting';
-            console.log(`bInitializeTable :: `, bInitializeTable);
-            this.eState = bInitializeTable ? 'initialized' : this.eState;
             const oUpdateTable = yield this.update({ aPlayerId: tablePlayerId });
             if (!oUpdateTable)
                 return false;
             this.aPlayer.push(oPlayer);
-            if (ePreviousState === 'waiting' && this.eState === 'initialized') {
-                this.initializeGame();
-                log.verbose('Need to start the game....');
-            }
             return true;
         });
     }
@@ -237,7 +218,7 @@ class Service {
             aDrawPile: this.aDrawPile,
             bToSkip: this.bToSkip,
             eState: this.eState,
-            eTurnDirection: this.eTurnDirection,
+            bTurnClockwise: this.bTurnClockwise,
             eNextCardColor: this.eNextCardColor,
             nDrawCount: this.nDrawCount,
             dCreatedAt: this.dCreatedAt,

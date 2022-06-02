@@ -93,6 +93,12 @@ class PlayerSocket {
                 table.emit('resTableJoin', { iBattleId: this.iBattleId, iPlayerId: this.iPlayerId });
                 if (aPlayerId.length === this.oSetting.nTotalPlayerCount) {
                     table.emit('resTableState', { table: rest, aPlayer: aParticipant });
+                    const ePreviousState = rest.eState;
+                    const bInitializeTable = aPlayerId.length == rest.oSettings.nTotalPlayerCount && rest.eState === 'waiting';
+                    rest.eState = bInitializeTable ? 'initialized' : rest.eState;
+                    if (ePreviousState === 'waiting' && rest.eState === 'initialized') {
+                        table.initializeGame();
+                    }
                 }
                 return true;
             }

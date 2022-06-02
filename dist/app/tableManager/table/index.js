@@ -56,5 +56,13 @@ class Table extends service_1.default {
             return true;
         });
     }
+    gameInitializeTimerExpired() {
+        return __awaiter(this, void 0, void 0, function* () {
+            log.verbose('gameInitializeTimerExpired, game should start now');
+            this.emit('resGameInitializeTimerExpired', {});
+            this.setSchedular('distributeCard', '', 2000);
+            return true;
+        });
+    }
 }
 exports.default = Table;

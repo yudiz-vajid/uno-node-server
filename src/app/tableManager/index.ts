@@ -38,6 +38,9 @@ class TableManager {
       case 'masterTimerExpired':
         oTable.masterTimerExpired();
         return true;
+      case 'gameInitializeTimerExpired':
+        oTable.gameInitializeTimerExpired();
+        return true;
       default:
         return false;
     }
@@ -54,7 +57,7 @@ class TableManager {
         aDiscardPile: [], // - to be initialized during distributeCard
         bToSkip: false,
         eState: 'waiting',
-        eTurnDirection: 'clockwise',
+        bTurnClockwise: true,
         eNextCardColor: '',
         nDrawCount: 0,
         oSettings: oData.oSettings,

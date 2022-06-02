@@ -39,6 +39,13 @@ class Table extends Service {
     this.emit('resMasterTimerExpired', {});
     return true;
   }
+
+  public async gameInitializeTimerExpired() {
+    log.verbose('gameInitializeTimerExpired, game should start now');
+    this.emit('resGameInitializeTimerExpired', {});
+    this.setSchedular('distributeCard', '', 2000); // TODO: replace with nAnimationDelay
+    return true;
+  }
 }
 
 export default Table;

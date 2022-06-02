@@ -19,7 +19,7 @@ class Service {
 
   protected eState: ITableWithPlayer['eState'];
 
-  protected eTurnDirection: ITableWithPlayer['eTurnDirection'];
+  protected bTurnClockwise: ITableWithPlayer['bTurnClockwise'];
 
   protected eNextCardColor: ITableWithPlayer['eNextCardColor'];
 
@@ -40,7 +40,7 @@ class Service {
     this.aDiscardPile = oData.aDiscardPile;
     this.bToSkip = oData.bToSkip;
     this.eState = oData.eState;
-    this.eTurnDirection = oData.eTurnDirection;
+    this.bTurnClockwise = oData.bTurnClockwise;
     this.eNextCardColor = oData.eNextCardColor;
     this.nDrawCount = oData.nDrawCount;
     this.dCreatedAt = oData.dCreatedAt;
@@ -55,7 +55,7 @@ class Service {
 
   public async update(
     oDate: Partial<
-      Pick<ITable, 'iPlayerTurn' | 'iSkippedPLayer' | 'aPlayerId' | 'aDrawPile' | 'aDiscardPile' | 'bToSkip' | 'eState' | 'eTurnDirection' | 'eNextCardColor' | 'nDrawCount'>
+      Pick<ITable, 'iPlayerTurn' | 'iSkippedPLayer' | 'aPlayerId' | 'aDrawPile' | 'aDiscardPile' | 'bToSkip' | 'eState' | 'bTurnClockwise' | 'eNextCardColor' | 'nDrawCount'>
     >
   ) {
     try {
@@ -92,8 +92,8 @@ class Service {
             this.eState = v as ITable['eState'];
             aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
             break;
-          case 'eTurnDirection':
-            this.eTurnDirection = v as ITable['eTurnDirection'];
+          case 'bTurnClockwise':
+            this.bTurnClockwise = v as ITable['bTurnClockwise'];
             aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
             break;
           case 'eNextCardColor':
@@ -153,47 +153,23 @@ class Service {
 
   // eslint-disable-next-line class-methods-use-this
   public async initializeGame() {
-    console.log('initializeGame called ...');
     this.initializeGameTimer();
   }
 
   public async initializeGameTimer() {
     // const nBeginCountdown = this.aPlayerId.length === this.oSettings.nTotalPlayerCount ? this.oSettings.nGameInitializeTime / 2 : this.oSettings.nGameInitializeTime;
-    let nBeginCountdownCounter = this.oSettings.nGameInitializeTime / 1000;
+    let nBeginCountdownCounter = this.oSettings.nGameInitializeTime ;
+    this.emit('resGameInitializeTimer', { ttl: nBeginCountdownCounter,timestamp :Date.now() });
+    this.setSchedular('gameInitializeTimerExpired', '', nBeginCountdownCounter); // -  TODO :- reduce 2 sec if required
 
-    const initialTimer = setInterval(async () => {
-      if (nBeginCountdownCounter > 1 && nBeginCountdownCounter < 3 && this.eState !== 'running') this.update({ eState: 'initialized' });
-      if (nBeginCountdownCounter > 0) {
-        this.emit('resGameInitializeTimer', { value: (nBeginCountdownCounter -= 1) });
-        return;
-      }
-      clearInterval(initialTimer);
-      // emitter.emit('reqSchedule', 'distributeCard', this.iBattleId);
-      this.setSchedular('distributeCard', '', 2000); // TODO: replace with nAnimationDelay
-    }, 1000);
   }
 
   public async addPlayer(oPlayer: Player) {
     const tablePlayerId = [...this.aPlayerId, oPlayer.toJSON().iPlayerId];
 
-    const ePreviousState = this.eState;
-    console.log(`tablePlayerId.length :: `, tablePlayerId.length);
-    console.log(`this.oSettings.nTotalPlayerCount :: `, this.oSettings.nTotalPlayerCount);
-    // eslint-disable-next-line eqeqeq
-    const bInitializeTable = tablePlayerId.length == this.oSettings.nTotalPlayerCount && this.eState === 'waiting';
-    console.log(`bInitializeTable :: `, bInitializeTable);
-    this.eState = bInitializeTable ? 'initialized' : this.eState;
-
     const oUpdateTable = await this.update({ aPlayerId: tablePlayerId });
     if (!oUpdateTable) return false;
     this.aPlayer.push(oPlayer);
-
-    if (ePreviousState === 'waiting' && this.eState === 'initialized') {
-      // this.deleteScheduler('refundOnLongWait'); // TODO :- Add refunc process
-      this.initializeGame();
-      log.verbose('Need to start the game....');
-    }
-
     return true;
   }
 
@@ -255,7 +231,7 @@ class Service {
       aDrawPile: this.aDrawPile,
       bToSkip: this.bToSkip,
       eState: this.eState,
-      eTurnDirection: this.eTurnDirection,
+      bTurnClockwise: this.bTurnClockwise,
       eNextCardColor: this.eNextCardColor,
       nDrawCount: this.nDrawCount,
       dCreatedAt: this.dCreatedAt,

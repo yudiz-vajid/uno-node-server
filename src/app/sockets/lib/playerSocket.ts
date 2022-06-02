@@ -89,6 +89,15 @@ class PlayerSocket {
       table.emit('resTableJoin', { iBattleId: this.iBattleId, iPlayerId: this.iPlayerId });
       if (aPlayerId.length === this.oSetting.nTotalPlayerCount) {
         table.emit('resTableState', { table: rest, aPlayer: aParticipant });
+        
+        const ePreviousState = rest.eState;
+        // eslint-disable-next-line eqeqeq
+        const bInitializeTable = aPlayerId.length == rest.oSettings.nTotalPlayerCount && rest.eState === 'waiting';
+        rest.eState = bInitializeTable ? 'initialized' : rest.eState;
+        if (ePreviousState === 'waiting' && rest.eState === 'initialized') {
+          // this.deleteScheduler('refundOnLongWait'); // TODO :- Add refunc process
+          table.initializeGame();
+        }
       }
       return true;
     } catch (err: any) {
