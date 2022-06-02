@@ -90,28 +90,6 @@ class Service {
             }
         });
     }
-    setHand(oTable) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!oTable)
-                return false;
-            const { aDrawPile, oSettings } = oTable.toJSON();
-            const aNormalCards = aDrawPile.filter(card => card.nLabel < 10 && card.eColor !== 'black');
-            const aSpecialCards = aDrawPile.filter(card => card.nLabel > 9 && card.nLabel < 13);
-            const aActionCards = aDrawPile.filter(card => card.nLabel > 12);
-            if (!aNormalCards || !aSpecialCards || !aActionCards)
-                return null;
-            const nNormalCardCount = oSettings.nStartingNormalCardCount || 4;
-            const nSpecialCardCount = oSettings.nStartingSpecialCardCount || 3;
-            const nActionCardCount = oSettings.nStartingActionCardCount || 0;
-            this.aHand.push(...aNormalCards.splice(0, nNormalCardCount));
-            this.aHand.push(...aSpecialCards.splice(0, nSpecialCardCount));
-            this.aHand.push(...aActionCards.splice(0, nActionCardCount));
-            yield this.update({ aHand: this.aHand });
-            yield oTable.update({ aDrawPile: Object.assign(Object.assign(Object.assign({}, aNormalCards), aActionCards), aSpecialCards) });
-            this.emit('resHand', { aHand: this.aHand });
-            return true;
-        });
-    }
     reconnect(sSocketId, eTableState) {
         return __awaiter(this, void 0, void 0, function* () {
             const stateMapper = { waiting: 'waiting', initialized: 'waiting', running: 'playing', finished: 'left' };

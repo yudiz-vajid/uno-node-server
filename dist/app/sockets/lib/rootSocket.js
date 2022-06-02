@@ -40,7 +40,6 @@ class RootSocket {
                 if (settingsError || !settingsValue)
                     throw new Error(settingsInfo);
                 const { iBattleId, iPlayerId, sPlayerName, sAuthToken } = authValue;
-                const { bMustCollectOnMissTurn, bSkipTurnOnDrawTwoOrFourCard, bStackingDrawCards, bVisualEffectOnUnoButton, nTotalGameTime, nTurnTime, nGraceTime, nStartingNormalCardCount, nStartingSpecialCardCount, nStartingActionCardCount, nTotalPlayerCount, nUnoTime, nSpecialMeterFillCount, nGameInitializeTime, nTotalSkipTurnCount, aCardScore, } = settingsValue;
                 const bIsValid = true;
                 if (!bIsValid)
                     throw new Error('player validation failed');
@@ -48,24 +47,7 @@ class RootSocket {
                 socket.data.iBattleId = iBattleId;
                 socket.data.sPlayerName = sPlayerName;
                 socket.data.sAuthToken = sAuthToken;
-                socket.data.oSettings = {
-                    bMustCollectOnMissTurn,
-                    bSkipTurnOnDrawTwoOrFourCard,
-                    bStackingDrawCards,
-                    bVisualEffectOnUnoButton,
-                    nTotalGameTime,
-                    nTurnTime,
-                    nGraceTime,
-                    nStartingNormalCardCount,
-                    nStartingSpecialCardCount,
-                    nStartingActionCardCount,
-                    nTotalPlayerCount,
-                    nUnoTime,
-                    nSpecialMeterFillCount,
-                    nGameInitializeTime,
-                    nTotalSkipTurnCount,
-                    aCardScore,
-                };
+                socket.data.oSettings = settingsValue;
                 next();
                 return true;
             }

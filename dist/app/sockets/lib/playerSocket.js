@@ -45,7 +45,6 @@ class PlayerSocket {
         this.socket.on('disconnect', this.disconnect.bind(this));
     }
     joinTable(body, _ack) {
-        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             if (typeof _ack !== 'function')
                 return false;
@@ -85,15 +84,14 @@ class PlayerSocket {
                     const channel = new channel_1.default(this.iBattleId, this.iPlayerId);
                     this.socket.on(this.iBattleId, channel.onEvent.bind(channel));
                 }
-                const _b = table.toJSON(), { aDrawPile, aPlayer, aPlayerId } = _b, rest = __rest(_b, ["aDrawPile", "aPlayer", "aPlayerId"]);
-                const aParticipant = [];
-                table.toJSON().aPlayer.forEach(player => {
-                    const p = player.toJSON();
-                    aParticipant.push({ iPlayerId: p.iPlayerId, nSeat: p.nSeat, nCardCount: p.aHand.length });
+                const _a = table.toJSON(), { aDrawPile, aPlayer, aPlayerId } = _a, rest = __rest(_a, ["aDrawPile", "aPlayer", "aPlayerId"]);
+                const aParticipant = table.toJSON().aPlayer.map(p => {
+                    const pJson = p.toJSON();
+                    return { iPlayerId: pJson.iPlayerId, nSeat: pJson.nSeat, nCardCount: pJson.aHand.length };
                 });
                 _ack({ iBattleId: this.iBattleId, iPlayerId: this.iPlayerId, success: util_1.response.SUCCESS });
                 table.emit('resTableJoin', { iBattleId: this.iBattleId, iPlayerId: this.iPlayerId });
-                if (table.toJSON().aPlayerId.length == ((_a = this.oSetting.nTotalPlayerCount) !== null && _a !== void 0 ? _a : 2)) {
+                if (aPlayerId.length === this.oSetting.nTotalPlayerCount) {
                     table.emit('resTableState', { table: rest, aPlayer: aParticipant });
                 }
                 return true;

@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-process.env.NODE_ENV = 'dev';
+process.env.NODE_ENV = 'stag';
 process.env.PORT = '3010';
-process.env.HOST = `127.0.0.1/${process.env.NODE_ENV}`;
+process.env.HOST = `127.0.0.111/${process.env.NODE_ENV}`;
 process.env.DB_PASSWORD = '';
 const oEnv = {
     dev: {
@@ -22,7 +22,7 @@ const oEnv = {
         REDIS_PASSWORD: 'kderTDhubKYjmcW1ilCdjly0fFNdxihJ',
     },
 };
-const winstonLogLevel = 'silly';
+const winstonLogLevel = 'debug';
 process.env.LOG_LEVEL = winstonLogLevel;
 process.env.BASE_URL = oEnv[process.env.NODE_ENV].BASE_URL;
 process.env.REDIS_HOST = oEnv[process.env.NODE_ENV].REDIS_HOST;

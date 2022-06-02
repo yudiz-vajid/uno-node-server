@@ -56,9 +56,12 @@ class TableManager {
                 return false;
             switch (sTaskName) {
                 case 'distributeCard':
-                    yield oTable.distributeCard(oTable);
+                    yield oTable.distributeCard();
                     return true;
                 case 'drawCard':
+                    return true;
+                case 'masterTimerExpired':
+                    oTable.masterTimerExpired();
                     return true;
                 default:
                     return false;
@@ -73,7 +76,7 @@ class TableManager {
                     iPlayerTurn: '',
                     iSkippedPLayer: '',
                     aPlayerId: [],
-                    aDrawPile: new util_1.Deck().getDeck(),
+                    aDrawPile: new util_1.Deck(oData.oSettings.aCardScore).getDeck(),
                     aDiscardPile: [],
                     bToSkip: false,
                     eState: 'waiting',

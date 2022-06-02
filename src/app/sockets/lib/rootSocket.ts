@@ -1,10 +1,9 @@
-/* eslint-disable no-unsafe-finally */
 /* eslint-disable no-param-reassign */
-/* eslint-disable no-unused-vars */
 /* eslint-disable class-methods-use-this */
 import type { Socket } from 'socket.io';
 import PlayerSocket from './playerSocket';
 import { verifyAuthHeader, verifySettings } from '../../validator';
+import { ICallback } from '../../../types/global';
 
 class RootSocket {
   async initialize() {
@@ -17,14 +16,14 @@ class RootSocket {
     global.io.on('error', (err: Error) => log.error(err));
   }
 
-  // - executes once for each client during connection
-  private async authenticate(socket: Socket, next: (error?: any) => void): Promise<boolean> {
+  private async authenticate(socket: Socket, next: ICallback): Promise<boolean> {
+    // - executes once for each client during connection
     try {
       // prettier-ignore
       const { error: authError, info: authInfo, value: authValue } = await verifyAuthHeader({
-        i_battle_id: socket.handshake.auth.i_battle_id ?? <any>socket.handshake.headers.i_battle_id,
-        i_player_id: socket.handshake.auth.i_player_id ?? <any>socket.handshake.headers.i_player_id,
-        s_auth_token: socket.handshake.auth.s_auth_token ?? <any>socket.handshake.headers.s_auth_token,
+        i_battle_id: socket.handshake.auth.i_battle_id ?? <unknown>socket.handshake.headers.i_battle_id,
+        i_player_id: socket.handshake.auth.i_player_id ?? <unknown>socket.handshake.headers.i_player_id,
+        s_auth_token: socket.handshake.auth.s_auth_token ?? <unknown>socket.handshake.headers.s_auth_token,
       });
       if (authError || !authValue) throw new Error(authInfo);
 
@@ -33,54 +32,14 @@ class RootSocket {
 
       const { iBattleId, iPlayerId, sPlayerName, sAuthToken } = authValue;
 
-      const {
-        bMustCollectOnMissTurn,
-        bSkipTurnOnDrawTwoOrFourCard,
-        bStackingDrawCards,
-        bVisualEffectOnUnoButton,
-        nTotalGameTime,
-        nTurnTime,
-        nGraceTime,
-        nStartingNormalCardCount,
-        nStartingSpecialCardCount,
-        nStartingActionCardCount,
-        nTotalPlayerCount,
-        nUnoTime,
-        nSpecialMeterFillCount,
-        nGameInitializeTime,
-        nTotalSkipTurnCount,
-        aCardScore,
-      } = settingsValue;
-
-      // TODO : validate playerId, battleId, authToken via grpc service
-      const bIsValid = true;
+      const bIsValid = true; // TODO : validate playerId, battleId, authToken via grpc service
       if (!bIsValid) throw new Error('player validation failed');
 
       socket.data.iPlayerId = iPlayerId;
       socket.data.iBattleId = iBattleId;
       socket.data.sPlayerName = sPlayerName;
       socket.data.sAuthToken = sAuthToken;
-
-      // TODO : fetch table settings from grpc service
-      // const aCardScore: any[] = []; // TODO : until grpc is sorted create dummy score
-      socket.data.oSettings = {
-        bMustCollectOnMissTurn,
-        bSkipTurnOnDrawTwoOrFourCard,
-        bStackingDrawCards,
-        bVisualEffectOnUnoButton,
-        nTotalGameTime,
-        nTurnTime,
-        nGraceTime,
-        nStartingNormalCardCount,
-        nStartingSpecialCardCount,
-        nStartingActionCardCount,
-        nTotalPlayerCount,
-        nUnoTime,
-        nSpecialMeterFillCount,
-        nGameInitializeTime,
-        nTotalSkipTurnCount,
-        aCardScore,
-      }; // TODO: remove when fetched via grpc
+      socket.data.oSettings = settingsValue; // TODO: remove to be fetch from grpc service
       next();
       return true;
     } catch (err: any) {

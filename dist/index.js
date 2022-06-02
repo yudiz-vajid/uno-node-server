@@ -29,6 +29,7 @@ process.once('unhandledRejection', (ex) => {
     try {
         yield Promise.all([server_1.default.initialize(), redis.initialize()]);
         yield sockets_1.default.initialize(server_1.default.httpServer);
+        yield redis.client.flushAll();
         log.info(':-)');
     }
     catch (err) {

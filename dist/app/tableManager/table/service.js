@@ -93,6 +93,34 @@ class Service {
             }
         });
     }
+    drawCard(eCardType, nCount) {
+        var _a;
+        const aCards = [];
+        log.debug(`type of aDrawPile : ${typeof this.aDrawPile}`);
+        switch (eCardType) {
+            case 'normal':
+                for (let i = 0; i < nCount; i += 1) {
+                    const nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
+                    aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
+                }
+                break;
+            case 'action':
+                for (let i = 0; i < nCount; i += 1) {
+                    const nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9 && c.nLabel < 13);
+                    aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
+                }
+                break;
+            case 'wild':
+                for (let i = 0; i < nCount; i += 1) {
+                    const nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 12);
+                    aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
+                }
+                break;
+            default:
+                return (_a = (log.error(`drawCard called with invalid eCardType: ${eCardType}`) && null)) !== null && _a !== void 0 ? _a : null;
+        }
+        return aCards;
+    }
     getPlayer(iPlayerId) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
@@ -107,8 +135,7 @@ class Service {
     }
     initializeGameTimer() {
         return __awaiter(this, void 0, void 0, function* () {
-            const nBeginCountdown = this.aPlayerId.length === this.oSettings.nTotalPlayerCount ? this.oSettings.nGameInitializeTime / 2 : this.oSettings.nGameInitializeTime;
-            let nBeginCountdownCounter = nBeginCountdown / 1000;
+            let nBeginCountdownCounter = this.oSettings.nGameInitializeTime / 1000;
             const initialTimer = setInterval(() => __awaiter(this, void 0, void 0, function* () {
                 if (nBeginCountdownCounter > 1 && nBeginCountdownCounter < 3 && this.eState !== 'running')
                     this.update({ eState: 'initialized' });
@@ -117,7 +144,7 @@ class Service {
                     return;
                 }
                 clearInterval(initialTimer);
-                this.setSchedular('distributeCard', '', 5);
+                this.setSchedular('distributeCard', '', 2000);
             }), 1000);
         });
     }
@@ -141,12 +168,16 @@ class Service {
             return true;
         });
     }
-    distributeCard(oTable) {
+    updateDrawPile(aDrawPile) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (this.aDrawPile.length <= this.aPlayer.length * 7)
-                return this.emit('resOfError', messages.getString('rummy_not_enough_cards'));
-            this.aPlayer.forEach(player => player.setHand(oTable));
-            return true;
+            this.aDrawPile = aDrawPile;
+            yield this.update({ aDrawPile: this.aDrawPile });
+        });
+    }
+    updateDiscardPile(aDiscardPile) {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.aDiscardPile = aDiscardPile;
+            yield this.update({ aDiscardPile: this.aDiscardPile });
         });
     }
     setSchedular(sTaskName = '', iPlayerId = '', nTimeMS = 0) {
@@ -189,9 +220,11 @@ class Service {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 this.aPlayer.forEach(p => p.emit(sEventName, oData));
+                return true;
             }
             catch (err) {
                 log.error('Table.emit() failed !!!', { reason: err.message });
+                return false;
             }
         });
     }

@@ -1,37 +1,35 @@
-/* eslint-disable import/no-cycle */
 import { IPlayer, ITable, RedisJSON } from '../../../types/global';
-import Table from '../table';
 
 class Service {
-  private readonly iPlayerId: IPlayer['iPlayerId'];
+  protected readonly iPlayerId: IPlayer['iPlayerId'];
 
-  private readonly iBattleId: IPlayer['iBattleId'];
+  protected readonly iBattleId: IPlayer['iBattleId'];
 
-  private readonly sPlayerName: IPlayer['sPlayerName'];
+  protected readonly sPlayerName: IPlayer['sPlayerName'];
 
-  private sSocketId: IPlayer['sSocketId'];
+  protected sSocketId: IPlayer['sSocketId'];
 
-  private readonly nSeat: IPlayer['nSeat'];
+  protected readonly nSeat: IPlayer['nSeat'];
 
-  private nScore: IPlayer['nScore'];
+  protected nScore: IPlayer['nScore'];
 
-  private nUnoTime: IPlayer['nUnoTime'];
+  protected nUnoTime: IPlayer['nUnoTime'];
 
-  private nGraceTime: IPlayer['nGraceTime'];
+  protected nGraceTime: IPlayer['nGraceTime'];
 
-  private nMissedTurn: IPlayer['nMissedTurn'];
+  protected nMissedTurn: IPlayer['nMissedTurn'];
 
-  private nDrawNormal: IPlayer['nDrawNormal'];
+  protected nDrawNormal: IPlayer['nDrawNormal'];
 
-  private nReconnectionAttempt: IPlayer['nReconnectionAttempt'];
+  protected nReconnectionAttempt: IPlayer['nReconnectionAttempt'];
 
-  private bSpecialMeterFull: IPlayer['bSpecialMeterFull'];
+  protected bSpecialMeterFull: IPlayer['bSpecialMeterFull'];
 
-  private aHand: IPlayer['aHand'];
+  protected aHand: IPlayer['aHand'];
 
-  private eState: IPlayer['eState'];
+  protected eState: IPlayer['eState'];
 
-  private readonly dCreatedAt: IPlayer['dCreatedAt'];
+  protected readonly dCreatedAt: IPlayer['dCreatedAt'];
 
   constructor(oData: IPlayer) {
     this.iPlayerId = oData.iPlayerId;
@@ -113,35 +111,6 @@ class Service {
     }
   }
 
-  public async setHand(oTable: Table) {
-    // TODO :- Distribute 7 cards to user (4+3)
-    // const oTable = await TableManager.getTable(this.iBattleId);
-    if (!oTable) return false;
-    const { aDrawPile, oSettings } = oTable.toJSON();
-
-    const aNormalCards = aDrawPile.filter(card => card.nLabel < 10 && card.eColor!=='black');
-    const aSpecialCards = aDrawPile.filter(card => card.nLabel > 9 && card.nLabel < 13);
-    const aActionCards = aDrawPile.filter(card => card.nLabel > 12);
-    if (!aNormalCards || !aSpecialCards || !aActionCards) return null;
-
-    const nNormalCardCount = oSettings.nStartingNormalCardCount || 4;
-    const nSpecialCardCount = oSettings.nStartingSpecialCardCount || 3;
-    const nActionCardCount = oSettings.nStartingActionCardCount || 0;
-    // console.log('before :: ',aNormalCards.length);
-
-    this.aHand.push(...aNormalCards.splice(0, nNormalCardCount));
-    this.aHand.push(...aSpecialCards.splice(0, nSpecialCardCount));
-    this.aHand.push(...aActionCards.splice(0, nActionCardCount));
-    // console.log('after :: ',aNormalCards.length);
-
-    await this.update({ aHand: this.aHand });
-    await oTable.update({aDrawPile:{ ...aNormalCards, ...aActionCards, ...aSpecialCards} });
-    // console.log('setHand called for user ',this.iPlayerId);
-    // console.log('player hand ',this.aHand);
-    this.emit('resHand',{aHand:this.aHand})
-    return true;
-  }
-
   // TODO: reconnection
   public async reconnect(sSocketId: string, eTableState: ITable['eState']) {
     const stateMapper = { waiting: 'waiting', initialized: 'waiting', running: 'playing', finished: 'left' };
@@ -152,8 +121,8 @@ class Service {
 
   public async emit(sEventName: string, oData: Record<string, unknown> = {}) {
     if (!sEventName) return false;
-    if (this.sSocketId) global.io.to(this.sSocketId).emit(this.iBattleId,_.stringify({ sTaskName: sEventName, ...oData })); // cb not supported while broadcasting
-    if (process.env.NODE_ENV !== 'prod') global.io.to(this.sSocketId).emit('postman',_.stringify({ sTaskName: sEventName, ...oData }));
+    if (this.sSocketId) global.io.to(this.sSocketId).emit(this.iBattleId, _.stringify({ sTaskName: sEventName, ...oData })); // cb not supported while broadcasting
+    if (process.env.NODE_ENV !== 'prod') global.io.to(this.sSocketId).emit('postman', _.stringify({ sTaskName: sEventName, ...oData }));
     return true;
   }
 
@@ -176,7 +145,6 @@ class Service {
       dCreatedAt: this.dCreatedAt,
     };
   }
-  //   async setHand() {}
 }
 
 export default Service;

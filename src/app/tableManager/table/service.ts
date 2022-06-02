@@ -1,36 +1,35 @@
-/* eslint-disable import/no-cycle */
-import Table from '.';
-import Player from '../player';
+import type Table from '.';
+import type Player from '../player';
 import { ITable, ITableWithPlayer, RedisJSON } from '../../../types/global';
 
 class Service {
-  private readonly iBattleId: ITableWithPlayer['iBattleId'];
+  protected readonly iBattleId: ITableWithPlayer['iBattleId'];
 
-  private iPlayerTurn: ITableWithPlayer['iPlayerTurn'];
+  protected iPlayerTurn: ITableWithPlayer['iPlayerTurn'];
 
-  private iSkippedPLayer: ITableWithPlayer['iSkippedPLayer'];
+  protected iSkippedPLayer: ITableWithPlayer['iSkippedPLayer'];
 
-  private aPlayerId: ITableWithPlayer['aPlayerId'];
+  protected aPlayerId: ITableWithPlayer['aPlayerId'];
 
-  private aDrawPile: ITableWithPlayer['aDrawPile'];
+  protected aDrawPile: ITableWithPlayer['aDrawPile'];
 
-  private aDiscardPile: ITableWithPlayer['aDiscardPile'];
+  protected aDiscardPile: ITableWithPlayer['aDiscardPile'];
 
-  private bToSkip: ITableWithPlayer['bToSkip'];
+  protected bToSkip: ITableWithPlayer['bToSkip'];
 
-  private eState: ITableWithPlayer['eState'];
+  protected eState: ITableWithPlayer['eState'];
 
-  private eTurnDirection: ITableWithPlayer['eTurnDirection'];
+  protected eTurnDirection: ITableWithPlayer['eTurnDirection'];
 
-  private eNextCardColor: ITableWithPlayer['eNextCardColor'];
+  protected eNextCardColor: ITableWithPlayer['eNextCardColor'];
 
-  private nDrawCount: ITableWithPlayer['nDrawCount'];
+  protected nDrawCount: ITableWithPlayer['nDrawCount'];
 
-  private dCreatedAt: ITableWithPlayer['dCreatedAt'];
+  protected dCreatedAt: ITableWithPlayer['dCreatedAt'];
 
-  private readonly oSettings: ITableWithPlayer['oSettings'];
+  protected readonly oSettings: ITableWithPlayer['oSettings'];
 
-  private aPlayer: Player[];
+  protected aPlayer: Player[];
 
   constructor(oData: ITable & { aPlayer?: Player[] }) {
     this.iBattleId = oData.iBattleId;
@@ -120,6 +119,34 @@ class Service {
     }
   }
 
+  public drawCard(eCardType: 'normal' | 'action' | 'wild', nCount: number) {
+    const aCards: Table['aDrawPile'] = [];
+    log.debug(`type of aDrawPile : ${typeof this.aDrawPile}`);
+    switch (eCardType) {
+      case 'normal':
+        for (let i = 0; i < nCount; i += 1) {
+          const nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
+          aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
+        }
+        break;
+      case 'action':
+        for (let i = 0; i < nCount; i += 1) {
+          const nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9 && c.nLabel < 13);
+          aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
+        }
+        break;
+      case 'wild':
+        for (let i = 0; i < nCount; i += 1) {
+          const nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 12);
+          aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
+        }
+        break;
+      default:
+        return (log.error(`drawCard called with invalid eCardType: ${eCardType}`) && null) ?? null;
+    }
+    return aCards;
+  }
+
   public async getPlayer(iPlayerId: string) {
     return this.aPlayer.find(oParticipant => oParticipant.toJSON().iPlayerId === iPlayerId) ?? null;
   }
@@ -131,8 +158,8 @@ class Service {
   }
 
   public async initializeGameTimer() {
-    const nBeginCountdown = this.aPlayerId.length === this.oSettings.nTotalPlayerCount ? this.oSettings.nGameInitializeTime / 2 : this.oSettings.nGameInitializeTime;
-    let nBeginCountdownCounter = nBeginCountdown / 1000;
+    // const nBeginCountdown = this.aPlayerId.length === this.oSettings.nTotalPlayerCount ? this.oSettings.nGameInitializeTime / 2 : this.oSettings.nGameInitializeTime;
+    let nBeginCountdownCounter = this.oSettings.nGameInitializeTime / 1000;
 
     const initialTimer = setInterval(async () => {
       if (nBeginCountdownCounter > 1 && nBeginCountdownCounter < 3 && this.eState !== 'running') this.update({ eState: 'initialized' });
@@ -142,7 +169,7 @@ class Service {
       }
       clearInterval(initialTimer);
       // emitter.emit('reqSchedule', 'distributeCard', this.iBattleId);
-      this.setSchedular('distributeCard','',5);
+      this.setSchedular('distributeCard', '', 2000); // TODO: replace with nAnimationDelay
     }, 1000);
   }
 
@@ -170,10 +197,14 @@ class Service {
     return true;
   }
 
-  public async distributeCard(oTable: Table) {  
-    if (this.aDrawPile.length <= this.aPlayer.length * 7) return this.emit('resOfError', messages.getString('rummy_not_enough_cards'));
-    this.aPlayer.forEach(player => player.setHand(oTable));
-    return true;
+  public async updateDrawPile(aDrawPile: Table['aDrawPile']) {
+    this.aDrawPile = aDrawPile;
+    await this.update({ aDrawPile: this.aDrawPile });
+  }
+
+  public async updateDiscardPile(aDiscardPile: Table['aDiscardPile']) {
+    this.aDiscardPile = aDiscardPile;
+    await this.update({ aDiscardPile: this.aDiscardPile });
   }
 
   public async setSchedular(sTaskName = '', iPlayerId = '', nTimeMS = 0) {
@@ -208,8 +239,10 @@ class Service {
   public async emit(sEventName: string, oData: Record<string, unknown>) {
     try {
       this.aPlayer.forEach(p => p.emit(sEventName, oData));
+      return true;
     } catch (err: any) {
       log.error('Table.emit() failed !!!', { reason: err.message });
+      return false;
     }
   }
 

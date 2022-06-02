@@ -1,8 +1,8 @@
 import { IEnvs } from './types/global';
 
-process.env.NODE_ENV = 'dev';
+process.env.NODE_ENV = 'stag';
 process.env.PORT = '3010';
-process.env.HOST = `127.0.0.1/${process.env.NODE_ENV}`;
+process.env.HOST = `127.0.0.111/${process.env.NODE_ENV}`;
 
 process.env.DB_PASSWORD = '';
 
@@ -25,7 +25,7 @@ const oEnv: IEnvs = {
   },
   // prod: {},
 };
-const winstonLogLevel: 'error' | 'warn' | 'info' | 'http' | 'verbose' | 'debug' | 'silly' = 'silly';
+const winstonLogLevel: 'error' | 'warn' | 'info' | 'http' | 'verbose' | 'debug' | 'silly' = 'debug';
 process.env.LOG_LEVEL = winstonLogLevel;
 
 process.env.BASE_URL = oEnv[process.env.NODE_ENV].BASE_URL;

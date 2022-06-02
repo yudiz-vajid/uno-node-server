@@ -19,6 +19,7 @@ process.once('unhandledRejection', (ex: any) => {
   try {
     await Promise.all([server.initialize(), redis.initialize()]);
     await socket.initialize(server.httpServer);
+    await redis.client.flushAll();
     log.info(':-)');
   } catch (err: any) {
     log.info(':-(');

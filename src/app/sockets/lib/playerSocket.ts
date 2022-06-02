@@ -1,8 +1,6 @@
-/* eslint-disable no-shadow */
-/* eslint-disable no-unused-vars */
 import type { Socket } from 'socket.io';
 import Channel from './channel';
-import { ISettings } from '../../../types/global';
+import { ICallback, ISettings } from '../../../types/global';
 import TableManager from '../../tableManager';
 import { response } from '../../util';
 
@@ -37,7 +35,6 @@ class PlayerSocket {
     this.socket.on('reqTableJoin', this.joinTable.bind(this));
     this.socket.on('error', this.errorHandler.bind(this));
     this.socket.on('disconnect', this.disconnect.bind(this));
-    // this.joinTable();
   }
 
   /**
@@ -45,7 +42,7 @@ class PlayerSocket {
    * if player is not in a battle, create new player, table, and set startGameScheduled time
    * when all player joined emit 'resTableState'
    */
-  private async joinTable(body: unknown, _ack: (data: unknown) => void) {
+  private async joinTable(body: unknown, _ack: ICallback) {
     if (typeof _ack !== 'function') return false;
     try {
       let table = await TableManager.getTable(this.iBattleId);
@@ -82,15 +79,15 @@ class PlayerSocket {
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { aDrawPile, aPlayer, aPlayerId, ...rest } = table.toJSON();
-      const aParticipant: Array<Record<'iPlayerId' | 'nSeat' | 'nCardCount', string | number>> = [];
-      table.toJSON().aPlayer.forEach(player => {
-        const p = player.toJSON();
-        aParticipant.push({ iPlayerId: p.iPlayerId, nSeat: p.nSeat, nCardCount: p.aHand.length });
+
+      const aParticipant = table.toJSON().aPlayer.map(p => {
+        const pJson = p.toJSON();
+        return { iPlayerId: pJson.iPlayerId, nSeat: pJson.nSeat, nCardCount: pJson.aHand.length };
       });
 
       _ack({ iBattleId: this.iBattleId, iPlayerId: this.iPlayerId, success: response.SUCCESS });
       table.emit('resTableJoin', { iBattleId: this.iBattleId, iPlayerId: this.iPlayerId });
-      if (table.toJSON().aPlayerId.length == (this.oSetting.nTotalPlayerCount ?? 2)) {
+      if (aPlayerId.length === this.oSetting.nTotalPlayerCount) {
         table.emit('resTableState', { table: rest, aPlayer: aParticipant });
       }
       return true;
@@ -100,7 +97,7 @@ class PlayerSocket {
     }
   }
 
-  private reqPing(body: any, _ack?: (data: unknown) => void) {
+  private reqPing(body: any, _ack?: ICallback) {
     if (typeof _ack === 'function') _ack('pong');
     log.verbose(`${_.now()} client: '${this.iPlayerId}' => ping`);
   }

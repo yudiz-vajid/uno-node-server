@@ -1,3 +1,7 @@
+export declare interface ICallback {
+  // eslint-disable-next-line no-unused-vars
+  (message?: Record<string, unknown> | string | boolean): void;
+}
 export declare interface IEnv {
   BASE_URL: string;
   REDIS_DB: string;

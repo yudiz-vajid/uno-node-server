@@ -1,4 +1,3 @@
-/* eslint-disable import/no-cycle */
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
@@ -32,9 +31,12 @@ class TableManager {
     if (!oTable) return false;
     switch (sTaskName) {
       case 'distributeCard':
-        await oTable.distributeCard(oTable);
+        await oTable.distributeCard();
         return true;
       case 'drawCard':
+        return true;
+      case 'masterTimerExpired':
+        oTable.masterTimerExpired();
         return true;
       default:
         return false;
@@ -48,8 +50,8 @@ class TableManager {
         iPlayerTurn: '',
         iSkippedPLayer: '',
         aPlayerId: [],
-        aDrawPile: new Deck().getDeck(),
-        aDiscardPile: [],
+        aDrawPile: new Deck(oData.oSettings.aCardScore).getDeck(), // - to be initialized during distributeCard
+        aDiscardPile: [], // - to be initialized during distributeCard
         bToSkip: false,
         eState: 'waiting',
         eTurnDirection: 'clockwise',

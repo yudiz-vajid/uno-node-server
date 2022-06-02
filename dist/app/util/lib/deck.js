@@ -53,9 +53,9 @@ class Deck {
         for (let i = 13; i <= 14; i++) {
             for (let j = 0; j < 4; j++) {
                 if (i === 13)
-                    aWildCard.push({ iCardId: `wd${i}${String.fromCharCode(97 + j)}`, eColor: 'black', nLabel: j, nScore: this.aScore[i] });
+                    aWildCard.push({ iCardId: `wd${i}${String.fromCharCode(97 + j)}`, eColor: 'black', nLabel: i, nScore: this.aScore[i] });
                 else
-                    aWildCard.push({ iCardId: `wr${i}${String.fromCharCode(97 + j)}`, eColor: 'black', nLabel: j, nScore: this.aScore[i] });
+                    aWildCard.push({ iCardId: `wr${i}${String.fromCharCode(97 + j)}`, eColor: 'black', nLabel: i, nScore: this.aScore[i] });
             }
         }
         return aWildCard;

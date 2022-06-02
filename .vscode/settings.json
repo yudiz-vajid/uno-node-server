@@ -43,7 +43,7 @@
         "*.lock": true,
         ".resources": true,
         "node_modules": true,
-        ".prettierrc.json": true,
+        ".prettierrc.json": false,
         "dist": true
     },
     "explorerExclude.backup": null,

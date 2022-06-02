@@ -59,8 +59,8 @@ class Deck {
     const aWildCard: Array<ICard> = [];
     for (let i: ICard['nLabel'] = 13; i <= 14; i++) {
       for (let j = 0; j < 4; j++) {
-        if (i === 13) aWildCard.push({ iCardId: `wd${i}${String.fromCharCode(97 + j)}`, eColor: 'black', nLabel: j as ICard['nLabel'], nScore: this.aScore[i] }); // - x4
-        else aWildCard.push({ iCardId: `wr${i}${String.fromCharCode(97 + j)}`, eColor: 'black', nLabel: j as ICard['nLabel'], nScore: this.aScore[i] }); // - x4
+        if (i === 13) aWildCard.push({ iCardId: `wd${i}${String.fromCharCode(97 + j)}`, eColor: 'black', nLabel: i as ICard['nLabel'], nScore: this.aScore[i] }); // - x4
+        else aWildCard.push({ iCardId: `wr${i}${String.fromCharCode(97 + j)}`, eColor: 'black', nLabel: i as ICard['nLabel'], nScore: this.aScore[i] }); // - x4
       } // - x4
     }
     return aWildCard; // - x8 => 4 -> wild, 4 -> wildDrawFour

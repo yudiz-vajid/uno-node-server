@@ -9,6 +9,7 @@ const response = {
   TABLE_NOT_UPDATED: { code: 6, message: 'table not updated' },
   PLAYER_NOT_CREATED: { code: 7, message: 'player not created' },
   PLAYER_NOT_UPDATED: { code: 8, message: 'player not updated' },
+  NOT_ENOUGH_CARDS: { code: 9, message: 'not enough cards' },
 };
 
 export default response;
