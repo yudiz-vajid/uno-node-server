@@ -78,27 +78,27 @@ class PlayerSocket {
       } // - add channel listeners and handle duplicate listeners(mainly while reconnection)
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { aDrawPile, aPlayer, aPlayerId, ...rest } = table.toJSON();
+      // const { aDrawPile, aPlayer, aPlayerId, ...rest } = table.toJSON();
 
-      const aParticipant = table.toJSON().aPlayer.map(p => {
-        const pJson = p.toJSON();
-        return { iPlayerId: pJson.iPlayerId, nSeat: pJson.nSeat, nCardCount: pJson.aHand.length };
-      });
+      // const aParticipant = table.toJSON().aPlayer.map(p => {
+      //   const pJson = p.toJSON();
+      //   return { iPlayerId: pJson.iPlayerId, nSeat: pJson.nSeat, nCardCount: pJson.aHand.length };
+      // });
 
       _ack({ iBattleId: this.iBattleId, iPlayerId: this.iPlayerId, success: response.SUCCESS });
-      table.emit('resTableJoin', { iBattleId: this.iBattleId, iPlayerId: this.iPlayerId });
-      if (aPlayerId.length === this.oSetting.nTotalPlayerCount) {
-        table.emit('resTableState', { table: rest, aPlayer: aParticipant });
+      // table.emit('resTableJoin', { iBattleId: this.iBattleId, iPlayerId: this.iPlayerId });
+      // if (aPlayerId.length === this.oSetting.nTotalPlayerCount) {
+      //   table.emit('resTableState', { table: rest, aPlayer: aParticipant });
         
-        const ePreviousState = rest.eState;
-        // eslint-disable-next-line eqeqeq
-        const bInitializeTable = aPlayerId.length == rest.oSettings.nTotalPlayerCount && rest.eState === 'waiting';
-        rest.eState = bInitializeTable ? 'initialized' : rest.eState;
-        if (ePreviousState === 'waiting' && rest.eState === 'initialized') {
-          // this.deleteScheduler('refundOnLongWait'); // TODO :- Add refunc process
-          table.initializeGame();
-        }
-      }
+      //   const ePreviousState = rest.eState;
+      //   // eslint-disable-next-line eqeqeq
+      //   const bInitializeTable = aPlayerId.length == rest.oSettings.nTotalPlayerCount && rest.eState === 'waiting';
+      //   rest.eState = bInitializeTable ? 'initialized' : rest.eState;
+      //   if (ePreviousState === 'waiting' && rest.eState === 'initialized') {
+      //     // this.deleteScheduler('refundOnLongWait'); // TODO :- Add refunc process
+      //     table.initializeGame();
+      //   }
+      // }
       return true;
     } catch (err: any) {
       log.error(`${_.now()} client: '${this.iPlayerId}' joinTable event failed. reason: ${err.message}`);

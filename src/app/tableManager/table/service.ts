@@ -153,13 +153,30 @@ class Service {
 
   // eslint-disable-next-line class-methods-use-this
   public async initializeGame() {
-    this.initializeGameTimer();
+    const { aDrawPile, aPlayer, aPlayerId, ...rest } = this.toJSON();
+    const aParticipant = this.toJSON().aPlayer.map(p => {
+      const pJson = p.toJSON();
+      return { iPlayerId: pJson.iPlayerId, nSeat: pJson.nSeat, nCardCount: pJson.aHand.length };
+    });
+    this.emit('resTableState', { table: rest, aPlayer: aParticipant });
+      
+    const ePreviousState = rest.eState;
+    // eslint-disable-next-line eqeqeq
+    const bInitializeTable = aPlayerId.length == rest.oSettings.nTotalPlayerCount && rest.eState === 'waiting';
+    rest.eState = bInitializeTable ? 'initialized' : rest.eState;
+    if (ePreviousState === 'waiting' && rest.eState === 'initialized') {
+      // this.deleteScheduler('refundOnLongWait'); // TODO :- Add refunc process
+      this.initializeGameTimer();
+    }
+
+
   }
 
   public async initializeGameTimer() {
     // const nBeginCountdown = this.aPlayerId.length === this.oSettings.nTotalPlayerCount ? this.oSettings.nGameInitializeTime / 2 : this.oSettings.nGameInitializeTime;
     let nBeginCountdownCounter = this.oSettings.nGameInitializeTime ;
-    this.emit('resGameInitializeTimer', { ttl: nBeginCountdownCounter,timestamp :Date.now() });
+    this.emit('resGameInitializeTimer', { ttl: nBeginCountdownCounter,timestamp :Date.now() });    
+    // throw new Error(`schedular doesn't exists`);
     this.setSchedular('gameInitializeTimerExpired', '', nBeginCountdownCounter); // -  TODO :- reduce 2 sec if required
 
   }
@@ -170,6 +187,11 @@ class Service {
     const oUpdateTable = await this.update({ aPlayerId: tablePlayerId });
     if (!oUpdateTable) return false;
     this.aPlayer.push(oPlayer);
+
+    if (this.aPlayerId.length === this.oSettings.nTotalPlayerCount) {
+      this.initializeGame()
+    }
+
     return true;
   }
 
