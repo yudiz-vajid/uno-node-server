@@ -121,8 +121,8 @@ class Service {
 
   public async emit(sEventName: string, oData: Record<string, unknown> = {}) {
     if (!sEventName) return false;
-    if (this.sSocketId) global.io.to(this.sSocketId).emit(this.iBattleId, _.stringify({ sTaskName: sEventName, ...oData })); // cb not supported while broadcasting
-    if (process.env.NODE_ENV !== 'prod') global.io.to(this.sSocketId).emit('postman', _.stringify({ sTaskName: sEventName, ...oData }));
+    if (this.sSocketId) global.io.to(this.sSocketId).emit(this.iBattleId, _.stringify({ sTaskName: sEventName,oData:{ ...oData} })); // cb not supported while broadcasting
+    if (process.env.NODE_ENV !== 'prod') global.io.to(this.sSocketId).emit('postman', _.stringify({ sTaskName: sEventName, oData:{ ...oData} }));
     return true;
   }
 

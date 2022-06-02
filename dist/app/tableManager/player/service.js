@@ -103,9 +103,9 @@ class Service {
             if (!sEventName)
                 return false;
             if (this.sSocketId)
-                global.io.to(this.sSocketId).emit(this.iBattleId, _.stringify(Object.assign({ sTaskName: sEventName }, oData)));
+                global.io.to(this.sSocketId).emit(this.iBattleId, _.stringify({ sTaskName: sEventName, oData: Object.assign({}, oData) }));
             if (process.env.NODE_ENV !== 'prod')
-                global.io.to(this.sSocketId).emit('postman', _.stringify(Object.assign({ sTaskName: sEventName }, oData)));
+                global.io.to(this.sSocketId).emit('postman', _.stringify({ sTaskName: sEventName, oData: Object.assign({}, oData) }));
             return true;
         });
     }
