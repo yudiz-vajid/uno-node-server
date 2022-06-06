@@ -48,7 +48,7 @@ class PlayerSocket {
       let table = await TableManager.getTable(this.iBattleId);
       if (!table) table = await TableManager.createTable({ iBattleId: this.iBattleId, oSettings: this.oSetting });
       if (!table) throw new Error('Table not created');
-
+      _ack({ iBattleId: this.iBattleId, iPlayerId: this.iPlayerId, success: response.SUCCESS });
       let player = await table.getPlayer(this.iPlayerId);
       if (!player) {
         player = await TableManager.createPlayer({
@@ -85,7 +85,6 @@ class PlayerSocket {
       //   return { iPlayerId: pJson.iPlayerId, nSeat: pJson.nSeat, nCardCount: pJson.aHand.length };
       // });
 
-      _ack({ iBattleId: this.iBattleId, iPlayerId: this.iPlayerId, success: response.SUCCESS });
       // table.emit('resTableJoin', { iBattleId: this.iBattleId, iPlayerId: this.iPlayerId });
       // if (aPlayerId.length === this.oSetting.nTotalPlayerCount) {
       //   table.emit('resTableState', { table: rest, aPlayer: aParticipant });

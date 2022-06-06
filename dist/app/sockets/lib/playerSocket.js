@@ -43,6 +43,7 @@ class PlayerSocket {
                     table = yield tableManager_1.default.createTable({ iBattleId: this.iBattleId, oSettings: this.oSetting });
                 if (!table)
                     throw new Error('Table not created');
+                _ack({ iBattleId: this.iBattleId, iPlayerId: this.iPlayerId, success: util_1.response.SUCCESS });
                 let player = yield table.getPlayer(this.iPlayerId);
                 if (!player) {
                     player = yield tableManager_1.default.createPlayer({
@@ -73,7 +74,6 @@ class PlayerSocket {
                     const channel = new channel_1.default(this.iBattleId, this.iPlayerId);
                     this.socket.on(this.iBattleId, channel.onEvent.bind(channel));
                 }
-                _ack({ iBattleId: this.iBattleId, iPlayerId: this.iPlayerId, success: util_1.response.SUCCESS });
                 return true;
             }
             catch (err) {
