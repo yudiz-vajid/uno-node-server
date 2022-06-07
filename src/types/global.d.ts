@@ -38,7 +38,7 @@ declare interface ISettings {
   nGraceTime: number; // ms
   nStartingNormalCardCount: number;
   nStartingSpecialCardCount: number;
-  nStartingActionCardCount: number;
+  // nStartingActionCardCount: number;
   nTotalPlayerCount: number;
   nUnoTime: number;
   nSpecialMeterFillCount: number;

@@ -44,7 +44,6 @@ const Schema = joi_1.default.object().keys({
     nTurnTime: joi_1.default.number().optional().default(10000),
     nGraceTime: joi_1.default.number().optional().default(10000),
     nStartingNormalCardCount: joi_1.default.number().optional().default(4),
-    nStartingActionCardCount: joi_1.default.number().optional().default(3),
     nStartingSpecialCardCount: joi_1.default.number().optional().default(0),
     nTotalPlayerCount: joi_1.default.number().optional().default(2),
     nUnoTime: joi_1.default.number().optional().default(10000),

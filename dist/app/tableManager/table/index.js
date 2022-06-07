@@ -17,23 +17,20 @@ class Table extends service_1.default {
     distributeCard() {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
-            const { nStartingNormalCardCount, nStartingActionCardCount, nStartingSpecialCardCount } = this.oSettings;
-            const nInitialCardsPerUser = nStartingNormalCardCount + nStartingActionCardCount + nStartingSpecialCardCount;
+            const { nStartingNormalCardCount, nStartingSpecialCardCount } = this.oSettings;
+            const nInitialCardsPerUser = nStartingNormalCardCount + nStartingSpecialCardCount;
             if (this.aDrawPile.length <= this.aPlayer.length * nInitialCardsPerUser)
                 return (_a = (log.error(`Not enough cards in the draw pile to distribute to all players`) && null)) !== null && _a !== void 0 ? _a : false;
             this.aPlayer.forEach((player) => __awaiter(this, void 0, void 0, function* () {
-                var _c, _d, _e;
+                var _c, _d;
                 log.verbose(`length(drawPile): ${this.aDrawPile.length} `);
                 const aNormalCard = this.drawCard('normal', nStartingNormalCardCount);
                 if (!aNormalCard)
                     return (_c = (log.error(`Could not draw normal cards for player ${player.toJSON().iPlayerId}`) && null)) !== null && _c !== void 0 ? _c : false;
-                const aActionCard = this.drawCard('action', nStartingActionCardCount);
-                if (!aActionCard)
-                    return (_d = (log.error(`Could not draw action cards for player ${player.toJSON().iPlayerId}`) && null)) !== null && _d !== void 0 ? _d : false;
                 const aWildCard = this.drawCard('wild', nStartingSpecialCardCount);
                 if (!aWildCard)
-                    return (_e = (log.error(`Could not draw wild cards for player ${player.toJSON().iPlayerId}`) && null)) !== null && _e !== void 0 ? _e : false;
-                yield player.setHand(aNormalCard, aActionCard, aWildCard);
+                    return (_d = (log.error(`Could not draw wild cards for player ${player.toJSON().iPlayerId}`) && null)) !== null && _d !== void 0 ? _d : false;
+                yield player.setHand(aNormalCard, aWildCard);
                 return true;
             }));
             const oDiscardPileTopCard = this.drawCard('normal', 1);

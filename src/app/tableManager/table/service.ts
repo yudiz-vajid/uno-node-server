@@ -129,15 +129,15 @@ class Service {
           aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
         }
         break;
-      case 'action':
-        for (let i = 0; i < nCount; i += 1) {
-          const nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9 && c.nLabel < 13);
-          aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
-        }
-        break;
+      // case 'action': // TODO :- will add in future.
+      //   for (let i = 0; i < nCount; i += 1) {
+      //     const nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9 && c.nLabel < 13);
+      //     aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
+      //   }
+      //   break;
       case 'wild':
         for (let i = 0; i < nCount; i += 1) {
-          const nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 12);
+          const nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9);
           aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
         }
         break;

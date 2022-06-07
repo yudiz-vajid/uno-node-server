@@ -14,11 +14,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const service_1 = __importDefault(require("./service"));
 class Player extends service_1.default {
-    setHand(aNormalCard, aActionCard, aWildCard) {
+    setHand(aNormalCard, aWildCard) {
         return __awaiter(this, void 0, void 0, function* () {
             log.verbose(`setHand called for user ${this.iPlayerId}`);
             this.aHand.push(...aNormalCard);
-            this.aHand.push(...aActionCard);
             this.aHand.push(...aWildCard);
             yield this.update({ aHand: this.aHand });
             this.emit('resHand', { aHand: this.aHand });
