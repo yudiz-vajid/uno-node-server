@@ -158,12 +158,12 @@ class Service {
       const pJson = p.toJSON();
       return { iPlayerId: pJson.iPlayerId, nSeat: pJson.nSeat, nCardCount: pJson.aHand.length };
     });
-    this.emit('resTableState', { table: rest, aPlayer: aParticipant });
-      
+    
     const ePreviousState = rest.eState;
     // eslint-disable-next-line eqeqeq
     const bInitializeTable = aPlayerId.length == rest.oSettings.nTotalPlayerCount && rest.eState === 'waiting';
     rest.eState = bInitializeTable ? 'initialized' : rest.eState;
+    this.emit('resTableState', { table: rest, aPlayer: aParticipant });
     if (ePreviousState === 'waiting' && rest.eState === 'initialized') {
       // this.deleteScheduler('refundOnLongWait'); // TODO :- Add refunc process
       this.initializeGameTimer();
