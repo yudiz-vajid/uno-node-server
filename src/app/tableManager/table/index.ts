@@ -30,6 +30,7 @@ class Table extends Service {
     this.emit('resDiscardPileTopCard', { oDiscardPileTopCard: this.aDiscardPile[this.aDiscardPile.length - 1] });
     this.emit('resInitMasterTimer', { ttl: this.oSettings.nTotalGameTime, timestamp: Date.now() });
     this.setSchedular('masterTimerExpired', '', this.oSettings.nTotalGameTime); // -  game lifetime second
+    this.assignRandomTurn()
     return true;
   }
 
@@ -44,6 +45,13 @@ class Table extends Service {
     log.verbose('gameInitializeTimerExpired, game should start now');
     this.emit('resGameInitializeTimerExpired', {});
     this.setSchedular('distributeCard', '', 2000); // TODO: replace with nAnimationDelay
+    return true;
+  }
+
+  public async assignTurnTimerExpired() {
+    log.verbose('assignTurnTimerExpired, assign grace timer');
+    // this.emit('resGameInitializeTimerExpired', {});
+    // this.setSchedular('assignGraceTimerExpired', '', 2000); // TODO: replace with nAnimationDelay
     return true;
   }
 }

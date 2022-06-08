@@ -41,6 +41,9 @@ class TableManager {
       case 'gameInitializeTimerExpired':
         oTable.gameInitializeTimerExpired();
         return true;
+      case 'assignTurnTimerExpired':
+        oTable.assignTurnTimerExpired();
+        return true;
       default:
         return false;
     }

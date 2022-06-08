@@ -8,7 +8,7 @@ class Player extends Service {
     this.aHand.push(...aNormalCard);
     this.aHand.push(...aWildCard);
 
-    await this.update({ aHand: this.aHand });
+    await this.update({ aHand: this.aHand,eState:'playing' });
     this.emit('resHand', { aHand: this.aHand });
   }
 }

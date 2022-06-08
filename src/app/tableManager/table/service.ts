@@ -52,7 +52,24 @@ class Service {
     // return Deck.aDeck.slice(0, 7);
     log.info(this.aDrawPile);
   }
+/**
+ * get all players & assign turn to random user
+ * update table for player turn
+ * set scheduler for turn timer expire
+ * send table emit for user turn
+ */
+  public assignRandomTurn(){
+    log.info('assignRandomTurn called..');
+    const playerTurn=_.randomizeArray(this.aPlayerId)
+    this.assignTurnTimer(playerTurn[0])
+  }
 
+  public async assignTurnTimer(iPlayerId:any=''){
+    log.info('assignTurnTimer called..',iPlayerId)
+    await this.update({ iPlayerTurn: iPlayerId });
+    this.emit('resTurnTimer',{iPlayerId:iPlayerId,ttl:this.oSettings.nTurnTime,timestamp :Date.now()})
+    this.setSchedular('assignTurnTimerExpired', iPlayerId,this.oSettings.nTurnTime); 
+  }
   public async update(
     oDate: Partial<
       Pick<ITable, 'iPlayerTurn' | 'iSkippedPLayer' | 'aPlayerId' | 'aDrawPile' | 'aDiscardPile' | 'bToSkip' | 'eState' | 'bTurnClockwise' | 'eNextCardColor' | 'nDrawCount'>
