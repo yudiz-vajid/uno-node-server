@@ -48,10 +48,11 @@ class Table extends Service {
     return true;
   }
 
-  public async assignTurnTimerExpired() {
+  public async assignTurnTimerExpired(iPlayerId:any='') {
     log.verbose('assignTurnTimerExpired, assign grace timer');
-    // this.emit('resGameInitializeTimerExpired', {});
-    // this.setSchedular('assignGraceTimerExpired', '', 2000); // TODO: replace with nAnimationDelay
+    const turnPlayer=await this.getPlayer(iPlayerId)
+    this.emit('resTurnTimer',{bIsGraceTimer:true,iPlayerId:iPlayerId,ttl:turnPlayer?.toJSON().nGraceTime,timestamp :Date.now(),aPlayableCards:[]})
+    this.setSchedular('assignGraceTimerExpired', iPlayerId, turnPlayer?.toJSON().nGraceTime); // TODO: replace with nAnimationDelay
     return true;
   }
 }

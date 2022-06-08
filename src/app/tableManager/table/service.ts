@@ -65,9 +65,9 @@ class Service {
   }
 
   public async assignTurnTimer(iPlayerId:any=''){
-    log.info('assignTurnTimer called..',iPlayerId)
+    log.info('assignTurnTimer called...')
     await this.update({ iPlayerTurn: iPlayerId });
-    this.emit('resTurnTimer',{iPlayerId:iPlayerId,ttl:this.oSettings.nTurnTime,timestamp :Date.now()})
+    this.emit('resTurnTimer',{bIsGraceTimer:false,iPlayerId:iPlayerId,ttl:this.oSettings.nTurnTime,timestamp :Date.now(),aPlayableCards:[]})
     this.setSchedular('assignTurnTimerExpired', iPlayerId,this.oSettings.nTurnTime); 
   }
   public async update(
