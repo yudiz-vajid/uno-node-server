@@ -58,18 +58,13 @@ class Service {
  * set scheduler for turn timer expire
  * send table emit for user turn
  */
-  public assignRandomTurn(){
+  public async assignRandomTurn(){
     log.info('assignRandomTurn called..');
     const playerTurn=_.randomizeArray(this.aPlayerId)
-    this.assignTurnTimer(playerTurn[0])
+    const turnPlayer:any=await this.getPlayer(playerTurn[0])
+    turnPlayer.takeTurn()
   }
 
-  public async assignTurnTimer(iPlayerId:any=''){
-    log.info('assignTurnTimer called...')
-    await this.update({ iPlayerTurn: iPlayerId });
-    this.emit('resTurnTimer',{bIsGraceTimer:false,iPlayerId:iPlayerId,ttl:this.oSettings.nTurnTime,timestamp :Date.now(),aPlayableCards:[]})
-    this.setSchedular('assignTurnTimerExpired', iPlayerId,this.oSettings.nTurnTime); 
-  }
   public async update(
     oDate: Partial<
       Pick<ITable, 'iPlayerTurn' | 'iSkippedPLayer' | 'aPlayerId' | 'aDrawPile' | 'aDiscardPile' | 'bToSkip' | 'eState' | 'bTurnClockwise' | 'eNextCardColor' | 'nDrawCount'>

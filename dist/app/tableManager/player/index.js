@@ -19,7 +19,7 @@ class Player extends service_1.default {
             log.verbose(`setHand called for user ${this.iPlayerId}`);
             this.aHand.push(...aNormalCard);
             this.aHand.push(...aWildCard);
-            yield this.update({ aHand: this.aHand });
+            yield this.update({ aHand: this.aHand, eState: 'playing' });
             this.emit('resHand', { aHand: this.aHand });
         });
     }

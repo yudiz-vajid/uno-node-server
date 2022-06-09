@@ -29,6 +29,8 @@ class TableManager {
     if (!sTaskName) return false;
     const oTable = await TableManager.getTable(iBattleId);
     if (!oTable) return false;
+    
+    const participant:any=iPlayerId? await TableManager.getPlayer(iBattleId,iPlayerId):undefined    
     switch (sTaskName) {
       case 'distributeCard':
         await oTable.distributeCard();
@@ -42,7 +44,10 @@ class TableManager {
         oTable.gameInitializeTimerExpired();
         return true;
       case 'assignTurnTimerExpired':
-        oTable.assignTurnTimerExpired(iPlayerId);
+        participant.assignTurnTimerExpired();
+        return true;
+      case 'assignGraceTimerExpired':
+        participant.assignGraceTimerExpired();
         return true;
       default:
         return false;
@@ -80,7 +85,8 @@ class TableManager {
     try {
       const sRedisSetResponse = await redis.client.json.SET(_.getPlayerKey(oPlayer.iBattleId, oPlayer.iPlayerId), '.', oPlayer as unknown as RedisJSON);
       if (!sRedisSetResponse) return null;
-      return new Player(oPlayer);
+      const oTable:any = await TableManager.getTable(oPlayer.iBattleId);
+      return new Player(oTable,oPlayer);
     } catch (err: any) {
       log.error(`Error Occurred on TableManager.createPlayer(). reason :${err.message}`);
       log.silly(oPlayer);
@@ -99,7 +105,7 @@ class TableManager {
       const aPlayer = (await Promise.all(aPromise)) as unknown as Array<IPlayer | null>;
       if (aPlayer.some(p => !p)) log.error('error');
 
-      const aPlayerClassified = aPlayer.map(p => (p ? new Player(p) : null));
+      const aPlayerClassified = aPlayer.map(p => (p ? new Player(oTableData,p) : null));
 
       return new Table({ ...oTableData, aPlayer: aPlayerClassified.filter(p => p) as unknown as Array<Player> });
     } catch (err: any) {
@@ -113,12 +119,24 @@ class TableManager {
     try {
       const oPlayerData = (await redis.client.json.GET(_.getPlayerKey(iBattleId, iPlayerId))) as unknown as IPlayer | null;
       if (!oPlayerData) return null;
-      return new Player(oPlayerData);
+      const oTable:any = await TableManager.getTable(iBattleId);
+      return new Player(oTable,oPlayerData);
     } catch (err: any) {
       log.error(`Error Occurred on TableManager.getPlayer(). reason :${err.message}`);
       log.silly(`iBattleId : ${iBattleId} iPlayerId : ${iPlayerId}`);
       return null;
     }
+  }
+  public static async getTablePlayers(iBattleId:string){
+    const oTableData = (await redis.client.json.GET(_.getTableKey(iBattleId))) as unknown as ITable | null;
+      if (!oTableData) return null;
+
+      let aPlayerData:any = []; // - To add participant in table
+    //  oTableData.aPlayerId.forEach(async (iPlayerId) => aPlayerData.push(await redis.client.json.GET(_.getPlayerKey(iBattleId, iPlayerId))));
+     for(let iPlayerId of oTableData.aPlayerId){
+      aPlayerData.push(await redis.client.json.GET(_.getPlayerKey(iBattleId, iPlayerId)))
+     }
+      return aPlayerData
   }
 }
 

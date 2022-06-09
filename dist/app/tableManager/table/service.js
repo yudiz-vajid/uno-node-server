@@ -41,6 +41,14 @@ class Service {
     distributeCards() {
         log.info(this.aDrawPile);
     }
+    assignRandomTurn() {
+        return __awaiter(this, void 0, void 0, function* () {
+            log.info('assignRandomTurn called..');
+            const playerTurn = _.randomizeArray(this.aPlayerId);
+            const turnPlayer = yield this.getPlayer(playerTurn[0]);
+            turnPlayer.takeTurn();
+        });
+    }
     update(oDate) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
