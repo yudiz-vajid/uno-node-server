@@ -66,6 +66,9 @@ class TableManager {
                 case 'gameInitializeTimerExpired':
                     oTable.gameInitializeTimerExpired();
                     return true;
+                case 'assignTurnTimerExpired':
+                    oTable.assignTurnTimerExpired(iPlayerId);
+                    return true;
                 default:
                     return false;
             }

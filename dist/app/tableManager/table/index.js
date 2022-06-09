@@ -43,6 +43,7 @@ class Table extends service_1.default {
             this.emit('resDiscardPileTopCard', { oDiscardPileTopCard: this.aDiscardPile[this.aDiscardPile.length - 1] });
             this.emit('resInitMasterTimer', { ttl: this.oSettings.nTotalGameTime, timestamp: Date.now() });
             this.setSchedular('masterTimerExpired', '', this.oSettings.nTotalGameTime);
+            this.assignRandomTurn();
             return true;
         });
     }
@@ -58,6 +59,15 @@ class Table extends service_1.default {
             log.verbose('gameInitializeTimerExpired, game should start now');
             this.emit('resGameInitializeTimerExpired', {});
             this.setSchedular('distributeCard', '', 2000);
+            return true;
+        });
+    }
+    assignTurnTimerExpired(iPlayerId = '') {
+        return __awaiter(this, void 0, void 0, function* () {
+            log.verbose('assignTurnTimerExpired, assign grace timer');
+            const turnPlayer = yield this.getPlayer(iPlayerId);
+            this.emit('resTurnTimer', { bIsGraceTimer: true, iPlayerId: iPlayerId, ttl: turnPlayer === null || turnPlayer === void 0 ? void 0 : turnPlayer.toJSON().nGraceTime, timestamp: Date.now(), aPlayableCards: [] });
+            this.setSchedular('assignGraceTimerExpired', iPlayerId, turnPlayer === null || turnPlayer === void 0 ? void 0 : turnPlayer.toJSON().nGraceTime);
             return true;
         });
     }

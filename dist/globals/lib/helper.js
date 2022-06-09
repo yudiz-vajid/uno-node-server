@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const util_1 = require("./../../app/util");
 const helper = {
     code: {
         Continue: 100,
@@ -136,13 +137,7 @@ const helper = {
         return Object.getOwnPropertyNames(obj).length === 0;
     },
     randomizeArray: (array = []) => {
-        for (let i = array.length - 1; i > 0; i -= 1) {
-            const j = Math.floor(Math.random() * (i + 1));
-            const temp = array[i];
-            array[i] = array[j];
-            array[j] = temp;
-        }
-        return array;
+        return array.sort(() => util_1.mersenneTwister.random() - 0.5);
     },
     now: () => {
         const dt = new Date();
