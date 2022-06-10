@@ -14,13 +14,27 @@ class Channel {
     return callback(oData);
   }
 
-  public async onEvent(body: { sTaskName: 'startGame'; [key: string]: any }, _ack: (data: any) => unknown) {
+  async discardCard(oData: any, callback: (data: any) => unknown) {
+    console.log('discardCard called....');
+    return callback(oData);
+  }
+
+  async drawCard(oData: any, callback: (data: any) => unknown) {
+    console.log('drawCard called....');
+    return callback(oData);
+  }
+
+  public async onEvent(body: { sTaskName: 'startGame'|'reqDiscardCard'|'reqDrawCard'; [key: string]: any }, _ack: (data: any) => unknown) {
     try {
       if (typeof _ack !== 'function') return false;
       const { sTaskName, ...oData } = body;
       switch (sTaskName) {
         case 'startGame':
           return this.startGame(oData, _ack);
+        case 'reqDiscardCard':
+          return this.discardCard(oData, _ack);
+        case 'reqDrawCard':
+          return this.drawCard(oData, _ack);
         default:
           return false;
       }

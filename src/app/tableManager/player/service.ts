@@ -138,7 +138,7 @@ class Service {
   if(!this.aHand.length)log.error('User Hand is empty')
   const oOpenCard=this.table.aDiscardPile[0]
   // { iCardId: 'rd4a', eColor: 'red', nLabel: 4, nScore: 4 }
-  const aPlayableCards=this.aHand.filter((card)=>oOpenCard.eColor===card.eColor||oOpenCard.nLabel===card.nLabel||card.nLabel===13||card.nLabel===14)
+  const aPlayableCards=this.aHand.filter((card)=>oOpenCard.eColor===card.eColor||oOpenCard.nLabel===card.nLabel||card.nLabel===13||card.nLabel===14).map((c)=>c.iCardId)
   return aPlayableCards
   }
 

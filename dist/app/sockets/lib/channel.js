@@ -30,6 +30,18 @@ class Channel {
             return callback(oData);
         });
     }
+    discardCard(oData, callback) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('discardCard called....');
+            return callback(oData);
+        });
+    }
+    drawCard(oData, callback) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('drawCard called....');
+            return callback(oData);
+        });
+    }
     onEvent(body, _ack) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -39,6 +51,10 @@ class Channel {
                 switch (sTaskName) {
                     case 'startGame':
                         return this.startGame(oData, _ack);
+                    case 'reqDiscardCard':
+                        return this.discardCard(oData, _ack);
+                    case 'reqDrawCard':
+                        return this.drawCard(oData, _ack);
                     default:
                         return false;
                 }
