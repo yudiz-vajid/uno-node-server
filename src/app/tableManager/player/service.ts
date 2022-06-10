@@ -133,14 +133,15 @@ class Service {
 /**
  * get discard pile card and check with users hand
  */
- public async getPlayableCards(){
-  if(!this.table.aDiscardPile.length)log.error('Discard pile is empty')
-  if(!this.aHand.length)log.error('User Hand is empty')
-  const oOpenCard=this.table.aDiscardPile[0]
-  // { iCardId: 'rd4a', eColor: 'red', nLabel: 4, nScore: 4 }
-  const aPlayableCards=this.aHand.filter((card)=>oOpenCard.eColor===card.eColor||oOpenCard.nLabel===card.nLabel||card.nLabel===13||card.nLabel===14).map((c)=>c.iCardId)
-  return aPlayableCards
-  }
+  public async getPlayableCards(){
+    if(!this.table.aDiscardPile.length)log.error('Discard pile is empty')
+    console.log('user hand length in getPlayableCards :: ',this.aHand.length,this.iPlayerId);  
+    if(!this.aHand.length)log.error('User Hand is empty')
+    const oOpenCard=this.table.aDiscardPile[0]
+    // { iCardId: 'rd4a', eColor: 'red', nLabel: 4, nScore: 4 }
+    const aPlayableCards=this.aHand.filter((card)=>oOpenCard.eColor===card.eColor||oOpenCard.nLabel===card.nLabel||card.nLabel===13||card.nLabel===14).map((c)=>c.iCardId)
+    return aPlayableCards
+    }
 
 
 public async takeTurn(){
@@ -156,10 +157,48 @@ public async takeTurn(){
     table.setSchedular('assignTurnTimerExpired', this.iPlayerId,this.table.oSettings.nTurnTime); 
 }
 
+  public async hasValidTurn() {
+    return _.isEqual(this.table.iPlayerTurn, this.iPlayerId);
+  }
 
+  public async discardCard(body:any,callback: (err:any,data: any) => unknown) {
+    console.log('discardCard called for ',this.iPlayerId);
+    console.log('body  ',body);
+    const cardIndex = this.aHand.findIndex((e) => _.isEqual(e.iCardId, body.iCardId));
+    log.info('cardIndex :: ',cardIndex)
+    log.info(cardIndex)
+    let card;
+    if (cardIndex === -1) card = this.aHand.pop();
+    else card = this.aHand.splice(cardIndex, 1)[0];
+
+    this.table.aDiscardPile.push(card);
+    callback(null,{oData:{status:'success'}});
+    this.table.emit('resDiscardPile', {sTaskName:'resDiscardPile',oData:{iPlayerId:this.iPlayerId,oCard:card}});
+
+  /* used when user discard his card in grace time. */
+    const turnTimerData = await this.table.getScheduler('assignTurnTimerExpired', this.iPlayerId);
+    if (turnTimerData) {
+      console.log('turnTimerData :: ',turnTimerData);
+      this.table.deleteScheduler(`assignTurnTimerExpired`, this.iPlayerId);
+    }else{
+      const graceTimerData = await this.table.getScheduler('assignGraceTimerExpired', this.iPlayerId);
+      if (graceTimerData) {
+          // sTimerType = timerData.eTurnType === 'grace' ? 'assignTurnTimeout' : 'assignGraceTime';
+              const ttl = await this.table.getSchedulerTTL(`assignGraceTimerExpired`, this.iPlayerId);
+              this.nGraceTime -= this.nGraceTime - ttl; // remaining time = total time - time remaining in redis
+              this.table.deleteScheduler(`assignGraceTimerExpired`, this.iPlayerId);
+      }
+    }
+
+
+    // await this.table.save({ aOpenDeck: this.table.aOpenDeck, aParticipant: [this.toJSON()] });
+    await this.update({aHand:this.aHand,nGraceTime:this.nGraceTime})
+    await this.table.update({aDiscardPile:this.table.aDiscardPile})
+    this.passTurn();
+
+  }
 
   public async assignTurnTimerExpired() {
-    log.verbose('assignTurnTimerExpired, assign grace timer');
     if (this.toJSON().nGraceTime < 3) return this.assignGraceTimerExpired(); // Nothing changed in table so no need to save it.
     const aPlayableCard=await this.getPlayableCards()
     this.table.emit('resTurnTimer',{bIsGraceTimer:true,iPlayerId:this.iPlayerId,ttl:this.toJSON().nGraceTime,timestamp :Date.now(),aPlayableCards:aPlayableCard})

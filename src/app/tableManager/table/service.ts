@@ -229,6 +229,30 @@ class Service {
     }
   }
 
+  public async getScheduler(sTaskName = '', iPlayerId = '*'){
+      let schedularKey = '';
+      const sKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
+      const aSchedular = await redis.client.keys(sKey); // TODO : non efficient, use scan instead
+      if (aSchedular.length > 1) redis.client.del(aSchedular.slice(1));
+      schedularKey = aSchedular[0];
+      if (!schedularKey) return null;
+      console.log('getScheduler called....',schedularKey);
+      return redis.client.GET(schedularKey);
+  }
+
+  async getSchedulerTTL(sTaskName='', iPlayerId = '*') {
+    let schedularKey = '';
+
+    const sKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
+      const aSchedular = await redis.client.keys(sKey); // TODO : non efficient, use scan instead
+    // const aSchedular = await redis.keysAsync(_.getSchedulerKey(sTaskName, this.iBattleId, iUserId, '*'));
+    if (aSchedular.length > 1) redis.client.del(aSchedular.slice(1));
+    schedularKey = aSchedular[0];
+
+    if (!schedularKey) return -2;
+    return redis.client.ttl(schedularKey);
+}
+
   public async deleteScheduler(sTaskName = '', iPlayerId = '*') {
     try {
       const sKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);

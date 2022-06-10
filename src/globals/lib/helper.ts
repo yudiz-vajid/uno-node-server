@@ -138,7 +138,9 @@ const helper = {
     }
     return Object.getOwnPropertyNames(obj).length === 0;
   },
-
+  isEqual : function (id1:any, id2:any) {
+    return (id1 ? id1.toString() : id1) === (id2 ? id2.toString() : id2);
+  },
   randomizeArray: <T>(array: Array<T> = []) => {
     /* Randomize array in-place using Durstenfeld shuffle algorithm */
     // for (let i = array.length - 1; i > 0; i -= 1) {

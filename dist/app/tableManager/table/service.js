@@ -204,6 +204,33 @@ class Service {
             }
         });
     }
+    getScheduler(sTaskName = '', iPlayerId = '*') {
+        return __awaiter(this, void 0, void 0, function* () {
+            let schedularKey = '';
+            const sKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
+            const aSchedular = yield redis.client.keys(sKey);
+            if (aSchedular.length > 1)
+                redis.client.del(aSchedular.slice(1));
+            schedularKey = aSchedular[0];
+            if (!schedularKey)
+                return null;
+            console.log('getScheduler called....', schedularKey);
+            return redis.client.GET(schedularKey);
+        });
+    }
+    getSchedulerTTL(sTaskName = '', iPlayerId = '*') {
+        return __awaiter(this, void 0, void 0, function* () {
+            let schedularKey = '';
+            const sKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
+            const aSchedular = yield redis.client.keys(sKey);
+            if (aSchedular.length > 1)
+                redis.client.del(aSchedular.slice(1));
+            schedularKey = aSchedular[0];
+            if (!schedularKey)
+                return -2;
+            return redis.client.ttl(schedularKey);
+        });
+    }
     deleteScheduler(sTaskName = '', iPlayerId = '*') {
         return __awaiter(this, void 0, void 0, function* () {
             try {

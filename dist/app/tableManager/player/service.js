@@ -118,6 +118,7 @@ class Service {
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.table.aDiscardPile.length)
                 log.error('Discard pile is empty');
+            console.log('user hand length in getPlayableCards :: ', this.aHand.length, this.iPlayerId);
             if (!this.aHand.length)
                 log.error('User Hand is empty');
             const oOpenCard = this.table.aDiscardPile[0];
@@ -135,9 +136,46 @@ class Service {
             table.setSchedular('assignTurnTimerExpired', this.iPlayerId, this.table.oSettings.nTurnTime);
         });
     }
+    hasValidTurn() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return _.isEqual(this.table.iPlayerTurn, this.iPlayerId);
+        });
+    }
+    discardCard(body, callback) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('discardCard called for ', this.iPlayerId);
+            console.log('body  ', body);
+            const cardIndex = this.aHand.findIndex((e) => _.isEqual(e.iCardId, body.iCardId));
+            log.info('cardIndex :: ', cardIndex);
+            log.info(cardIndex);
+            let card;
+            if (cardIndex === -1)
+                card = this.aHand.pop();
+            else
+                card = this.aHand.splice(cardIndex, 1)[0];
+            this.table.aDiscardPile.push(card);
+            callback(null, { oData: { status: 'success' } });
+            this.table.emit('resDiscardPile', { sTaskName: 'resDiscardPile', oData: { iPlayerId: this.iPlayerId, oCard: card } });
+            const turnTimerData = yield this.table.getScheduler('assignTurnTimerExpired', this.iPlayerId);
+            if (turnTimerData) {
+                console.log('turnTimerData :: ', turnTimerData);
+                this.table.deleteScheduler(`assignTurnTimerExpired`, this.iPlayerId);
+            }
+            else {
+                const graceTimerData = yield this.table.getScheduler('assignGraceTimerExpired', this.iPlayerId);
+                if (graceTimerData) {
+                    const ttl = yield this.table.getSchedulerTTL(`assignGraceTimerExpired`, this.iPlayerId);
+                    this.nGraceTime -= this.nGraceTime - ttl;
+                    this.table.deleteScheduler(`assignGraceTimerExpired`, this.iPlayerId);
+                }
+            }
+            yield this.update({ aHand: this.aHand, nGraceTime: this.nGraceTime });
+            yield this.table.update({ aDiscardPile: this.table.aDiscardPile });
+            this.passTurn();
+        });
+    }
     assignTurnTimerExpired() {
         return __awaiter(this, void 0, void 0, function* () {
-            log.verbose('assignTurnTimerExpired, assign grace timer');
             if (this.toJSON().nGraceTime < 3)
                 return this.assignGraceTimerExpired();
             const aPlayableCard = yield this.getPlayableCards();
