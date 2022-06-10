@@ -130,6 +130,19 @@ class Service {
     return true;
   }
 
+/**
+ * get discard pile card and check with users hand
+ */
+ public async getPlayableCards(){
+  if(!this.table.aDiscardPile.length)log.error('Discard pile is empty')
+  if(!this.aHand.length)log.error('User Hand is empty')
+  const oOpenCard=this.table.aDiscardPile[0]
+  // { iCardId: 'rd4a', eColor: 'red', nLabel: 4, nScore: 4 }
+  const aPlayableCards=this.aHand.filter((card)=>oOpenCard.eColor===card.eColor||oOpenCard.nLabel===card.nLabel||card.nLabel===13||card.nLabel===14)
+  return aPlayableCards
+  }
+
+
 public async takeTurn(){
   /**
    * TODO :- increase take turn for player if required
@@ -138,15 +151,18 @@ public async takeTurn(){
     log.info('take turn called...')
     const table:any=await TableManager.getTable(this.iBattleId)
     await table.update({ iPlayerTurn: this.iPlayerId });
-    table.emit('resTurnTimer',{bIsGraceTimer:false,iPlayerId:this.iPlayerId,ttl:this.table.oSettings.nTurnTime,timestamp :Date.now(),aPlayableCards:[]})
+    const aPlayableCard=await this.getPlayableCards()
+    table.emit('resTurnTimer',{bIsGraceTimer:false,iPlayerId:this.iPlayerId,ttl:this.table.oSettings.nTurnTime,timestamp :Date.now(),aPlayableCards:aPlayableCard})
     table.setSchedular('assignTurnTimerExpired', this.iPlayerId,this.table.oSettings.nTurnTime); 
 }
+
 
 
   public async assignTurnTimerExpired() {
     log.verbose('assignTurnTimerExpired, assign grace timer');
     if (this.toJSON().nGraceTime < 3) return this.assignGraceTimerExpired(); // Nothing changed in table so no need to save it.
-    this.table.emit('resTurnTimer',{bIsGraceTimer:true,iPlayerId:this.iPlayerId,ttl:this.toJSON().nGraceTime,timestamp :Date.now(),aPlayableCards:[]})
+    const aPlayableCard=await this.getPlayableCards()
+    this.table.emit('resTurnTimer',{bIsGraceTimer:true,iPlayerId:this.iPlayerId,ttl:this.toJSON().nGraceTime,timestamp :Date.now(),aPlayableCards:aPlayableCard})
     this.table.setSchedular('assignGraceTimerExpired', this.iPlayerId, this.toJSON().nGraceTime); // TODO: replace with nAnimationDelay
     return true;
   }

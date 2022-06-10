@@ -114,12 +114,24 @@ class Service {
             return true;
         });
     }
+    getPlayableCards() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.table.aDiscardPile.length)
+                log.error('Discard pile is empty');
+            if (!this.aHand.length)
+                log.error('User Hand is empty');
+            const oOpenCard = this.table.aDiscardPile[0];
+            const aPlayableCards = this.aHand.filter((card) => oOpenCard.eColor === card.eColor || oOpenCard.nLabel === card.nLabel || card.nLabel === 13 || card.nLabel === 14);
+            return aPlayableCards;
+        });
+    }
     takeTurn() {
         return __awaiter(this, void 0, void 0, function* () {
             log.info('take turn called...');
             const table = yield __1.default.getTable(this.iBattleId);
             yield table.update({ iPlayerTurn: this.iPlayerId });
-            table.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: this.table.oSettings.nTurnTime, timestamp: Date.now(), aPlayableCards: [] });
+            const aPlayableCard = yield this.getPlayableCards();
+            table.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: this.table.oSettings.nTurnTime, timestamp: Date.now(), aPlayableCards: aPlayableCard });
             table.setSchedular('assignTurnTimerExpired', this.iPlayerId, this.table.oSettings.nTurnTime);
         });
     }
@@ -128,7 +140,8 @@ class Service {
             log.verbose('assignTurnTimerExpired, assign grace timer');
             if (this.toJSON().nGraceTime < 3)
                 return this.assignGraceTimerExpired();
-            this.table.emit('resTurnTimer', { bIsGraceTimer: true, iPlayerId: this.iPlayerId, ttl: this.toJSON().nGraceTime, timestamp: Date.now(), aPlayableCards: [] });
+            const aPlayableCard = yield this.getPlayableCards();
+            this.table.emit('resTurnTimer', { bIsGraceTimer: true, iPlayerId: this.iPlayerId, ttl: this.toJSON().nGraceTime, timestamp: Date.now(), aPlayableCards: aPlayableCard });
             this.table.setSchedular('assignGraceTimerExpired', this.iPlayerId, this.toJSON().nGraceTime);
             return true;
         });
