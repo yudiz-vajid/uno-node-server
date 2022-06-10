@@ -1,3 +1,4 @@
+import TableManager from '..';
 import { IPlayer, ITable, RedisJSON } from '../../../types/global';
 
 class Service {
@@ -30,8 +31,9 @@ class Service {
   protected eState: IPlayer['eState'];
 
   protected readonly dCreatedAt: IPlayer['dCreatedAt'];
+  table: any;
 
-  constructor(oData: IPlayer) {
+  constructor(table: ITable,oData: IPlayer) {
     this.iPlayerId = oData.iPlayerId;
     this.iBattleId = oData.iBattleId;
     this.sPlayerName = oData.sPlayerName;
@@ -47,6 +49,8 @@ class Service {
     this.aHand = oData.aHand;
     this.eState = oData.eState;
     this.dCreatedAt = oData.dCreatedAt;
+    // reference data
+    this.table=table
   }
 
   // prettier-ignore
@@ -125,6 +129,50 @@ class Service {
     if (process.env.NODE_ENV !== 'prod') global.io.to(this.sSocketId).emit('postman', _.stringify({ sTaskName: sEventName, oData:{ ...oData} }));
     return true;
   }
+
+public async takeTurn(){
+  /**
+   * TODO :- increase take turn for player if required
+   * Add playable cards array with user turn.
+   */
+    log.info('take turn called...')
+    const table:any=await TableManager.getTable(this.iBattleId)
+    await table.update({ iPlayerTurn: this.iPlayerId });
+    table.emit('resTurnTimer',{bIsGraceTimer:false,iPlayerId:this.iPlayerId,ttl:this.table.oSettings.nTurnTime,timestamp :Date.now(),aPlayableCards:[]})
+    table.setSchedular('assignTurnTimerExpired', this.iPlayerId,this.table.oSettings.nTurnTime); 
+}
+
+
+  public async assignTurnTimerExpired() {
+    log.verbose('assignTurnTimerExpired, assign grace timer');
+    if (this.toJSON().nGraceTime < 3) return this.assignGraceTimerExpired(); // Nothing changed in table so no need to save it.
+    this.table.emit('resTurnTimer',{bIsGraceTimer:true,iPlayerId:this.iPlayerId,ttl:this.toJSON().nGraceTime,timestamp :Date.now(),aPlayableCards:[]})
+    this.table.setSchedular('assignGraceTimerExpired', this.iPlayerId, this.toJSON().nGraceTime); // TODO: replace with nAnimationDelay
+    return true;
+  }
+  
+  public async assignGraceTimerExpired(){
+      console.log('assignGraceTimerExpired called...');
+      this.nGraceTime = 0;
+      this.nMissedTurn += 1;
+      await this.update({nMissedTurn:this.nMissedTurn})
+      // if (this.nMissedTurn < 3)return this.passTurn();
+      return this.passTurn();
+  }
+
+  public async passTurn() {
+    console.log('passTurn called...');
+    if (this.table.eState !== 'running') return log.error('table is not in running state.');
+    const players=await TableManager.getTablePlayers(this.iBattleId)
+    
+    const playingPlayers = players.filter((p:any) => p.eState === 'playing');
+    /* Not possible case but should be handled both condition */
+    if (playingPlayers.length === 0) return log.error('no playing participant'); // return this.table.declareResult(this.iUserId, 'passTurn');
+    const nextParticipant = await this.table.getNextParticipant(this.nSeat);    
+    if (!nextParticipant) log.verbose('No playing player found...')
+    else nextParticipant.takeTurn();
+}
+
 
   public toJSON() {
     return {

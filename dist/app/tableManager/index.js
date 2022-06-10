@@ -54,6 +54,7 @@ class TableManager {
             const oTable = yield TableManager.getTable(iBattleId);
             if (!oTable)
                 return false;
+            const participant = iPlayerId ? yield TableManager.getPlayer(iBattleId, iPlayerId) : undefined;
             switch (sTaskName) {
                 case 'distributeCard':
                     yield oTable.distributeCard();
@@ -67,7 +68,10 @@ class TableManager {
                     oTable.gameInitializeTimerExpired();
                     return true;
                 case 'assignTurnTimerExpired':
-                    oTable.assignTurnTimerExpired(iPlayerId);
+                    participant.assignTurnTimerExpired();
+                    return true;
+                case 'assignGraceTimerExpired':
+                    participant.assignGraceTimerExpired();
                     return true;
                 default:
                     return false;
@@ -110,7 +114,8 @@ class TableManager {
                 const sRedisSetResponse = yield redis.client.json.SET(_.getPlayerKey(oPlayer.iBattleId, oPlayer.iPlayerId), '.', oPlayer);
                 if (!sRedisSetResponse)
                     return null;
-                return new player_1.default(oPlayer);
+                const oTable = yield TableManager.getTable(oPlayer.iBattleId);
+                return new player_1.default(oTable, oPlayer);
             }
             catch (err) {
                 log.error(`Error Occurred on TableManager.createPlayer(). reason :${err.message}`);
@@ -130,7 +135,7 @@ class TableManager {
                 const aPlayer = (yield Promise.all(aPromise));
                 if (aPlayer.some(p => !p))
                     log.error('error');
-                const aPlayerClassified = aPlayer.map(p => (p ? new player_1.default(p) : null));
+                const aPlayerClassified = aPlayer.map(p => (p ? new player_1.default(oTableData, p) : null));
                 return new table_1.default(Object.assign(Object.assign({}, oTableData), { aPlayer: aPlayerClassified.filter(p => p) }));
             }
             catch (err) {
@@ -146,13 +151,26 @@ class TableManager {
                 const oPlayerData = (yield redis.client.json.GET(_.getPlayerKey(iBattleId, iPlayerId)));
                 if (!oPlayerData)
                     return null;
-                return new player_1.default(oPlayerData);
+                const oTable = yield TableManager.getTable(iBattleId);
+                return new player_1.default(oTable, oPlayerData);
             }
             catch (err) {
                 log.error(`Error Occurred on TableManager.getPlayer(). reason :${err.message}`);
                 log.silly(`iBattleId : ${iBattleId} iPlayerId : ${iPlayerId}`);
                 return null;
             }
+        });
+    }
+    static getTablePlayers(iBattleId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const oTableData = (yield redis.client.json.GET(_.getTableKey(iBattleId)));
+            if (!oTableData)
+                return null;
+            let aPlayerData = [];
+            for (let iPlayerId of oTableData.aPlayerId) {
+                aPlayerData.push(yield redis.client.json.GET(_.getPlayerKey(iBattleId, iPlayerId)));
+            }
+            return aPlayerData;
         });
     }
 }

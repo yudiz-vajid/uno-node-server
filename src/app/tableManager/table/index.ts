@@ -1,3 +1,4 @@
+import TableManager from '..';
 import Service from './service';
 
 class Table extends Service {
@@ -25,6 +26,7 @@ class Table extends Service {
 
     await this.updateDrawPile(this.aDrawPile);
     await this.updateDiscardPile(this.aDiscardPile);
+    await this.update({eState:'running'});
 
     await _.delay(5000); // TODO: get from client
     this.emit('resDiscardPileTopCard', { oDiscardPileTopCard: this.aDiscardPile[this.aDiscardPile.length - 1] });
@@ -48,13 +50,27 @@ class Table extends Service {
     return true;
   }
 
-  public async assignTurnTimerExpired(iPlayerId:any='') {
-    log.verbose('assignTurnTimerExpired, assign grace timer');
-    const turnPlayer=await this.getPlayer(iPlayerId)
-    this.emit('resTurnTimer',{bIsGraceTimer:true,iPlayerId:iPlayerId,ttl:turnPlayer?.toJSON().nGraceTime,timestamp :Date.now(),aPlayableCards:[]})
-    this.setSchedular('assignGraceTimerExpired', iPlayerId, turnPlayer?.toJSON().nGraceTime); // TODO: replace with nAnimationDelay
-    return true;
-  }
+ public async getNextParticipant(previousSeat:any='') {
+   const playingPlayers=await TableManager.getTablePlayers(this.iBattleId)
+   let participant
+   if(this.bTurnClockwise){ 
+     participant=playingPlayers.find((p:any) => p.nSeat > previousSeat && p.eState === 'playing')
+    if (!participant) participant = this.aPlayer.find((p) => p.toJSON().nSeat >= 0 && p.toJSON().eState === 'playing');
+  }else{
+    participant=playingPlayers.find((p:any) => p.toJSON().nSeat < previousSeat && p.toJSON().eState === 'playing');;
+    if (!participant) participant = this.aPlayer.find((p) => p.toJSON().nSeat <= playingPlayers.length && p.toJSON().eState === 'playing');
+   }
+    return await this.getPlayer(participant.iPlayerId);
+}
+
+  // public async assignTurnTimerExpired(iPlayerId:any='') {
+  //   log.verbose('assignTurnTimerExpired, assign grace timer');
+  //   const turnPlayer:any=await this.getPlayer(iPlayerId)
+  //   if (turnPlayer?.toJSON().nGraceTime < 3) return this.assignTurnTimeout(); // Nothing changed in table so no need to save it.
+  //   this.emit('resTurnTimer',{bIsGraceTimer:true,iPlayerId:iPlayerId,ttl:turnPlayer?.toJSON().nGraceTime,timestamp :Date.now(),aPlayableCards:[]})
+  //   this.setSchedular('assignGraceTimerExpired', iPlayerId, turnPlayer?.toJSON().nGraceTime); // TODO: replace with nAnimationDelay
+  //   return true;
+  // }
 }
 
 export default Table;

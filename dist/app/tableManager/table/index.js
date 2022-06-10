@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const __1 = __importDefault(require(".."));
 const service_1 = __importDefault(require("./service"));
 class Table extends service_1.default {
     distributeCard() {
@@ -39,6 +40,7 @@ class Table extends service_1.default {
             this.aDiscardPile.push(...oDiscardPileTopCard);
             yield this.updateDrawPile(this.aDrawPile);
             yield this.updateDiscardPile(this.aDiscardPile);
+            yield this.update({ eState: 'running' });
             yield _.delay(5000);
             this.emit('resDiscardPileTopCard', { oDiscardPileTopCard: this.aDiscardPile[this.aDiscardPile.length - 1] });
             this.emit('resInitMasterTimer', { ttl: this.oSettings.nTotalGameTime, timestamp: Date.now() });
@@ -62,13 +64,22 @@ class Table extends service_1.default {
             return true;
         });
     }
-    assignTurnTimerExpired(iPlayerId = '') {
+    getNextParticipant(previousSeat = '') {
         return __awaiter(this, void 0, void 0, function* () {
-            log.verbose('assignTurnTimerExpired, assign grace timer');
-            const turnPlayer = yield this.getPlayer(iPlayerId);
-            this.emit('resTurnTimer', { bIsGraceTimer: true, iPlayerId: iPlayerId, ttl: turnPlayer === null || turnPlayer === void 0 ? void 0 : turnPlayer.toJSON().nGraceTime, timestamp: Date.now(), aPlayableCards: [] });
-            this.setSchedular('assignGraceTimerExpired', iPlayerId, turnPlayer === null || turnPlayer === void 0 ? void 0 : turnPlayer.toJSON().nGraceTime);
-            return true;
+            const playingPlayers = yield __1.default.getTablePlayers(this.iBattleId);
+            let participant;
+            if (this.bTurnClockwise) {
+                participant = playingPlayers.find((p) => p.nSeat > previousSeat && p.eState === 'playing');
+                if (!participant)
+                    participant = this.aPlayer.find((p) => p.toJSON().nSeat >= 0 && p.toJSON().eState === 'playing');
+            }
+            else {
+                participant = playingPlayers.find((p) => p.toJSON().nSeat < previousSeat && p.toJSON().eState === 'playing');
+                ;
+                if (!participant)
+                    participant = this.aPlayer.find((p) => p.toJSON().nSeat <= playingPlayers.length && p.toJSON().eState === 'playing');
+            }
+            return yield this.getPlayer(participant.iPlayerId);
         });
     }
 }

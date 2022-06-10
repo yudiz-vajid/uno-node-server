@@ -42,16 +42,11 @@ class Service {
         log.info(this.aDrawPile);
     }
     assignRandomTurn() {
-        log.info('assignRandomTurn called..');
-        const playerTurn = _.randomizeArray(this.aPlayerId);
-        this.assignTurnTimer(playerTurn[0]);
-    }
-    assignTurnTimer(iPlayerId = '') {
         return __awaiter(this, void 0, void 0, function* () {
-            log.info('assignTurnTimer called...');
-            yield this.update({ iPlayerTurn: iPlayerId });
-            this.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: iPlayerId, ttl: this.oSettings.nTurnTime, timestamp: Date.now(), aPlayableCards: [] });
-            this.setSchedular('assignTurnTimerExpired', iPlayerId, this.oSettings.nTurnTime);
+            log.info('assignRandomTurn called..');
+            const playerTurn = _.randomizeArray(this.aPlayerId);
+            const turnPlayer = yield this.getPlayer(playerTurn[0]);
+            turnPlayer.takeTurn();
         });
     }
     update(oDate) {
