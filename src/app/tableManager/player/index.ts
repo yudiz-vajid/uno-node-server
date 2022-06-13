@@ -29,17 +29,17 @@ class Player extends Service {
     const nCardToDiscardIndex = this.aHand.findIndex(card => card.iCardId === oData.iCardId); // - return index if found else -1
 
     if (nCardToDiscardIndex === -1) {
-      callback({ oData: { status: response.CARD_NOT_IN_HAND } });
+      callback({ oData: {}, status: response.CARD_NOT_IN_HAND });
       return (log.silly(`no card found for iCardId: ${oData.iCardId}`) && null) ?? false;
     }
     if (!this.aHand.length) {
-      callback({ oData: { status: response.EMPTY_HAND } });
+      callback({ oData: {}, status: response.EMPTY_HAND });
       return (log.silly(`no cards in hand `) && null) ?? false;
     }
 
     const [oCardToDiscard] = this.aHand.splice(nCardToDiscardIndex, 1); // - remove specified card from hand when not found remove last card from hand
     if (!oCardToDiscard) {
-      callback({ oData: { status: response.SERVER_ERROR } });
+      callback({ oData: {}, status: response.SERVER_ERROR });
       return (log.error(`no card found for iCardId: ${oData.iCardId}`) && null) ?? false;
     }
 
@@ -49,18 +49,18 @@ class Player extends Service {
     if (oCardToDiscard.nLabel < 13) aPromises.push(oTable.update({ eNextCardColor: oCardToDiscard.eColor, nDrawCount: oCardToDiscard.nLabel < 12 ? 1 : 2 }));
     else {
       if (!oData.eColor) {
-        callback({ oData: { status: response.CARD_COLOR_REQUIRED } });
+        callback({ oData: {}, status: response.CARD_COLOR_REQUIRED });
         return (log.silly(`card color is required when discarding wild card`) && null) ?? false;
       }
       if (oData.eColor === 'black') {
-        callback({ oData: { status: response.INVALID_NEXT_CARD_COLOR } });
+        callback({ oData: {}, status: response.INVALID_NEXT_CARD_COLOR });
         return (log.silly(`black as next card color is not allowed when discarding wild card`) && null) ?? false;
       }
       // TODO : handle stacking for card.nLabel 14 (wild draw 4 card)
       aPromises.push(oTable.update({ eNextCardColor: oData.eColor, nDrawCount: oCardToDiscard.nLabel === 13 ? 1 : 4 }));
     }
 
-    callback({ oData: { status: response.SUCCESS } });
+    callback({ oData: {}, status: response.SUCCESS });
     aPromises.push(oTable.addToDiscardPile(oCardToDiscard));
 
     const nRemainingGraceTime = await oTable.getTTL('assignGraceTimerExpired', this.iPlayerId); // - in ms
@@ -106,11 +106,11 @@ class Player extends Service {
     log.verbose(`${_.now()} event: drawCard, player: ${this.iPlayerId}`);
     const aCard = this.bSpecialMeterFull ? oTable.drawCard('special', 1) : oTable.drawCard('normal', 1);
     if (!aCard) {
-      callback({ oData: { status: response.SERVER_ERROR } });
+      callback({ oData: {}, status: response.SERVER_ERROR });
       return (log.error(`${_.now()} no card found for iCardId: ${oData.iCardId}`) && null) ?? false;
     }
     log.verbose(`${_.now()} player: ${this.iPlayerId}, drawnCard: ${aCard[0].iCardId}`);
-    callback({ oData: { oCard: aCard[0], status: response.SUCCESS } });
+    callback({ oData: aCard[0], status: response.SUCCESS });
     oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, nCardCount: 1 });
 
     // - setting up special meter from nDrawNormal

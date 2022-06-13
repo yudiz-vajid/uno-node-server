@@ -10,6 +10,10 @@ const oEnv: IEnvs = {
   dev: {
     BASE_URL: `http://${process.env.HOST}:${process.env.PORT}`,
     REDIS_DB: '0',
+    // REDIS_HOST: 'localhost',
+    // REDIS_PORT: '6379',
+    // REDIS_USERNAME: '',
+    // REDIS_PASSWORD: '',
     REDIS_HOST: 'redis-14966.c264.ap-south-1-1.ec2.cloud.redislabs.com',
     REDIS_PORT: '14966',
     REDIS_USERNAME: 'default',

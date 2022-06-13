@@ -47,15 +47,15 @@ class TableManager {
             const oPlayer = oTable.getPlayer(iPlayerId);
             if (['assignTurnTimerExpired', 'assignGraceTimerExpired', 'drawCard', 'discardCard'].includes(sTaskName)) {
                 if (!oPlayer) {
-                    callback({ oDate: { status: util_1.response.PLAYER_NOT_FOUND } });
+                    callback({ oData: {}, status: util_1.response.PLAYER_NOT_FOUND });
                     return (_a = (log.warn(`${_.now()} oPlayer not found in table. { iBattleId : ${iBattleId}, iPlayerId : ${iPlayerId} }`) && null)) !== null && _a !== void 0 ? _a : false;
                 }
                 if (oTable.toJSON().eState !== 'running' && ['drawCard', 'discardCard'].includes(sTaskName)) {
-                    callback({ oData: { status: util_1.response.TABLE_NOT_RUNNING } });
+                    callback({ oData: {}, status: util_1.response.TABLE_NOT_RUNNING });
                     return (_b = (log.warn(`${_.now()} Table is not in running state. { iBattleId : ${iBattleId}, eState : ${oTable.toJSON().eState} }`) && null)) !== null && _b !== void 0 ? _b : false;
                 }
                 if (!oTable.hasValidTurn(iPlayerId) && ['drawCard', 'discardCard'].includes(sTaskName)) {
-                    callback({ oData: { status: util_1.response.NOT_YOUR_TURN } });
+                    callback({ oData: {}, status: util_1.response.NOT_YOUR_TURN });
                     return (_c = (log.silly(`${_.now()} ${iPlayerId} has not valid turn.`) && null)) !== null && _c !== void 0 ? _c : false;
                 }
             }

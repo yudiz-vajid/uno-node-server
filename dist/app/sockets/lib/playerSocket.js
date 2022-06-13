@@ -64,12 +64,12 @@ class PlayerSocket {
                     });
                     if (!oPlayer)
                         throw new Error('Player not created');
-                    _ack({ iBattleId: this.iBattleId, iPlayerId: this.iPlayerId, status: util_1.response.SUCCESS });
+                    _ack({ oData: { iBattleId: this.iBattleId, iPlayerId: this.iPlayerId }, status: util_1.response.SUCCESS });
                     if (!(yield oTable.addPlayer(oPlayer)))
                         throw new Error('Player not added to table');
                 }
                 else {
-                    _ack({ iBattleId: this.iBattleId, iPlayerId: this.iPlayerId, status: util_1.response.SUCCESS });
+                    _ack({ oData: { iBattleId: this.iBattleId, iPlayerId: this.iPlayerId }, status: util_1.response.SUCCESS });
                     yield oPlayer.reconnect(this.socket.id, oTable.toJSON().eState);
                 }
                 if (!this.socket.eventNames().includes(this.iBattleId)) {
@@ -80,7 +80,7 @@ class PlayerSocket {
             }
             catch (err) {
                 log.error(`${_.now()} client: '${this.iPlayerId}' joinTable event failed. reason: ${err.message}`);
-                _ack({ iBattleId: this.iBattleId, iPlayerId: this.iPlayerId, status: util_1.response.SERVER_ERROR });
+                _ack({ oData: { iBattleId: this.iBattleId, iPlayerId: this.iPlayerId }, status: util_1.response.SERVER_ERROR });
                 return false;
             }
         });

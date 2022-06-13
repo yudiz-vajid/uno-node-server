@@ -68,10 +68,10 @@ class PlayerSocket {
           dCreatedAt: new Date(),
         }); // - since player joining for the first time.
         if (!oPlayer) throw new Error('Player not created');
-        _ack({ iBattleId: this.iBattleId, iPlayerId: this.iPlayerId, status: response.SUCCESS });
+        _ack({ oData: { iBattleId: this.iBattleId, iPlayerId: this.iPlayerId }, status: response.SUCCESS });
         if (!(await oTable.addPlayer(oPlayer))) throw new Error('Player not added to table');
       } else {
-        _ack({ iBattleId: this.iBattleId, iPlayerId: this.iPlayerId, status: response.SUCCESS });
+        _ack({ oData: { iBattleId: this.iBattleId, iPlayerId: this.iPlayerId }, status: response.SUCCESS });
         await oPlayer.reconnect(this.socket.id, oTable.toJSON().eState);
       }
 
@@ -83,7 +83,7 @@ class PlayerSocket {
       return true;
     } catch (err: any) {
       log.error(`${_.now()} client: '${this.iPlayerId}' joinTable event failed. reason: ${err.message}`);
-      _ack({ iBattleId: this.iBattleId, iPlayerId: this.iPlayerId, status: response.SERVER_ERROR });
+      _ack({ oData: { iBattleId: this.iBattleId, iPlayerId: this.iPlayerId }, status: response.SERVER_ERROR });
       return false;
     }
   }
