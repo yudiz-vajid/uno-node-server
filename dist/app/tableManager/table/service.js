@@ -252,10 +252,10 @@ class Service {
             }
         });
     }
-    emit(sEventName, oData) {
+    emit(sEventName, oData, exceptPlayerId = []) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                this.aPlayer.forEach(p => p.emit(sEventName, oData));
+                this.aPlayer.forEach(p => !exceptPlayerId.includes(p.toJSON().iPlayerId) && p.emit(sEventName, oData));
                 return true;
             }
             catch (err) {

@@ -262,9 +262,9 @@ class Service {
     }
   }
 
-  public async emit(sEventName: string, oData: Record<string, unknown>) {
+  public async emit(sEventName: string, oData: Record<string, unknown>, exceptPlayerId: Array<string> = []) {
     try {
-      this.aPlayer.forEach(p => p.emit(sEventName, oData));
+      this.aPlayer.forEach(p => !exceptPlayerId.includes(p.toJSON().iPlayerId) && p.emit(sEventName, oData));
       return true;
     } catch (err: any) {
       log.error('Table.emit() failed !!!', { reason: err.message });
