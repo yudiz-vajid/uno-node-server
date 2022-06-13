@@ -1,5 +1,5 @@
-/* eslint-disable class-methods-use-this */
-/* eslint-disable no-unused-vars */
+import { ICallback } from '../../../types/global';
+
 class Channel {
   private iBattleId: string;
 
@@ -10,20 +10,23 @@ class Channel {
     this.iPlayerId = iPlayerId;
   }
 
-  async startGame(oData: any, callback: (data: any) => unknown) {
-    return callback(oData);
-  }
-
-  public async onEvent(body: { sTaskName: 'startGame'; [key: string]: any }, _ack: (data: any) => unknown) {
+  public async onEvent(body: { sTaskName: 'reqDiscardCard' | 'reqDrawCard'; oData: Record<string, unknown> }, ack: ICallback) {
     try {
-      if (typeof _ack !== 'function') return false;
-      const { sTaskName, ...oData } = body;
+      if (typeof ack !== 'function') return false;
+      const { sTaskName, oData } = body;
       switch (sTaskName) {
-        case 'startGame':
-          return this.startGame(oData, _ack);
+        case 'reqDrawCard':
+          emitter.emit('channelEvent', { sTaskName: 'drawCard', iBattleId: this.iBattleId, iPlayerId: this.iPlayerId ?? '', oData }, ack);
+          break;
+
+        case 'reqDiscardCard':
+          emitter.emit('channelEvent', { sTaskName: 'discardCard', iBattleId: this.iBattleId, iPlayerId: this.iPlayerId ?? '', oData }, ack);
+          break;
+
         default:
           return false;
       }
+      return true;
     } catch (err: any) {
       log.error(_.now(), `channel.onEvent ${body.sTaskName} failed!!! reason: ${err.message}`);
       return false;

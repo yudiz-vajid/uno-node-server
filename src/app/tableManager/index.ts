@@ -1,8 +1,5 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
-import { IPlayer, ITable, RedisJSON } from '../../types/global';
-import { Deck } from '../util';
+import { ICallback, ICard, IPlayer, ITable, RedisJSON } from '../../types/global';
+import { Deck, response } from '../util';
 import Player from './player';
 import Table from './table';
 
@@ -10,34 +7,74 @@ class TableManager {
   constructor() {
     emitter.on('sch', this.onScheduledEvents.bind(this));
     emitter.on('redisEvent', this.onScheduledEvents.bind(this));
+    emitter.on('channelEvent', this.onScheduledEvents.bind(this));
   }
 
-  async onScheduledEvents(body: { sTaskName: string; iBattleId: string; iPlayerId?: string; [key: string]: any }, callback: () => Promise<void>) {
-    const { sTaskName, iBattleId, iPlayerId, ...oData } = body;
+  async onScheduledEvents(body: { sTaskName: string; iBattleId: string; iPlayerId: string; oData: Record<string, unknown> }, callback: () => Promise<void>) {
+    const { sTaskName, iBattleId, iPlayerId, oData } = body;
     try {
       if (!sTaskName) throw new Error('empty sTaskName');
       if (!iBattleId) throw new Error('empty iBattleId');
       await this.executeScheduledTask(sTaskName, iBattleId, iPlayerId ?? '', oData, callback);
     } catch (error: any) {
-      log.debug(`Error Occurred on TableManager.onScheduledEvents(). sTaskName : ${sTaskName}. reason :${error.message}`);
+      log.debug(`${_.now()} Error Occurred on TableManager.onScheduledEvents(). sTaskName : ${sTaskName}. reason :${error.message}`);
     }
   }
 
   // eslint-disable-next-line class-methods-use-this
-  async executeScheduledTask(sTaskName: string, iBattleId: string, iPlayerId: string, oData: { [key: string]: any }, callback: () => Promise<void>) {
-    log.verbose(`${_.now()} executeScheduledTask ${sTaskName}`);
+  async executeScheduledTask(sTaskName: string, iBattleId: string, iPlayerId: string, oData: Record<string, unknown>, callback: ICallback) {
+    // log.verbose(`${_.now()} executeScheduledTask ${sTaskName}`);
     if (!sTaskName) return false;
+
     const oTable = await TableManager.getTable(iBattleId);
     if (!oTable) return false;
+
+    const oPlayer = oTable.getPlayer(iPlayerId);
+
+    if (['assignTurnTimerExpired', 'assignGraceTimerExpired', 'drawCard', 'discardCard'].includes(sTaskName)) {
+      if (!oPlayer) {
+        callback({ status: response.PLAYER_NOT_FOUND });
+        return (log.warn(`${_.now()} oPlayer not found in table. { iBattleId : ${iBattleId}, iPlayerId : ${iPlayerId} }`) && null) ?? false;
+      }
+      if (oTable.toJSON().eState !== 'running' && ['drawCard', 'discardCard'].includes(sTaskName)) {
+        callback({ status: response.TABLE_NOT_RUNNING });
+        return (log.warn(`${_.now()} Table is not in running state. { iBattleId : ${iBattleId}, eState : ${oTable.toJSON().eState} }`) && null) ?? false;
+      }
+      if (!oTable.hasValidTurn(iPlayerId) && ['drawCard', 'discardCard'].includes(sTaskName)) {
+        callback({ status: response.NOT_YOUR_TURN });
+        return (log.silly(`${_.now()} ${iPlayerId} has not valid turn.`) && null) ?? false;
+      }
+    }
+
     switch (sTaskName) {
       case 'distributeCard':
         await oTable.distributeCard();
         return true;
-      case 'drawCard':
-        return true;
+
       case 'masterTimerExpired':
         oTable.masterTimerExpired();
         return true;
+
+      case 'gameInitializeTimerExpired':
+        oTable.gameInitializeTimerExpired();
+        return true;
+
+      case 'assignTurnTimerExpired':
+        oPlayer?.assignTurnTimerExpired(oTable);
+        return true;
+
+      case 'assignGraceTimerExpired':
+        oPlayer?.assignGraceTimerExpired(oTable);
+        return true;
+
+      case 'drawCard':
+        oPlayer?.drawCard({}, oTable, callback);
+        return true;
+
+      case 'discardCard':
+        oPlayer?.discardCard(oData as { iCardId: string; eColor?: Omit<ICard['eColor'], 'black'> }, oTable, callback);
+        return true;
+
       default:
         return false;
     }
@@ -54,7 +91,7 @@ class TableManager {
         aDiscardPile: [], // - to be initialized during distributeCard
         bToSkip: false,
         eState: 'waiting',
-        eTurnDirection: 'clockwise',
+        bTurnClockwise: true,
         eNextCardColor: '',
         nDrawCount: 0,
         oSettings: oData.oSettings,
@@ -64,8 +101,8 @@ class TableManager {
       if (!sRedisSetResponse) return null;
       return new Table(oTableWithParticipant);
     } catch (err: any) {
-      log.error(`Error Occurred on TableManager,createTable(). reason :${err.message}`);
-      log.silly(oData);
+      log.error(`${_.now()} Error Occurred on TableManager,createTable(). reason :${err.message}`);
+      log.silly(`${_.now()} oData: ${oData}`);
       return null;
     }
   }
@@ -76,8 +113,8 @@ class TableManager {
       if (!sRedisSetResponse) return null;
       return new Player(oPlayer);
     } catch (err: any) {
-      log.error(`Error Occurred on TableManager.createPlayer(). reason :${err.message}`);
-      log.silly(oPlayer);
+      log.error(`${_.now()} Error Occurred on TableManager.createPlayer(). reason :${err.message}`);
+      log.silly(`${_.now()} oPlayer: ${oPlayer}`);
       return null;
     }
   }
@@ -97,23 +134,24 @@ class TableManager {
 
       return new Table({ ...oTableData, aPlayer: aPlayerClassified.filter(p => p) as unknown as Array<Player> });
     } catch (err: any) {
-      log.error(`Error Occurred on TableManager.getTable(). reason :${err.message}`);
-      log.silly(`iBattleId : ${iBattleId}`);
+      log.error(`${_.now()} Error Occurred on TableManager.getTable(). reason :${err.message}`);
+      log.silly(`${_.now()} iBattleId : ${iBattleId}`);
       return null;
     }
   }
 
-  public static async getPlayer(iBattleId: string, iPlayerId: string) {
-    try {
-      const oPlayerData = (await redis.client.json.GET(_.getPlayerKey(iBattleId, iPlayerId))) as unknown as IPlayer | null;
-      if (!oPlayerData) return null;
-      return new Player(oPlayerData);
-    } catch (err: any) {
-      log.error(`Error Occurred on TableManager.getPlayer(). reason :${err.message}`);
-      log.silly(`iBattleId : ${iBattleId} iPlayerId : ${iPlayerId}`);
-      return null;
-    }
-  }
+  // - not needed nas it is already their in table
+  // public static async getPlayer(iBattleId: string, iPlayerId: string) {
+  //   try {
+  //     const oPlayerData = (await redis.client.json.GET(_.getPlayerKey(iBattleId, iPlayerId))) as unknown as IPlayer | null;
+  //     if (!oPlayerData) return null;
+  //     return new Player(oPlayerData);
+  //   } catch (err: any) {
+  //     log.error(`${_.now()} Error Occurred on TableManager.getPlayer(). reason :${err.message}`);
+  //     log.silly(`${_.now()} iBattleId : ${iBattleId} iPlayerId : ${iPlayerId}`);
+  //     return null;
+  //   }
+  // }
 }
 
 export default TableManager;

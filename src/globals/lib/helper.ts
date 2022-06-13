@@ -1,6 +1,8 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-promise-executor-return */
 
+import { mersenneTwister } from '../../app/util';
+
 const helper = {
   code: {
     Continue: 100,
@@ -139,15 +141,31 @@ const helper = {
     return Object.getOwnPropertyNames(obj).length === 0;
   },
 
+  // randomizeArray: <T>(array: Array<T> = []) => {
+  //   /* Randomize array in-place using Durstenfeld shuffle algorithm */
+  //   for (let i = array.length - 1; i > 0; i -= 1) {
+  //     const j = Math.floor(Math.random() * (i + 1));
+  //     const temp = array[i];
+  //     array[i] = array[j];
+  //     array[j] = temp;
+  //   }
+  //   return array;
+  // },
+
+  // randomizeArray: <T>(array: Array<T> = []) => {
+  //   /* Randomize array in-place using Durstenfeld shuffle + mersenneTwister algorithm */
+  //   for (let i = array.length - 1; i > 0; i -= 1) {
+  //     const j = Math.floor(mersenneTwister.random() * (i + 1));
+  //     const temp = array[i];
+  //     array[i] = array[j];
+  //     array[j] = temp;
+  //   }
+  //   return array;
+  // },
+
   randomizeArray: <T>(array: Array<T> = []) => {
-    /* Randomize array in-place using Durstenfeld shuffle algorithm */
-    for (let i = array.length - 1; i > 0; i -= 1) {
-      const j = Math.floor(Math.random() * (i + 1));
-      const temp = array[i];
-      array[i] = array[j];
-      array[j] = temp;
-    }
-    return array;
+    /* Randomize array in-place using mersenneTwister algorithm */
+    return array.sort(() => mersenneTwister.random() - 0.5);
   },
 
   // isValidDate: (d: Date) => d instanceof Date && !isNaN(d as any),

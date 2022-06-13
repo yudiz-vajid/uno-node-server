@@ -41,7 +41,7 @@
         "yarn.lock": false,
         ".git": true,
         "*.lock": true,
-        ".resources": true,
+        ".resources": false,
         "node_modules": true,
         ".prettierrc.json": false,
         "dist": true
@@ -51,5 +51,9 @@
     "workbench.colorCustomizations": {
         "editorCursor.foreground": "#00ff62dc",
         "terminalCursor.foreground": "#00ff62dc"
+    },
+    "editor.codeActionsOnSave": {
+        "source.fixAll": false,
+        "source.fixAll.eslint": true
     }
 }

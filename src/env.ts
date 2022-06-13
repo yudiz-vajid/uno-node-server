@@ -1,6 +1,6 @@
 import { IEnvs } from './types/global';
 
-process.env.NODE_ENV = 'stag';
+process.env.NODE_ENV = 'dev';
 process.env.PORT = '3010';
 process.env.HOST = `127.0.0.111/${process.env.NODE_ENV}`;
 
@@ -10,10 +10,10 @@ const oEnv: IEnvs = {
   dev: {
     BASE_URL: `http://${process.env.HOST}:${process.env.PORT}`,
     REDIS_DB: '0',
-    REDIS_HOST: 'redis-14637.c301.ap-south-1-1.ec2.cloud.redislabs.com',
-    REDIS_PORT: '14637',
+    REDIS_HOST: 'redis-14966.c264.ap-south-1-1.ec2.cloud.redislabs.com',
+    REDIS_PORT: '14966',
     REDIS_USERNAME: 'default',
-    REDIS_PASSWORD: 'kderTDhubKYjmcW1ilCdjly0fFNdxihJ',
+    REDIS_PASSWORD: 'YYF9EYtDplvfU1RB8icxtGTYooswpTyr',
   },
   stag: {
     BASE_URL: `http://${process.env.HOST}:${process.env.PORT}`,
@@ -25,7 +25,7 @@ const oEnv: IEnvs = {
   },
   // prod: {},
 };
-const winstonLogLevel: 'error' | 'warn' | 'info' | 'http' | 'verbose' | 'debug' | 'silly' = 'debug';
+const winstonLogLevel: 'error' | 'warn' | 'info' | 'http' | 'verbose' | 'debug' | 'silly' = 'silly';
 process.env.LOG_LEVEL = winstonLogLevel;
 
 process.env.BASE_URL = oEnv[process.env.NODE_ENV].BASE_URL;

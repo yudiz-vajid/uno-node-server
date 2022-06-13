@@ -1,6 +1,6 @@
 import type Table from '.';
 import type Player from '../player';
-import { ITable, ITableWithPlayer, RedisJSON } from '../../../types/global';
+import { ICard, ITable, ITableWithPlayer, RedisJSON } from '../../../types/global';
 
 class Service {
   protected readonly iBattleId: ITableWithPlayer['iBattleId'];
@@ -19,7 +19,7 @@ class Service {
 
   protected eState: ITableWithPlayer['eState'];
 
-  protected eTurnDirection: ITableWithPlayer['eTurnDirection'];
+  protected bTurnClockwise: ITableWithPlayer['bTurnClockwise'];
 
   protected eNextCardColor: ITableWithPlayer['eNextCardColor'];
 
@@ -40,7 +40,7 @@ class Service {
     this.aDiscardPile = oData.aDiscardPile;
     this.bToSkip = oData.bToSkip;
     this.eState = oData.eState;
-    this.eTurnDirection = oData.eTurnDirection;
+    this.bTurnClockwise = oData.bTurnClockwise;
     this.eNextCardColor = oData.eNextCardColor;
     this.nDrawCount = oData.nDrawCount;
     this.dCreatedAt = oData.dCreatedAt;
@@ -55,7 +55,7 @@ class Service {
 
   public async update(
     oDate: Partial<
-      Pick<ITable, 'iPlayerTurn' | 'iSkippedPLayer' | 'aPlayerId' | 'aDrawPile' | 'aDiscardPile' | 'bToSkip' | 'eState' | 'eTurnDirection' | 'eNextCardColor' | 'nDrawCount'>
+      Pick<ITable, 'iPlayerTurn' | 'iSkippedPLayer' | 'aPlayerId' | 'aDrawPile' | 'aDiscardPile' | 'bToSkip' | 'eState' | 'bTurnClockwise' | 'eNextCardColor' | 'nDrawCount'>
     >
   ) {
     try {
@@ -92,8 +92,8 @@ class Service {
             this.eState = v as ITable['eState'];
             aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
             break;
-          case 'eTurnDirection':
-            this.eTurnDirection = v as ITable['eTurnDirection'];
+          case 'bTurnClockwise':
+            this.bTurnClockwise = v as ITable['bTurnClockwise'];
             aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
             break;
           case 'eNextCardColor':
@@ -119,9 +119,8 @@ class Service {
     }
   }
 
-  public drawCard(eCardType: 'normal' | 'action' | 'wild', nCount: number) {
+  public drawCard(eCardType: 'normal' | 'action' | 'wild' | 'special', nCount: number) {
     const aCards: Table['aDrawPile'] = [];
-    log.debug(`type of aDrawPile : ${typeof this.aDrawPile}`);
     switch (eCardType) {
       case 'normal':
         for (let i = 0; i < nCount; i += 1) {
@@ -141,69 +140,75 @@ class Service {
           aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
         }
         break;
+      case 'special':
+        for (let i = 0; i < nCount; i += 1) {
+          const nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9);
+          aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
+        }
+        break;
       default:
         return (log.error(`drawCard called with invalid eCardType: ${eCardType}`) && null) ?? null;
     }
     return aCards;
   }
 
-  public async getPlayer(iPlayerId: string) {
+  public getPlayer(iPlayerId: string) {
     return this.aPlayer.find(oParticipant => oParticipant.toJSON().iPlayerId === iPlayerId) ?? null;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   public async initializeGame() {
-    console.log('initializeGame called ...');
-    this.initializeGameTimer();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { aDrawPile, aPlayer, aPlayerId, ...rest } = this.toJSON();
+    const aParticipant = this.toJSON().aPlayer.map(p => {
+      const pJson = p.toJSON();
+      return { iPlayerId: pJson.iPlayerId, nSeat: pJson.nSeat, nCardCount: pJson.aHand.length };
+    });
+
+    const ePreviousState = rest.eState;
+    // eslint-disable-next-line eqeqeq
+    const bInitializeTable = aPlayerId.length == rest.oSettings.nTotalPlayerCount && rest.eState === 'waiting';
+    rest.eState = bInitializeTable ? 'initialized' : rest.eState;
+    this.emit('resTableState', { table: rest, aPlayer: aParticipant });
+    if (ePreviousState === 'waiting' && rest.eState === 'initialized') {
+      // this.deleteScheduler('refundOnLongWait'); // TODO :- Add refunc process
+      this.initializeGameTimer();
+    }
   }
 
   public async initializeGameTimer() {
     // const nBeginCountdown = this.aPlayerId.length === this.oSettings.nTotalPlayerCount ? this.oSettings.nGameInitializeTime / 2 : this.oSettings.nGameInitializeTime;
-    let nBeginCountdownCounter = this.oSettings.nGameInitializeTime / 1000;
-
-    const initialTimer = setInterval(async () => {
-      if (nBeginCountdownCounter > 1 && nBeginCountdownCounter < 3 && this.eState !== 'running') this.update({ eState: 'initialized' });
-      if (nBeginCountdownCounter > 0) {
-        this.emit('resGameInitializeTimer', { value: (nBeginCountdownCounter -= 1) });
-        return;
-      }
-      clearInterval(initialTimer);
-      // emitter.emit('reqSchedule', 'distributeCard', this.iBattleId);
-      this.setSchedular('distributeCard', '', 2000); // TODO: replace with nAnimationDelay
-    }, 1000);
+    const nBeginCountdownCounter = this.oSettings.nGameInitializeTime;
+    this.emit('resGameInitializeTimer', { ttl: nBeginCountdownCounter, timestamp: Date.now() });
+    // throw new Error(`schedular doesn't exists`);
+    this.setSchedular('gameInitializeTimerExpired', '', nBeginCountdownCounter); // -  TODO :- reduce 2 sec if required
   }
 
   public async addPlayer(oPlayer: Player) {
     const tablePlayerId = [...this.aPlayerId, oPlayer.toJSON().iPlayerId];
 
-    const ePreviousState = this.eState;
-    console.log(`tablePlayerId.length :: `, tablePlayerId.length);
-    console.log(`this.oSettings.nTotalPlayerCount :: `, this.oSettings.nTotalPlayerCount);
-    // eslint-disable-next-line eqeqeq
-    const bInitializeTable = tablePlayerId.length == this.oSettings.nTotalPlayerCount && this.eState === 'waiting';
-    console.log(`bInitializeTable :: `, bInitializeTable);
-    this.eState = bInitializeTable ? 'initialized' : this.eState;
-
     const oUpdateTable = await this.update({ aPlayerId: tablePlayerId });
     if (!oUpdateTable) return false;
     this.aPlayer.push(oPlayer);
 
-    if (ePreviousState === 'waiting' && this.eState === 'initialized') {
-      // this.deleteScheduler('refundOnLongWait'); // TODO :- Add refunc process
+    if (this.aPlayerId.length === this.oSettings.nTotalPlayerCount) {
       this.initializeGame();
-      log.verbose('Need to start the game....');
     }
 
     return true;
   }
 
-  public async updateDrawPile(aDrawPile: Table['aDrawPile']) {
-    this.aDrawPile = aDrawPile;
+  public async updateDrawPile(aDrawPile?: Table['aDrawPile']) {
+    this.aDrawPile = aDrawPile ?? this.aDrawPile;
     await this.update({ aDrawPile: this.aDrawPile });
   }
 
-  public async updateDiscardPile(aDiscardPile: Table['aDiscardPile']) {
-    this.aDiscardPile = aDiscardPile;
+  public async updateDiscardPile(aDiscardPile?: Table['aDiscardPile']) {
+    this.aDiscardPile = aDiscardPile ?? this.aDiscardPile;
+    await this.update({ aDiscardPile: this.aDiscardPile });
+  }
+
+  public async addToDiscardPile(oCard: ICard) {
+    this.aDiscardPile.push(oCard);
     await this.update({ aDiscardPile: this.aDiscardPile });
   }
 
@@ -223,16 +228,37 @@ class Service {
     try {
       const sKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
       const schedularKeys = await redis.client.keys(sKey); // TODO : non efficient, use scan instead
-      if (!schedularKeys.length) {
-        throw new Error(`schedular doesn't exists`);
-      }
+      if (!schedularKeys.length) throw new Error(`schedular doesn't exists`);
+
       const deletionCount = await redis.client.del(schedularKeys);
       if (!deletionCount) throw new Error(`can't delete key: ${schedularKeys}`);
+
       log.silly(`deleted scheduled keys: ${schedularKeys}`);
       return true;
     } catch (err: any) {
       log.error(`table.deleteScheduler(sTaskName: ${sTaskName}, iPlayerId: ${iPlayerId}, iBattleId: ${this.iBattleId}) failed. reason: ${err.message}`);
       return false;
+    }
+  }
+
+  public async getTTL(sTaskName = '', iPlayerId = '*') {
+    try {
+      const sKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
+      const schedularKeys = await redis.client.keys(sKey); // TODO : non efficient, use scan instead
+      if (!schedularKeys.length) return null; // - throw new Error(`schedular doesn't exists`);
+
+      if (schedularKeys.length > 1) {
+        log.warn(`multiple schedular keys found for ${sKey}, keys: ${schedularKeys}`);
+        await redis.client.del(schedularKeys.slice(1));
+      }
+
+      const nTTL = await redis.client.pTTL(schedularKeys[0]); // - in ms
+      if (nTTL < 0) return null; // - -1-> key not exist, -2 -> key exist but without expiry
+
+      return nTTL;
+    } catch (err: any) {
+      log.error(`table.getTTL(sTaskName: ${sTaskName}, iPlayerId: ${iPlayerId}, iBattleId: ${this.iBattleId}) failed. reason: ${err.message}`);
+      return null;
     }
   }
 
@@ -253,14 +279,15 @@ class Service {
       iSkippedPLayer: this.iSkippedPLayer,
       aPlayerId: this.aPlayerId,
       aDrawPile: this.aDrawPile,
+      aDiscardPile: this.aDiscardPile,
       bToSkip: this.bToSkip,
       eState: this.eState,
-      eTurnDirection: this.eTurnDirection,
+      bTurnClockwise: this.bTurnClockwise,
       eNextCardColor: this.eNextCardColor,
       nDrawCount: this.nDrawCount,
       dCreatedAt: this.dCreatedAt,
       oSettings: this.oSettings,
-      aPlayer: this.aPlayer, //  WARNING : dont save using toJSON() as it contain non-existed field 'aPlayer'
+      aPlayer: this.aPlayer, //  WARNING : don't save using toJSON() as it contain non-existed field 'aPlayer'
     };
   }
 }

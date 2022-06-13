@@ -1,4 +1,5 @@
-import { IPlayer, ITable, RedisJSON } from '../../../types/global';
+import { ICard, IPlayer, ITable, RedisJSON } from '../../../types/global';
+import type Table from '../table';
 
 class Service {
   protected readonly iPlayerId: IPlayer['iPlayerId'];
@@ -50,11 +51,11 @@ class Service {
   }
 
   // prettier-ignore
-  public async update(oDate: Partial<Pick<IPlayer, 'sSocketId' | 'nScore' | 'nUnoTime' | 'nGraceTime' | 'nMissedTurn' | 'nDrawNormal' | 'nReconnectionAttempt' | 'bSpecialMeterFull' | 'aHand' | 'eState'>>) {
+  public async update(oData: Partial<Pick<IPlayer, 'sSocketId' | 'nScore' | 'nUnoTime' | 'nGraceTime' | 'nMissedTurn' | 'nDrawNormal' | 'nReconnectionAttempt' | 'bSpecialMeterFull' | 'aHand' | 'eState'>>) {
     try {
       const aPromise: Array<Promise<unknown>> = [];
       const sPlayerKey = _.getPlayerKey(this.iBattleId, this.iPlayerId);
-      Object.entries(oDate).forEach(([k, v]) => {
+      Object.entries(oData).forEach(([k, v]) => {
         switch (k) {
           case 'sSocketId':
             this.sSocketId = v as IPlayer['sSocketId'];
@@ -121,8 +122,77 @@ class Service {
 
   public async emit(sEventName: string, oData: Record<string, unknown> = {}) {
     if (!sEventName) return false;
-    if (this.sSocketId) global.io.to(this.sSocketId).emit(this.iBattleId, _.stringify({ sTaskName: sEventName, ...oData })); // cb not supported while broadcasting
-    if (process.env.NODE_ENV !== 'prod') global.io.to(this.sSocketId).emit('postman', _.stringify({ sTaskName: sEventName, ...oData }));
+    if (this.sSocketId) global.io.to(this.sSocketId).emit(this.iBattleId, _.stringify({ sTaskName: sEventName, oData })); // cb not supported while broadcasting
+    if (process.env.NODE_ENV !== 'prod') global.io.to(this.sSocketId).emit('postman', { sTaskName: sEventName, oData });
+    return true;
+  }
+
+  /**
+   * set player hand on distribute cards
+   *
+   * set player state to 'playing'
+   */
+  public async setHand(aNormalCard: Table['aDrawPile'], aActionCard: Table['aDrawPile'], aWildCard: Table['aDrawPile']) {
+    // log.verbose(`setHand called for user ${this.iPlayerId}`);
+
+    this.aHand.push(...aNormalCard);
+    this.aHand.push(...aActionCard);
+    this.aHand.push(...aWildCard);
+
+    await this.update({ aHand: this.aHand, eState: 'playing' });
+    this.emit('resHand', { aHand: this.aHand });
+  }
+
+  /**
+   * get list of cards for user to play wrt discard pile top card
+   */
+  public async getPlayableCardIds(oDiscardPileTopCard: ICard, eNextCardColor?: Table['eNextCardColor']) {
+    if (oDiscardPileTopCard.nLabel === 12) return this.aHand.filter(card => card.nLabel === 12).map(card => card.iCardId);
+    if (oDiscardPileTopCard.nLabel === 14) return this.aHand.filter(card => card.nLabel === 14).map(card => card.iCardId);
+    if (oDiscardPileTopCard.nLabel === 13) return this.aHand.filter(card => card.nLabel > 12 || card.eColor === eNextCardColor).map(card => card.iCardId);
+    return this.aHand
+      .filter(card => oDiscardPileTopCard.eColor === card.eColor || oDiscardPileTopCard.nLabel === card.nLabel || card.nLabel === 13 || card.nLabel === 14)
+      .map(card => card.iCardId);
+  }
+
+  public async takeTurn(oTable: Table) {
+    // log.debug(`take turn called... for user ${this.iPlayerId}`);
+    await oTable.update({ iPlayerTurn: this.iPlayerId });
+    const aPlayableCard = await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
+    log.debug(`${_.now()} discard pile top card:: ${oTable.getDiscardPileTopCard().iCardId}`);
+    log.debug(`${_.now()} playable cards for player ${this.iPlayerId}:: ${aPlayableCard}`);
+    // prettier-ignore
+    oTable.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nTurnTime, timestamp: Date.now(), aPlayableCards: aPlayableCard }); // check aPlayableCards needed on table ?
+    oTable.setSchedular('assignTurnTimerExpired', this.iPlayerId, oTable.toJSON().oSettings.nTurnTime);
+  }
+
+  public async assignTurnTimerExpired(oTable: Table) {
+    // log.verbose('assignTurnTimerExpired called...');
+    if (this.nGraceTime < 3) return this.assignGraceTimerExpired(oTable); // Nothing changed in table so no need to save it. // ? why
+    const aPlayableCardId = await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
+    oTable.emit('resTurnTimer', { bIsGraceTimer: true, iPlayerId: this.iPlayerId, ttl: this.toJSON().nGraceTime, timestamp: Date.now(), aPlayableCards: aPlayableCardId });
+    oTable.setSchedular('assignGraceTimerExpired', this.iPlayerId, this.toJSON().nGraceTime);
+    return true;
+  }
+
+  public async assignGraceTimerExpired(oTable: Table) {
+    // log.verbose('assignGraceTimerExpired called...');
+    await this.update({ nMissedTurn: this.nMissedTurn + 1, nGraceTime: 0 });
+
+    // TODO : kick process for player if missed turn is more than 3 times.
+    return this.passTurn(oTable);
+  }
+
+  public async passTurn(oTable: Table) {
+    // log.verbose('passTurn called...');
+    if (oTable.toJSON().eState !== 'running') return log.error('table is not in running state.');
+    const { aPlayer } = oTable.toJSON();
+
+    const aPlayingPlayer = aPlayer.filter(p => p.eState === 'playing');
+    if (!aPlayingPlayer.length) return (log.error('no playing participant') && null) ?? false; // TODO: declare result
+    const oNextPlayer = await oTable.getNextPlayer(this.nSeat);
+    if (!oNextPlayer) return (log.error('No playing player found...') && null) ?? false;
+    oNextPlayer.takeTurn(oTable);
     return true;
   }
 
