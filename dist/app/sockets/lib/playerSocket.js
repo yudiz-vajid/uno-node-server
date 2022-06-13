@@ -8,24 +8,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __rest = (this && this.__rest) || function (s, e) {
-    var t = {};
-    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-        t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                t[p[i]] = s[p[i]];
-        }
-    return t;
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const channel_1 = __importDefault(require("./channel"));
-const tableManager_1 = __importDefault(require("../../tableManager"));
 const util_1 = require("../../util");
+const tableManager_1 = __importDefault(require("../../tableManager"));
 class PlayerSocket {
     constructor(socket) {
         this.socket = socket;
@@ -49,22 +38,22 @@ class PlayerSocket {
             if (typeof _ack !== 'function')
                 return false;
             try {
-                let table = yield tableManager_1.default.getTable(this.iBattleId);
-                if (!table)
-                    table = yield tableManager_1.default.createTable({ iBattleId: this.iBattleId, oSettings: this.oSetting });
-                if (!table)
+                let oTable = yield tableManager_1.default.getTable(this.iBattleId);
+                if (!oTable)
+                    oTable = yield tableManager_1.default.createTable({ iBattleId: this.iBattleId, oSettings: this.oSetting });
+                if (!oTable)
                     throw new Error('Table not created');
-                let player = yield table.getPlayer(this.iPlayerId);
-                if (!player) {
-                    player = yield tableManager_1.default.createPlayer({
+                let oPlayer = oTable.getPlayer(this.iPlayerId);
+                if (!oPlayer) {
+                    oPlayer = yield tableManager_1.default.createPlayer({
                         iPlayerId: this.iPlayerId,
                         iBattleId: this.iBattleId,
                         sPlayerName: this.sPlayerName,
                         sSocketId: this.socket.id,
-                        nSeat: table.toJSON().aPlayer.length,
+                        nSeat: oTable.toJSON().aPlayer.length,
                         nScore: 0,
-                        nUnoTime: table.toJSON().oSettings.nUnoTime,
-                        nGraceTime: table.toJSON().oSettings.nGraceTime,
+                        nUnoTime: oTable.toJSON().oSettings.nUnoTime,
+                        nGraceTime: oTable.toJSON().oSettings.nGraceTime,
                         nMissedTurn: 0,
                         nDrawNormal: 0,
                         nReconnectionAttempt: 0,
@@ -73,31 +62,25 @@ class PlayerSocket {
                         eState: 'waiting',
                         dCreatedAt: new Date(),
                     });
-                    if (!player)
+                    if (!oPlayer)
                         throw new Error('Player not created');
-                    if (!(yield table.addPlayer(player)))
+                    _ack({ iBattleId: this.iBattleId, iPlayerId: this.iPlayerId, status: util_1.response.SUCCESS });
+                    if (!(yield oTable.addPlayer(oPlayer)))
                         throw new Error('Player not added to table');
                 }
-                else
-                    yield player.reconnect(this.socket.id, table.toJSON().eState);
+                else {
+                    _ack({ iBattleId: this.iBattleId, iPlayerId: this.iPlayerId, status: util_1.response.SUCCESS });
+                    yield oPlayer.reconnect(this.socket.id, oTable.toJSON().eState);
+                }
                 if (!this.socket.eventNames().includes(this.iBattleId)) {
                     const channel = new channel_1.default(this.iBattleId, this.iPlayerId);
                     this.socket.on(this.iBattleId, channel.onEvent.bind(channel));
-                }
-                const _a = table.toJSON(), { aDrawPile, aPlayer, aPlayerId } = _a, rest = __rest(_a, ["aDrawPile", "aPlayer", "aPlayerId"]);
-                const aParticipant = table.toJSON().aPlayer.map(p => {
-                    const pJson = p.toJSON();
-                    return { iPlayerId: pJson.iPlayerId, nSeat: pJson.nSeat, nCardCount: pJson.aHand.length };
-                });
-                _ack({ iBattleId: this.iBattleId, iPlayerId: this.iPlayerId, success: util_1.response.SUCCESS });
-                table.emit('resTableJoin', { iBattleId: this.iBattleId, iPlayerId: this.iPlayerId });
-                if (aPlayerId.length === this.oSetting.nTotalPlayerCount) {
-                    table.emit('resTableState', { table: rest, aPlayer: aParticipant });
                 }
                 return true;
             }
             catch (err) {
                 log.error(`${_.now()} client: '${this.iPlayerId}' joinTable event failed. reason: ${err.message}`);
+                _ack({ iBattleId: this.iBattleId, iPlayerId: this.iPlayerId, status: util_1.response.SERVER_ERROR });
                 return false;
             }
         });

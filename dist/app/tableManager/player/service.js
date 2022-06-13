@@ -27,12 +27,12 @@ class Service {
         this.eState = oData.eState;
         this.dCreatedAt = oData.dCreatedAt;
     }
-    update(oDate) {
+    update(oData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const aPromise = [];
                 const sPlayerKey = _.getPlayerKey(this.iBattleId, this.iPlayerId);
-                Object.entries(oDate).forEach(([k, v]) => {
+                Object.entries(oData).forEach(([k, v]) => {
                     switch (k) {
                         case 'sSocketId':
                             this.sSocketId = v;
@@ -103,9 +103,73 @@ class Service {
             if (!sEventName)
                 return false;
             if (this.sSocketId)
-                global.io.to(this.sSocketId).emit(this.iBattleId, _.stringify(Object.assign({ sTaskName: sEventName }, oData)));
+                global.io.to(this.sSocketId).emit(this.iBattleId, _.stringify({ sTaskName: sEventName, oData }));
             if (process.env.NODE_ENV !== 'prod')
-                global.io.to(this.sSocketId).emit('postman', _.stringify(Object.assign({ sTaskName: sEventName }, oData)));
+                global.io.to(this.sSocketId).emit('postman', { sTaskName: sEventName, oData });
+            return true;
+        });
+    }
+    setHand(aNormalCard, aActionCard, aWildCard) {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.aHand.push(...aNormalCard);
+            this.aHand.push(...aActionCard);
+            this.aHand.push(...aWildCard);
+            yield this.update({ aHand: this.aHand, eState: 'playing' });
+            this.emit('resHand', { aHand: this.aHand });
+        });
+    }
+    getPlayableCardIds(oDiscardPileTopCard, eNextCardColor) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (oDiscardPileTopCard.nLabel === 12)
+                return this.aHand.filter(card => card.nLabel === 12).map(card => card.iCardId);
+            if (oDiscardPileTopCard.nLabel === 14)
+                return this.aHand.filter(card => card.nLabel === 14).map(card => card.iCardId);
+            if (oDiscardPileTopCard.nLabel === 13)
+                return this.aHand.filter(card => card.nLabel > 12 || card.eColor === eNextCardColor).map(card => card.iCardId);
+            return this.aHand
+                .filter(card => oDiscardPileTopCard.eColor === card.eColor || oDiscardPileTopCard.nLabel === card.nLabel || card.nLabel === 13 || card.nLabel === 14)
+                .map(card => card.iCardId);
+        });
+    }
+    takeTurn(oTable) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield oTable.update({ iPlayerTurn: this.iPlayerId });
+            const aPlayableCard = yield this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
+            log.debug(`${_.now()} discard pile top card:: ${oTable.getDiscardPileTopCard().iCardId}`);
+            log.debug(`${_.now()} playable cards for player ${this.iPlayerId}:: ${aPlayableCard}`);
+            oTable.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nTurnTime, timestamp: Date.now(), aPlayableCards: aPlayableCard });
+            oTable.setSchedular('assignTurnTimerExpired', this.iPlayerId, oTable.toJSON().oSettings.nTurnTime);
+        });
+    }
+    assignTurnTimerExpired(oTable) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.nGraceTime < 3)
+                return this.assignGraceTimerExpired(oTable);
+            const aPlayableCardId = yield this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
+            oTable.emit('resTurnTimer', { bIsGraceTimer: true, iPlayerId: this.iPlayerId, ttl: this.toJSON().nGraceTime, timestamp: Date.now(), aPlayableCards: aPlayableCardId });
+            oTable.setSchedular('assignGraceTimerExpired', this.iPlayerId, this.toJSON().nGraceTime);
+            return true;
+        });
+    }
+    assignGraceTimerExpired(oTable) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.update({ nMissedTurn: this.nMissedTurn + 1, nGraceTime: 0 });
+            return this.passTurn(oTable);
+        });
+    }
+    passTurn(oTable) {
+        var _a, _b;
+        return __awaiter(this, void 0, void 0, function* () {
+            if (oTable.toJSON().eState !== 'running')
+                return log.error('table is not in running state.');
+            const { aPlayer } = oTable.toJSON();
+            const aPlayingPlayer = aPlayer.filter(p => p.eState === 'playing');
+            if (!aPlayingPlayer.length)
+                return (_a = (log.error('no playing participant') && null)) !== null && _a !== void 0 ? _a : false;
+            const oNextPlayer = yield oTable.getNextPlayer(this.nSeat);
+            if (!oNextPlayer)
+                return (_b = (log.error('No playing player found...') && null)) !== null && _b !== void 0 ? _b : false;
+            oNextPlayer.takeTurn(oTable);
             return true;
         });
     }

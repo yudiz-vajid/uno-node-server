@@ -8,6 +8,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 class Service {
     constructor(oData) {
@@ -20,7 +31,7 @@ class Service {
         this.aDiscardPile = oData.aDiscardPile;
         this.bToSkip = oData.bToSkip;
         this.eState = oData.eState;
-        this.eTurnDirection = oData.eTurnDirection;
+        this.bTurnClockwise = oData.bTurnClockwise;
         this.eNextCardColor = oData.eNextCardColor;
         this.nDrawCount = oData.nDrawCount;
         this.dCreatedAt = oData.dCreatedAt;
@@ -65,8 +76,8 @@ class Service {
                             this.eState = v;
                             aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v));
                             break;
-                        case 'eTurnDirection':
-                            this.eTurnDirection = v;
+                        case 'bTurnClockwise':
+                            this.bTurnClockwise = v;
                             aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v));
                             break;
                         case 'eNextCardColor':
@@ -96,7 +107,6 @@ class Service {
     drawCard(eCardType, nCount) {
         var _a;
         const aCards = [];
-        log.debug(`type of aDrawPile : ${typeof this.aDrawPile}`);
         switch (eCardType) {
             case 'normal':
                 for (let i = 0; i < nCount; i += 1) {
@@ -116,6 +126,12 @@ class Service {
                     aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
                 }
                 break;
+            case 'special':
+                for (let i = 0; i < nCount; i += 1) {
+                    const nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9);
+                    aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
+                }
+                break;
             default:
                 return (_a = (log.error(`drawCard called with invalid eCardType: ${eCardType}`) && null)) !== null && _a !== void 0 ? _a : null;
         }
@@ -123,60 +139,59 @@ class Service {
     }
     getPlayer(iPlayerId) {
         var _a;
-        return __awaiter(this, void 0, void 0, function* () {
-            return (_a = this.aPlayer.find(oParticipant => oParticipant.toJSON().iPlayerId === iPlayerId)) !== null && _a !== void 0 ? _a : null;
-        });
+        return (_a = this.aPlayer.find(oParticipant => oParticipant.toJSON().iPlayerId === iPlayerId)) !== null && _a !== void 0 ? _a : null;
     }
     initializeGame() {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('initializeGame called ...');
-            this.initializeGameTimer();
+            const _a = this.toJSON(), { aDrawPile, aPlayer, aPlayerId } = _a, rest = __rest(_a, ["aDrawPile", "aPlayer", "aPlayerId"]);
+            const aParticipant = this.toJSON().aPlayer.map(p => {
+                const pJson = p.toJSON();
+                return { iPlayerId: pJson.iPlayerId, nSeat: pJson.nSeat, nCardCount: pJson.aHand.length };
+            });
+            const ePreviousState = rest.eState;
+            const bInitializeTable = aPlayerId.length == rest.oSettings.nTotalPlayerCount && rest.eState === 'waiting';
+            rest.eState = bInitializeTable ? 'initialized' : rest.eState;
+            this.emit('resTableState', { table: rest, aPlayer: aParticipant });
+            if (ePreviousState === 'waiting' && rest.eState === 'initialized') {
+                this.initializeGameTimer();
+            }
         });
     }
     initializeGameTimer() {
         return __awaiter(this, void 0, void 0, function* () {
-            let nBeginCountdownCounter = this.oSettings.nGameInitializeTime / 1000;
-            const initialTimer = setInterval(() => __awaiter(this, void 0, void 0, function* () {
-                if (nBeginCountdownCounter > 1 && nBeginCountdownCounter < 3 && this.eState !== 'running')
-                    this.update({ eState: 'initialized' });
-                if (nBeginCountdownCounter > 0) {
-                    this.emit('resGameInitializeTimer', { value: (nBeginCountdownCounter -= 1) });
-                    return;
-                }
-                clearInterval(initialTimer);
-                this.setSchedular('distributeCard', '', 2000);
-            }), 1000);
+            const nBeginCountdownCounter = this.oSettings.nGameInitializeTime;
+            this.emit('resGameInitializeTimer', { ttl: nBeginCountdownCounter, timestamp: Date.now() });
+            this.setSchedular('gameInitializeTimerExpired', '', nBeginCountdownCounter);
         });
     }
     addPlayer(oPlayer) {
         return __awaiter(this, void 0, void 0, function* () {
             const tablePlayerId = [...this.aPlayerId, oPlayer.toJSON().iPlayerId];
-            const ePreviousState = this.eState;
-            console.log(`tablePlayerId.length :: `, tablePlayerId.length);
-            console.log(`this.oSettings.nTotalPlayerCount :: `, this.oSettings.nTotalPlayerCount);
-            const bInitializeTable = tablePlayerId.length == this.oSettings.nTotalPlayerCount && this.eState === 'waiting';
-            console.log(`bInitializeTable :: `, bInitializeTable);
-            this.eState = bInitializeTable ? 'initialized' : this.eState;
             const oUpdateTable = yield this.update({ aPlayerId: tablePlayerId });
             if (!oUpdateTable)
                 return false;
             this.aPlayer.push(oPlayer);
-            if (ePreviousState === 'waiting' && this.eState === 'initialized') {
+            if (this.aPlayerId.length === this.oSettings.nTotalPlayerCount) {
                 this.initializeGame();
-                log.verbose('Need to start the game....');
             }
             return true;
         });
     }
     updateDrawPile(aDrawPile) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.aDrawPile = aDrawPile;
+            this.aDrawPile = aDrawPile !== null && aDrawPile !== void 0 ? aDrawPile : this.aDrawPile;
             yield this.update({ aDrawPile: this.aDrawPile });
         });
     }
     updateDiscardPile(aDiscardPile) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.aDiscardPile = aDiscardPile;
+            this.aDiscardPile = aDiscardPile !== null && aDiscardPile !== void 0 ? aDiscardPile : this.aDiscardPile;
+            yield this.update({ aDiscardPile: this.aDiscardPile });
+        });
+    }
+    addToDiscardPile(oCard) {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.aDiscardPile.push(oCard);
             yield this.update({ aDiscardPile: this.aDiscardPile });
         });
     }
@@ -201,9 +216,8 @@ class Service {
             try {
                 const sKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
                 const schedularKeys = yield redis.client.keys(sKey);
-                if (!schedularKeys.length) {
+                if (!schedularKeys.length)
                     throw new Error(`schedular doesn't exists`);
-                }
                 const deletionCount = yield redis.client.del(schedularKeys);
                 if (!deletionCount)
                     throw new Error(`can't delete key: ${schedularKeys}`);
@@ -213,6 +227,28 @@ class Service {
             catch (err) {
                 log.error(`table.deleteScheduler(sTaskName: ${sTaskName}, iPlayerId: ${iPlayerId}, iBattleId: ${this.iBattleId}) failed. reason: ${err.message}`);
                 return false;
+            }
+        });
+    }
+    getTTL(sTaskName = '', iPlayerId = '*') {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const sKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
+                const schedularKeys = yield redis.client.keys(sKey);
+                if (!schedularKeys.length)
+                    return null;
+                if (schedularKeys.length > 1) {
+                    log.warn(`multiple schedular keys found for ${sKey}, keys: ${schedularKeys}`);
+                    yield redis.client.del(schedularKeys.slice(1));
+                }
+                const nTTL = yield redis.client.pTTL(schedularKeys[0]);
+                if (nTTL < 0)
+                    return null;
+                return nTTL;
+            }
+            catch (err) {
+                log.error(`table.getTTL(sTaskName: ${sTaskName}, iPlayerId: ${iPlayerId}, iBattleId: ${this.iBattleId}) failed. reason: ${err.message}`);
+                return null;
             }
         });
     }
@@ -235,9 +271,10 @@ class Service {
             iSkippedPLayer: this.iSkippedPLayer,
             aPlayerId: this.aPlayerId,
             aDrawPile: this.aDrawPile,
+            aDiscardPile: this.aDiscardPile,
             bToSkip: this.bToSkip,
             eState: this.eState,
-            eTurnDirection: this.eTurnDirection,
+            bTurnClockwise: this.bTurnClockwise,
             eNextCardColor: this.eNextCardColor,
             nDrawCount: this.nDrawCount,
             dCreatedAt: this.dCreatedAt,
