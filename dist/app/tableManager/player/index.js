@@ -48,6 +48,7 @@ class Player extends service_1.default {
                 aPromises.push(oTable.update({ eNextCardColor: oData.eColor, nDrawCount: oCardToDiscard.nLabel === 13 ? 1 : 4 }));
             }
             callback({ oData: {}, status: util_1.response.SUCCESS });
+            oCardToDiscard.eColor = 'red';
             aPromises.push(oTable.addToDiscardPile(oCardToDiscard));
             const nRemainingGraceTime = yield oTable.getTTL('assignGraceTimerExpired', this.iPlayerId);
             if (nRemainingGraceTime) {

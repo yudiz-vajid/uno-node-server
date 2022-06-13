@@ -61,6 +61,7 @@ class Player extends Service {
     }
 
     callback({ oData: {}, status: response.SUCCESS });
+    oCardToDiscard.eColor='red' // TODO :- Remove this once wild card pick color integrated.
     aPromises.push(oTable.addToDiscardPile(oCardToDiscard));
 
     const nRemainingGraceTime = await oTable.getTTL('assignGraceTimerExpired', this.iPlayerId); // - in ms
