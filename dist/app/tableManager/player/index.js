@@ -76,12 +76,12 @@ class Player extends service_1.default {
                 callback({ oData: {}, status: util_1.response.SERVER_ERROR });
                 return (_a = (log.error(`${_.now()} no card found for iCardId: ${oData.iCardId}`) && null)) !== null && _a !== void 0 ? _a : false;
             }
-            log.verbose(`${_.now()} player: ${this.iPlayerId}, drawnCard: ${aCard[0].iCardId}`);
-            callback({ oData: aCard[0], status: util_1.response.SUCCESS });
-            oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, nCardCount: 1 });
             const { nSpecialMeterFillCount } = oTable.toJSON().oSettings;
             this.nDrawNormal = this.nDrawNormal === nSpecialMeterFillCount ? 0 : this.nDrawNormal + 1;
             this.bSpecialMeterFull = this.nDrawNormal === nSpecialMeterFillCount;
+            log.verbose(`${_.now()} player: ${this.iPlayerId}, drawnCard: ${aCard[0].iCardId}`);
+            callback({ oData: { oCard: aCard[0], nDrawNormal: this.nDrawNormal }, status: util_1.response.SUCCESS });
+            oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, nCardCount: 1 });
             yield Promise.all([
                 oTable.updateDrawPile(),
                 this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard] }),
