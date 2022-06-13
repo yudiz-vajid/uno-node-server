@@ -118,7 +118,7 @@ class Player extends Service {
     this.bSpecialMeterFull = this.nDrawNormal === nSpecialMeterFillCount;
 
     log.verbose(`${_.now()} player: ${this.iPlayerId}, drawnCard: ${aCard[0].iCardId}`);
-    callback({ oData:{oCard: aCard[0],nDrawNormal:this.nDrawNormal}, status: response.SUCCESS });
+    callback({ oData:{oCard: aCard[0],nDrawNormal:this.nDrawNormal,nSpecialMeterFillCount}, status: response.SUCCESS });
     oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, nCardCount: 1 });
 
     await Promise.all([

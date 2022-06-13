@@ -80,7 +80,7 @@ class Player extends service_1.default {
             this.nDrawNormal = this.nDrawNormal === nSpecialMeterFillCount ? 0 : this.nDrawNormal + 1;
             this.bSpecialMeterFull = this.nDrawNormal === nSpecialMeterFillCount;
             log.verbose(`${_.now()} player: ${this.iPlayerId}, drawnCard: ${aCard[0].iCardId}`);
-            callback({ oData: { oCard: aCard[0], nDrawNormal: this.nDrawNormal }, status: util_1.response.SUCCESS });
+            callback({ oData: { oCard: aCard[0], nDrawNormal: this.nDrawNormal, nSpecialMeterFillCount }, status: util_1.response.SUCCESS });
             oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, nCardCount: 1 });
             yield Promise.all([
                 oTable.updateDrawPile(),
