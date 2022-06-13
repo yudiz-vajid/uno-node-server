@@ -38,7 +38,7 @@ declare interface ISettings {
   nGraceTime: number; // ms
   nStartingNormalCardCount: number;
   nStartingSpecialCardCount: number;
-  // nStartingActionCardCount: number;
+  nStartingActionCardCount: number;
   nTotalPlayerCount: number;
   nUnoTime: number;
   nSpecialMeterFillCount: number;
@@ -74,8 +74,8 @@ export declare interface ITable {
   aDrawPile: ICard[];
   aDiscardPile: ICard[];
   bToSkip: boolean;
-  eState: 'waiting' | 'initialized' | 'running' | 'finished';
   bTurnClockwise: boolean;
+  eState: 'waiting' | 'initialized' | 'running' | 'finished';
   eNextCardColor: Omit<ICard['eColor'], 'black'>;
   nDrawCount: number;
   oSettings: ISettings;

@@ -22,7 +22,7 @@ const oEnv = {
         REDIS_PASSWORD: 'kderTDhubKYjmcW1ilCdjly0fFNdxihJ',
     },
 };
-const winstonLogLevel = 'debug';
+const winstonLogLevel = 'silly';
 process.env.LOG_LEVEL = winstonLogLevel;
 process.env.BASE_URL = oEnv[process.env.NODE_ENV].BASE_URL;
 process.env.REDIS_HOST = oEnv[process.env.NODE_ENV].REDIS_HOST;

@@ -23,8 +23,8 @@ const Schema = Joi.object().keys({
   nGraceTime: Joi.number().optional().default(10000),
 
   nStartingNormalCardCount: Joi.number().optional().default(4),
-  // nStartingActionCardCount: Joi.number().optional().default(3),
-  nStartingSpecialCardCount: Joi.number().optional().default(0),
+  nStartingActionCardCount: Joi.number().optional().default(2),
+  nStartingSpecialCardCount: Joi.number().optional().default(3),
 
   nTotalPlayerCount: Joi.number().optional().default(2),
   nUnoTime: Joi.number().optional().default(10000),

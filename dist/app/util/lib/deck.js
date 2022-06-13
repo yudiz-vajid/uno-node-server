@@ -14,7 +14,7 @@ class Deck {
     }
     generateRedCards() {
         const aRedCard = [];
-        aRedCard.push({ iCardId: `rd0`, eColor: 'green', nLabel: 0, nScore: this.aScore[0] });
+        aRedCard.push({ iCardId: `rd0`, eColor: 'red', nLabel: 0, nScore: this.aScore[0] });
         for (let i = 1; i <= 12; i++) {
             aRedCard.push({ iCardId: `rd${i}a`, eColor: 'red', nLabel: i, nScore: this.aScore[i] });
             aRedCard.push({ iCardId: `rd${i}b`, eColor: 'red', nLabel: i, nScore: this.aScore[i] });
@@ -32,7 +32,7 @@ class Deck {
     }
     generateYellowCards() {
         const aYellowCard = [];
-        aYellowCard.push({ iCardId: `rd0`, eColor: 'green', nLabel: 0, nScore: this.aScore[0] });
+        aYellowCard.push({ iCardId: `yw0`, eColor: 'yellow', nLabel: 0, nScore: this.aScore[0] });
         for (let i = 1; i <= 12; i++) {
             aYellowCard.push({ iCardId: `yw${i}a`, eColor: 'yellow', nLabel: i, nScore: this.aScore[i] });
             aYellowCard.push({ iCardId: `yw${i}b`, eColor: 'yellow', nLabel: i, nScore: this.aScore[i] });
@@ -41,7 +41,7 @@ class Deck {
     }
     generateBlueCards() {
         const aBlueCard = [];
-        aBlueCard.push({ iCardId: `rd0`, eColor: 'green', nLabel: 0, nScore: this.aScore[0] });
+        aBlueCard.push({ iCardId: `be0`, eColor: 'blue', nLabel: 0, nScore: this.aScore[0] });
         for (let i = 1; i <= 12; i++) {
             aBlueCard.push({ iCardId: `be${i}a`, eColor: 'blue', nLabel: i, nScore: this.aScore[i] });
             aBlueCard.push({ iCardId: `be${i}b`, eColor: 'blue', nLabel: i, nScore: this.aScore[i] });

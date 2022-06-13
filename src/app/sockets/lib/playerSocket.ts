@@ -1,8 +1,8 @@
 import type { Socket } from 'socket.io';
 import Channel from './channel';
-import { ICallback, ISettings } from '../../../types/global';
-import TableManager from '../../tableManager';
 import { response } from '../../util';
+import TableManager from '../../tableManager';
+import { ICallback, ISettings } from '../../../types/global';
 
 class PlayerSocket {
   private socket: Socket;
@@ -45,21 +45,20 @@ class PlayerSocket {
   private async joinTable(body: unknown, _ack: ICallback) {
     if (typeof _ack !== 'function') return false;
     try {
-      let table = await TableManager.getTable(this.iBattleId);
-      if (!table) table = await TableManager.createTable({ iBattleId: this.iBattleId, oSettings: this.oSetting });
-      if (!table) throw new Error('Table not created');
-      _ack({ iBattleId: this.iBattleId, iPlayerId: this.iPlayerId, success: response.SUCCESS });
-      let player = await table.getPlayer(this.iPlayerId);
-      if (!player) {
-        player = await TableManager.createPlayer({
+      let oTable = await TableManager.getTable(this.iBattleId);
+      if (!oTable) oTable = await TableManager.createTable({ iBattleId: this.iBattleId, oSettings: this.oSetting });
+      if (!oTable) throw new Error('Table not created');
+      let oPlayer = oTable.getPlayer(this.iPlayerId);
+      if (!oPlayer) {
+        oPlayer = await TableManager.createPlayer({
           iPlayerId: this.iPlayerId,
           iBattleId: this.iBattleId,
           sPlayerName: this.sPlayerName,
           sSocketId: this.socket.id,
-          nSeat: table.toJSON().aPlayer.length,
+          nSeat: oTable.toJSON().aPlayer.length,
           nScore: 0,
-          nUnoTime: table.toJSON().oSettings.nUnoTime,
-          nGraceTime: table.toJSON().oSettings.nGraceTime,
+          nUnoTime: oTable.toJSON().oSettings.nUnoTime,
+          nGraceTime: oTable.toJSON().oSettings.nGraceTime,
           nMissedTurn: 0,
           nDrawNormal: 0,
           nReconnectionAttempt: 0,
@@ -68,39 +67,23 @@ class PlayerSocket {
           eState: 'waiting',
           dCreatedAt: new Date(),
         }); // - since player joining for the first time.
-        if (!player) throw new Error('Player not created');
-        if (!(await table.addPlayer(player))) throw new Error('Player not added to table');
-      } else await player.reconnect(this.socket.id, table.toJSON().eState);
+        if (!oPlayer) throw new Error('Player not created');
+        _ack({ iBattleId: this.iBattleId, iPlayerId: this.iPlayerId, status: response.SUCCESS });
+        if (!(await oTable.addPlayer(oPlayer))) throw new Error('Player not added to table');
+      } else {
+        _ack({ iBattleId: this.iBattleId, iPlayerId: this.iPlayerId, status: response.SUCCESS });
+        await oPlayer.reconnect(this.socket.id, oTable.toJSON().eState);
+      }
 
       if (!this.socket.eventNames().includes(this.iBattleId)) {
         const channel = new Channel(this.iBattleId, this.iPlayerId);
         this.socket.on(this.iBattleId, channel.onEvent.bind(channel));
       } // - add channel listeners and handle duplicate listeners(mainly while reconnection)
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      // const { aDrawPile, aPlayer, aPlayerId, ...rest } = table.toJSON();
-
-      // const aParticipant = table.toJSON().aPlayer.map(p => {
-      //   const pJson = p.toJSON();
-      //   return { iPlayerId: pJson.iPlayerId, nSeat: pJson.nSeat, nCardCount: pJson.aHand.length };
-      // });
-
-      // table.emit('resTableJoin', { iBattleId: this.iBattleId, iPlayerId: this.iPlayerId });
-      // if (aPlayerId.length === this.oSetting.nTotalPlayerCount) {
-      //   table.emit('resTableState', { table: rest, aPlayer: aParticipant });
-        
-      //   const ePreviousState = rest.eState;
-      //   // eslint-disable-next-line eqeqeq
-      //   const bInitializeTable = aPlayerId.length == rest.oSettings.nTotalPlayerCount && rest.eState === 'waiting';
-      //   rest.eState = bInitializeTable ? 'initialized' : rest.eState;
-      //   if (ePreviousState === 'waiting' && rest.eState === 'initialized') {
-      //     // this.deleteScheduler('refundOnLongWait'); // TODO :- Add refunc process
-      //     table.initializeGame();
-      //   }
-      // }
       return true;
     } catch (err: any) {
       log.error(`${_.now()} client: '${this.iPlayerId}' joinTable event failed. reason: ${err.message}`);
+      _ack({ iBattleId: this.iBattleId, iPlayerId: this.iPlayerId, status: response.SERVER_ERROR });
       return false;
     }
   }

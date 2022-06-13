@@ -1,5 +1,4 @@
 /* eslint-disable no-param-reassign */
-/* eslint-disable class-methods-use-this */
 import type { Socket } from 'socket.io';
 import PlayerSocket from './playerSocket';
 import { verifyAuthHeader, verifySettings } from '../../validator';
@@ -16,6 +15,7 @@ class RootSocket {
     global.io.on('error', (err: Error) => log.error(err));
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private async authenticate(socket: Socket, next: ICallback): Promise<boolean> {
     // - executes once for each client during connection
     try {
