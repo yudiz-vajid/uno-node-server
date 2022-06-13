@@ -147,7 +147,7 @@ class Service {
    * get list of cards for user to play wrt discard pile top card
    */
   public async getPlayableCardIds(oDiscardPileTopCard: ICard, eNextCardColor?: Table['eNextCardColor']) {
-    if (oDiscardPileTopCard.nLabel === 12) return this.aHand.filter(card => card.nLabel === 12).map(card => card.iCardId);
+    if (oDiscardPileTopCard.nLabel === 12) return this.aHand.filter(card => card.nLabel === 12).map(card => card.iCardId); // TODO check color as well
     if (oDiscardPileTopCard.nLabel === 14) return this.aHand.filter(card => card.nLabel === 14).map(card => card.iCardId);
     if (oDiscardPileTopCard.nLabel === 13) return this.aHand.filter(card => card.nLabel > 12 || card.eColor === eNextCardColor).map(card => card.iCardId);
     return this.aHand
