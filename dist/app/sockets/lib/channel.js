@@ -17,10 +17,11 @@ class Channel {
     onEvent(body, ack) {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
+            let parseBody = JSON.parse(body);
             try {
                 if (typeof ack !== 'function')
                     return false;
-                const { sTaskName, oData } = body;
+                const { sTaskName, oData } = parseBody;
                 switch (sTaskName) {
                     case 'reqDrawCard':
                         emitter.emit('channelEvent', { sTaskName: 'drawCard', iBattleId: this.iBattleId, iPlayerId: (_a = this.iPlayerId) !== null && _a !== void 0 ? _a : '', oData }, ack);
@@ -34,7 +35,7 @@ class Channel {
                 return true;
             }
             catch (err) {
-                log.error(_.now(), `channel.onEvent ${body.sTaskName} failed!!! reason: ${err.message}`);
+                log.error(_.now(), `channel.onEvent ${parseBody.sTaskName} failed!!! reason: ${err.message}`);
                 return false;
             }
         });

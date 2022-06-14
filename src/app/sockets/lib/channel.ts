@@ -10,10 +10,12 @@ class Channel {
     this.iPlayerId = iPlayerId;
   }
 
-  public async onEvent(body: { sTaskName: 'reqDiscardCard' | 'reqDrawCard'; oData: Record<string, unknown> }, ack: ICallback) {
-    try {
+  // { sTaskName: 'reqDiscardCard' | 'reqDrawCard'; oData: Record<string, unknown> }
+  public async onEvent(body: string, ack: ICallback) {
+    let parseBody: { sTaskName: 'reqDiscardCard' | 'reqDrawCard'; oData: Record<string, unknown> } = JSON.parse(body)
+    try {      
       if (typeof ack !== 'function') return false;
-      const { sTaskName, oData } = body;
+      const { sTaskName, oData } = parseBody;
       switch (sTaskName) {
         case 'reqDrawCard':
           emitter.emit('channelEvent', { sTaskName: 'drawCard', iBattleId: this.iBattleId, iPlayerId: this.iPlayerId ?? '', oData }, ack);
@@ -28,7 +30,7 @@ class Channel {
       }
       return true;
     } catch (err: any) {
-      log.error(_.now(), `channel.onEvent ${body.sTaskName} failed!!! reason: ${err.message}`);
+      log.error(_.now(), `channel.onEvent ${parseBody.sTaskName} failed!!! reason: ${err.message}`);
       return false;
     }
   }
