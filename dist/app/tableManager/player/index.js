@@ -53,7 +53,7 @@ class Player extends service_1.default {
             }
             aPromises.push(this.update({ aHand: this.aHand, nGraceTime: this.nGraceTime }));
             yield Promise.all(aPromises);
-            oTable.emit('resDiscardPile', { iPlayerId: this.iPlayerId, oCard: oCardToDiscard });
+            oTable.emit('resDiscardPile', { iPlayerId: this.iPlayerId, oCard: oCardToDiscard, nHandCardCount: this.aHand.length });
             oTable.emit('resNextCardDetail', { eColor: oTable.toJSON().eNextCardColor, nDrawCount: oTable.toJSON().nDrawCount });
             this.passTurn(oTable);
             return true;
@@ -73,7 +73,7 @@ class Player extends service_1.default {
             this.bSpecialMeterFull = this.nDrawNormal === nSpecialMeterFillCount;
             log.verbose(`${_.now()} player: ${this.iPlayerId}, drawnCard: ${aCard[0].iCardId}`);
             callback({ oData: { oCard: aCard[0], nDrawNormal: this.nDrawNormal, nSpecialMeterFillCount }, status: util_1.response.SUCCESS });
-            oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, nCardCount: 1 });
+            oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, nCardCount: 1, nHandCardCount: this.aHand.length + 1 });
             yield Promise.all([
                 oTable.updateDrawPile(),
                 this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard] }),
