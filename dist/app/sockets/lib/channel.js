@@ -17,7 +17,6 @@ class Channel {
     onEvent(body, ack) {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
-            body = _.stringify(body);
             let parseBody = JSON.parse(body);
             try {
                 if (typeof ack !== 'function')
