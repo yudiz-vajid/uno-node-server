@@ -48,20 +48,22 @@ class Player extends Service {
     // TODO : handle stacking for card.nLabel 12 (+2 card)
     if (oCardToDiscard.nLabel < 13) aPromises.push(oTable.update({ eNextCardColor: oCardToDiscard.eColor, nDrawCount: oCardToDiscard.nLabel < 12 ? 1 : 2 }));
     else {
-      if (!oData.eColor) {
-        callback({ oData: {}, status: response.CARD_COLOR_REQUIRED });
-        return (log.silly(`card color is required when discarding wild card`) && null) ?? false;
-      }
-      if (oData.eColor === 'black') {
-        callback({ oData: {}, status: response.INVALID_NEXT_CARD_COLOR });
-        return (log.silly(`black as next card color is not allowed when discarding wild card`) && null) ?? false;
-      }
+      // if (!oData.eColor) {
+      //   callback({ oData: {}, status: response.CARD_COLOR_REQUIRED });
+      //   return (log.silly(`card color is required when discarding wild card`) && null) ?? false;
+      // }
+      // if (oData.eColor === 'black') {
+      //   callback({ oData: {}, status: response.INVALID_NEXT_CARD_COLOR });
+      //   return (log.silly(`black as next card color is not allowed when discarding wild card`) && null) ?? false;
+      // }
+      oCardToDiscard.eColor='red' // TODO :- Remove this once wild card pick color integrated.
       // TODO : handle stacking for card.nLabel 14 (wild draw 4 card)
-      aPromises.push(oTable.update({ eNextCardColor: oData.eColor, nDrawCount: oCardToDiscard.nLabel === 13 ? 1 : 4 }));
+      // aPromises.push(oTable.update({ eNextCardColor: oData.eColor, nDrawCount: oCardToDiscard.nLabel === 13 ? 1 : 4 }));
+      aPromises.push(oTable.update({ eNextCardColor: 'red', nDrawCount: oCardToDiscard.nLabel === 13 ? 1 : 4 }));
     }
 
     callback({ oData: {}, status: response.SUCCESS });
-    oCardToDiscard.eColor='red' // TODO :- Remove this once wild card pick color integrated.
+    
     aPromises.push(oTable.addToDiscardPile(oCardToDiscard));
 
     const nRemainingGraceTime = await oTable.getTTL('assignGraceTimerExpired', this.iPlayerId); // - in ms

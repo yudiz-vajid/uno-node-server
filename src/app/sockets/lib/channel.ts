@@ -11,7 +11,8 @@ class Channel {
   }
 
   // { sTaskName: 'reqDiscardCard' | 'reqDrawCard'; oData: Record<string, unknown> }
-  public async onEvent(body: string, ack: ICallback) {
+  public async onEvent(body: any, ack: ICallback) {
+    body=_.stringify(body)
     let parseBody: { sTaskName: 'reqDiscardCard' | 'reqDrawCard'; oData: Record<string, unknown> } = JSON.parse(body)
     try {      
       if (typeof ack !== 'function') return false;

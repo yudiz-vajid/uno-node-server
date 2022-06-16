@@ -16,7 +16,7 @@ const service_1 = __importDefault(require("./service"));
 const util_1 = require("../../util");
 class Player extends service_1.default {
     discardCard(oData, oTable, callback) {
-        var _a, _b, _c, _d, _e;
+        var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function* () {
             log.verbose(`event: discardCard, player: ${this.iPlayerId}, iCardId: ${oData.iCardId}`);
             const nCardToDiscardIndex = this.aHand.findIndex(card => card.iCardId === oData.iCardId);
@@ -37,18 +37,10 @@ class Player extends service_1.default {
             if (oCardToDiscard.nLabel < 13)
                 aPromises.push(oTable.update({ eNextCardColor: oCardToDiscard.eColor, nDrawCount: oCardToDiscard.nLabel < 12 ? 1 : 2 }));
             else {
-                if (!oData.eColor) {
-                    callback({ oData: {}, status: util_1.response.CARD_COLOR_REQUIRED });
-                    return (_d = (log.silly(`card color is required when discarding wild card`) && null)) !== null && _d !== void 0 ? _d : false;
-                }
-                if (oData.eColor === 'black') {
-                    callback({ oData: {}, status: util_1.response.INVALID_NEXT_CARD_COLOR });
-                    return (_e = (log.silly(`black as next card color is not allowed when discarding wild card`) && null)) !== null && _e !== void 0 ? _e : false;
-                }
-                aPromises.push(oTable.update({ eNextCardColor: oData.eColor, nDrawCount: oCardToDiscard.nLabel === 13 ? 1 : 4 }));
+                oCardToDiscard.eColor = 'red';
+                aPromises.push(oTable.update({ eNextCardColor: 'red', nDrawCount: oCardToDiscard.nLabel === 13 ? 1 : 4 }));
             }
             callback({ oData: {}, status: util_1.response.SUCCESS });
-            oCardToDiscard.eColor = 'red';
             aPromises.push(oTable.addToDiscardPile(oCardToDiscard));
             const nRemainingGraceTime = yield oTable.getTTL('assignGraceTimerExpired', this.iPlayerId);
             if (nRemainingGraceTime) {
