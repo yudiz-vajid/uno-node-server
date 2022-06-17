@@ -156,7 +156,7 @@ class Service {
   }
 
   /**
-   * check if given card is playable or not
+   * check if given card is playable or not NOTE :- just for single card only.
    */
   public async checkPlayableCard(oDiscardPileTopCard: ICard, eNextCardColor?: Table['eNextCardColor'],oUserCard?:any) {
     if (oDiscardPileTopCard.nLabel === 12) return oUserCard.nLabel === 12 // TODO check color as well
