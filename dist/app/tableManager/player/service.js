@@ -131,6 +131,17 @@ class Service {
                 .map(card => card.iCardId);
         });
     }
+    checkPlayableCard(oDiscardPileTopCard, eNextCardColor, oUserCard) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (oDiscardPileTopCard.nLabel === 12)
+                return oUserCard.nLabel === 12;
+            if (oDiscardPileTopCard.nLabel === 14)
+                return oUserCard.nLabel === 14;
+            if (oDiscardPileTopCard.nLabel === 13)
+                return oUserCard.nLabel > 12 || oUserCard.eColor === eNextCardColor;
+            return oDiscardPileTopCard.eColor === oUserCard.eColor || oDiscardPileTopCard.nLabel === oUserCard.nLabel || oUserCard.nLabel === 13 || oUserCard.nLabel === 14;
+        });
+    }
     takeTurn(oTable) {
         return __awaiter(this, void 0, void 0, function* () {
             yield oTable.update({ iPlayerTurn: this.iPlayerId });

@@ -155,6 +155,16 @@ class Service {
       .map(card => card.iCardId);
   }
 
+  /**
+   * check if given card is playable or not
+   */
+  public async checkPlayableCard(oDiscardPileTopCard: ICard, eNextCardColor?: Table['eNextCardColor'],oUserCard?:any) {
+    if (oDiscardPileTopCard.nLabel === 12) return oUserCard.nLabel === 12 // TODO check color as well
+    if (oDiscardPileTopCard.nLabel === 14) return oUserCard.nLabel === 14
+    if (oDiscardPileTopCard.nLabel === 13) return oUserCard.nLabel > 12|| oUserCard.eColor === eNextCardColor
+    return oDiscardPileTopCard.eColor === oUserCard.eColor || oDiscardPileTopCard.nLabel === oUserCard.nLabel || oUserCard.nLabel === 13 || oUserCard.nLabel === 14
+  }
+
   // prettier-ignore
   public async takeTurn(oTable: Table) {
     // log.debug(`take turn called... for user ${this.iPlayerId}`);
