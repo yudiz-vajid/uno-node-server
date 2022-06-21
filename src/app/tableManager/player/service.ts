@@ -154,6 +154,15 @@ class Service {
       .filter(card => oDiscardPileTopCard.eColor === card.eColor || oDiscardPileTopCard.nLabel === card.nLabel || card.nLabel === 13 || card.nLabel === 14)
       .map(card => card.iCardId);
   }
+
+  /**
+   * get list of cards for user to play wrt discard pile top card
+   */
+  public async handCardCounts() {
+    console.log(this.aHand);
+    const nPlayerScore = this.aHand.reduce((p, c) => p + c.nScore, 0);
+    return nPlayerScore
+  }
   /**
    * 
    * @param oDiscardPileTopCard 
@@ -163,7 +172,7 @@ class Service {
   public async autoPickCard(oTable:Table) {
     log.verbose(`${_.now()} event: autoPickCard, player: ${this.iPlayerId}`);
     const aCard:any =await oTable.drawCard('normal', 1);
-    this.emit('resDrawCard', { oData:{oCard: aCard[0]}, nCardCount: 1,nHandCardCount:this.aHand.length+1 });
+    this.emit('resDrawCard', { oData:{oCard: aCard[0]}, nCardCount: 1,nHandCardCount:this.aHand.length+1,nHandScore:await this.handCardCounts() });
     oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, nCardCount: 1,nHandCardCount:this.aHand.length+1 });
   
     await Promise.all([

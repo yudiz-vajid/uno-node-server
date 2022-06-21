@@ -62,10 +62,9 @@ class Player extends Service {
       aPromises.push(oTable.update({ eNextCardColor: 'red', nDrawCount: oCardToDiscard.nLabel === 13 ? 1 : 4 }));
     }
 
-    callback({ oData: {}, status: response.SUCCESS });
     
     aPromises.push(oTable.addToDiscardPile(oCardToDiscard));
-
+    
     const nRemainingGraceTime = await oTable.getTTL('assignGraceTimerExpired', this.iPlayerId); // - in ms
     if (nRemainingGraceTime) {
       // - graceTimer is running so turnTime must be expired
@@ -76,11 +75,12 @@ class Player extends Service {
       this.nGraceTime = 0;
       aPromises.push(oTable.deleteScheduler(`assignTurnTimerExpired`, this.iPlayerId));
     }
-
+    
     /* used when user discard his card in grace time. */
     aPromises.push(this.update({ aHand: this.aHand, nGraceTime: this.nGraceTime }));
     await Promise.all(aPromises);
-
+    callback({ oData: {nHandScore:await this.handCardCounts()}, status: response.SUCCESS });
+    
     oTable.emit('resDiscardPile', { iPlayerId: this.iPlayerId, oCard: oCardToDiscard,nHandCardCount:this.aHand.length });
     oTable.emit('resNextCardDetail', { eColor: oTable.toJSON().eNextCardColor, nDrawCount: oTable.toJSON().nDrawCount }); // can be embedded in resDiscardPile event.
 
@@ -122,7 +122,7 @@ class Player extends Service {
     log.verbose(`${_.now()} player: ${this.iPlayerId}, drawnCard: ${aCard[0].iCardId}`);
     // check if it is playable or not
     let isPlayableCard=await this.checkPlayableCard(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor,aCard[0])
-    callback({ oData:{oCard: aCard[0],nDrawNormal:this.nDrawNormal,nSpecialMeterFillCount,bIsPlayable:isPlayableCard}, status: response.SUCCESS });
+    callback({ oData:{oCard: aCard[0],nDrawNormal:this.nDrawNormal,nSpecialMeterFillCount,bIsPlayable:isPlayableCard,nHandScore:await this.handCardCounts()}, status: response.SUCCESS });
     oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, nCardCount: 1,nHandCardCount:this.aHand.length+1 });
     
     let aPromises=[]

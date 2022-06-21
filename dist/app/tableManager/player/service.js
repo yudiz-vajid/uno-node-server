@@ -131,11 +131,18 @@ class Service {
                 .map(card => card.iCardId);
         });
     }
+    handCardCounts() {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log(this.aHand);
+            const nPlayerScore = this.aHand.reduce((p, c) => p + c.nScore, 0);
+            return nPlayerScore;
+        });
+    }
     autoPickCard(oTable) {
         return __awaiter(this, void 0, void 0, function* () {
             log.verbose(`${_.now()} event: autoPickCard, player: ${this.iPlayerId}`);
             const aCard = yield oTable.drawCard('normal', 1);
-            this.emit('resDrawCard', { oData: { oCard: aCard[0] }, nCardCount: 1, nHandCardCount: this.aHand.length + 1 });
+            this.emit('resDrawCard', { oData: { oCard: aCard[0] }, nCardCount: 1, nHandCardCount: this.aHand.length + 1, nHandScore: yield this.handCardCounts() });
             oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, nCardCount: 1, nHandCardCount: this.aHand.length + 1 });
             yield Promise.all([
                 oTable.updateDrawPile(),
