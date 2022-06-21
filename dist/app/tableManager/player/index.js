@@ -75,12 +75,42 @@ class Player extends service_1.default {
             let isPlayableCard = yield this.checkPlayableCard(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor, aCard[0]);
             callback({ oData: { oCard: aCard[0], nDrawNormal: this.nDrawNormal, nSpecialMeterFillCount, bIsPlayable: isPlayableCard }, status: util_1.response.SUCCESS });
             oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, nCardCount: 1, nHandCardCount: this.aHand.length + 1 });
+            let aPromises = [];
+            const nRemainingGraceTime = yield oTable.getTTL('assignGraceTimerExpired', this.iPlayerId);
+            if (nRemainingGraceTime) {
+                this.nGraceTime = nRemainingGraceTime;
+                aPromises.push(oTable.deleteScheduler(`assignGraceTimerExpired`, this.iPlayerId));
+            }
+            else {
+                this.nGraceTime = 0;
+                aPromises.push(oTable.deleteScheduler(`assignTurnTimerExpired`, this.iPlayerId));
+            }
             yield Promise.all([
+                ...aPromises,
                 oTable.updateDrawPile(),
-                this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard] }),
+                this.update({ nGraceTime: this.nGraceTime, nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard] }),
             ]);
             if (!isPlayableCard)
                 this.passTurn(oTable);
+        });
+    }
+    keepCard(oData, oTable, callback) {
+        return __awaiter(this, void 0, void 0, function* () {
+            log.verbose(`${_.now()} event: keepCard, player: ${this.iPlayerId}`);
+            const aPromises = [];
+            const nRemainingGraceTime = yield oTable.getTTL('assignGraceTimerExpired', this.iPlayerId);
+            if (nRemainingGraceTime) {
+                this.nGraceTime = nRemainingGraceTime;
+                aPromises.push(oTable.deleteScheduler(`assignGraceTimerExpired`, this.iPlayerId));
+            }
+            else {
+                this.nGraceTime = 0;
+                aPromises.push(oTable.deleteScheduler(`assignTurnTimerExpired`, this.iPlayerId));
+            }
+            aPromises.push(this.update({ nGraceTime: this.nGraceTime }));
+            yield Promise.all(aPromises);
+            this.passTurn(oTable);
+            callback({ oData: {}, status: util_1.response.SUCCESS });
             return true;
         });
     }

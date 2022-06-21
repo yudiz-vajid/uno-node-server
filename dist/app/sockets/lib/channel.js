@@ -15,7 +15,7 @@ class Channel {
         this.iPlayerId = iPlayerId;
     }
     onEvent(body, ack) {
-        var _a, _b;
+        var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function* () {
             if (process.env.NODE_ENV === 'dev')
                 body = _.stringify(body);
@@ -30,6 +30,9 @@ class Channel {
                         break;
                     case 'reqDiscardCard':
                         emitter.emit('channelEvent', { sTaskName: 'discardCard', iBattleId: this.iBattleId, iPlayerId: (_b = this.iPlayerId) !== null && _b !== void 0 ? _b : '', oData }, ack);
+                        break;
+                    case 'reqKeepCard':
+                        emitter.emit('channelEvent', { sTaskName: 'keepCard', iBattleId: this.iBattleId, iPlayerId: (_c = this.iPlayerId) !== null && _c !== void 0 ? _c : '', oData }, ack);
                         break;
                     default:
                         return false;

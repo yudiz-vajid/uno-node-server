@@ -78,6 +78,9 @@ class TableManager {
                 case 'drawCard':
                     oPlayer === null || oPlayer === void 0 ? void 0 : oPlayer.drawCard({}, oTable, callback);
                     return true;
+                case 'keepCard':
+                    oPlayer === null || oPlayer === void 0 ? void 0 : oPlayer.keepCard({}, oTable, callback);
+                    return true;
                 case 'discardCard':
                     oPlayer === null || oPlayer === void 0 ? void 0 : oPlayer.discardCard(oData, oTable, callback);
                     return true;

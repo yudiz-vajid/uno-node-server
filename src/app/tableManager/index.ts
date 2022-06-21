@@ -71,6 +71,10 @@ class TableManager {
         oPlayer?.drawCard({}, oTable, callback);
         return true;
 
+      case 'keepCard':
+        oPlayer?.keepCard({}, oTable, callback);
+        return true;
+
       case 'discardCard':
         oPlayer?.discardCard(oData as { iCardId: string; eColor?: Omit<ICard['eColor'], 'black'> }, oTable, callback);
         return true;
