@@ -154,6 +154,23 @@ class Service {
       .filter(card => oDiscardPileTopCard.eColor === card.eColor || oDiscardPileTopCard.nLabel === card.nLabel || card.nLabel === 13 || card.nLabel === 14)
       .map(card => card.iCardId);
   }
+  /**
+   * 
+   * @param oDiscardPileTopCard 
+   * @param eNextCardColor 
+   * @returns 
+   */
+  public async autoPickCard(oTable:Table) {
+    log.verbose(`${_.now()} event: autoPickCard, player: ${this.iPlayerId}`);
+    const aCard:any =await oTable.drawCard('normal', 1);
+    this.emit('resDrawCard', { oData:{oCard: aCard[0]}, nCardCount: 1,nHandCardCount:this.aHand.length+1 });
+    oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, nCardCount: 1,nHandCardCount:this.aHand.length+1 });
+  
+    await Promise.all([
+      oTable.updateDrawPile(),
+      this.update({ aHand: [...this.aHand, ...aCard] }),
+    ]); 
+  }
 
   /**
    * check if given card is playable or not NOTE :- just for single card only.
@@ -191,8 +208,15 @@ class Service {
   public async assignGraceTimerExpired(oTable: Table) {
     // log.verbose('assignGraceTimerExpired called...');
     await this.update({ nMissedTurn: this.nMissedTurn + 1, nGraceTime: 0 });
-
-    // TODO : kick process for player if missed turn is more than 3 times.
+    /**
+     * TODO : kick process for player if missed turn is more than 3 times.
+     * Auto collect card if user has no playable cards in hand.
+     */
+    if(oTable.toJSON().oSettings.bAutoPickCard){
+      const aPlayableCardId = await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
+      if(!aPlayableCardId.length)this.autoPickCard(oTable)
+    }
+    oTable.emit('resTurnMissed', { iPlayerId: this.iPlayerId,nMissedTurn:this.nMissedTurn});
     return this.passTurn(oTable);
   }
 
