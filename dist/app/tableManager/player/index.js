@@ -33,6 +33,7 @@ class Player extends service_1.default {
                 callback({ oData: {}, status: util_1.response.SERVER_ERROR });
                 return (_c = (log.error(`no card found for iCardId: ${oData.iCardId}`) && null)) !== null && _c !== void 0 ? _c : false;
             }
+            callback({ oData: { nHandScore: yield this.handCardCounts(this.aHand) }, status: util_1.response.SUCCESS });
             const aPromises = [];
             if (oCardToDiscard.nLabel < 13)
                 aPromises.push(oTable.update({ eNextCardColor: oCardToDiscard.eColor, nDrawCount: oCardToDiscard.nLabel < 12 ? 1 : 2 }));
@@ -47,12 +48,10 @@ class Player extends service_1.default {
                 aPromises.push(oTable.deleteScheduler(`assignGraceTimerExpired`, this.iPlayerId));
             }
             else {
-                this.nGraceTime = 0;
                 aPromises.push(oTable.deleteScheduler(`assignTurnTimerExpired`, this.iPlayerId));
             }
             aPromises.push(this.update({ aHand: this.aHand, nGraceTime: this.nGraceTime }));
             yield Promise.all(aPromises);
-            callback({ oData: { nHandScore: yield this.handCardCounts() }, status: util_1.response.SUCCESS });
             oTable.emit('resDiscardPile', { iPlayerId: this.iPlayerId, oCard: oCardToDiscard, nHandCardCount: this.aHand.length });
             oTable.emit('resNextCardDetail', { eColor: oTable.toJSON().eNextCardColor, nDrawCount: oTable.toJSON().nDrawCount });
             this.passTurn(oTable);
@@ -75,23 +74,26 @@ class Player extends service_1.default {
             let isPlayableCard = yield this.checkPlayableCard(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor, aCard[0]);
             callback({ oData: { oCard: aCard[0], nDrawNormal: this.nDrawNormal, nSpecialMeterFillCount, bIsPlayable: isPlayableCard, nHandScore: yield this.handCardCounts() }, status: util_1.response.SUCCESS });
             oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, nCardCount: 1, nHandCardCount: this.aHand.length + 1 });
-            let aPromises = [];
-            const nRemainingGraceTime = yield oTable.getTTL('assignGraceTimerExpired', this.iPlayerId);
-            if (nRemainingGraceTime) {
-                this.nGraceTime = nRemainingGraceTime;
-                aPromises.push(oTable.deleteScheduler(`assignGraceTimerExpired`, this.iPlayerId));
-            }
-            else {
-                this.nGraceTime = 0;
-                aPromises.push(oTable.deleteScheduler(`assignTurnTimerExpired`, this.iPlayerId));
-            }
             yield Promise.all([
-                ...aPromises,
                 oTable.updateDrawPile(),
-                this.update({ nGraceTime: this.nGraceTime, nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard] }),
+                this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard] }),
             ]);
-            if (!isPlayableCard)
+            if (!isPlayableCard) {
+                let aPromises = [];
+                const nRemainingGraceTime = yield oTable.getTTL('assignGraceTimerExpired', this.iPlayerId);
+                if (nRemainingGraceTime) {
+                    this.nGraceTime = nRemainingGraceTime;
+                    aPromises.push(oTable.deleteScheduler(`assignGraceTimerExpired`, this.iPlayerId));
+                }
+                else {
+                    aPromises.push(oTable.deleteScheduler(`assignTurnTimerExpired`, this.iPlayerId));
+                }
+                yield Promise.all([
+                    ...aPromises,
+                    this.update({ nGraceTime: this.nGraceTime }),
+                ]);
                 this.passTurn(oTable);
+            }
         });
     }
     keepCard(oData, oTable, callback) {
@@ -104,7 +106,6 @@ class Player extends service_1.default {
                 aPromises.push(oTable.deleteScheduler(`assignGraceTimerExpired`, this.iPlayerId));
             }
             else {
-                this.nGraceTime = 0;
                 aPromises.push(oTable.deleteScheduler(`assignTurnTimerExpired`, this.iPlayerId));
             }
             aPromises.push(this.update({ nGraceTime: this.nGraceTime }));

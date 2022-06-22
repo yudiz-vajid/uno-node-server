@@ -131,10 +131,10 @@ class Service {
                 .map(card => card.iCardId);
         });
     }
-    handCardCounts() {
+    handCardCounts(aHand = this.aHand) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log(this.aHand);
-            const nPlayerScore = this.aHand.reduce((p, c) => p + c.nScore, 0);
+            const nPlayerScore = aHand.reduce((p, c) => p + c.nScore, 0);
             return nPlayerScore;
         });
     }
