@@ -208,8 +208,10 @@ class Service {
     // log.verbose('assignTurnTimerExpired called...');
     if (this.nGraceTime < 3) return this.assignGraceTimerExpired(oTable); // Nothing changed in table so no need to save it. // ? why
     const aPlayableCardId = await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
-    this.emit('resTurnTimer', { bIsGraceTimer: true, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nGraceTime, timestamp: Date.now(), aPlayableCards: aPlayableCardId });
-    oTable.emit('resTurnTimer', { bIsGraceTimer: true, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nGraceTime, timestamp: Date.now(), aPlayableCards: []  }, [this.iPlayerId]);
+    // this.emit('resTurnTimer', { bIsGraceTimer: true, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nGraceTime, timestamp: Date.now(), aPlayableCards: aPlayableCardId });
+    // oTable.emit('resTurnTimer', { bIsGraceTimer: true, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nGraceTime, timestamp: Date.now(), aPlayableCards: []  }, [this.iPlayerId]);
+    this.emit('resTurnTimer', { bIsGraceTimer: true, iPlayerId: this.iPlayerId, ttl: this.nGraceTime, timestamp: Date.now(), aPlayableCards: aPlayableCardId });
+    oTable.emit('resTurnTimer', { bIsGraceTimer: true, iPlayerId: this.iPlayerId, ttl: this.nGraceTime, timestamp: Date.now(), aPlayableCards: []  }, [this.iPlayerId]);
     oTable.setSchedular('assignGraceTimerExpired', this.iPlayerId, this.toJSON().nGraceTime);
     return true;
   }
