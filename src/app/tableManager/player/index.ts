@@ -42,7 +42,7 @@ class Player extends Service {
       callback({ oData: {}, status: response.SERVER_ERROR });
       return (log.error(`no card found for iCardId: ${oData.iCardId}`) && null) ?? false;
     }
-
+    callback({ oData: {nHandScore:await this.handCardCounts(this.aHand)}, status: response.SUCCESS });
     const aPromises = [];
 
     // TODO : handle stacking for card.nLabel 12 (+2 card)
@@ -72,14 +72,14 @@ class Player extends Service {
       aPromises.push(oTable.deleteScheduler(`assignGraceTimerExpired`, this.iPlayerId));
     } else {
       // - graceTimer is not running so turnTime must be remaining.
-      this.nGraceTime = 0;
+      // this.nGraceTime = 0;
       aPromises.push(oTable.deleteScheduler(`assignTurnTimerExpired`, this.iPlayerId));
     }
     
     /* used when user discard his card in grace time. */
     aPromises.push(this.update({ aHand: this.aHand, nGraceTime: this.nGraceTime }));
     await Promise.all(aPromises);
-    callback({ oData: {nHandScore:await this.handCardCounts()}, status: response.SUCCESS });
+    
     
     oTable.emit('resDiscardPile', { iPlayerId: this.iPlayerId, oCard: oCardToDiscard,nHandCardCount:this.aHand.length });
     oTable.emit('resNextCardDetail', { eColor: oTable.toJSON().eNextCardColor, nDrawCount: oTable.toJSON().nDrawCount }); // can be embedded in resDiscardPile event.
@@ -125,24 +125,31 @@ class Player extends Service {
     callback({ oData:{oCard: aCard[0],nDrawNormal:this.nDrawNormal,nSpecialMeterFillCount,bIsPlayable:isPlayableCard,nHandScore:await this.handCardCounts()}, status: response.SUCCESS });
     oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, nCardCount: 1,nHandCardCount:this.aHand.length+1 });
     
-    let aPromises=[]
-    const nRemainingGraceTime = await oTable.getTTL('assignGraceTimerExpired', this.iPlayerId); // - in ms
-    if (nRemainingGraceTime) {
-      // - graceTimer is running so turnTime must be expired
-      this.nGraceTime = nRemainingGraceTime;
-      aPromises.push(oTable.deleteScheduler(`assignGraceTimerExpired`, this.iPlayerId));
-    } else {
-      // - graceTimer is not running so turnTime must be remaining.
-      this.nGraceTime = 0;
-      aPromises.push(oTable.deleteScheduler(`assignTurnTimerExpired`, this.iPlayerId));
-    }
     await Promise.all([
-      ...aPromises,
       oTable.updateDrawPile(),
-      this.update({nGraceTime: this.nGraceTime, nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard] }),
+      this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard] }),
       //
     ]);
-    if(!isPlayableCard)this.passTurn(oTable)
+    
+    if(!isPlayableCard){
+      let aPromises=[]
+      const nRemainingGraceTime = await oTable.getTTL('assignGraceTimerExpired', this.iPlayerId); // - in ms
+      if (nRemainingGraceTime) {
+        // - graceTimer is running so turnTime must be expired
+        this.nGraceTime = nRemainingGraceTime;
+        aPromises.push(oTable.deleteScheduler(`assignGraceTimerExpired`, this.iPlayerId));
+      } else {
+        // - graceTimer is not running so turnTime must be remaining.
+        // this.nGraceTime = 0;
+        aPromises.push(oTable.deleteScheduler(`assignTurnTimerExpired`, this.iPlayerId));
+      }
+      await Promise.all([
+        ...aPromises,
+        this.update({nGraceTime: this.nGraceTime }),
+      ]);
+      this.passTurn(oTable)
+
+    }
     // return true;
 
     // TODO : reqKeepPlay for playable drawnCard
@@ -161,7 +168,7 @@ class Player extends Service {
       aPromises.push(oTable.deleteScheduler(`assignGraceTimerExpired`, this.iPlayerId));
     } else {
       // - graceTimer is not running so turnTime must be remaining.
-      this.nGraceTime = 0;
+      // this.nGraceTime = 0;
       aPromises.push(oTable.deleteScheduler(`assignTurnTimerExpired`, this.iPlayerId));
     }
 

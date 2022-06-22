@@ -158,9 +158,9 @@ class Service {
   /**
    * get list of cards for user to play wrt discard pile top card
    */
-  public async handCardCounts() {
+  public async handCardCounts(aHand=this.aHand) {
     console.log(this.aHand);
-    const nPlayerScore = this.aHand.reduce((p, c) => p + c.nScore, 0);
+    const nPlayerScore = aHand.reduce((p, c) => p + c.nScore, 0);
     return nPlayerScore
   }
   /**
