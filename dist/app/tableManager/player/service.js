@@ -23,6 +23,7 @@ class Service {
         this.nDrawNormal = oData.nDrawNormal;
         this.nReconnectionAttempt = oData.nReconnectionAttempt;
         this.bSpecialMeterFull = oData.bSpecialMeterFull;
+        this.bNextTurnSkip = oData.bNextTurnSkip;
         this.aHand = oData.aHand;
         this.eState = oData.eState;
         this.dCreatedAt = oData.dCreatedAt;
@@ -64,6 +65,10 @@ class Service {
                             break;
                         case 'bSpecialMeterFull':
                             this.bSpecialMeterFull = v;
+                            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v));
+                            break;
+                        case 'bNextTurnSkip':
+                            this.bNextTurnSkip = v;
                             aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v));
                             break;
                         case 'aHand':
@@ -161,9 +166,37 @@ class Service {
             return oDiscardPileTopCard.eColor === oUserCard.eColor || oDiscardPileTopCard.nLabel === oUserCard.nLabel || oUserCard.nLabel === 13 || oUserCard.nLabel === 14;
         });
     }
+    assignSkipCard(oTable) {
+        var _a, _b;
+        return __awaiter(this, void 0, void 0, function* () {
+            if (oTable.toJSON().eState !== 'running')
+                return log.error('table is not in running state.');
+            const { aPlayer } = oTable.toJSON();
+            const aPlayingPlayer = aPlayer.filter(p => p.eState === 'playing');
+            if (!aPlayingPlayer.length)
+                return (_a = (log.error('no playing participant') && null)) !== null && _a !== void 0 ? _a : false;
+            const oNextPlayer = yield oTable.getNextPlayer(this.nSeat);
+            if (!oNextPlayer)
+                return (_b = (log.error('No playing player found...') && null)) !== null && _b !== void 0 ? _b : false;
+            console.log('assignSkipCard :: ', oNextPlayer.iPlayerId);
+            yield oNextPlayer.update({ bNextTurnSkip: true });
+            return oNextPlayer.iPlayerId;
+        });
+    }
+    skipPlayer(oTable) {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.bNextTurnSkip = false;
+            yield this.update({ bNextTurnSkip: this.bNextTurnSkip });
+            this.passTurn(oTable);
+        });
+    }
     takeTurn(oTable) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log('takeTurn called for :: ', this.iPlayerId);
+            console.log('takeTurn called for :: ', this.bNextTurnSkip);
             yield oTable.update({ iPlayerTurn: this.iPlayerId });
+            if (this.bNextTurnSkip)
+                return this.skipPlayer(oTable);
             const aPlayableCardId = yield this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
             log.debug(`${_.now()} discard pile top card:: ${oTable.getDiscardPileTopCard().iCardId}`);
             log.debug(`${_.now()} playable cards for player ${this.iPlayerId}:: ${aPlayableCardId}`);

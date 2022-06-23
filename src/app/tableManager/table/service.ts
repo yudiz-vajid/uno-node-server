@@ -241,6 +241,12 @@ class Service {
     }
   }
 
+  public async handleReverseCard() {
+    console.log('handleReverseCard called ...');
+    await this.update({ bTurnClockwise: !(this.bTurnClockwise) });
+    return true
+  }
+
   public async getTTL(sTaskName = '', iPlayerId = '*') {
     try {
       const sKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);

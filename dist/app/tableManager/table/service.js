@@ -230,6 +230,13 @@ class Service {
             }
         });
     }
+    handleReverseCard() {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('handleReverseCard called ...');
+            yield this.update({ bTurnClockwise: !(this.bTurnClockwise) });
+            return true;
+        });
+    }
     getTTL(sTaskName = '', iPlayerId = '*') {
         return __awaiter(this, void 0, void 0, function* () {
             try {

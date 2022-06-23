@@ -25,6 +25,7 @@ class Service {
   protected nReconnectionAttempt: IPlayer['nReconnectionAttempt'];
 
   protected bSpecialMeterFull: IPlayer['bSpecialMeterFull'];
+  protected bNextTurnSkip: IPlayer['bNextTurnSkip'];
 
   protected aHand: IPlayer['aHand'];
 
@@ -45,13 +46,14 @@ class Service {
     this.nDrawNormal = oData.nDrawNormal;
     this.nReconnectionAttempt = oData.nReconnectionAttempt;
     this.bSpecialMeterFull = oData.bSpecialMeterFull;
+    this.bNextTurnSkip = oData.bNextTurnSkip;
     this.aHand = oData.aHand;
     this.eState = oData.eState;
     this.dCreatedAt = oData.dCreatedAt;
   }
 
   // prettier-ignore
-  public async update(oData: Partial<Pick<IPlayer, 'sSocketId' | 'nScore' | 'nUnoTime' | 'nGraceTime' | 'nMissedTurn' | 'nDrawNormal' | 'nReconnectionAttempt' | 'bSpecialMeterFull' | 'aHand' | 'eState'>>) {
+  public async update(oData: Partial<Pick<IPlayer, 'sSocketId' | 'nScore' | 'nUnoTime' | 'nGraceTime' | 'nMissedTurn' | 'nDrawNormal' | 'nReconnectionAttempt' | 'bSpecialMeterFull'|'bNextTurnSkip' | 'aHand' | 'eState'>>) {
     try {
       const aPromise: Array<Promise<unknown>> = [];
       const sPlayerKey = _.getPlayerKey(this.iBattleId, this.iPlayerId);
@@ -87,6 +89,10 @@ class Service {
             break;
           case 'bSpecialMeterFull':
             this.bSpecialMeterFull = v as IPlayer['bSpecialMeterFull'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'bNextTurnSkip':
+            this.bNextTurnSkip = v as IPlayer['bNextTurnSkip'];
             aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
             break;
           case 'aHand':
@@ -191,10 +197,43 @@ class Service {
     return oDiscardPileTopCard.eColor === oUserCard.eColor || oDiscardPileTopCard.nLabel === oUserCard.nLabel || oUserCard.nLabel === 13 || oUserCard.nLabel === 14
   }
 
+/**
+ * 
+ * @param oTable skip player turn
+ * need bNextTurnSkip false as turn is skipped 
+ */
+  async assignSkipCard(oTable:Table) {
+    if (oTable.toJSON().eState !== 'running') return log.error('table is not in running state.');
+    const { aPlayer } = oTable.toJSON();
+    const aPlayingPlayer = aPlayer.filter(p => p.eState === 'playing');
+    if (!aPlayingPlayer.length) return (log.error('no playing participant') && null) ?? false; // TODO: declare result
+    const oNextPlayer = await oTable.getNextPlayer(this.nSeat);
+    if (!oNextPlayer) return (log.error('No playing player found...') && null) ?? false;
+    console.log('assignSkipCard :: ',oNextPlayer.iPlayerId);
+    await oNextPlayer.update({bNextTurnSkip:true})
+    return oNextPlayer.iPlayerId
+  }
+/**
+ * 
+ * @param oTable skip player turn
+ * need bNextTurnSkip false as turn is skipped 
+ */
+  async skipPlayer(oTable:Table) {
+    this.bNextTurnSkip = false;
+    // oTable.emit('resSkippedPlayer', { iPlayerId: this.iPlayerId }); // Not required from front side @keval.
+    await this.update({ bNextTurnSkip: this.bNextTurnSkip });
+    this.passTurn(oTable);
+  }
+
+
+
   // prettier-ignore
   public async takeTurn(oTable: Table) {
-    // log.debug(`take turn called... for user ${this.iPlayerId}`);
+    console.log('takeTurn called for :: ',this.iPlayerId);
+    console.log('takeTurn called for :: ',this.bNextTurnSkip);
+    
     await oTable.update({ iPlayerTurn: this.iPlayerId });
+    if (this.bNextTurnSkip) return this.skipPlayer(oTable);
     const aPlayableCardId = await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
     log.debug(`${_.now()} discard pile top card:: ${oTable.getDiscardPileTopCard().iCardId}`);
     log.debug(`${_.now()} playable cards for player ${this.iPlayerId}:: ${aPlayableCardId}`);

@@ -35,8 +35,17 @@ class Player extends service_1.default {
             }
             callback({ oData: { nHandScore: yield this.handCardCounts(this.aHand) }, status: util_1.response.SUCCESS });
             const aPromises = [];
-            if (oCardToDiscard.nLabel < 13)
+            let iSkipPlayer;
+            let bIsReverseCard = false;
+            if (oCardToDiscard.nLabel < 13) {
+                if (oCardToDiscard.nLabel === 10)
+                    iSkipPlayer = yield this.assignSkipCard(oTable);
+                if (oCardToDiscard.nLabel === 11) {
+                    oTable.toJSON().bTurnClockwise = !(oTable.toJSON().bTurnClockwise);
+                    bIsReverseCard = yield oTable.handleReverseCard();
+                }
                 aPromises.push(oTable.update({ eNextCardColor: oCardToDiscard.eColor, nDrawCount: oCardToDiscard.nLabel < 12 ? 1 : 2 }));
+            }
             else {
                 oCardToDiscard.eColor = 'red';
                 aPromises.push(oTable.update({ eNextCardColor: 'red', nDrawCount: oCardToDiscard.nLabel === 13 ? 1 : 4 }));
@@ -53,6 +62,10 @@ class Player extends service_1.default {
             aPromises.push(this.update({ aHand: this.aHand, nGraceTime: this.nGraceTime }));
             yield Promise.all(aPromises);
             oTable.emit('resDiscardPile', { iPlayerId: this.iPlayerId, oCard: oCardToDiscard, nHandCardCount: this.aHand.length });
+            if (iSkipPlayer)
+                oTable.emit('resUserSkip', { iPlayerId: iSkipPlayer });
+            if (bIsReverseCard)
+                oTable.emit('resReverseTurn', { bTurnClockwise: oTable.toJSON().bTurnClockwise });
             oTable.emit('resNextCardDetail', { eColor: oTable.toJSON().eNextCardColor, nDrawCount: oTable.toJSON().nDrawCount });
             this.passTurn(oTable);
             return true;
