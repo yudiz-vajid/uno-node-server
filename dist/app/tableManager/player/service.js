@@ -115,7 +115,7 @@ class Service {
             this.aHand.push(...aActionCard);
             this.aHand.push(...aWildCard);
             yield this.update({ aHand: this.aHand, eState: 'playing' });
-            this.emit('resHand', { aHand: this.aHand });
+            this.emit('resHand', { aHand: this.aHand, nHandScore: yield this.handCardCounts() });
         });
     }
     getPlayableCardIds(oDiscardPileTopCard, eNextCardColor) {

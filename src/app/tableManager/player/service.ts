@@ -140,7 +140,7 @@ class Service {
     this.aHand.push(...aWildCard);
 
     await this.update({ aHand: this.aHand, eState: 'playing' });
-    this.emit('resHand', { aHand: this.aHand });
+    this.emit('resHand', { aHand: this.aHand,nHandScore:await this.handCardCounts() });
   }
 
   /**

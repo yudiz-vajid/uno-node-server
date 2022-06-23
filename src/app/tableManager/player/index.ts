@@ -42,6 +42,7 @@ class Player extends Service {
       callback({ oData: {}, status: response.SERVER_ERROR });
       return (log.error(`no card found for iCardId: ${oData.iCardId}`) && null) ?? false;
     }
+    // TODO :- Need to manage action cards here like skip,reverse
     callback({ oData: {nHandScore:await this.handCardCounts(this.aHand)}, status: response.SUCCESS });
     const aPromises = [];
 
