@@ -85,8 +85,8 @@ class Player extends service_1.default {
             this.bSpecialMeterFull = this.nDrawNormal === nSpecialMeterFillCount;
             log.verbose(`${_.now()} player: ${this.iPlayerId}, drawnCard: ${aCard[0].iCardId}`);
             let isPlayableCard = yield this.checkPlayableCard(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor, aCard[0]);
-            callback({ oData: { oCard: aCard[0], nDrawNormal: this.nDrawNormal, nSpecialMeterFillCount, bIsPlayable: isPlayableCard, nHandScore: yield this.handCardCounts() }, status: util_1.response.SUCCESS });
-            oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, nCardCount: 1, nHandCardCount: this.aHand.length + 1 });
+            callback({ oData: { aCard: [aCard[0]], nDrawNormal: this.nDrawNormal, nSpecialMeterFillCount, bIsPlayable: isPlayableCard, nHandScore: yield this.handCardCounts() }, status: util_1.response.SUCCESS });
+            oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [], nCardCount: 1, nHandCardCount: this.aHand.length + 1 });
             yield Promise.all([
                 oTable.updateDrawPile(),
                 this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard] }),
