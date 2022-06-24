@@ -262,7 +262,7 @@ class Service {
      * TODO : kick process for player if missed turn is more than 3 times.
      * Auto collect card if user has no playable cards in hand.
      */
-    if(oTable.toJSON().oSettings.bAutoPickCard){
+    if(oTable.toJSON().oSettings.bMustCollectOnMissTurn){
       const aPlayableCardId = await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
       if(!aPlayableCardId.length)this.autoPickCard(oTable)
     }

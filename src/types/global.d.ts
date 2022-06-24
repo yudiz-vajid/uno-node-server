@@ -32,7 +32,7 @@ declare interface ISettings {
   bSkipTurnOnDrawTwoOrFourCard: boolean;
   bStackingDrawCards: boolean;
   bVisualEffectOnUnoButton: boolean;
-  bAutoPickCard: boolean;
+  bMustCollectOnMissTurn: boolean;
 
   nTotalGameTime: number; // ms : game lifetime
   nTurnTime: number; // ms :
