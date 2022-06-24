@@ -219,11 +219,11 @@ class Service {
     assignGraceTimerExpired(oTable) {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.update({ nMissedTurn: this.nMissedTurn + 1, nGraceTime: 0 });
-            if (oTable.toJSON().oSettings.bMustCollectOnMissTurn) {
-                const aPlayableCardId = yield this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
-                if (!aPlayableCardId.length)
-                    this.autoPickCard(oTable);
-            }
+            const aPlayableCardId = yield this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
+            if (!aPlayableCardId.length)
+                this.autoPickCard(oTable);
+            else if (aPlayableCardId.length && oTable.toJSON().oSettings.bMustCollectOnMissTurn)
+                this.autoPickCard(oTable);
             oTable.emit('resTurnMissed', { iPlayerId: this.iPlayerId, nMissedTurn: this.nMissedTurn });
             return this.passTurn(oTable);
         });

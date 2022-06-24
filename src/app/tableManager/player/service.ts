@@ -262,10 +262,14 @@ class Service {
      * TODO : kick process for player if missed turn is more than 3 times.
      * Auto collect card if user has no playable cards in hand.
      */
-    if(oTable.toJSON().oSettings.bMustCollectOnMissTurn){
-      const aPlayableCardId = await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
-      if(!aPlayableCardId.length)this.autoPickCard(oTable)
-    }
+    const aPlayableCardId = await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
+    // if(oTable.toJSON().oSettings.bMustCollectOnMissTurn){
+      // const aPlayableCardId = await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
+    //   if(!aPlayableCardId.length)this.autoPickCard(oTable)
+    // }
+    if(!aPlayableCardId.length)this.autoPickCard(oTable)
+    else if(aPlayableCardId.length&&oTable.toJSON().oSettings.bMustCollectOnMissTurn)this.autoPickCard(oTable)
+
     oTable.emit('resTurnMissed', { iPlayerId: this.iPlayerId,nMissedTurn:this.nMissedTurn});
     return this.passTurn(oTable);
   }
