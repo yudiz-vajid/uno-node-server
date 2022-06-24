@@ -178,7 +178,7 @@ class Service {
   public async autoPickCard(oTable:Table) {
     log.verbose(`${_.now()} event: autoPickCard, player: ${this.iPlayerId}`);
     const aCard:any =await oTable.drawCard('normal', 1);
-    this.emit('resDrawCard', { aCard:[aCard[0]], nCardCount: 1,nHandCardCount:this.aHand.length+1,nHandScore:await this.handCardCounts() });
+    this.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[aCard[0]], nCardCount: 1,nHandCardCount:this.aHand.length+1,nHandScore:await this.handCardCounts() });
     oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[], nCardCount: 1,nHandCardCount:this.aHand.length+1,exceptPlayerId:[this.iPlayerId] });
   
     await Promise.all([
@@ -277,7 +277,7 @@ class Service {
 
     const aPlayingPlayer = aPlayer.filter(p => p.eState === 'playing');
     if (!aPlayingPlayer.length) return (log.error('no playing participant') && null) ?? false; // TODO: declare result
-    const oNextPlayer = await oTable.getNextPlayer(this.nSeat);
+    const oNextPlayer =(aPlayingPlayer.length===2&&oTable.toJSON().aDiscardPile[0].nLabel===11) ?await oTable.getPlayer(this.iPlayerId) : await oTable.getNextPlayer(this.nSeat);
     if (!oNextPlayer) return (log.error('No playing player found...') && null) ?? false;
     oNextPlayer.takeTurn(oTable);
     return true;

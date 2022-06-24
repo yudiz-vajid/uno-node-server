@@ -147,7 +147,7 @@ class Service {
         return __awaiter(this, void 0, void 0, function* () {
             log.verbose(`${_.now()} event: autoPickCard, player: ${this.iPlayerId}`);
             const aCard = yield oTable.drawCard('normal', 1);
-            this.emit('resDrawCard', { aCard: [aCard[0]], nCardCount: 1, nHandCardCount: this.aHand.length + 1, nHandScore: yield this.handCardCounts() });
+            this.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [aCard[0]], nCardCount: 1, nHandCardCount: this.aHand.length + 1, nHandScore: yield this.handCardCounts() });
             oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [], nCardCount: 1, nHandCardCount: this.aHand.length + 1, exceptPlayerId: [this.iPlayerId] });
             yield Promise.all([
                 oTable.updateDrawPile(),
@@ -237,7 +237,7 @@ class Service {
             const aPlayingPlayer = aPlayer.filter(p => p.eState === 'playing');
             if (!aPlayingPlayer.length)
                 return (_a = (log.error('no playing participant') && null)) !== null && _a !== void 0 ? _a : false;
-            const oNextPlayer = yield oTable.getNextPlayer(this.nSeat);
+            const oNextPlayer = (aPlayingPlayer.length === 2 && oTable.toJSON().aDiscardPile[0].nLabel === 11) ? yield oTable.getPlayer(this.iPlayerId) : yield oTable.getNextPlayer(this.nSeat);
             if (!oNextPlayer)
                 return (_b = (log.error('No playing player found...') && null)) !== null && _b !== void 0 ? _b : false;
             oNextPlayer.takeTurn(oTable);
