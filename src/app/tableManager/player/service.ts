@@ -277,7 +277,7 @@ class Service {
 
     const aPlayingPlayer = aPlayer.filter(p => p.eState === 'playing');
     if (!aPlayingPlayer.length) return (log.error('no playing participant') && null) ?? false; // TODO: declare result
-    const oNextPlayer =(aPlayingPlayer.length===2&&oTable.toJSON().aDiscardPile[0].nLabel===11) ?await oTable.getPlayer(this.iPlayerId) : await oTable.getNextPlayer(this.nSeat);
+    const oNextPlayer =(aPlayingPlayer.length===2&&oTable.toJSON().aDiscardPile[oTable.toJSON().aDiscardPile.length-1].nLabel===11) ?await oTable.getPlayer(this.iPlayerId) : await oTable.getNextPlayer(this.nSeat);
     if (!oNextPlayer) return (log.error('No playing player found...') && null) ?? false;
     oNextPlayer.takeTurn(oTable);
     return true;

@@ -237,7 +237,7 @@ class Service {
             const aPlayingPlayer = aPlayer.filter(p => p.eState === 'playing');
             if (!aPlayingPlayer.length)
                 return (_a = (log.error('no playing participant') && null)) !== null && _a !== void 0 ? _a : false;
-            const oNextPlayer = (aPlayingPlayer.length === 2 && oTable.toJSON().aDiscardPile[0].nLabel === 11) ? yield oTable.getPlayer(this.iPlayerId) : yield oTable.getNextPlayer(this.nSeat);
+            const oNextPlayer = (aPlayingPlayer.length === 2 && oTable.toJSON().aDiscardPile[oTable.toJSON().aDiscardPile.length - 1].nLabel === 11) ? yield oTable.getPlayer(this.iPlayerId) : yield oTable.getNextPlayer(this.nSeat);
             if (!oNextPlayer)
                 return (_b = (log.error('No playing player found...') && null)) !== null && _b !== void 0 ? _b : false;
             oNextPlayer.takeTurn(oTable);
