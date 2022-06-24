@@ -32,6 +32,7 @@ class Service {
         this.bToSkip = oData.bToSkip;
         this.eState = oData.eState;
         this.bTurnClockwise = oData.bTurnClockwise;
+        this.bIsReverseNow = oData.bIsReverseNow;
         this.eNextCardColor = oData.eNextCardColor;
         this.nDrawCount = oData.nDrawCount;
         this.dCreatedAt = oData.dCreatedAt;
@@ -78,6 +79,10 @@ class Service {
                             break;
                         case 'bTurnClockwise':
                             this.bTurnClockwise = v;
+                            aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v));
+                            break;
+                        case 'bIsReverseNow':
+                            this.bIsReverseNow = v;
                             aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v));
                             break;
                         case 'eNextCardColor':
@@ -233,7 +238,7 @@ class Service {
     handleReverseCard() {
         return __awaiter(this, void 0, void 0, function* () {
             console.log('handleReverseCard called ...');
-            yield this.update({ bTurnClockwise: !(this.bTurnClockwise) });
+            yield this.update({ bTurnClockwise: !(this.bTurnClockwise), bIsReverseNow: true });
             return true;
         });
     }
@@ -280,6 +285,7 @@ class Service {
             aDrawPile: this.aDrawPile,
             aDiscardPile: this.aDiscardPile,
             bToSkip: this.bToSkip,
+            bIsReverseNow: this.bIsReverseNow,
             eState: this.eState,
             bTurnClockwise: this.bTurnClockwise,
             eNextCardColor: this.eNextCardColor,

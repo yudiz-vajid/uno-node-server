@@ -179,7 +179,7 @@ class Service {
     log.verbose(`${_.now()} event: autoPickCard, player: ${this.iPlayerId}`);
     const aCard:any =await oTable.drawCard('normal', 1);
     this.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[aCard[0]], nCardCount: 1,nHandCardCount:this.aHand.length+1,nHandScore:await this.handCardCounts() });
-    oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[], nCardCount: 1,nHandCardCount:this.aHand.length+1,exceptPlayerId:[this.iPlayerId] });
+    oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[], nCardCount: 1,nHandCardCount:this.aHand.length+1 },[this.iPlayerId]);
   
     await Promise.all([
       oTable.updateDrawPile(),
@@ -295,7 +295,13 @@ class Service {
 
     const aPlayingPlayer = aPlayer.filter(p => p.eState === 'playing');
     if (!aPlayingPlayer.length) return (log.error('no playing participant') && null) ?? false; // TODO: declare result
-    const oNextPlayer =(aPlayingPlayer.length===2&&oTable.toJSON().aDiscardPile[oTable.toJSON().aDiscardPile.length-1].nLabel===11) ?await oTable.getPlayer(this.iPlayerId) : await oTable.getNextPlayer(this.nSeat); // For reverse card flow
+    let oNextPlayer 
+    if(aPlayingPlayer.length ===2 && oTable.toJSON().aDiscardPile[oTable.toJSON().aDiscardPile.length-1].nLabel === 11 && oTable.toJSON().bIsReverseNow){
+      oNextPlayer=await oTable.getPlayer(this.iPlayerId)
+      await oTable.update({bIsReverseNow:false})
+    } else{
+      oNextPlayer=await oTable.getNextPlayer(this.nSeat); // For reverse card flow
+    }
     if (!oNextPlayer) return (log.error('No playing player found...') && null) ?? false;
     oNextPlayer.takeTurn(oTable);
     return true;

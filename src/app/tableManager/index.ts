@@ -104,6 +104,7 @@ class TableManager {
         bToSkip: false,
         eState: 'waiting',
         bTurnClockwise: true,
+        bIsReverseNow: false,
         eNextCardColor: '',
         nDrawCount: 0,
         oSettings: oData.oSettings,

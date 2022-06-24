@@ -20,6 +20,7 @@ class Service {
   protected eState: ITableWithPlayer['eState'];
 
   protected bTurnClockwise: ITableWithPlayer['bTurnClockwise'];
+  protected bIsReverseNow: ITableWithPlayer['bIsReverseNow'];
 
   protected eNextCardColor: ITableWithPlayer['eNextCardColor'];
 
@@ -41,6 +42,7 @@ class Service {
     this.bToSkip = oData.bToSkip;
     this.eState = oData.eState;
     this.bTurnClockwise = oData.bTurnClockwise;
+    this.bIsReverseNow = oData.bIsReverseNow;
     this.eNextCardColor = oData.eNextCardColor;
     this.nDrawCount = oData.nDrawCount;
     this.dCreatedAt = oData.dCreatedAt;
@@ -55,7 +57,7 @@ class Service {
 
   public async update(
     oDate: Partial<
-      Pick<ITable, 'iPlayerTurn' | 'iSkippedPLayer' | 'aPlayerId' | 'aDrawPile' | 'aDiscardPile' | 'bToSkip' | 'eState' | 'bTurnClockwise' | 'eNextCardColor' | 'nDrawCount'>
+      Pick<ITable, 'iPlayerTurn' | 'iSkippedPLayer' | 'aPlayerId' | 'aDrawPile' | 'aDiscardPile' | 'bToSkip' | 'eState' | 'bTurnClockwise'|'bIsReverseNow' | 'eNextCardColor' | 'nDrawCount'>
     >
   ) {
     try {
@@ -94,6 +96,10 @@ class Service {
             break;
           case 'bTurnClockwise':
             this.bTurnClockwise = v as ITable['bTurnClockwise'];
+            aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'bIsReverseNow':
+            this.bIsReverseNow = v as ITable['bIsReverseNow'];
             aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
             break;
           case 'eNextCardColor':
@@ -243,7 +249,7 @@ class Service {
 
   public async handleReverseCard() {
     console.log('handleReverseCard called ...');
-    await this.update({ bTurnClockwise: !(this.bTurnClockwise) });
+    await this.update({ bTurnClockwise: !(this.bTurnClockwise),bIsReverseNow:true });
     return true
   }
 
@@ -287,6 +293,7 @@ class Service {
       aDrawPile: this.aDrawPile,
       aDiscardPile: this.aDiscardPile,
       bToSkip: this.bToSkip,
+      bIsReverseNow: this.bIsReverseNow,
       eState: this.eState,
       bTurnClockwise: this.bTurnClockwise,
       eNextCardColor: this.eNextCardColor,

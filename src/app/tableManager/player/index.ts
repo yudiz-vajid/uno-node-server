@@ -53,6 +53,7 @@ class Player extends Service {
       if(oCardToDiscard.nLabel===10)iSkipPlayer=await this.assignSkipCard(oTable)
       if(oCardToDiscard.nLabel===11){
         oTable.toJSON().bTurnClockwise=!(oTable.toJSON().bTurnClockwise)
+        oTable.toJSON().bIsReverseNow=true
         bIsReverseCard=await oTable.handleReverseCard()
       }
       aPromises.push(oTable.update({ eNextCardColor: oCardToDiscard.eColor, nDrawCount: oCardToDiscard.nLabel < 12 ? 1 : 2 }));}

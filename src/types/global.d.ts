@@ -78,6 +78,7 @@ export declare interface ITable {
   aDiscardPile: ICard[];
   bToSkip: boolean;
   bTurnClockwise: boolean;
+  bIsReverseNow: boolean;
   eState: 'waiting' | 'initialized' | 'running' | 'finished';
   eNextCardColor: Omit<ICard['eColor'], 'black'>;
   nDrawCount: number;
