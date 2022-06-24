@@ -178,8 +178,8 @@ class Service {
   public async autoPickCard(oTable:Table) {
     log.verbose(`${_.now()} event: autoPickCard, player: ${this.iPlayerId}`);
     const aCard:any =await oTable.drawCard('normal', 1);
-    this.emit('resDrawCard', { oData:{aCard: [aCard[0]]}, nCardCount: 1,nHandCardCount:this.aHand.length+1,nHandScore:await this.handCardCounts() });
-    oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[], nCardCount: 1,nHandCardCount:this.aHand.length+1 });
+    this.emit('resDrawCard', { aCard:[aCard[0]], nCardCount: 1,nHandCardCount:this.aHand.length+1,nHandScore:await this.handCardCounts() });
+    oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[], nCardCount: 1,nHandCardCount:this.aHand.length+1,exceptPlayerId:[this.iPlayerId] });
   
     await Promise.all([
       oTable.updateDrawPile(),

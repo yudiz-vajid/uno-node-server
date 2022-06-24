@@ -147,8 +147,8 @@ class Service {
         return __awaiter(this, void 0, void 0, function* () {
             log.verbose(`${_.now()} event: autoPickCard, player: ${this.iPlayerId}`);
             const aCard = yield oTable.drawCard('normal', 1);
-            this.emit('resDrawCard', { oData: { aCard: [aCard[0]] }, nCardCount: 1, nHandCardCount: this.aHand.length + 1, nHandScore: yield this.handCardCounts() });
-            oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [], nCardCount: 1, nHandCardCount: this.aHand.length + 1 });
+            this.emit('resDrawCard', { aCard: [aCard[0]], nCardCount: 1, nHandCardCount: this.aHand.length + 1, nHandScore: yield this.handCardCounts() });
+            oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [], nCardCount: 1, nHandCardCount: this.aHand.length + 1, exceptPlayerId: [this.iPlayerId] });
             yield Promise.all([
                 oTable.updateDrawPile(),
                 this.update({ aHand: [...this.aHand, ...aCard] }),
