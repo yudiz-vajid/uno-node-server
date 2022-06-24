@@ -67,7 +67,12 @@ class Player extends service_1.default {
             if (bIsReverseCard)
                 oTable.emit('resReverseTurn', { bTurnClockwise: oTable.toJSON().bTurnClockwise });
             oTable.emit('resNextCardDetail', { eColor: oTable.toJSON().eNextCardColor, nDrawCount: oTable.toJSON().nDrawCount });
-            this.passTurn(oTable);
+            if (oCardToDiscard.nLabel > 13) {
+                this.wildCardColorTimer(oTable);
+            }
+            else {
+                this.passTurn(oTable);
+            }
             return true;
         });
     }
@@ -125,6 +130,26 @@ class Player extends service_1.default {
             yield Promise.all(aPromises);
             this.passTurn(oTable);
             callback({ oData: {}, status: util_1.response.SUCCESS });
+            return true;
+        });
+    }
+    setWildCardColor(oData, oTable, callback) {
+        return __awaiter(this, void 0, void 0, function* () {
+            log.verbose(`${_.now()} event: setWildCardColor, player: ${this.iPlayerId}`);
+            const aPromises = [];
+            const nRemainingTime = yield oTable.getTTL('assignWildCardColorTimerExpired', this.iPlayerId);
+            if (!nRemainingTime) {
+                callback({ oData: {}, status: util_1.response.SUCCESS });
+            }
+            else {
+                aPromises.push(oTable.deleteScheduler(`assignWildCardColorTimerExpired`, this.iPlayerId));
+            }
+            let updatedDiscardPile = [...oTable.toJSON().aDiscardPile];
+            updatedDiscardPile[updatedDiscardPile.length - 1].eColor = oData.eColor;
+            oTable.emit('resWildCardColor', { iPlayerId: this.iPlayerId, eColor: oData.eColor });
+            aPromises.push(oTable.update({ aDiscardPile: updatedDiscardPile }));
+            yield Promise.all(aPromises);
+            this.passTurn(oTable);
             return true;
         });
     }

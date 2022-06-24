@@ -67,12 +67,20 @@ class TableManager {
         oPlayer?.assignGraceTimerExpired(oTable);
         return true;
 
+      case 'assignWildCardColorTimerExpired':
+        oPlayer?.assignWildCardColorTimerExpired(oTable);
+        return true;
+
       case 'drawCard':
         oPlayer?.drawCard({}, oTable, callback);
         return true;
 
       case 'keepCard':
         oPlayer?.keepCard({}, oTable, callback);
+        return true;
+
+      case 'setWildCardColor':
+        oPlayer?.setWildCardColor({}, oTable, callback);
         return true;
 
       case 'discardCard':

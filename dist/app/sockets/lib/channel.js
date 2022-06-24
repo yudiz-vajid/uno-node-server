@@ -15,7 +15,7 @@ class Channel {
         this.iPlayerId = iPlayerId;
     }
     onEvent(body, ack) {
-        var _a, _b, _c;
+        var _a, _b, _c, _d;
         return __awaiter(this, void 0, void 0, function* () {
             let parseBody = JSON.parse(body);
             try {
@@ -31,6 +31,9 @@ class Channel {
                         break;
                     case 'reqKeepCard':
                         emitter.emit('channelEvent', { sTaskName: 'keepCard', iBattleId: this.iBattleId, iPlayerId: (_c = this.iPlayerId) !== null && _c !== void 0 ? _c : '', oData }, ack);
+                        break;
+                    case 'reqSetWildCardColor':
+                        emitter.emit('channelEvent', { sTaskName: 'setWildCardColor', iBattleId: this.iBattleId, iPlayerId: (_d = this.iPlayerId) !== null && _d !== void 0 ? _d : '', oData }, ack);
                         break;
                     default:
                         return false;

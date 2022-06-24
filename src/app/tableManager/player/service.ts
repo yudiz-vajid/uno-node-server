@@ -270,6 +270,20 @@ class Service {
     return this.passTurn(oTable);
   }
 
+  public async assignWildCardColorTimerExpired(oTable: Table) {
+    /**
+     * TODO : set wild card random color
+     * Pass turn
+     */
+    console.log('assignWildCardColorTimerExpired called ... ');
+    let randomColor:any=_.randomizeArray(["red","green","blue","yellow"])
+    let updatedDiscardPile=[...oTable.toJSON().aDiscardPile]
+    updatedDiscardPile[updatedDiscardPile.length-1].eColor=randomColor[0]
+    await oTable.update({aDiscardPile:updatedDiscardPile})
+    oTable.emit('resWildCardColor', { iPlayerId: this.iPlayerId,eColor:randomColor[0]});
+    return this.passTurn(oTable);
+  }
+
   public async passTurn(oTable: Table) {
     // log.verbose('passTurn called...');
     if (oTable.toJSON().eState !== 'running') return log.error('table is not in running state.');
@@ -277,10 +291,16 @@ class Service {
 
     const aPlayingPlayer = aPlayer.filter(p => p.eState === 'playing');
     if (!aPlayingPlayer.length) return (log.error('no playing participant') && null) ?? false; // TODO: declare result
-    const oNextPlayer =(aPlayingPlayer.length===2&&oTable.toJSON().aDiscardPile[oTable.toJSON().aDiscardPile.length-1].nLabel===11) ?await oTable.getPlayer(this.iPlayerId) : await oTable.getNextPlayer(this.nSeat);
+    const oNextPlayer =(aPlayingPlayer.length===2&&oTable.toJSON().aDiscardPile[oTable.toJSON().aDiscardPile.length-1].nLabel===11) ?await oTable.getPlayer(this.iPlayerId) : await oTable.getNextPlayer(this.nSeat); // For reverse card flow
     if (!oNextPlayer) return (log.error('No playing player found...') && null) ?? false;
     oNextPlayer.takeTurn(oTable);
     return true;
+  }
+
+  public async wildCardColorTimer(oTable: Table) {
+    // log.verbose('passTurn called...');
+    if (oTable.toJSON().eState !== 'running') return log.error('table is not in running state.');
+    oTable.setSchedular('assignWildCardColorTimerExpired', this.iPlayerId, oTable.toJSON().oSettings.nWildCardColorTimer);
   }
 
   public toJSON() {

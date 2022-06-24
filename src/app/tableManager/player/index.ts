@@ -95,7 +95,11 @@ class Player extends Service {
     if(bIsReverseCard)oTable.emit('resReverseTurn', { bTurnClockwise: oTable.toJSON().bTurnClockwise});
     oTable.emit('resNextCardDetail', { eColor: oTable.toJSON().eNextCardColor, nDrawCount: oTable.toJSON().nDrawCount }); // can be embedded in resDiscardPile event.
 
-    this.passTurn(oTable);
+    if(oCardToDiscard.nLabel>13){
+      this.wildCardColorTimer(oTable)
+    }else{
+      this.passTurn(oTable);
+    }
     return true;
 
     // TODO : handle multiple clicks
@@ -188,6 +192,29 @@ class Player extends Service {
     await Promise.all(aPromises);
     this.passTurn(oTable)
     callback({ oData:{}, status: response.SUCCESS });
+    return true;
+  }
+
+  public async setWildCardColor(oData: Record<string, never>, oTable: Table, callback: ICallback) {
+    log.verbose(`${_.now()} event: setWildCardColor, player: ${this.iPlayerId}`);
+    const aPromises = [];
+
+    const nRemainingTime = await oTable.getTTL('assignWildCardColorTimerExpired', this.iPlayerId); // - in ms
+    if (!nRemainingTime)
+    {
+      callback({ oData:{}, status: response.SUCCESS });
+    } else {
+      aPromises.push(oTable.deleteScheduler(`assignWildCardColorTimerExpired`, this.iPlayerId));
+    }
+
+    let updatedDiscardPile=[...oTable.toJSON().aDiscardPile]
+    updatedDiscardPile[updatedDiscardPile.length-1].eColor=oData.eColor
+    // await oTable.update({aDiscardPile:updatedDiscardPile})
+    oTable.emit('resWildCardColor', { iPlayerId: this.iPlayerId,eColor:oData.eColor});
+    /* used when user discard his card in grace time. */
+    aPromises.push(oTable.update({aDiscardPile: updatedDiscardPile }));
+    await Promise.all(aPromises);
+    this.passTurn(oTable)
     return true;
   }
 

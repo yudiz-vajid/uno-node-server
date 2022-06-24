@@ -37,6 +37,7 @@ declare interface ISettings {
   nTotalGameTime: number; // ms : game lifetime
   nTurnTime: number; // ms :
   nGraceTime: number; // ms
+  nWildCardColorTimer: number; // ms
   nStartingNormalCardCount: number;
   nStartingSpecialCardCount: number;
   nStartingActionCardCount: number;

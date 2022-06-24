@@ -228,6 +228,17 @@ class Service {
             return this.passTurn(oTable);
         });
     }
+    assignWildCardColorTimerExpired(oTable) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('assignWildCardColorTimerExpired called ... ');
+            let randomColor = _.randomizeArray(["red", "green", "blue", "yellow"]);
+            let updatedDiscardPile = [...oTable.toJSON().aDiscardPile];
+            updatedDiscardPile[updatedDiscardPile.length - 1].eColor = randomColor[0];
+            yield oTable.update({ aDiscardPile: updatedDiscardPile });
+            oTable.emit('resWildCardColor', { iPlayerId: this.iPlayerId, eColor: randomColor[0] });
+            return this.passTurn(oTable);
+        });
+    }
     passTurn(oTable) {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
@@ -242,6 +253,13 @@ class Service {
                 return (_b = (log.error('No playing player found...') && null)) !== null && _b !== void 0 ? _b : false;
             oNextPlayer.takeTurn(oTable);
             return true;
+        });
+    }
+    wildCardColorTimer(oTable) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (oTable.toJSON().eState !== 'running')
+                return log.error('table is not in running state.');
+            oTable.setSchedular('assignWildCardColorTimerExpired', this.iPlayerId, oTable.toJSON().oSettings.nWildCardColorTimer);
         });
     }
     toJSON() {

@@ -20,5 +20,6 @@ const response = {
     EMPTY_HAND: { code: 15, message: 'hand is empty' },
     CARD_COLOR_REQUIRED: { code: 16, message: 'card color required when discarding wild card' },
     INVALID_NEXT_CARD_COLOR: { code: 17, message: 'invalid next card color' },
+    TIME_OUT: { code: 17, message: 'time out' },
 };
 exports.default = response;
