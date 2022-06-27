@@ -96,7 +96,7 @@ class Player extends Service {
     if(bIsReverseCard)oTable.emit('resReverseTurn', { bTurnClockwise: oTable.toJSON().bTurnClockwise});
     oTable.emit('resNextCardDetail', { eColor: oTable.toJSON().eNextCardColor, nDrawCount: oTable.toJSON().nDrawCount }); // can be embedded in resDiscardPile event.
 
-    if(oCardToDiscard.nLabel>13){
+    if(oCardToDiscard.nLabel>12){
       this.wildCardColorTimer(oTable)
     }else{
       this.passTurn(oTable);

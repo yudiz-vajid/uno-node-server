@@ -42,6 +42,7 @@ class Player extends service_1.default {
                     iSkipPlayer = yield this.assignSkipCard(oTable);
                 if (oCardToDiscard.nLabel === 11) {
                     oTable.toJSON().bTurnClockwise = !(oTable.toJSON().bTurnClockwise);
+                    oTable.toJSON().bIsReverseNow = true;
                     bIsReverseCard = yield oTable.handleReverseCard();
                 }
                 aPromises.push(oTable.update({ eNextCardColor: oCardToDiscard.eColor, nDrawCount: oCardToDiscard.nLabel < 12 ? 1 : 2 }));
@@ -67,7 +68,7 @@ class Player extends service_1.default {
             if (bIsReverseCard)
                 oTable.emit('resReverseTurn', { bTurnClockwise: oTable.toJSON().bTurnClockwise });
             oTable.emit('resNextCardDetail', { eColor: oTable.toJSON().eNextCardColor, nDrawCount: oTable.toJSON().nDrawCount });
-            if (oCardToDiscard.nLabel > 13) {
+            if (oCardToDiscard.nLabel > 12) {
                 this.wildCardColorTimer(oTable);
             }
             else {
