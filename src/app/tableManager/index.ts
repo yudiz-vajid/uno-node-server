@@ -80,7 +80,7 @@ class TableManager {
         return true;
 
       case 'setWildCardColor':
-        oPlayer?.setWildCardColor({}, oTable, callback);
+        oPlayer?.setWildCardColor(oData, oTable, callback);
         return true;
 
       case 'discardCard':

@@ -66,10 +66,11 @@ class Player extends Service {
       //   callback({ oData: {}, status: response.INVALID_NEXT_CARD_COLOR });
       //   return (log.silly(`black as next card color is not allowed when discarding wild card`) && null) ?? false;
       // }
-      oCardToDiscard.eColor='red' // TODO :- Remove this once wild card pick color integrated.
+      // oCardToDiscard.eColor='red' // TODO :- Remove this once wild card pick color integrated.
       // TODO : handle stacking for card.nLabel 14 (wild draw 4 card)
       // aPromises.push(oTable.update({ eNextCardColor: oData.eColor, nDrawCount: oCardToDiscard.nLabel === 13 ? 1 : 4 }));
-      aPromises.push(oTable.update({ eNextCardColor: 'red', nDrawCount: oCardToDiscard.nLabel === 13 ? 1 : 4 }));
+      // aPromises.push(oTable.update({ eNextCardColor: 'red', nDrawCount: oCardToDiscard.nLabel === 13 ? 1 : 4 }));
+      aPromises.push(oTable.update({  nDrawCount: oCardToDiscard.nLabel === 13 ? 1 : 4 }));
     }
 
     
@@ -196,7 +197,8 @@ class Player extends Service {
     return true;
   }
 
-  public async setWildCardColor(oData: Record<string, never>, oTable: Table, callback: ICallback) {
+  public async setWildCardColor(oData: any, oTable: Table, callback: ICallback) {
+    console.log('setWildCardColor called.... ',oData);
     log.verbose(`${_.now()} event: setWildCardColor, player: ${this.iPlayerId}`);
     const aPromises = [];
 
@@ -210,10 +212,9 @@ class Player extends Service {
 
     let updatedDiscardPile=[...oTable.toJSON().aDiscardPile]
     updatedDiscardPile[updatedDiscardPile.length-1].eColor=oData.eColor
-    // await oTable.update({aDiscardPile:updatedDiscardPile})
     oTable.emit('resWildCardColor', { iPlayerId: this.iPlayerId,eColor:oData.eColor});
     /* used when user discard his card in grace time. */
-    aPromises.push(oTable.update({aDiscardPile: updatedDiscardPile }));
+    aPromises.push(oTable.update({eNextCardColor:oData.eColor,aDiscardPile: updatedDiscardPile }));
     await Promise.all(aPromises);
     this.passTurn(oTable)
     return true;

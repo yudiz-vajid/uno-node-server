@@ -85,7 +85,7 @@ class TableManager {
                     oPlayer === null || oPlayer === void 0 ? void 0 : oPlayer.keepCard({}, oTable, callback);
                     return true;
                 case 'setWildCardColor':
-                    oPlayer === null || oPlayer === void 0 ? void 0 : oPlayer.setWildCardColor({}, oTable, callback);
+                    oPlayer === null || oPlayer === void 0 ? void 0 : oPlayer.setWildCardColor(oData, oTable, callback);
                     return true;
                 case 'discardCard':
                     oPlayer === null || oPlayer === void 0 ? void 0 : oPlayer.discardCard(oData, oTable, callback);

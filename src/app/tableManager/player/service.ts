@@ -308,7 +308,7 @@ class Service {
   }
 
   public async wildCardColorTimer(oTable: Table) {
-    // log.verbose('passTurn called...');
+    log.verbose('wildCardColorTimer...');
     if (oTable.toJSON().eState !== 'running') return log.error('table is not in running state.');
     oTable.setSchedular('assignWildCardColorTimerExpired', this.iPlayerId, oTable.toJSON().oSettings.nWildCardColorTimer);
   }

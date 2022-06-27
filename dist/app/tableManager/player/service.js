@@ -264,6 +264,7 @@ class Service {
     }
     wildCardColorTimer(oTable) {
         return __awaiter(this, void 0, void 0, function* () {
+            log.verbose('wildCardColorTimer...');
             if (oTable.toJSON().eState !== 'running')
                 return log.error('table is not in running state.');
             oTable.setSchedular('assignWildCardColorTimerExpired', this.iPlayerId, oTable.toJSON().oSettings.nWildCardColorTimer);

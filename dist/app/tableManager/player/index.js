@@ -48,8 +48,7 @@ class Player extends service_1.default {
                 aPromises.push(oTable.update({ eNextCardColor: oCardToDiscard.eColor, nDrawCount: oCardToDiscard.nLabel < 12 ? 1 : 2 }));
             }
             else {
-                oCardToDiscard.eColor = 'red';
-                aPromises.push(oTable.update({ eNextCardColor: 'red', nDrawCount: oCardToDiscard.nLabel === 13 ? 1 : 4 }));
+                aPromises.push(oTable.update({ nDrawCount: oCardToDiscard.nLabel === 13 ? 1 : 4 }));
             }
             aPromises.push(oTable.addToDiscardPile(oCardToDiscard));
             const nRemainingGraceTime = yield oTable.getTTL('assignGraceTimerExpired', this.iPlayerId);
@@ -136,6 +135,7 @@ class Player extends service_1.default {
     }
     setWildCardColor(oData, oTable, callback) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log('setWildCardColor called.... ', oData);
             log.verbose(`${_.now()} event: setWildCardColor, player: ${this.iPlayerId}`);
             const aPromises = [];
             const nRemainingTime = yield oTable.getTTL('assignWildCardColorTimerExpired', this.iPlayerId);
@@ -148,7 +148,7 @@ class Player extends service_1.default {
             let updatedDiscardPile = [...oTable.toJSON().aDiscardPile];
             updatedDiscardPile[updatedDiscardPile.length - 1].eColor = oData.eColor;
             oTable.emit('resWildCardColor', { iPlayerId: this.iPlayerId, eColor: oData.eColor });
-            aPromises.push(oTable.update({ aDiscardPile: updatedDiscardPile }));
+            aPromises.push(oTable.update({ eNextCardColor: oData.eColor, aDiscardPile: updatedDiscardPile }));
             yield Promise.all(aPromises);
             this.passTurn(oTable);
             return true;
