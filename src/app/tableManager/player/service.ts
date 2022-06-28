@@ -234,11 +234,11 @@ class Service {
     // add penalty card to user along wih spcial meter
     let aCard:any=[]
     const { nSpecialMeterFillCount } = oTable.toJSON().oSettings;
-    for (let i = 0; i < oTable.toJSON().nDrawCount; i++) {
-      const oCard = this.bSpecialMeterFull ? oTable.drawCard('special', 1) : oTable.drawCard('normal', 1);      
+    for (let i = 0; i < oTable.toJSON().nDrawCount-1; i++) {
+      const oCard:any = this.bSpecialMeterFull ? oTable.drawCard('special', 1) : oTable.drawCard('normal', 1);      
       this.nDrawNormal = this.nDrawNormal === nSpecialMeterFillCount ? 0 : this.nDrawNormal + 1;
       this.bSpecialMeterFull = this.nDrawNormal === nSpecialMeterFillCount;
-      aCard.push(oCard)
+      aCard.push(...oCard)
     }
     await oTable.updateDrawPile()
     await this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard] });

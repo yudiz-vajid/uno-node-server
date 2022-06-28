@@ -202,11 +202,11 @@ class Service {
         return __awaiter(this, void 0, void 0, function* () {
             let aCard = [];
             const { nSpecialMeterFillCount } = oTable.toJSON().oSettings;
-            for (let i = 0; i < oTable.toJSON().nDrawCount; i++) {
+            for (let i = 0; i < oTable.toJSON().nDrawCount - 1; i++) {
                 const oCard = this.bSpecialMeterFull ? oTable.drawCard('special', 1) : oTable.drawCard('normal', 1);
                 this.nDrawNormal = this.nDrawNormal === nSpecialMeterFillCount ? 0 : this.nDrawNormal + 1;
                 this.bSpecialMeterFull = this.nDrawNormal === nSpecialMeterFillCount;
-                aCard.push(oCard);
+                aCard.push(...oCard);
             }
             yield oTable.updateDrawPile();
             yield this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard] });
