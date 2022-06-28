@@ -136,6 +136,14 @@ class Service {
                 .map(card => card.iCardId);
         });
     }
+    getStackingCardIds(oDiscardPileTopCard) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (oDiscardPileTopCard.nLabel === 12)
+                return this.aHand.filter(card => card.nLabel === 12 && oDiscardPileTopCard.eColor === card.eColor).map(card => card.iCardId);
+            if (oDiscardPileTopCard.nLabel === 14)
+                return this.aHand.filter(card => card.nLabel === 14 && oDiscardPileTopCard.eColor === card.eColor).map(card => card.iCardId);
+        });
+    }
     handCardCounts(aHand = this.aHand) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log(this.aHand);
@@ -162,7 +170,7 @@ class Service {
             if (oDiscardPileTopCard.nLabel === 14)
                 return oUserCard.nLabel === 14;
             if (oDiscardPileTopCard.nLabel === 13)
-                return oUserCard.nLabel > 12 || oUserCard.eColor === eNextCardColor;
+                return oUserCard.nLabel > 12 || oUserCard.eColor === oDiscardPileTopCard.eColor;
             return oDiscardPileTopCard.eColor === oUserCard.eColor || oDiscardPileTopCard.nLabel === oUserCard.nLabel || oUserCard.nLabel === 13 || oUserCard.nLabel === 14;
         });
     }
@@ -190,14 +198,45 @@ class Service {
             this.passTurn(oTable);
         });
     }
+    assignDrawPenalty(oTable) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let aCard = [];
+            const { nSpecialMeterFillCount } = oTable.toJSON().oSettings;
+            for (let i = 0; i < oTable.toJSON().nDrawCount; i++) {
+                const oCard = this.bSpecialMeterFull ? oTable.drawCard('special', 1) : oTable.drawCard('normal', 1);
+                this.nDrawNormal = this.nDrawNormal === nSpecialMeterFillCount ? 0 : this.nDrawNormal + 1;
+                this.bSpecialMeterFull = this.nDrawNormal === nSpecialMeterFillCount;
+                aCard.push(oCard);
+            }
+            yield oTable.updateDrawPile();
+            yield this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard] });
+            yield oTable.update({ iDrawPenltyPlayerId: '', nDrawCount: 0 });
+            this.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard, nCardCount: aCard.length, nHandCardCount: this.aHand.length, nHandScore: yield this.handCardCounts() });
+            oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [], nCardCount: aCard.length, nHandCardCount: this.aHand.length }, [this.iPlayerId]);
+        });
+    }
     takeTurn(oTable) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log('takeTurn called for :: ', this.iPlayerId);
-            console.log('takeTurn called for :: ', this.bNextTurnSkip);
             yield oTable.update({ iPlayerTurn: this.iPlayerId });
+            let aStackingCardId = [];
+            if (oTable.toJSON().aDiscardPile.slice(-1)[0].nLabel === 12) {
+                if (oTable.toJSON().oSettings.bStackingDrawCards && oTable.toJSON().iDrawPenltyPlayerId === this.iPlayerId) {
+                    aStackingCardId = yield this.getStackingCardIds(oTable.getDiscardPileTopCard());
+                    if (!(aStackingCardId === null || aStackingCardId === void 0 ? void 0 : aStackingCardId.length))
+                        yield this.assignDrawPenalty(oTable);
+                    if (!(aStackingCardId === null || aStackingCardId === void 0 ? void 0 : aStackingCardId.length) && oTable.toJSON().oSettings.bSkipTurnOnDrawTwoOrFourCard)
+                        return this.skipPlayer(oTable);
+                }
+                else if (oTable.toJSON().iDrawPenltyPlayerId === this.iPlayerId) {
+                    yield this.assignDrawPenalty(oTable);
+                    if (oTable.toJSON().oSettings.bSkipTurnOnDrawTwoOrFourCard)
+                        return this.skipPlayer(oTable);
+                }
+            }
             if (this.bNextTurnSkip)
                 return this.skipPlayer(oTable);
-            const aPlayableCardId = yield this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
+            const aPlayableCardId = aStackingCardId.length ? aStackingCardId : yield this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
             log.debug(`${_.now()} discard pile top card:: ${oTable.getDiscardPileTopCard().iCardId}`);
             log.debug(`${_.now()} playable cards for player ${this.iPlayerId}:: ${aPlayableCardId}`);
             this.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nTurnTime, timestamp: Date.now(), aPlayableCards: aPlayableCardId });

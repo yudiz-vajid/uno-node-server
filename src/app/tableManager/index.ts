@@ -98,6 +98,7 @@ class TableManager {
         iBattleId: oData.iBattleId,
         iPlayerTurn: '',
         iSkippedPLayer: '',
+        iDrawPenltyPlayerId: '',
         aPlayerId: [],
         aDrawPile: new Deck(oData.oSettings.aCardScore).getDeck(), // - to be initialized during distributeCard
         aDiscardPile: [], // - to be initialized during distributeCard

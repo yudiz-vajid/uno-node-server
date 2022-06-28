@@ -8,6 +8,8 @@ class Service {
   protected iPlayerTurn: ITableWithPlayer['iPlayerTurn'];
 
   protected iSkippedPLayer: ITableWithPlayer['iSkippedPLayer'];
+  
+  protected iDrawPenltyPlayerId: ITableWithPlayer['iDrawPenltyPlayerId'];
 
   protected aPlayerId: ITableWithPlayer['aPlayerId'];
 
@@ -36,6 +38,7 @@ class Service {
     this.iBattleId = oData.iBattleId;
     this.iPlayerTurn = oData.iPlayerTurn;
     this.iSkippedPLayer = oData.iSkippedPLayer;
+    this.iDrawPenltyPlayerId = oData.iDrawPenltyPlayerId;
     this.aPlayerId = oData.aPlayerId;
     this.aDrawPile = oData.aDrawPile;
     this.aDiscardPile = oData.aDiscardPile;
@@ -57,7 +60,7 @@ class Service {
 
   public async update(
     oDate: Partial<
-      Pick<ITable, 'iPlayerTurn' | 'iSkippedPLayer' | 'aPlayerId' | 'aDrawPile' | 'aDiscardPile' | 'bToSkip' | 'eState' | 'bTurnClockwise'|'bIsReverseNow' | 'eNextCardColor' | 'nDrawCount'>
+      Pick<ITable, 'iPlayerTurn' | 'iSkippedPLayer' |'iDrawPenltyPlayerId'| 'aPlayerId' | 'aDrawPile' | 'aDiscardPile' | 'bToSkip' | 'eState' | 'bTurnClockwise'|'bIsReverseNow' | 'eNextCardColor' | 'nDrawCount'>
     >
   ) {
     try {
@@ -71,6 +74,10 @@ class Service {
             break;
           case 'iSkippedPLayer':
             this.iSkippedPLayer = v as ITable['iSkippedPLayer'];
+            aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'iDrawPenltyPlayerId':
+            this.iDrawPenltyPlayerId = v as ITable['iDrawPenltyPlayerId'];
             aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
             break;
           case 'aPlayerId':
@@ -289,6 +296,7 @@ class Service {
       iBattleId: this.iBattleId,
       iPlayerTurn: this.iPlayerTurn,
       iSkippedPLayer: this.iSkippedPLayer,
+      iDrawPenltyPlayerId: this.iDrawPenltyPlayerId,
       aPlayerId: this.aPlayerId,
       aDrawPile: this.aDrawPile,
       aDiscardPile: this.aDiscardPile,

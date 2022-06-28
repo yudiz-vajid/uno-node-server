@@ -102,6 +102,7 @@ class TableManager {
                     iBattleId: oData.iBattleId,
                     iPlayerTurn: '',
                     iSkippedPLayer: '',
+                    iDrawPenltyPlayerId: '',
                     aPlayerId: [],
                     aDrawPile: new util_1.Deck(oData.oSettings.aCardScore).getDeck(),
                     aDiscardPile: [],

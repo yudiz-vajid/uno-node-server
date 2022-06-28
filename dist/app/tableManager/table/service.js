@@ -26,6 +26,7 @@ class Service {
         this.iBattleId = oData.iBattleId;
         this.iPlayerTurn = oData.iPlayerTurn;
         this.iSkippedPLayer = oData.iSkippedPLayer;
+        this.iDrawPenltyPlayerId = oData.iDrawPenltyPlayerId;
         this.aPlayerId = oData.aPlayerId;
         this.aDrawPile = oData.aDrawPile;
         this.aDiscardPile = oData.aDiscardPile;
@@ -55,6 +56,10 @@ class Service {
                             break;
                         case 'iSkippedPLayer':
                             this.iSkippedPLayer = v;
+                            aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v));
+                            break;
+                        case 'iDrawPenltyPlayerId':
+                            this.iDrawPenltyPlayerId = v;
                             aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v));
                             break;
                         case 'aPlayerId':
@@ -281,6 +286,7 @@ class Service {
             iBattleId: this.iBattleId,
             iPlayerTurn: this.iPlayerTurn,
             iSkippedPLayer: this.iSkippedPLayer,
+            iDrawPenltyPlayerId: this.iDrawPenltyPlayerId,
             aPlayerId: this.aPlayerId,
             aDrawPile: this.aDrawPile,
             aDiscardPile: this.aDiscardPile,

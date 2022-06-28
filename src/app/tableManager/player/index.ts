@@ -56,20 +56,15 @@ class Player extends Service {
         oTable.toJSON().bIsReverseNow=true
         bIsReverseCard=await oTable.handleReverseCard()
       }
-      aPromises.push(oTable.update({ eNextCardColor: oCardToDiscard.eColor, nDrawCount: oCardToDiscard.nLabel < 12 ? 1 : 2 }));}
+      if(oCardToDiscard.nLabel===12){
+        // Find next player for stacking
+        const iNextPlayerId=await oTable.getNextPlayer(this.nSeat)
+        aPromises.push(oTable.update({ iDrawPenltyPlayerId: iNextPlayerId?.iPlayerId}));
+      }
+      aPromises.push(oTable.update({ eNextCardColor: oCardToDiscard.eColor, nDrawCount: oCardToDiscard.nLabel < 12 ? 1 :  2 + oTable.toJSON().nDrawCount }));
+    }
     else {
-      // if (!oData.eColor) {
-      //   callback({ oData: {}, status: response.CARD_COLOR_REQUIRED });
-      //   return (log.silly(`card color is required when discarding wild card`) && null) ?? false;
-      // }
-      // if (oData.eColor === 'black') {
-      //   callback({ oData: {}, status: response.INVALID_NEXT_CARD_COLOR });
-      //   return (log.silly(`black as next card color is not allowed when discarding wild card`) && null) ?? false;
-      // }
-      // oCardToDiscard.eColor='red' // TODO :- Remove this once wild card pick color integrated.
       // TODO : handle stacking for card.nLabel 14 (wild draw 4 card)
-      // aPromises.push(oTable.update({ eNextCardColor: oData.eColor, nDrawCount: oCardToDiscard.nLabel === 13 ? 1 : 4 }));
-      // aPromises.push(oTable.update({ eNextCardColor: 'red', nDrawCount: oCardToDiscard.nLabel === 13 ? 1 : 4 }));
       aPromises.push(oTable.update({  nDrawCount: oCardToDiscard.nLabel === 13 ? 1 : 4 }));
     }
 
@@ -83,7 +78,6 @@ class Player extends Service {
       aPromises.push(oTable.deleteScheduler(`assignGraceTimerExpired`, this.iPlayerId));
     } else {
       // - graceTimer is not running so turnTime must be remaining.
-      // this.nGraceTime = 0;
       aPromises.push(oTable.deleteScheduler(`assignTurnTimerExpired`, this.iPlayerId));
     }
     

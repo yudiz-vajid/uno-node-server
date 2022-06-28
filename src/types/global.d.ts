@@ -73,6 +73,7 @@ export declare interface ITable {
   iBattleId: string;
   iPlayerTurn: string;
   iSkippedPLayer: string;
+  iDrawPenltyPlayerId: string;
   aPlayerId: string[];
   aDrawPile: ICard[];
   aDiscardPile: ICard[];
