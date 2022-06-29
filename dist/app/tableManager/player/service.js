@@ -202,7 +202,7 @@ class Service {
         return __awaiter(this, void 0, void 0, function* () {
             let aCard = [];
             const { nSpecialMeterFillCount } = oTable.toJSON().oSettings;
-            for (let i = 0; i < oTable.toJSON().nDrawCount - 1; i++) {
+            for (let i = 0; i < oTable.toJSON().nDrawCount; i++) {
                 const oCard = this.bSpecialMeterFull ? oTable.drawCard('special', 1) : oTable.drawCard('normal', 1);
                 this.nDrawNormal = this.nDrawNormal === nSpecialMeterFillCount ? 0 : this.nDrawNormal + 1;
                 this.bSpecialMeterFull = this.nDrawNormal === nSpecialMeterFillCount;
