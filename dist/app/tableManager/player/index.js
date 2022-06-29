@@ -49,7 +49,7 @@ class Player extends service_1.default {
                     const iNextPlayerId = yield oTable.getNextPlayer(this.nSeat);
                     aPromises.push(oTable.update({ iDrawPenltyPlayerId: iNextPlayerId === null || iNextPlayerId === void 0 ? void 0 : iNextPlayerId.iPlayerId }));
                 }
-                aPromises.push(oTable.update({ eNextCardColor: oCardToDiscard.eColor, nDrawCount: oCardToDiscard.nLabel < 12 ? 1 : 2 + oTable.toJSON().nDrawCount }));
+                aPromises.push(oTable.update({ eNextCardColor: oCardToDiscard.eColor, nDrawCount: oCardToDiscard.nLabel < 12 ? 1 : (2 + (oTable.toJSON().nDrawCount === 1 ? 0 : oTable.toJSON().nDrawCount)) }));
             }
             else {
                 aPromises.push(oTable.update({ nDrawCount: oCardToDiscard.nLabel === 13 ? 1 : 4 }));

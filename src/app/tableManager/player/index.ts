@@ -61,7 +61,7 @@ class Player extends Service {
         const iNextPlayerId=await oTable.getNextPlayer(this.nSeat)
         aPromises.push(oTable.update({ iDrawPenltyPlayerId: iNextPlayerId?.iPlayerId}));
       }
-      aPromises.push(oTable.update({ eNextCardColor: oCardToDiscard.eColor, nDrawCount: oCardToDiscard.nLabel < 12 ? 1 :  2 + oTable.toJSON().nDrawCount }));
+      aPromises.push(oTable.update({ eNextCardColor: oCardToDiscard.eColor, nDrawCount: oCardToDiscard.nLabel < 12 ? 1 :  (2 + (oTable.toJSON().nDrawCount===1?0:oTable.toJSON().nDrawCount)) }));
     }
     else {
       // TODO : handle stacking for card.nLabel 14 (wild draw 4 card)
