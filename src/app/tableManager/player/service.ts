@@ -301,7 +301,11 @@ class Service {
       // const aPlayableCardId = await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
     //   if(!aPlayableCardId.length)this.autoPickCard(oTable)
     // }
-    if(!aPlayableCardId.length)this.autoPickCard(oTable)
+    if(oTable.toJSON().iDrawPenltyPlayerId===this.iPlayerId && (!aPlayableCardId.length||aPlayableCardId.length&&oTable.toJSON().oSettings.bMustCollectOnMissTurn)){
+      await oTable.update({nDrawCount:oTable.toJSON().nDrawCount+1})
+      await this.assignDrawPenalty(oTable)
+    }
+    else if(!aPlayableCardId.length)this.autoPickCard(oTable)
     else if(aPlayableCardId.length&&oTable.toJSON().oSettings.bMustCollectOnMissTurn)this.autoPickCard(oTable)
 
     oTable.emit('resTurnMissed', { iPlayerId: this.iPlayerId,nMissedTurn:this.nMissedTurn});

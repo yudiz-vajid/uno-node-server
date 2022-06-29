@@ -259,7 +259,11 @@ class Service {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.update({ nMissedTurn: this.nMissedTurn + 1, nGraceTime: 0 });
             const aPlayableCardId = yield this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
-            if (!aPlayableCardId.length)
+            if (oTable.toJSON().iDrawPenltyPlayerId === this.iPlayerId && (!aPlayableCardId.length || aPlayableCardId.length && oTable.toJSON().oSettings.bMustCollectOnMissTurn)) {
+                yield oTable.update({ nDrawCount: oTable.toJSON().nDrawCount + 1 });
+                yield this.assignDrawPenalty(oTable);
+            }
+            else if (!aPlayableCardId.length)
                 this.autoPickCard(oTable);
             else if (aPlayableCardId.length && oTable.toJSON().oSettings.bMustCollectOnMissTurn)
                 this.autoPickCard(oTable);
