@@ -139,9 +139,9 @@ class Service {
     getStackingCardIds(oDiscardPileTopCard) {
         return __awaiter(this, void 0, void 0, function* () {
             if (oDiscardPileTopCard.nLabel === 12)
-                return this.aHand.filter(card => card.nLabel === 12 && oDiscardPileTopCard.eColor === card.eColor).map(card => card.iCardId);
+                return this.aHand.filter(card => card.nLabel === 12).map(card => card.iCardId);
             if (oDiscardPileTopCard.nLabel === 14)
-                return this.aHand.filter(card => card.nLabel === 14 && oDiscardPileTopCard.eColor === card.eColor).map(card => card.iCardId);
+                return this.aHand.filter(card => card.nLabel === 14).map(card => card.iCardId);
         });
     }
     handCardCounts(aHand = this.aHand) {

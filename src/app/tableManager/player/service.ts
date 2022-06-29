@@ -162,8 +162,9 @@ class Service {
   }
 
   public async getStackingCardIds(oDiscardPileTopCard: ICard) {
-    if (oDiscardPileTopCard.nLabel === 12) return this.aHand.filter(card => card.nLabel === 12&&oDiscardPileTopCard.eColor=== card.eColor).map(card => card.iCardId);
-    if (oDiscardPileTopCard.nLabel === 14) return this.aHand.filter(card => card.nLabel === 14&&oDiscardPileTopCard.eColor=== card.eColor).map(card => card.iCardId);
+    // if (oDiscardPileTopCard.nLabel === 12) return this.aHand.filter(card => card.nLabel === 12&&oDiscardPileTopCard.eColor=== card.eColor).map(card => card.iCardId);
+    if (oDiscardPileTopCard.nLabel === 12) return this.aHand.filter(card => card.nLabel === 12).map(card => card.iCardId);
+    if (oDiscardPileTopCard.nLabel === 14) return this.aHand.filter(card => card.nLabel === 14).map(card => card.iCardId);
   }
 
   /**
