@@ -257,7 +257,7 @@ class Service {
     console.log('takeTurn called for :: ',this.iPlayerId);
     await oTable.update({ iPlayerTurn: this.iPlayerId });
     let aStackingCardId:any=[]
-    if(oTable.toJSON().aDiscardPile.slice(-1)[0].nLabel===12){
+    if(oTable.toJSON().aDiscardPile.slice(-1)[0].nLabel===12 || oTable.toJSON().aDiscardPile.slice(-1)[0].nLabel===14){
       if(oTable.toJSON().oSettings.bStackingDrawCards && oTable.toJSON().iDrawPenltyPlayerId===this.iPlayerId){
         aStackingCardId = await this.getStackingCardIds(oTable.getDiscardPileTopCard());  
         if(!aStackingCardId?.length)await this.assignDrawPenalty(oTable)
@@ -302,7 +302,6 @@ class Service {
     //   if(!aPlayableCardId.length)this.autoPickCard(oTable)
     // }
     if(oTable.toJSON().iDrawPenltyPlayerId===this.iPlayerId && (!aPlayableCardId.length||aPlayableCardId.length&&oTable.toJSON().oSettings.bMustCollectOnMissTurn)){
-      await oTable.update({nDrawCount:oTable.toJSON().nDrawCount+1})
       await this.assignDrawPenalty(oTable)
     }
     else if(!aPlayableCardId.length)this.autoPickCard(oTable)

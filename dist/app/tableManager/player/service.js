@@ -220,7 +220,7 @@ class Service {
             console.log('takeTurn called for :: ', this.iPlayerId);
             yield oTable.update({ iPlayerTurn: this.iPlayerId });
             let aStackingCardId = [];
-            if (oTable.toJSON().aDiscardPile.slice(-1)[0].nLabel === 12) {
+            if (oTable.toJSON().aDiscardPile.slice(-1)[0].nLabel === 12 || oTable.toJSON().aDiscardPile.slice(-1)[0].nLabel === 14) {
                 if (oTable.toJSON().oSettings.bStackingDrawCards && oTable.toJSON().iDrawPenltyPlayerId === this.iPlayerId) {
                     aStackingCardId = yield this.getStackingCardIds(oTable.getDiscardPileTopCard());
                     if (!(aStackingCardId === null || aStackingCardId === void 0 ? void 0 : aStackingCardId.length))
@@ -260,7 +260,6 @@ class Service {
             yield this.update({ nMissedTurn: this.nMissedTurn + 1, nGraceTime: 0 });
             const aPlayableCardId = yield this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
             if (oTable.toJSON().iDrawPenltyPlayerId === this.iPlayerId && (!aPlayableCardId.length || aPlayableCardId.length && oTable.toJSON().oSettings.bMustCollectOnMissTurn)) {
-                yield oTable.update({ nDrawCount: oTable.toJSON().nDrawCount + 1 });
                 yield this.assignDrawPenalty(oTable);
             }
             else if (!aPlayableCardId.length)

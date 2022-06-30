@@ -52,7 +52,8 @@ class Player extends service_1.default {
                 aPromises.push(oTable.update({ eNextCardColor: oCardToDiscard.eColor, nDrawCount: oCardToDiscard.nLabel < 12 ? 1 : (2 + (oTable.toJSON().nDrawCount === 1 ? 0 : oTable.toJSON().nDrawCount)) }));
             }
             else {
-                aPromises.push(oTable.update({ nDrawCount: oCardToDiscard.nLabel === 13 ? 1 : 4 }));
+                const iNextPlayerId = yield oTable.getNextPlayer(this.nSeat);
+                aPromises.push(oTable.update({ nDrawCount: oCardToDiscard.nLabel === 13 ? 1 : 4, iDrawPenltyPlayerId: iNextPlayerId === null || iNextPlayerId === void 0 ? void 0 : iNextPlayerId.iPlayerId }));
             }
             aPromises.push(oTable.addToDiscardPile(oCardToDiscard));
             const nRemainingGraceTime = yield oTable.getTTL('assignGraceTimerExpired', this.iPlayerId);
