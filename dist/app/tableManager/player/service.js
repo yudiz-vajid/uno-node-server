@@ -239,8 +239,8 @@ class Service {
             const aPlayableCardId = aStackingCardId.length ? aStackingCardId : yield this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
             log.debug(`${_.now()} discard pile top card:: ${oTable.getDiscardPileTopCard().iCardId}`);
             log.debug(`${_.now()} playable cards for player ${this.iPlayerId}:: ${aPlayableCardId}`);
-            this.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nTurnTime, timestamp: Date.now(), aPlayableCards: aPlayableCardId });
-            oTable.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nTurnTime, timestamp: Date.now(), aPlayableCards: [] }, [this.iPlayerId]);
+            this.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nTurnTime - 1000, timestamp: Date.now(), aPlayableCards: aPlayableCardId });
+            oTable.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nTurnTime - 1000, timestamp: Date.now(), aPlayableCards: [] }, [this.iPlayerId]);
             oTable.setSchedular('assignTurnTimerExpired', this.iPlayerId, oTable.toJSON().oSettings.nTurnTime);
         });
     }
@@ -249,8 +249,8 @@ class Service {
             if (this.nGraceTime < 3)
                 return this.assignGraceTimerExpired(oTable);
             const aPlayableCardId = yield this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
-            this.emit('resTurnTimer', { bIsGraceTimer: true, iPlayerId: this.iPlayerId, ttl: this.nGraceTime, timestamp: Date.now(), aPlayableCards: aPlayableCardId });
-            oTable.emit('resTurnTimer', { bIsGraceTimer: true, iPlayerId: this.iPlayerId, ttl: this.nGraceTime, timestamp: Date.now(), aPlayableCards: [] }, [this.iPlayerId]);
+            this.emit('resTurnTimer', { bIsGraceTimer: true, iPlayerId: this.iPlayerId, ttl: this.nGraceTime - 1000, timestamp: Date.now(), aPlayableCards: aPlayableCardId });
+            oTable.emit('resTurnTimer', { bIsGraceTimer: true, iPlayerId: this.iPlayerId, ttl: this.nGraceTime - 1000, timestamp: Date.now(), aPlayableCards: [] }, [this.iPlayerId]);
             oTable.setSchedular('assignGraceTimerExpired', this.iPlayerId, this.toJSON().nGraceTime);
             return true;
         });
