@@ -135,8 +135,11 @@ class Player extends Service {
     log.verbose(`${_.now()} player: ${this.iPlayerId}, drawnCard: ${aCard[0].iCardId}`);
     // check if it is playable or not
     let isPlayableCard=await this.checkPlayableCard(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor,aCard[0])
-    callback({ oData:{oCard: aCard[0],nDrawNormal:this.nDrawNormal,nSpecialMeterFillCount,bIsPlayable:isPlayableCard,nHandScore:await this.handCardCounts()}, status: response.SUCCESS });
-    oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[], nCardCount: 1,nHandCardCount:this.aHand.length+1 });
+    // callback({ oData:{oCard: aCard[0],nDrawNormal:this.nDrawNormal,nSpecialMeterFillCount,bIsPlayable:isPlayableCard,nHandScore:await this.handCardCounts()}, status: response.SUCCESS });
+    callback({ oData:{}, status: response.SUCCESS });
+    
+    this.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[aCard[0]], nDrawNormal:this.nDrawNormal,nSpecialMeterFillCount,bIsPlayable:isPlayableCard,nHandScore:await this.handCardCounts() ,eReason:'normalDraw' });
+    oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[], nCardCount: 1,nHandCardCount:this.aHand.length+1,eReason:'normalDraw' },[this.iPlayerId]);
     
     await Promise.all([
       oTable.updateDrawPile(),

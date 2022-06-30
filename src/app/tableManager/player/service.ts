@@ -184,8 +184,8 @@ class Service {
   public async autoPickCard(oTable:Table) {
     log.verbose(`${_.now()} event: autoPickCard, player: ${this.iPlayerId}`);
     const aCard:any =await oTable.drawCard('normal', 1);
-    this.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[aCard[0]], nCardCount: 1,nHandCardCount:this.aHand.length+1,nHandScore:await this.handCardCounts() });
-    oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[], nCardCount: 1,nHandCardCount:this.aHand.length+1 },[this.iPlayerId]);
+    this.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[aCard[0]], nCardCount: 1,nDrawNormal:this.nDrawNormal,nSpecialMeterFillCount:oTable.toJSON().oSettings.nSpecialMeterFillCount,nHandCardCount:this.aHand.length+1,nHandScore:await this.handCardCounts(),eReason:'autoDraw' });
+    oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[], nCardCount: 1,nHandCardCount:this.aHand.length+1,eReason:'autoDraw' },[this.iPlayerId]);
   
     await Promise.all([
       oTable.updateDrawPile(),
@@ -244,9 +244,8 @@ class Service {
     await oTable.updateDrawPile()
     await this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard] });
     await oTable.update({ iDrawPenltyPlayerId:'' ,nDrawCount:0});
-    // TODO :- send emit for resDrawCard
-    this.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard, nCardCount: aCard.length,nHandCardCount:this.aHand.length,nHandScore:await this.handCardCounts() });
-    oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[], nCardCount: aCard.length,nHandCardCount:this.aHand.length },[this.iPlayerId]);
+    this.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard, nCardCount: aCard.length,nHandCardCount:this.aHand.length,nDrawNormal:this.nDrawNormal,nSpecialMeterFillCount,nHandScore:await this.handCardCounts(), eReason:'drawCardPenalty'});
+    oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[], nCardCount: aCard.length,nHandCardCount:this.aHand.length,eReason:'drawCardPenalty' },[this.iPlayerId]);
     // this.passTurn(oTable);
   }
 
