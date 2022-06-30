@@ -66,12 +66,11 @@ class Player extends service_1.default {
             }
             aPromises.push(this.update({ aHand: this.aHand, nGraceTime: this.nGraceTime }));
             yield Promise.all(aPromises);
-            oTable.emit('resDiscardPile', { iPlayerId: this.iPlayerId, oCard: oCardToDiscard, nHandCardCount: this.aHand.length });
+            oTable.emit('resDiscardPile', { iPlayerId: this.iPlayerId, oCard: oCardToDiscard, nHandCardCount: this.aHand.length, nStackedCards: oTable.toJSON().nDrawCount });
             if (iSkipPlayer)
                 oTable.emit('resUserSkip', { iPlayerId: iSkipPlayer });
             if (bIsReverseCard)
                 oTable.emit('resReverseTurn', { bTurnClockwise: oTable.toJSON().bTurnClockwise });
-            oTable.emit('resNextCardDetail', { eColor: oTable.toJSON().eNextCardColor, nDrawCount: oTable.toJSON().nDrawCount });
             if (oCardToDiscard.nLabel > 12) {
                 this.wildCardColorTimer(oTable);
             }
