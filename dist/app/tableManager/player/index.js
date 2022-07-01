@@ -70,7 +70,7 @@ class Player extends service_1.default {
             aPromises.push(this.update({ aHand: this.aHand, nGraceTime: this.nGraceTime }));
             yield Promise.all(aPromises);
             if (this.aHand.length === 1 && this.bUnoDeclared)
-                oTable.emit('resUnoDeclare', { iPlayerId: this.iPlayerId }, [this.iPlayerId]);
+                oTable.emit('resUnoDeclare', { iPlayerId: this.iPlayerId });
             oTable.emit('resDiscardPile', { iPlayerId: this.iPlayerId, oCard: oCardToDiscard, nHandCardCount: this.aHand.length, nStackedCards: oTable.toJSON().nDrawCount });
             if (iSkipPlayer)
                 oTable.emit('resUserSkip', { iPlayerId: iSkipPlayer });

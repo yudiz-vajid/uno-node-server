@@ -88,7 +88,7 @@ class Player extends Service {
     aPromises.push(this.update({ aHand: this.aHand, nGraceTime: this.nGraceTime }));
     await Promise.all(aPromises);
     
-    if(this.aHand.length===1 && this.bUnoDeclared)oTable.emit('resUnoDeclare', { iPlayerId: this.iPlayerId},[this.iPlayerId]);
+    if(this.aHand.length===1 && this.bUnoDeclared)oTable.emit('resUnoDeclare', { iPlayerId: this.iPlayerId});
     oTable.emit('resDiscardPile', { iPlayerId: this.iPlayerId, oCard: oCardToDiscard,nHandCardCount:this.aHand.length,nStackedCards:oTable.toJSON().nDrawCount });
     if(iSkipPlayer)oTable.emit('resUserSkip', { iPlayerId: iSkipPlayer});
     if(bIsReverseCard)oTable.emit('resReverseTurn', { bTurnClockwise: oTable.toJSON().bTurnClockwise});
