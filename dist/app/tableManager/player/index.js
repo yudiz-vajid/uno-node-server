@@ -69,6 +69,8 @@ class Player extends service_1.default {
             }
             aPromises.push(this.update({ aHand: this.aHand, nGraceTime: this.nGraceTime }));
             yield Promise.all(aPromises);
+            if (this.aHand.length === 1 && this.bUnoDeclared)
+                oTable.emit('resUnoDeclare', { iPlayerId: this.iPlayerId }, [this.iPlayerId]);
             oTable.emit('resDiscardPile', { iPlayerId: this.iPlayerId, oCard: oCardToDiscard, nHandCardCount: this.aHand.length, nStackedCards: oTable.toJSON().nDrawCount });
             if (iSkipPlayer)
                 oTable.emit('resUserSkip', { iPlayerId: iSkipPlayer });
@@ -167,14 +169,14 @@ class Player extends service_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             log.verbose(`${_.now()} event: decalreUno, player: ${this.iPlayerId}`);
             const eligibleUno = this.aHand.length === 2;
-            if (!eligibleUno) {
+            let playableCards = yield this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
+            if (!eligibleUno && playableCards.length) {
                 callback({ oData: {}, status: util_1.response.WRONG_UNO });
                 return (_a = (log.silly(`${_.now()} ${this.iPlayerId} has not valid uno.`) && null)) !== null && _a !== void 0 ? _a : false;
             }
             else {
                 yield this.update({ 'bUnoDeclared': true });
                 callback({ oData: {}, status: util_1.response.SUCCESS });
-                oTable.emit('resUnoDeclare', { iPlayerId: this.iPlayerId }, [this.iPlayerId]);
             }
         });
     }

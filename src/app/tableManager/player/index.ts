@@ -88,7 +88,7 @@ class Player extends Service {
     aPromises.push(this.update({ aHand: this.aHand, nGraceTime: this.nGraceTime }));
     await Promise.all(aPromises);
     
-    
+    if(this.aHand.length===1 && this.bUnoDeclared)oTable.emit('resUnoDeclare', { iPlayerId: this.iPlayerId},[this.iPlayerId]);
     oTable.emit('resDiscardPile', { iPlayerId: this.iPlayerId, oCard: oCardToDiscard,nHandCardCount:this.aHand.length,nStackedCards:oTable.toJSON().nDrawCount });
     if(iSkipPlayer)oTable.emit('resUserSkip', { iPlayerId: iSkipPlayer});
     if(bIsReverseCard)oTable.emit('resReverseTurn', { bTurnClockwise: oTable.toJSON().bTurnClockwise});
@@ -223,13 +223,14 @@ class Player extends Service {
   public async decalreUno(oData: any, oTable: Table, callback: ICallback) {
     log.verbose(`${_.now()} event: decalreUno, player: ${this.iPlayerId}`);
     const eligibleUno=this.aHand.length===2
-    if(!eligibleUno){
+    let playableCards= await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor)
+    if(!eligibleUno && playableCards.length){
       callback({ oData: {}, status: response.WRONG_UNO });
       return (log.silly(`${_.now()} ${this.iPlayerId} has not valid uno.`) && null) ?? false;
     }else{
       await this.update({'bUnoDeclared':true})
       callback({ oData: {}, status: response.SUCCESS });
-      oTable.emit('resUnoDeclare', { iPlayerId: this.iPlayerId},[this.iPlayerId]);
+      // oTable.emit('resUnoDeclare', { iPlayerId: this.iPlayerId},[this.iPlayerId]);
     }
   }
 
