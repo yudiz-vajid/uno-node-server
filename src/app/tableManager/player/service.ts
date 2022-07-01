@@ -201,6 +201,24 @@ class Service {
     ]); 
   }
 
+  public async assignUnoMissPenalty(oTable:Table) {
+    log.verbose(`${_.now()} event: autoPickCard, player: ${this.iPlayerId}`);
+    const aCard:any =[];
+    const { nSpecialMeterFillCount } = oTable.toJSON().oSettings;
+    for (let i = 0; i < 2; i++) {
+      const oCard:any = this.bSpecialMeterFull ? oTable.drawCard('special', 1) : oTable.drawCard('normal', 1);      
+      this.nDrawNormal = this.nDrawNormal === nSpecialMeterFillCount ? 0 : this.nDrawNormal + 1;
+      this.bSpecialMeterFull = this.nDrawNormal === nSpecialMeterFillCount;
+      aCard.push(...oCard)
+    }
+    await Promise.all([
+      oTable.updateDrawPile(),
+      this.update({ aHand: [...this.aHand, ...aCard] }),
+    ]); 
+    this.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard, nCardCount: 2,nDrawNormal:this.nDrawNormal,nSpecialMeterFillCount:oTable.toJSON().oSettings.nSpecialMeterFillCount,nHandCardCount:this.aHand.length,nHandScore:await this.handCardCounts(),eReason:'unoMissPenalty' });
+    oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[], nCardCount: 2,nHandCardCount:this.aHand.length,eReason:'unoMissPenalty' },[this.iPlayerId]);
+  }
+
   /**
    * check if given card is playable or not NOTE :- just for single card only.
    */

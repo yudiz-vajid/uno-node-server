@@ -19,7 +19,7 @@ class Player extends service_1.default {
         var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function* () {
             log.verbose(`event: discardCard, player: ${this.iPlayerId}, iCardId: ${oData.iCardId}`);
-            const nCardToDiscardIndex = this.aHand.findIndex(card => card.iCardId === oData.iCardId);
+            let nCardToDiscardIndex = this.aHand.findIndex(card => card.iCardId === oData.iCardId);
             if (nCardToDiscardIndex === -1) {
                 callback({ oData: {}, status: util_1.response.CARD_NOT_IN_HAND });
                 return (_a = (log.silly(`no card found for iCardId: ${oData.iCardId}`) && null)) !== null && _a !== void 0 ? _a : false;
@@ -28,6 +28,9 @@ class Player extends service_1.default {
                 callback({ oData: {}, status: util_1.response.EMPTY_HAND });
                 return (_b = (log.silly(`no cards in hand `) && null)) !== null && _b !== void 0 ? _b : false;
             }
+            if (this.aHand.length === 2 && !this.bUnoDeclared)
+                yield this.assignUnoMissPenalty(oTable);
+            nCardToDiscardIndex = this.aHand.findIndex(card => card.iCardId === oData.iCardId);
             const [oCardToDiscard] = this.aHand.splice(nCardToDiscardIndex, 1);
             if (!oCardToDiscard) {
                 callback({ oData: {}, status: util_1.response.SERVER_ERROR });

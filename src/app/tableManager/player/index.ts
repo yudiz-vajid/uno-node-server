@@ -26,7 +26,7 @@ class Player extends Service {
   public async discardCard(oData: { iCardId: string; eColor?: Omit<ICard['eColor'], 'black'> }, oTable: Table, callback: ICallback) {
     log.verbose(`event: discardCard, player: ${this.iPlayerId}, iCardId: ${oData.iCardId}`);
 
-    const nCardToDiscardIndex = this.aHand.findIndex(card => card.iCardId === oData.iCardId); // - return index if found else -1
+    let nCardToDiscardIndex = this.aHand.findIndex(card => card.iCardId === oData.iCardId); // - return index if found else -1
 
     if (nCardToDiscardIndex === -1) {
       callback({ oData: {}, status: response.CARD_NOT_IN_HAND });
@@ -36,7 +36,8 @@ class Player extends Service {
       callback({ oData: {}, status: response.EMPTY_HAND });
       return (log.silly(`no cards in hand `) && null) ?? false;
     }
-
+    if(this.aHand.length===2&&!this.bUnoDeclared) await this.assignUnoMissPenalty(oTable)
+    nCardToDiscardIndex = this.aHand.findIndex(card => card.iCardId === oData.iCardId); // - new index
     const [oCardToDiscard] = this.aHand.splice(nCardToDiscardIndex, 1); // - remove specified card from hand when not found remove last card from hand
     if (!oCardToDiscard) {
       callback({ oData: {}, status: response.SERVER_ERROR });
