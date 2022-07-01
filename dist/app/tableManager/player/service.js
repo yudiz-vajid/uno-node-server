@@ -160,12 +160,16 @@ class Service {
         return __awaiter(this, void 0, void 0, function* () {
             log.verbose(`${_.now()} event: autoPickCard, player: ${this.iPlayerId}`);
             const aCard = yield oTable.drawCard('normal', 1);
-            this.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [aCard[0]], nCardCount: 1, nDrawNormal: this.nDrawNormal, nSpecialMeterFillCount: oTable.toJSON().oSettings.nSpecialMeterFillCount, nHandCardCount: this.aHand.length + 1, nHandScore: yield this.handCardCounts(), eReason: 'autoDraw' });
-            oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [], nCardCount: 1, nHandCardCount: this.aHand.length + 1, eReason: 'autoDraw' }, [this.iPlayerId]);
+            let aPromise = [];
+            if (this.bUnoDeclared && this.aHand.length + 1 > 2)
+                aPromise.push(this.update({ bUnoDeclared: false }));
             yield Promise.all([
                 oTable.updateDrawPile(),
+                ...aPromise,
                 this.update({ aHand: [...this.aHand, ...aCard] }),
             ]);
+            this.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [aCard[0]], nCardCount: 1, nDrawNormal: this.nDrawNormal, nSpecialMeterFillCount: oTable.toJSON().oSettings.nSpecialMeterFillCount, nHandCardCount: this.aHand.length, nHandScore: yield this.handCardCounts(), eReason: 'autoDraw' });
+            oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [], nCardCount: 1, nHandCardCount: this.aHand.length, eReason: 'autoDraw' }, [this.iPlayerId]);
         });
     }
     assignUnoMissPenalty(oTable) {
@@ -233,7 +237,7 @@ class Service {
                 aCard.push(...oCard);
             }
             yield oTable.updateDrawPile();
-            yield this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard] });
+            yield this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard], bUnoDeclared: false });
             yield oTable.update({ iDrawPenltyPlayerId: '', nDrawCount: 0 });
             this.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard, nCardCount: aCard.length, nHandCardCount: this.aHand.length, nDrawNormal: this.nDrawNormal, nSpecialMeterFillCount, nHandScore: yield this.handCardCounts(), eReason: 'drawCardPenalty' });
             oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [], nCardCount: aCard.length, nHandCardCount: this.aHand.length, eReason: 'drawCardPenalty' }, [this.iPlayerId]);

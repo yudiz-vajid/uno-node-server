@@ -102,7 +102,11 @@ class Player extends service_1.default {
             callback({ oData: {}, status: util_1.response.SUCCESS });
             this.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [aCard[0]], nDrawNormal: this.nDrawNormal, nSpecialMeterFillCount, bIsPlayable: isPlayableCard, nHandScore: yield this.handCardCounts(), eReason: 'normalDraw' });
             oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [], nCardCount: 1, nHandCardCount: this.aHand.length + 1, eReason: 'normalDraw' }, [this.iPlayerId]);
+            let aPromise = [];
+            if (this.bUnoDeclared && this.aHand.length + 1 > 2)
+                aPromise.push(this.update({ bUnoDeclared: false }));
             yield Promise.all([
+                ...aPromise,
                 oTable.updateDrawPile(),
                 this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard] }),
             ]);
