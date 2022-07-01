@@ -23,6 +23,7 @@ class Service {
         this.nDrawNormal = oData.nDrawNormal;
         this.nReconnectionAttempt = oData.nReconnectionAttempt;
         this.bSpecialMeterFull = oData.bSpecialMeterFull;
+        this.bUnoDeclared = oData.bUnoDeclared;
         this.bNextTurnSkip = oData.bNextTurnSkip;
         this.aHand = oData.aHand;
         this.eState = oData.eState;
@@ -69,6 +70,10 @@ class Service {
                             break;
                         case 'bNextTurnSkip':
                             this.bNextTurnSkip = v;
+                            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v));
+                            break;
+                        case 'bUnoDeclared':
+                            this.bUnoDeclared = v;
                             aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v));
                             break;
                         case 'aHand':

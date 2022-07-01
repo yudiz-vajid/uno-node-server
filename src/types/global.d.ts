@@ -63,6 +63,7 @@ export declare interface IPlayer {
   nDrawNormal: number;
   nReconnectionAttempt: number;
   bSpecialMeterFull: boolean;
+  bUnoDeclared: boolean;
   bNextTurnSkip: boolean;
   aHand: ICard[];
   eState: 'waiting' | 'disconnected' | 'playing' | 'left';

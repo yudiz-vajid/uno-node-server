@@ -25,7 +25,10 @@ class Service {
   protected nReconnectionAttempt: IPlayer['nReconnectionAttempt'];
 
   protected bSpecialMeterFull: IPlayer['bSpecialMeterFull'];
+
   protected bNextTurnSkip: IPlayer['bNextTurnSkip'];
+  
+  protected bUnoDeclared: IPlayer['bUnoDeclared'];
 
   protected aHand: IPlayer['aHand'];
 
@@ -46,6 +49,7 @@ class Service {
     this.nDrawNormal = oData.nDrawNormal;
     this.nReconnectionAttempt = oData.nReconnectionAttempt;
     this.bSpecialMeterFull = oData.bSpecialMeterFull;
+    this.bUnoDeclared = oData.bUnoDeclared;
     this.bNextTurnSkip = oData.bNextTurnSkip;
     this.aHand = oData.aHand;
     this.eState = oData.eState;
@@ -53,7 +57,7 @@ class Service {
   }
 
   // prettier-ignore
-  public async update(oData: Partial<Pick<IPlayer, 'sSocketId' | 'nScore' | 'nUnoTime' | 'nGraceTime' | 'nMissedTurn' | 'nDrawNormal' | 'nReconnectionAttempt' | 'bSpecialMeterFull'|'bNextTurnSkip' | 'aHand' | 'eState'>>) {
+  public async update(oData: Partial<Pick<IPlayer, 'sSocketId' | 'nScore' | 'nUnoTime' | 'nGraceTime' | 'nMissedTurn' | 'nDrawNormal' | 'nReconnectionAttempt' | 'bSpecialMeterFull'|'bNextTurnSkip' |'bUnoDeclared'| 'aHand' | 'eState'>>) {
     try {
       const aPromise: Array<Promise<unknown>> = [];
       const sPlayerKey = _.getPlayerKey(this.iBattleId, this.iPlayerId);
@@ -93,6 +97,10 @@ class Service {
             break;
           case 'bNextTurnSkip':
             this.bNextTurnSkip = v as IPlayer['bNextTurnSkip'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'bUnoDeclared':
+            this.bUnoDeclared = v as IPlayer['bUnoDeclared'];
             aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
             break;
           case 'aHand':

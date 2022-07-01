@@ -31,7 +31,7 @@ class TableManager {
 
     const oPlayer = oTable.getPlayer(iPlayerId);
 
-    if (['assignTurnTimerExpired', 'assignGraceTimerExpired', 'drawCard', 'discardCard'].includes(sTaskName)) {
+    if (['assignTurnTimerExpired', 'assignGraceTimerExpired', 'drawCard', 'discardCard','decalreUno'].includes(sTaskName)) {
       if (!oPlayer) {
         callback({ oData: {}, status: response.PLAYER_NOT_FOUND });
         return (log.warn(`${_.now()} oPlayer not found in table. { iBattleId : ${iBattleId}, iPlayerId : ${iPlayerId} }`) && null) ?? false;
@@ -40,7 +40,7 @@ class TableManager {
         callback({ oData: {}, status: response.TABLE_NOT_RUNNING });
         return (log.warn(`${_.now()} Table is not in running state. { iBattleId : ${iBattleId}, eState : ${oTable.toJSON().eState} }`) && null) ?? false;
       }
-      if (!oTable.hasValidTurn(iPlayerId) && ['drawCard', 'discardCard'].includes(sTaskName)) {
+      if (!oTable.hasValidTurn(iPlayerId) && ['drawCard', 'discardCard','decalreUno'].includes(sTaskName)) {
         callback({ oData: {}, status: response.NOT_YOUR_TURN });
         return (log.silly(`${_.now()} ${iPlayerId} has not valid turn.`) && null) ?? false;
       }
@@ -81,6 +81,10 @@ class TableManager {
 
       case 'setWildCardColor':
         oPlayer?.setWildCardColor(oData, oTable, callback);
+        return true;
+
+      case 'decalreUno':
+        oPlayer?.decalreUno(oData, oTable, callback);
         return true;
 
       case 'discardCard':

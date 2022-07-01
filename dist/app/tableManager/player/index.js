@@ -159,5 +159,21 @@ class Player extends service_1.default {
             return true;
         });
     }
+    decalreUno(oData, oTable, callback) {
+        var _a;
+        return __awaiter(this, void 0, void 0, function* () {
+            log.verbose(`${_.now()} event: decalreUno, player: ${this.iPlayerId}`);
+            const eligibleUno = this.aHand.length === 2;
+            if (!eligibleUno) {
+                callback({ oData: {}, status: util_1.response.WRONG_UNO });
+                return (_a = (log.silly(`${_.now()} ${this.iPlayerId} has not valid uno.`) && null)) !== null && _a !== void 0 ? _a : false;
+            }
+            else {
+                yield this.update({ 'bUnoDeclared': true });
+                callback({ oData: {}, status: util_1.response.SUCCESS });
+                oTable.emit('resUnoDeclare', { iPlayerId: this.iPlayerId }, [this.iPlayerId]);
+            }
+        });
+    }
 }
 exports.default = Player;

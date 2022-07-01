@@ -15,7 +15,7 @@ class Channel {
         this.iPlayerId = iPlayerId;
     }
     onEvent(body, ack) {
-        var _a, _b, _c, _d;
+        var _a, _b, _c, _d, _e;
         return __awaiter(this, void 0, void 0, function* () {
             if (process.env.NODE_ENV === 'dev' && typeof body === 'object')
                 body = _.stringify(body);
@@ -36,6 +36,9 @@ class Channel {
                         break;
                     case 'reqSetWildCardColor':
                         emitter.emit('channelEvent', { sTaskName: 'setWildCardColor', iBattleId: this.iBattleId, iPlayerId: (_d = this.iPlayerId) !== null && _d !== void 0 ? _d : '', oData }, ack);
+                        break;
+                    case 'reqUno':
+                        emitter.emit('channelEvent', { sTaskName: 'decalreUno', iBattleId: this.iBattleId, iPlayerId: (_e = this.iPlayerId) !== null && _e !== void 0 ? _e : '', oData }, ack);
                         break;
                     default:
                         return false;

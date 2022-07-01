@@ -219,6 +219,19 @@ class Player extends Service {
     return true;
   }
 
+  public async decalreUno(oData: any, oTable: Table, callback: ICallback) {
+    log.verbose(`${_.now()} event: decalreUno, player: ${this.iPlayerId}`);
+    const eligibleUno=this.aHand.length===2
+    if(!eligibleUno){
+      callback({ oData: {}, status: response.WRONG_UNO });
+      return (log.silly(`${_.now()} ${this.iPlayerId} has not valid uno.`) && null) ?? false;
+    }else{
+      await this.update({'bUnoDeclared':true})
+      callback({ oData: {}, status: response.SUCCESS });
+      oTable.emit('resUnoDeclare', { iPlayerId: this.iPlayerId},[this.iPlayerId]);
+    }
+  }
+
 }
 
 export default Player;

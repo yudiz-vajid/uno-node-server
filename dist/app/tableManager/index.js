@@ -45,7 +45,7 @@ class TableManager {
             if (!oTable)
                 return false;
             const oPlayer = oTable.getPlayer(iPlayerId);
-            if (['assignTurnTimerExpired', 'assignGraceTimerExpired', 'drawCard', 'discardCard'].includes(sTaskName)) {
+            if (['assignTurnTimerExpired', 'assignGraceTimerExpired', 'drawCard', 'discardCard', 'decalreUno'].includes(sTaskName)) {
                 if (!oPlayer) {
                     callback({ oData: {}, status: util_1.response.PLAYER_NOT_FOUND });
                     return (_a = (log.warn(`${_.now()} oPlayer not found in table. { iBattleId : ${iBattleId}, iPlayerId : ${iPlayerId} }`) && null)) !== null && _a !== void 0 ? _a : false;
@@ -54,7 +54,7 @@ class TableManager {
                     callback({ oData: {}, status: util_1.response.TABLE_NOT_RUNNING });
                     return (_b = (log.warn(`${_.now()} Table is not in running state. { iBattleId : ${iBattleId}, eState : ${oTable.toJSON().eState} }`) && null)) !== null && _b !== void 0 ? _b : false;
                 }
-                if (!oTable.hasValidTurn(iPlayerId) && ['drawCard', 'discardCard'].includes(sTaskName)) {
+                if (!oTable.hasValidTurn(iPlayerId) && ['drawCard', 'discardCard', 'decalreUno'].includes(sTaskName)) {
                     callback({ oData: {}, status: util_1.response.NOT_YOUR_TURN });
                     return (_c = (log.silly(`${_.now()} ${iPlayerId} has not valid turn.`) && null)) !== null && _c !== void 0 ? _c : false;
                 }
@@ -86,6 +86,9 @@ class TableManager {
                     return true;
                 case 'setWildCardColor':
                     oPlayer === null || oPlayer === void 0 ? void 0 : oPlayer.setWildCardColor(oData, oTable, callback);
+                    return true;
+                case 'decalreUno':
+                    oPlayer === null || oPlayer === void 0 ? void 0 : oPlayer.decalreUno(oData, oTable, callback);
                     return true;
                 case 'discardCard':
                     oPlayer === null || oPlayer === void 0 ? void 0 : oPlayer.discardCard(oData, oTable, callback);

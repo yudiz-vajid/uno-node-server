@@ -59,6 +59,7 @@ class PlayerSocket {
                         nReconnectionAttempt: 0,
                         bSpecialMeterFull: false,
                         bNextTurnSkip: false,
+                        bUnoDeclared: false,
                         aHand: [],
                         eState: 'waiting',
                         dCreatedAt: new Date(),
