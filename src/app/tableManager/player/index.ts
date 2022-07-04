@@ -226,13 +226,13 @@ class Player extends Service {
     log.verbose(`${_.now()} event: decalreUno, player: ${this.iPlayerId}`);
     const eligibleUno=this.aHand.length===2
     let playableCards= await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor)
-    if(!eligibleUno && playableCards.length){
-      callback({ oData: {}, status: response.WRONG_UNO });
-      return (log.silly(`${_.now()} ${this.iPlayerId} has not valid uno.`) && null) ?? false;
-    }else{
+    if(eligibleUno && playableCards.length){
+      // oTable.emit('resUnoDeclare', { iPlayerId: this.iPlayerId},[this.iPlayerId]);      
       await this.update({'bUnoDeclared':true})
       callback({ oData: {}, status: response.SUCCESS });
-      // oTable.emit('resUnoDeclare', { iPlayerId: this.iPlayerId},[this.iPlayerId]);
+    }else{
+      callback({ oData: {}, status: response.WRONG_UNO });
+      return (log.silly(`${_.now()} ${this.iPlayerId} has not valid uno.`) && null) ?? false;
     }
   }
 

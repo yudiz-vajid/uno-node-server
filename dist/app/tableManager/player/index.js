@@ -174,13 +174,13 @@ class Player extends service_1.default {
             log.verbose(`${_.now()} event: decalreUno, player: ${this.iPlayerId}`);
             const eligibleUno = this.aHand.length === 2;
             let playableCards = yield this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
-            if (!eligibleUno && playableCards.length) {
-                callback({ oData: {}, status: util_1.response.WRONG_UNO });
-                return (_a = (log.silly(`${_.now()} ${this.iPlayerId} has not valid uno.`) && null)) !== null && _a !== void 0 ? _a : false;
-            }
-            else {
+            if (eligibleUno && playableCards.length) {
                 yield this.update({ 'bUnoDeclared': true });
                 callback({ oData: {}, status: util_1.response.SUCCESS });
+            }
+            else {
+                callback({ oData: {}, status: util_1.response.WRONG_UNO });
+                return (_a = (log.silly(`${_.now()} ${this.iPlayerId} has not valid uno.`) && null)) !== null && _a !== void 0 ? _a : false;
             }
         });
     }
