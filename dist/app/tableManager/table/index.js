@@ -17,6 +17,7 @@ class Table extends service_1.default {
     distributeCard() {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
+            console.log('distributeCard called...');
             let { nStartingNormalCardCount, nStartingActionCardCount, nStartingSpecialCardCount } = this.oSettings;
             nStartingActionCardCount = nStartingActionCardCount || _.getRandomNumber(2, 3);
             const nStartingWildCardCount = nStartingSpecialCardCount - nStartingActionCardCount;
@@ -47,7 +48,7 @@ class Table extends service_1.default {
                 this.updateDiscardPile(this.aDiscardPile),
                 this.update({ eState: 'running' }),
             ]);
-            yield _.delay(2100);
+            yield _.delay(500 * (1 + this.oSettings.nStartingNormalCardCount + this.oSettings.nStartingSpecialCardCount));
             this.emit('resDiscardPileTopCard', { oDiscardPileTopCard: this.getDiscardPileTopCard() });
             this.emit('resInitMasterTimer', { ttl: this.oSettings.nTotalGameTime, timestamp: Date.now() });
             this.setSchedular('masterTimerExpired', '', this.oSettings.nTotalGameTime);
@@ -66,7 +67,7 @@ class Table extends service_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             log.verbose('gameInitializeTimerExpired, game should start now');
             this.emit('resGameInitializeTimerExpired', {});
-            this.setSchedular('distributeCard', '', 0);
+            this.setSchedular('distributeCard', '', 100);
             return true;
         });
     }

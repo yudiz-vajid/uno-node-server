@@ -4,6 +4,8 @@ import type Player from '../player';
 class Table extends Service {
   public async distributeCard() {
     // eslint-disable-next-line prefer-const
+    console.log('distributeCard called...');
+    
     let { nStartingNormalCardCount, nStartingActionCardCount, nStartingSpecialCardCount } = this.oSettings;
     nStartingActionCardCount = nStartingActionCardCount || _.getRandomNumber(2, 3);
     const nStartingWildCardCount = nStartingSpecialCardCount - nStartingActionCardCount;
@@ -34,7 +36,7 @@ class Table extends Service {
       //
     ]);
 
-    await _.delay(2100); // TODO: (0.3 * 7cards)
+    await _.delay(500*(1+this.oSettings.nStartingNormalCardCount+this.oSettings.nStartingSpecialCardCount)); // TODO: (0.3 * 7cards)
     this.emit('resDiscardPileTopCard', { oDiscardPileTopCard: this.getDiscardPileTopCard() });
     this.emit('resInitMasterTimer', { ttl: this.oSettings.nTotalGameTime, timestamp: Date.now() });
     this.setSchedular('masterTimerExpired', '', this.oSettings.nTotalGameTime); // -  game lifetime second
@@ -52,7 +54,7 @@ class Table extends Service {
   public async gameInitializeTimerExpired() {
     log.verbose('gameInitializeTimerExpired, game should start now');
     this.emit('resGameInitializeTimerExpired', {});
-    this.setSchedular('distributeCard', '', 0); // TODO: replace with nAnimationDelay
+    this.setSchedular('distributeCard', '',100); 
     return true;
   }
 
