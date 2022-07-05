@@ -202,7 +202,7 @@ class Service {
   
     this.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[aCard[0]], nCardCount: 1,nDrawNormal:this.nDrawNormal,nSpecialMeterFillCount:oTable.toJSON().oSettings.nSpecialMeterFillCount,nHandCardCount:this.aHand.length,nHandScore:await this.handCardCounts(),eReason:'autoDraw' });
     oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[], nCardCount: 1,nHandCardCount:this.aHand.length,eReason:'autoDraw' },[this.iPlayerId]);
-  
+    await _.delay(300)
   }
 
   public async assignUnoMissPenalty(oTable:Table) {
@@ -221,6 +221,7 @@ class Service {
     ]); 
     this.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard, nCardCount: 2,nDrawNormal:this.nDrawNormal,nSpecialMeterFillCount:oTable.toJSON().oSettings.nSpecialMeterFillCount,nHandCardCount:this.aHand.length,nHandScore:await this.handCardCounts(),eReason:'unoMissPenalty' });
     oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[], nCardCount: 2,nHandCardCount:this.aHand.length,eReason:'unoMissPenalty' },[this.iPlayerId]);
+    await _.delay(300*2) // draw card animation.per card 300 ml
   }
 
   /**
@@ -276,6 +277,7 @@ class Service {
     await oTable.update({ iDrawPenltyPlayerId:'' ,nDrawCount:0});
     this.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard, nCardCount: aCard.length,nHandCardCount:this.aHand.length,nDrawNormal:this.nDrawNormal,nSpecialMeterFillCount,nHandScore:await this.handCardCounts(), eReason:'drawCardPenalty'});
     oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[], nCardCount: aCard.length,nHandCardCount:this.aHand.length,eReason:'drawCardPenalty' },[this.iPlayerId]);
+    await _.delay(300*aCard.length) // draw card animation.
     // this.passTurn(oTable);
   }
 
@@ -283,6 +285,7 @@ class Service {
 
   // prettier-ignore
   public async takeTurn(oTable: Table) {
+    await _.delay(600)
     console.log('takeTurn called for :: ',this.iPlayerId);
     await oTable.update({ iPlayerTurn: this.iPlayerId });
     let aStackingCardId:any=[]
@@ -331,15 +334,7 @@ class Service {
   public async assignGraceTimerExpired(oTable: Table) {
     // log.verbose('assignGraceTimerExpired called...');
     await this.update({ nMissedTurn: this.nMissedTurn + 1, nGraceTime: 0 });
-    /**
-     * TODO : kick process for player if missed turn is more than 3 times.
-     * Auto collect card if user has no playable cards in hand.
-     */
     const aPlayableCardId = await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
-    // if(oTable.toJSON().oSettings.bMustCollectOnMissTurn){
-      // const aPlayableCardId = await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
-    //   if(!aPlayableCardId.length)this.autoPickCard(oTable)
-    // }
     if(oTable.toJSON().iDrawPenltyPlayerId===this.iPlayerId && (!aPlayableCardId.length||aPlayableCardId.length&&oTable.toJSON().oSettings.bMustCollectOnMissTurn)){
       await this.assignDrawPenalty(oTable)
     }
@@ -347,6 +342,9 @@ class Service {
     else if(aPlayableCardId.length&&oTable.toJSON().oSettings.bMustCollectOnMissTurn)this.autoPickCard(oTable)
 
     oTable.emit('resTurnMissed', { iPlayerId: this.iPlayerId,nMissedTurn:this.nMissedTurn});
+    /**
+     * TODO : kick process for player if missed turn is more than 3 times.
+     */
     return this.passTurn(oTable);
   }
 

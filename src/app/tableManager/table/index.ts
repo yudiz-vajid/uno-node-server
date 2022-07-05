@@ -34,7 +34,7 @@ class Table extends Service {
       //
     ]);
 
-    await _.delay(5000); // TODO: get from client
+    await _.delay(2100); // TODO: (0.3 * 7cards)
     this.emit('resDiscardPileTopCard', { oDiscardPileTopCard: this.getDiscardPileTopCard() });
     this.emit('resInitMasterTimer', { ttl: this.oSettings.nTotalGameTime, timestamp: Date.now() });
     this.setSchedular('masterTimerExpired', '', this.oSettings.nTotalGameTime); // -  game lifetime second
@@ -52,7 +52,7 @@ class Table extends Service {
   public async gameInitializeTimerExpired() {
     log.verbose('gameInitializeTimerExpired, game should start now');
     this.emit('resGameInitializeTimerExpired', {});
-    this.setSchedular('distributeCard', '', 2000); // TODO: replace with nAnimationDelay
+    this.setSchedular('distributeCard', '', 0); // TODO: replace with nAnimationDelay
     return true;
   }
 

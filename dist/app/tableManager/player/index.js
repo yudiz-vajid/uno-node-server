@@ -72,10 +72,16 @@ class Player extends service_1.default {
             if (this.aHand.length === 1 && this.bUnoDeclared)
                 oTable.emit('resUnoDeclare', { iPlayerId: this.iPlayerId });
             oTable.emit('resDiscardPile', { iPlayerId: this.iPlayerId, oCard: oCardToDiscard, nHandCardCount: this.aHand.length, nStackedCards: oTable.toJSON().nDrawCount });
-            if (iSkipPlayer)
+            if (this.aHand.length === 1 && this.bUnoDeclared)
+                yield _.delay(1000);
+            if (iSkipPlayer) {
                 oTable.emit('resUserSkip', { iPlayerId: iSkipPlayer });
-            if (bIsReverseCard)
+                yield _.delay(2000);
+            }
+            if (bIsReverseCard) {
                 oTable.emit('resReverseTurn', { bTurnClockwise: oTable.toJSON().bTurnClockwise });
+                yield _.delay(1500);
+            }
             if (oCardToDiscard.nLabel > 12) {
                 this.wildCardColorTimer(oTable);
             }
@@ -102,6 +108,7 @@ class Player extends service_1.default {
             callback({ oData: {}, status: util_1.response.SUCCESS });
             this.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [aCard[0]], nDrawNormal: this.nDrawNormal, nSpecialMeterFillCount, bIsPlayable: isPlayableCard, nHandScore: yield this.handCardCounts(), eReason: 'normalDraw' });
             oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [], nCardCount: 1, nHandCardCount: this.aHand.length + 1, eReason: 'normalDraw' }, [this.iPlayerId]);
+            yield _.delay(300);
             let aPromise = [];
             if (this.bUnoDeclared && this.aHand.length + 1 > 2)
                 aPromise.push(this.update({ bUnoDeclared: false }));

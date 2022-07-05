@@ -47,7 +47,7 @@ class Table extends service_1.default {
                 this.updateDiscardPile(this.aDiscardPile),
                 this.update({ eState: 'running' }),
             ]);
-            yield _.delay(5000);
+            yield _.delay(2100);
             this.emit('resDiscardPileTopCard', { oDiscardPileTopCard: this.getDiscardPileTopCard() });
             this.emit('resInitMasterTimer', { ttl: this.oSettings.nTotalGameTime, timestamp: Date.now() });
             this.setSchedular('masterTimerExpired', '', this.oSettings.nTotalGameTime);
@@ -66,7 +66,7 @@ class Table extends service_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             log.verbose('gameInitializeTimerExpired, game should start now');
             this.emit('resGameInitializeTimerExpired', {});
-            this.setSchedular('distributeCard', '', 2000);
+            this.setSchedular('distributeCard', '', 0);
             return true;
         });
     }

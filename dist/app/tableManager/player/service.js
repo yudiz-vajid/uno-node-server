@@ -170,6 +170,7 @@ class Service {
             ]);
             this.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [aCard[0]], nCardCount: 1, nDrawNormal: this.nDrawNormal, nSpecialMeterFillCount: oTable.toJSON().oSettings.nSpecialMeterFillCount, nHandCardCount: this.aHand.length, nHandScore: yield this.handCardCounts(), eReason: 'autoDraw' });
             oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [], nCardCount: 1, nHandCardCount: this.aHand.length, eReason: 'autoDraw' }, [this.iPlayerId]);
+            yield _.delay(300);
         });
     }
     assignUnoMissPenalty(oTable) {
@@ -189,6 +190,7 @@ class Service {
             ]);
             this.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard, nCardCount: 2, nDrawNormal: this.nDrawNormal, nSpecialMeterFillCount: oTable.toJSON().oSettings.nSpecialMeterFillCount, nHandCardCount: this.aHand.length, nHandScore: yield this.handCardCounts(), eReason: 'unoMissPenalty' });
             oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [], nCardCount: 2, nHandCardCount: this.aHand.length, eReason: 'unoMissPenalty' }, [this.iPlayerId]);
+            yield _.delay(300 * 2);
         });
     }
     checkPlayableCard(oDiscardPileTopCard, eNextCardColor, oUserCard) {
@@ -241,10 +243,12 @@ class Service {
             yield oTable.update({ iDrawPenltyPlayerId: '', nDrawCount: 0 });
             this.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard, nCardCount: aCard.length, nHandCardCount: this.aHand.length, nDrawNormal: this.nDrawNormal, nSpecialMeterFillCount, nHandScore: yield this.handCardCounts(), eReason: 'drawCardPenalty' });
             oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [], nCardCount: aCard.length, nHandCardCount: this.aHand.length, eReason: 'drawCardPenalty' }, [this.iPlayerId]);
+            yield _.delay(300 * aCard.length);
         });
     }
     takeTurn(oTable) {
         return __awaiter(this, void 0, void 0, function* () {
+            yield _.delay(600);
             console.log('takeTurn called for :: ', this.iPlayerId);
             yield oTable.update({ iPlayerTurn: this.iPlayerId });
             let aStackingCardId = [];
