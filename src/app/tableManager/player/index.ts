@@ -92,10 +92,12 @@ class Player extends Service {
     oTable.emit('resDiscardPile', { iPlayerId: this.iPlayerId, oCard: oCardToDiscard,nHandCardCount:this.aHand.length,nStackedCards:oTable.toJSON().nDrawCount });
     if(this.aHand.length===1 && this.bUnoDeclared)await _.delay(1000) // uno animation
     if(iSkipPlayer){
+      await _.delay(600)
       oTable.emit('resUserSkip', { iPlayerId: iSkipPlayer});
       await _.delay(2000)
     }
     if(bIsReverseCard){
+      await _.delay(600)
       oTable.emit('resReverseTurn', { bTurnClockwise: oTable.toJSON().bTurnClockwise});
       await _.delay(1500)
     }

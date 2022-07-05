@@ -75,10 +75,12 @@ class Player extends service_1.default {
             if (this.aHand.length === 1 && this.bUnoDeclared)
                 yield _.delay(1000);
             if (iSkipPlayer) {
+                yield _.delay(600);
                 oTable.emit('resUserSkip', { iPlayerId: iSkipPlayer });
                 yield _.delay(2000);
             }
             if (bIsReverseCard) {
+                yield _.delay(600);
                 oTable.emit('resReverseTurn', { bTurnClockwise: oTable.toJSON().bTurnClockwise });
                 yield _.delay(1500);
             }
