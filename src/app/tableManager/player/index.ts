@@ -152,7 +152,8 @@ class Player extends Service {
     oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[], nCardCount: 1,nHandCardCount:this.aHand.length+1,eReason:'normalDraw' },[this.iPlayerId]);
     await _.delay(300) // draw card animation
     let aPromise:any=[]
-    if(this.bUnoDeclared&&this.aHand.length+1>2)aPromise.push(this.update({bUnoDeclared:false}))
+    // if(this.bUnoDeclared&&this.aHand.length+1>2)aPromise.push(this.update({bUnoDeclared:false}))
+    if(this.aHand.length===1&&this.aHand.length+1>=2)aPromise.push(this.update({bUnoDeclared:false}))
     await Promise.all([
       ...aPromise,
       oTable.updateDrawPile(),
