@@ -274,7 +274,7 @@ class Service {
     }
     await oTable.updateDrawPile()
     await this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard],bUnoDeclared:false });
-    await oTable.update({ iDrawPenltyPlayerId:'' ,nDrawCount:0});
+    await oTable.update({ iDrawPenltyPlayerId:"" ,nDrawCount:0});
     this.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard, nCardCount: aCard.length,nHandCardCount:this.aHand.length,nDrawNormal:this.nDrawNormal,nSpecialMeterFillCount,nHandScore:await this.handCardCounts(), eReason:'drawCardPenalty'});
     oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[], nCardCount: aCard.length,nHandCardCount:this.aHand.length,eReason:'drawCardPenalty' },[this.iPlayerId]);
     await _.delay(300*aCard.length) // draw card animation.
