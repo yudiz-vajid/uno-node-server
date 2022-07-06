@@ -241,7 +241,6 @@ class Service {
             yield oTable.updateDrawPile();
             yield this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard], bUnoDeclared: false });
             yield oTable.update({ iDrawPenltyPlayerId: "", nDrawCount: 0 });
-            yield _.delay(300 * aCard.length);
             this.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard, nCardCount: aCard.length, nHandCardCount: this.aHand.length, nDrawNormal: this.nDrawNormal, nSpecialMeterFillCount, nHandScore: yield this.handCardCounts(), eReason: 'drawCardPenalty' });
             oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [], nCardCount: aCard.length, nHandCardCount: this.aHand.length, eReason: 'drawCardPenalty' }, [this.iPlayerId]);
             yield _.delay(300 * aCard.length);
@@ -306,6 +305,8 @@ class Service {
             else if (aPlayableCardId.length && oTable.toJSON().oSettings.bMustCollectOnMissTurn)
                 this.autoPickCard(oTable);
             oTable.emit('resTurnMissed', { iPlayerId: this.iPlayerId, nMissedTurn: this.nMissedTurn });
+            if (this.nMissedTurn >= oTable.toJSON().oSettings.nTotalSkipTurnCount)
+                return yield this.leftPlayer(oTable, 'missTurnLimit');
             return this.passTurn(oTable);
         });
     }
@@ -317,6 +318,16 @@ class Service {
             updatedDiscardPile[updatedDiscardPile.length - 1].eColor = randomColor[0];
             yield oTable.update({ aDiscardPile: updatedDiscardPile });
             oTable.emit('resWildCardColor', { iPlayerId: this.iPlayerId, eColor: randomColor[0] });
+            return this.passTurn(oTable);
+        });
+    }
+    leftPlayer(oTable, reason) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.update({ eState: 'left' });
+            oTable.emit('resPlayerLeft', { iPlayerId: this.iPlayerId });
+            const aPlayingPlayer = oTable.toJSON().aPlayer.filter(p => p.eState === 'playing');
+            if (aPlayingPlayer.length <= 1)
+                return oTable.gameOver(aPlayingPlayer[0]);
             return this.passTurn(oTable);
         });
     }

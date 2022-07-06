@@ -187,6 +187,12 @@ class Service {
             return true;
         });
     }
+    gameOver(oPlayer) {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.emit('resGameOver', {});
+            return true;
+        });
+    }
     updateDrawPile(aDrawPile) {
         return __awaiter(this, void 0, void 0, function* () {
             this.aDrawPile = aDrawPile !== null && aDrawPile !== void 0 ? aDrawPile : this.aDrawPile;

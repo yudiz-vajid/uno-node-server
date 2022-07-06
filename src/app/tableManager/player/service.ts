@@ -275,7 +275,7 @@ class Service {
     await oTable.updateDrawPile()
     await this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard],bUnoDeclared:false });
     await oTable.update({ iDrawPenltyPlayerId:"" ,nDrawCount:0});
-    await _.delay(300*aCard.length)
+    // await _.delay(300*aCard.length)
     this.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard, nCardCount: aCard.length,nHandCardCount:this.aHand.length,nDrawNormal:this.nDrawNormal,nSpecialMeterFillCount,nHandScore:await this.handCardCounts(), eReason:'drawCardPenalty'});
     oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[], nCardCount: aCard.length,nHandCardCount:this.aHand.length,eReason:'drawCardPenalty' },[this.iPlayerId]);
     await _.delay(300*aCard.length) // draw card animation.
@@ -346,6 +346,7 @@ class Service {
     /**
      * TODO : kick process for player if missed turn is more than 3 times.
      */
+    if(this.nMissedTurn>= oTable.toJSON().oSettings.nTotalSkipTurnCount)return await this.leftPlayer(oTable,'missTurnLimit')
     return this.passTurn(oTable);
   }
 
@@ -361,6 +362,16 @@ class Service {
     await oTable.update({aDiscardPile:updatedDiscardPile})
     oTable.emit('resWildCardColor', { iPlayerId: this.iPlayerId,eColor:randomColor[0]});
     return this.passTurn(oTable);
+  }
+
+  public async leftPlayer(oTable: Table,reason:any) {
+  await this.update({eState:'left'})
+  oTable.emit('resPlayerLeft', { iPlayerId: this.iPlayerId});
+  // TODO :- need to check for game finish.
+  const aPlayingPlayer = oTable.toJSON().aPlayer.filter(p => p.eState === 'playing');
+  if(aPlayingPlayer.length<=1)return oTable.gameOver(aPlayingPlayer[0])
+  return this.passTurn(oTable);
+  // oTable.
   }
 
   public async passTurn(oTable: Table) {

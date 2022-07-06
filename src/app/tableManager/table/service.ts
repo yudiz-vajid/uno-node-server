@@ -210,6 +210,12 @@ class Service {
     return true;
   }
 
+  public async gameOver(oPlayer: Player) {
+    // TODO :- Need to handle game over
+    this.emit('resGameOver', {  });
+    return true;
+  }
+
   public async updateDrawPile(aDrawPile?: Table['aDrawPile']) {
     this.aDrawPile = aDrawPile ?? this.aDrawPile;
     await this.update({ aDrawPile: this.aDrawPile });
