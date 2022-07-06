@@ -153,7 +153,7 @@ class Player extends Service {
     await _.delay(300) // draw card animation
     let aPromise:any=[]
     // if(this.bUnoDeclared&&this.aHand.length+1>2)aPromise.push(this.update({bUnoDeclared:false}))
-    if(this.aHand.length===1&&this.aHand.length+1>=2){
+    if(this.aHand.length<=2&&this.aHand.length+1>=2){
       aPromise.push(this.update({bUnoDeclared:false}))
       aPromise.push(oTable.update({iDrawPenltyPlayerId:""}))
     }

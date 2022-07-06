@@ -112,7 +112,7 @@ class Player extends service_1.default {
             oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [], nCardCount: 1, nHandCardCount: this.aHand.length + 1, eReason: 'normalDraw' }, [this.iPlayerId]);
             yield _.delay(300);
             let aPromise = [];
-            if (this.aHand.length === 1 && this.aHand.length + 1 >= 2) {
+            if (this.aHand.length <= 2 && this.aHand.length + 1 >= 2) {
                 aPromise.push(this.update({ bUnoDeclared: false }));
                 aPromise.push(oTable.update({ iDrawPenltyPlayerId: "" }));
             }
