@@ -36,7 +36,6 @@ class Player extends Service {
       callback({ oData: {}, status: response.EMPTY_HAND });
       return (log.silly(`no cards in hand `) && null) ?? false;
     }
-    if(this.aHand.length===2&&!this.bUnoDeclared) await this.assignUnoMissPenalty(oTable)
     nCardToDiscardIndex = this.aHand.findIndex(card => card.iCardId === oData.iCardId); // - new index
     const [oCardToDiscard] = this.aHand.splice(nCardToDiscardIndex, 1); // - remove specified card from hand when not found remove last card from hand
     if (!oCardToDiscard) {
@@ -90,6 +89,10 @@ class Player extends Service {
     
     if(this.aHand.length===1 && this.bUnoDeclared)oTable.emit('resUnoDeclare', { iPlayerId: this.iPlayerId});
     oTable.emit('resDiscardPile', { iPlayerId: this.iPlayerId, oCard: oCardToDiscard,nHandCardCount:this.aHand.length,nStackedCards:oTable.toJSON().nDrawCount });
+    if(this.aHand.length===2&&!this.bUnoDeclared) {
+      await _.delay(600)
+      await this.assignUnoMissPenalty(oTable)
+    }
     if(this.aHand.length===1 && this.bUnoDeclared)await _.delay(1000) // uno animation
     if(iSkipPlayer){
       await _.delay(600)

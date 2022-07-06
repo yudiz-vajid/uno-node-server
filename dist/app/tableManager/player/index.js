@@ -28,8 +28,6 @@ class Player extends service_1.default {
                 callback({ oData: {}, status: util_1.response.EMPTY_HAND });
                 return (_b = (log.silly(`no cards in hand `) && null)) !== null && _b !== void 0 ? _b : false;
             }
-            if (this.aHand.length === 2 && !this.bUnoDeclared)
-                yield this.assignUnoMissPenalty(oTable);
             nCardToDiscardIndex = this.aHand.findIndex(card => card.iCardId === oData.iCardId);
             const [oCardToDiscard] = this.aHand.splice(nCardToDiscardIndex, 1);
             if (!oCardToDiscard) {
@@ -72,6 +70,10 @@ class Player extends service_1.default {
             if (this.aHand.length === 1 && this.bUnoDeclared)
                 oTable.emit('resUnoDeclare', { iPlayerId: this.iPlayerId });
             oTable.emit('resDiscardPile', { iPlayerId: this.iPlayerId, oCard: oCardToDiscard, nHandCardCount: this.aHand.length, nStackedCards: oTable.toJSON().nDrawCount });
+            if (this.aHand.length === 2 && !this.bUnoDeclared) {
+                yield _.delay(600);
+                yield this.assignUnoMissPenalty(oTable);
+            }
             if (this.aHand.length === 1 && this.bUnoDeclared)
                 yield _.delay(1000);
             if (iSkipPlayer) {
