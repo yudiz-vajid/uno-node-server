@@ -1,6 +1,6 @@
 import { IEnvs } from './types/global';
 
-process.env.NODE_ENV = 'stag';
+process.env.NODE_ENV = 'dev';
 process.env.PORT = '3010';
 process.env.HOST = `127.0.0.111/${process.env.NODE_ENV}`;
 
@@ -10,14 +10,14 @@ const oEnv: IEnvs = {
   dev: {
     BASE_URL: `http://${process.env.HOST}:${process.env.PORT}`,
     REDIS_DB: '0',
-    // REDIS_HOST: 'localhost',
-    // REDIS_PORT: '6379',
-    // REDIS_USERNAME: '',
-    // REDIS_PASSWORD: '',
-    REDIS_HOST: 'redis-14966.c264.ap-south-1-1.ec2.cloud.redislabs.com',
-    REDIS_PORT: '14966',
-    REDIS_USERNAME: 'default',
-    REDIS_PASSWORD: 'YYF9EYtDplvfU1RB8icxtGTYooswpTyr',
+    REDIS_HOST: 'localhost',
+    REDIS_PORT: '6379',
+    REDIS_USERNAME: '',
+    REDIS_PASSWORD: '',
+    // REDIS_HOST: 'redis-14966.c264.ap-south-1-1.ec2.cloud.redislabs.com',
+    // REDIS_PORT: '14966',
+    // REDIS_USERNAME: 'default',
+    // REDIS_PASSWORD: 'YYF9EYtDplvfU1RB8icxtGTYooswpTyr',
   },
   stag: {
     BASE_URL: `http://${process.env.HOST}:${process.env.PORT}`,

@@ -23,14 +23,19 @@
     "build2": "tsc --project tsconfig.json && tscpaths -p tsconfig.json -s ./src -o ./dist"
   },
   "dependencies": {
+    "@grpc/grpc-js": "^1.5.3",
     "@socket.io/redis-adapter": "^7.2.0",
     "compression": "^1.7.4",
+    "consul": "^0.40.0",
     "express": "^4.18.1",
+    "grpc-inspect": "^0.6.0",
+    "grpc-promise": "^1.4.0",
     "helmet": "^5.1.0",
     "joi": "^17.6.0",
     "jsonwebtoken": "^8.5.1",
     "morgan": "^1.10.0",
     "nanoid": "^3.3.4",
+    "node-zookeeper-client": "^1.1.1",
     "redis": "^4.1.0",
     "socket.io": "^4.5.1",
     "winston": "^3.7.2"
