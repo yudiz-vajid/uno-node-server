@@ -70,7 +70,7 @@ class Player extends service_1.default {
             if (this.aHand.length === 1 && this.bUnoDeclared)
                 oTable.emit('resUnoDeclare', { iPlayerId: this.iPlayerId });
             oTable.emit('resDiscardPile', { iPlayerId: this.iPlayerId, oCard: oCardToDiscard, nHandCardCount: this.aHand.length, nStackedCards: oTable.toJSON().nDrawCount });
-            if (this.aHand.length === 2 && !this.bUnoDeclared) {
+            if (this.aHand.length === 1 && !this.bUnoDeclared) {
                 yield _.delay(600);
                 yield this.assignUnoMissPenalty(oTable);
             }
