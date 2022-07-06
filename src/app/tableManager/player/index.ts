@@ -104,8 +104,10 @@ class Player extends Service {
     // oTable.emit('resNextCardDetail', { eColor: oTable.toJSON().eNextCardColor, nDrawCount: oTable.toJSON().nDrawCount }); // can be embedded in resDiscardPile event.
 
     if(oCardToDiscard.nLabel>12){
+      if(oCardToDiscard.nLabel===14)await _.delay(1000)
       this.wildCardColorTimer(oTable)
     }else{
+      if(oCardToDiscard.nLabel===12)await _.delay(1500)
       this.passTurn(oTable);
     }
     return true;

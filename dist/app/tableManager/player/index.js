@@ -85,9 +85,13 @@ class Player extends service_1.default {
                 yield _.delay(1500);
             }
             if (oCardToDiscard.nLabel > 12) {
+                if (oCardToDiscard.nLabel === 14)
+                    yield _.delay(1000);
                 this.wildCardColorTimer(oTable);
             }
             else {
+                if (oCardToDiscard.nLabel === 12)
+                    yield _.delay(1500);
                 this.passTurn(oTable);
             }
             return true;
