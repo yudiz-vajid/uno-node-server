@@ -153,10 +153,10 @@ class Player extends Service {
     await _.delay(300) // draw card animation
     let aPromise:any=[]
     // if(this.bUnoDeclared&&this.aHand.length+1>2)aPromise.push(this.update({bUnoDeclared:false}))
-    if(this.aHand.length<=2&&this.aHand.length+1>=2){
-      aPromise.push(this.update({bUnoDeclared:false}))
-      aPromise.push(oTable.update({iDrawPenltyPlayerId:""}))
-    }
+    // if(this.aHand.length<=2&&this.aHand.length+1>=2){
+    //   aPromise.push(this.update({bUnoDeclared:false}))
+    //   aPromise.push(oTable.update({iDrawPenltyPlayerId:""}))
+    // }
     await Promise.all([
       ...aPromise,
       oTable.updateDrawPile(),
@@ -204,7 +204,10 @@ class Player extends Service {
       // this.nGraceTime = 0;
       aPromises.push(oTable.deleteScheduler(`assignTurnTimerExpired`, this.iPlayerId));
     }
-
+    if(this.aHand.length<=2&&this.aHand.length+1>=2){
+      aPromises.push(this.update({bUnoDeclared:false}))
+      aPromises.push(oTable.update({iDrawPenltyPlayerId:""}))
+    }
     /* used when user discard his card in grace time. */
     aPromises.push(this.update({nGraceTime: this.nGraceTime }));
     await Promise.all(aPromises);

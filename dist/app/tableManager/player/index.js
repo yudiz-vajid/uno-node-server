@@ -112,10 +112,6 @@ class Player extends service_1.default {
             oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [], nCardCount: 1, nHandCardCount: this.aHand.length + 1, eReason: 'normalDraw' }, [this.iPlayerId]);
             yield _.delay(300);
             let aPromise = [];
-            if (this.aHand.length <= 2 && this.aHand.length + 1 >= 2) {
-                aPromise.push(this.update({ bUnoDeclared: false }));
-                aPromise.push(oTable.update({ iDrawPenltyPlayerId: "" }));
-            }
             yield Promise.all([
                 ...aPromise,
                 oTable.updateDrawPile(),
@@ -150,6 +146,10 @@ class Player extends service_1.default {
             }
             else {
                 aPromises.push(oTable.deleteScheduler(`assignTurnTimerExpired`, this.iPlayerId));
+            }
+            if (this.aHand.length <= 2 && this.aHand.length + 1 >= 2) {
+                aPromises.push(this.update({ bUnoDeclared: false }));
+                aPromises.push(oTable.update({ iDrawPenltyPlayerId: "" }));
             }
             aPromises.push(this.update({ nGraceTime: this.nGraceTime }));
             yield Promise.all(aPromises);
