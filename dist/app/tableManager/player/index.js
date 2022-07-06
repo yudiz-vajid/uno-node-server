@@ -133,7 +133,8 @@ class Player extends service_1.default {
                 }
                 yield Promise.all([
                     ...aPromises,
-                    this.update({ nGraceTime: this.nGraceTime }),
+                    this.update({ nGraceTime: this.nGraceTime, bUnoDeclared: false }),
+                    oTable.update({ iDrawPenltyPlayerId: "" })
                 ]);
                 this.passTurn(oTable);
             }

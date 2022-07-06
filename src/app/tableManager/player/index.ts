@@ -180,7 +180,8 @@ class Player extends Service {
       }
       await Promise.all([
         ...aPromises,
-        this.update({nGraceTime: this.nGraceTime }),
+        this.update({nGraceTime: this.nGraceTime,bUnoDeclared:false }),
+        oTable.update({iDrawPenltyPlayerId:""})
       ]);
       this.passTurn(oTable)
 
