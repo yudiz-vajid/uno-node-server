@@ -67,10 +67,11 @@ class Player extends Service {
       // TODO : handle stacking for card.nLabel 14 (wild draw 4 card)
       const iNextPlayerId=await oTable.getNextPlayer(this.nSeat)
       // aPromises.push(oTable.update({  nDrawCount: oCardToDiscard.nLabel === 13 ? 1 : 4,iDrawPenltyPlayerId: iNextPlayerId?.iPlayerId }));
-      aPromises.push(oTable.update({  nDrawCount: oCardToDiscard.nLabel === 13 ? 1 : (4 + (oTable.toJSON().nDrawCount===1?0:oTable.toJSON().nDrawCount)),iDrawPenltyPlayerId: iNextPlayerId?.iPlayerId,iPlayerTurn:"" }));
+      aPromises.push(oTable.update({  nDrawCount: oCardToDiscard.nLabel === 13 ? 1 : (4 + (oTable.toJSON().nDrawCount===1?0:oTable.toJSON().nDrawCount)),iDrawPenltyPlayerId: iNextPlayerId?.iPlayerId}));
     }
 
     
+    aPromises.push(oTable.update({iPlayerTurn:""}));
     aPromises.push(oTable.addToDiscardPile(oCardToDiscard));
     
     const nRemainingGraceTime = await oTable.getTTL('assignGraceTimerExpired', this.iPlayerId); // - in ms
