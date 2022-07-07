@@ -32,7 +32,7 @@ class Service {
 
   protected aHand: IPlayer['aHand'];
 
-  protected eState: IPlayer['eState'];
+  public eState: IPlayer['eState'];
 
   protected readonly dCreatedAt: IPlayer['dCreatedAt'];
 

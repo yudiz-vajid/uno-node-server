@@ -189,7 +189,8 @@ class Service {
     }
     gameOver(oPlayer) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.emit('resGameOver', {});
+            const aPlayer = this.toJSON().aPlayer.filter(p => p.eState != 'left');
+            this.emit('resGameOver', { aPlayer, oWinner: oPlayer });
             return true;
         });
     }

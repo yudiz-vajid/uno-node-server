@@ -212,7 +212,8 @@ class Service {
 
   public async gameOver(oPlayer: Player) {
     // TODO :- Need to handle game over
-    this.emit('resGameOver', {  });
+    const aPlayer= this.toJSON().aPlayer.filter(p => p.eState != 'left');
+    this.emit('resGameOver', {aPlayer,oWinner:oPlayer });
     return true;
   }
 
