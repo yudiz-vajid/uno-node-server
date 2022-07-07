@@ -87,6 +87,10 @@ class TableManager {
         oPlayer?.decalreUno(oData, oTable, callback);
         return true;
 
+      case 'leaveMatch':
+        oPlayer?.leaveMatch(oData, oTable, callback);
+        return true;
+
       case 'discardCard':
         oPlayer?.discardCard(oData as { iCardId: string; eColor?: Omit<ICard['eColor'], 'black'> }, oTable, callback);
         return true;

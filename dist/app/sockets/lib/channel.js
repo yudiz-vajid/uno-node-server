@@ -15,7 +15,7 @@ class Channel {
         this.iPlayerId = iPlayerId;
     }
     onEvent(body, ack) {
-        var _a, _b, _c, _d, _e;
+        var _a, _b, _c, _d, _e, _f;
         return __awaiter(this, void 0, void 0, function* () {
             if (process.env.NODE_ENV === 'dev' && typeof body === 'object')
                 body = _.stringify(body);
@@ -39,6 +39,9 @@ class Channel {
                         break;
                     case 'reqUno':
                         emitter.emit('channelEvent', { sTaskName: 'decalreUno', iBattleId: this.iBattleId, iPlayerId: (_e = this.iPlayerId) !== null && _e !== void 0 ? _e : '', oData }, ack);
+                        break;
+                    case 'reqLeave':
+                        emitter.emit('channelEvent', { sTaskName: 'leaveMatch', iBattleId: this.iBattleId, iPlayerId: (_f = this.iPlayerId) !== null && _f !== void 0 ? _f : '', oData }, ack);
                         break;
                     default:
                         return false;

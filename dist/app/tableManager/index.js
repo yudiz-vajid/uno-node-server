@@ -90,6 +90,9 @@ class TableManager {
                 case 'decalreUno':
                     oPlayer === null || oPlayer === void 0 ? void 0 : oPlayer.decalreUno(oData, oTable, callback);
                     return true;
+                case 'leaveMatch':
+                    oPlayer === null || oPlayer === void 0 ? void 0 : oPlayer.leaveMatch(oData, oTable, callback);
+                    return true;
                 case 'discardCard':
                     oPlayer === null || oPlayer === void 0 ? void 0 : oPlayer.discardCard(oData, oTable, callback);
                     return true;

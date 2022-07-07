@@ -116,6 +116,7 @@ class Player extends service_1.default {
             callback({ oData: {}, status: util_1.response.SUCCESS });
             this.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [aCard[0]], nDrawNormal: this.nDrawNormal, nSpecialMeterFillCount, bIsPlayable: isPlayableCard, nHandScore: yield this.handCardCounts(), eReason: 'normalDraw' });
             oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [], nCardCount: 1, nHandCardCount: this.aHand.length + 1, eReason: 'normalDraw' }, [this.iPlayerId]);
+            yield oTable.update({ iPlayerTurn: "" });
             yield _.delay(300);
             let aPromise = [];
             yield Promise.all([
@@ -200,6 +201,18 @@ class Player extends service_1.default {
                 callback({ oData: {}, status: util_1.response.WRONG_UNO });
                 return (_a = (log.silly(`${_.now()} ${this.iPlayerId} has not valid uno.`) && null)) !== null && _a !== void 0 ? _a : false;
             }
+        });
+    }
+    leaveMatch(oData, oTable, callback) {
+        return __awaiter(this, void 0, void 0, function* () {
+            log.verbose(`${_.now()} event: leaveMatch, player: ${this.iPlayerId}`);
+            yield this.update({ eState: 'left' });
+            oTable.emit('resPlayerLeft', { iPlayerId: this.iPlayerId });
+            const aPlayingPlayer = oTable.toJSON().aPlayer.filter(p => p.eState === 'playing');
+            if (aPlayingPlayer.length <= 1)
+                return oTable.gameOver(aPlayingPlayer[0]);
+            if (oTable.toJSON().iPlayerTurn === this.iPlayerId)
+                return this.passTurn(oTable);
         });
     }
 }
