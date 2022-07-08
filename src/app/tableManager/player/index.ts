@@ -156,7 +156,7 @@ class Player extends Service {
     
     this.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[aCard[0]], nDrawNormal:this.nDrawNormal,nSpecialMeterFillCount,bIsPlayable:isPlayableCard,nHandScore:await this.handCardCounts() ,eReason:'normalDraw' });
     oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[], nCardCount: 1,nHandCardCount:this.aHand.length+1,eReason:'normalDraw' },[this.iPlayerId]);
-    await oTable.update({iPlayerTurn:""})
+    if(!isPlayableCard)await oTable.update({iPlayerTurn:""})
     await _.delay(300) // draw card animation
     let aPromise:any=[]
     // if(this.bUnoDeclared&&this.aHand.length+1>2)aPromise.push(this.update({bUnoDeclared:false}))
@@ -264,6 +264,7 @@ class Player extends Service {
   public async leaveMatch(oData: any, oTable: Table, callback: ICallback) {
     log.verbose(`${_.now()} event: leaveMatch, player: ${this.iPlayerId}`);
     await this.update({eState:'left'})
+    callback({ oData: {}, status: response.SUCCESS });
     oTable.emit('resPlayerLeft', { iPlayerId: this.iPlayerId});
     const aPlayingPlayer = oTable.toJSON().aPlayer.filter(p => p.eState === 'playing');
     if(aPlayingPlayer.length<=1)return oTable.gameOver(aPlayingPlayer[0])
