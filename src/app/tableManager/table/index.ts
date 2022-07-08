@@ -53,6 +53,7 @@ class Table extends Service {
       player.nScore=await player.handCardCounts(player.aHand)
     }
     const sortedPlayer=aPlayingPlayer.sort((a,b)=>a.nScore-b.nScore)
+    await _.delay(1500)
     this.gameOver(sortedPlayer[0])
     return true;
   }

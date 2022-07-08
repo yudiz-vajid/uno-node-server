@@ -65,6 +65,7 @@ class Table extends service_1.default {
                 player.nScore = yield player.handCardCounts(player.aHand);
             }
             const sortedPlayer = aPlayingPlayer.sort((a, b) => a.nScore - b.nScore);
+            yield _.delay(1500);
             this.gameOver(sortedPlayer[0]);
             return true;
         });
