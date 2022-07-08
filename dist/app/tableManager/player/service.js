@@ -323,6 +323,7 @@ class Service {
     }
     leftPlayer(oTable, reason) {
         return __awaiter(this, void 0, void 0, function* () {
+            yield _.delay(600);
             yield this.update({ eState: 'left' });
             oTable.emit('resPlayerLeft', { iPlayerId: this.iPlayerId });
             const aPlayingPlayer = oTable.toJSON().aPlayer.filter(p => p.eState === 'playing');
@@ -336,6 +337,10 @@ class Service {
         return __awaiter(this, void 0, void 0, function* () {
             if (oTable.toJSON().eState !== 'running')
                 return log.error('table is not in running state.');
+            if (!this.aHand.length) {
+                const winner = yield oTable.getPlayer(this.iPlayerId);
+                return oTable.gameOver(winner);
+            }
             const { aPlayer } = oTable.toJSON();
             const aPlayingPlayer = aPlayer.filter(p => p.eState === 'playing');
             if (!aPlayingPlayer.length)

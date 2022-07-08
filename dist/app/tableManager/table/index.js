@@ -60,6 +60,12 @@ class Table extends service_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             log.verbose('masterTimerExpired, game should end now');
             this.emit('resMasterTimerExpired', {});
+            const aPlayingPlayer = this.aPlayer.filter(p => p.toJSON().eState === 'playing');
+            for (let player of aPlayingPlayer) {
+                player.nScore = yield player.handCardCounts(player.aHand);
+            }
+            const sortedPlayer = aPlayingPlayer.sort((a, b) => a.nScore - b.nScore);
+            this.gameOver(sortedPlayer[0]);
             return true;
         });
     }

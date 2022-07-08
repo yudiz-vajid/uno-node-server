@@ -66,7 +66,7 @@ export declare interface IPlayer {
   bUnoDeclared: boolean;
   bNextTurnSkip: boolean;
   aHand: ICard[];
-  eState: 'waiting' | 'disconnected' | 'playing' | 'left';
+  eState: 'waiting' | 'disconnected' | 'playing' | 'left' | 'declared';
   dCreatedAt: Date;
 }
 

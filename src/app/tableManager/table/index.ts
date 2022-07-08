@@ -48,6 +48,12 @@ class Table extends Service {
   public async masterTimerExpired() {
     log.verbose('masterTimerExpired, game should end now');
     this.emit('resMasterTimerExpired', {});
+    const aPlayingPlayer=this.aPlayer.filter(p => p.toJSON().eState === 'playing');
+    for(let player of aPlayingPlayer){
+      player.nScore=await player.handCardCounts(player.aHand)
+    }
+    const sortedPlayer=aPlayingPlayer.sort((a,b)=>a.nScore-b.nScore)
+    this.gameOver(sortedPlayer[0])
     return true;
   }
 

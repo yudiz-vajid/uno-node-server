@@ -189,8 +189,14 @@ class Service {
     }
     gameOver(oPlayer) {
         return __awaiter(this, void 0, void 0, function* () {
+            yield this.update({ eState: 'finished' });
             const aPlayer = this.toJSON().aPlayer.filter(p => p.eState != 'left');
-            this.emit('resGameOver', { aPlayer, oWinner: oPlayer });
+            for (let player of aPlayer) {
+                yield player.update({ eState: 'declared' });
+                player.nScore = yield player.handCardCounts(player.aHand);
+            }
+            const sortedPlayer = aPlayer.sort((a, b) => a.nScore - b.nScore);
+            this.emit('resGameOver', { aPlayer: sortedPlayer, oWinner: oPlayer });
             return true;
         });
     }

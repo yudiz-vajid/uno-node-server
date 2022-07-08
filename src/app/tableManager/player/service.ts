@@ -12,7 +12,7 @@ class Service {
 
   protected readonly nSeat: IPlayer['nSeat'];
 
-  protected nScore: IPlayer['nScore'];
+  public nScore: IPlayer['nScore'];
 
   protected nUnoTime: IPlayer['nUnoTime'];
 
@@ -30,7 +30,7 @@ class Service {
   
   protected bUnoDeclared: IPlayer['bUnoDeclared'];
 
-  protected aHand: IPlayer['aHand'];
+  public aHand: IPlayer['aHand'];
 
   public eState: IPlayer['eState'];
 
@@ -365,6 +365,7 @@ class Service {
   }
 
   public async leftPlayer(oTable: Table,reason:any) {
+  await _.delay(600)
   await this.update({eState:'left'})
   oTable.emit('resPlayerLeft', { iPlayerId: this.iPlayerId});
   // TODO :- need to check for game finish.
@@ -376,6 +377,10 @@ class Service {
 
   public async passTurn(oTable: Table) {
     if (oTable.toJSON().eState !== 'running') return log.error('table is not in running state.');
+    if(!this.aHand.length){
+      const winner:any = await oTable.getPlayer(this.iPlayerId)
+      return oTable.gameOver(winner)
+    }
     const { aPlayer } = oTable.toJSON();
 
     const aPlayingPlayer = aPlayer.filter(p => p.eState === 'playing');
