@@ -54,7 +54,7 @@ class Table extends Service {
     }
     const sortedPlayer=aPlayingPlayer.sort((a,b)=>a.nScore-b.nScore)
     await _.delay(1500)
-    this.gameOver(sortedPlayer[0])
+    this.gameOver(sortedPlayer[0],'masterTimerExpire')
     return true;
   }
 

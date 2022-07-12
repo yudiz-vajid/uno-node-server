@@ -2,7 +2,7 @@ import { ICard, IPlayer, ITable, RedisJSON } from '../../../types/global';
 import type Table from '../table';
 
 class Service {
-  protected readonly iPlayerId: IPlayer['iPlayerId'];
+  public readonly iPlayerId: IPlayer['iPlayerId'];
 
   protected readonly iBattleId: IPlayer['iBattleId'];
 
@@ -370,7 +370,7 @@ class Service {
   oTable.emit('resPlayerLeft', { iPlayerId: this.iPlayerId});
   // TODO :- need to check for game finish.
   const aPlayingPlayer = oTable.toJSON().aPlayer.filter(p => p.eState === 'playing');
-  if(aPlayingPlayer.length<=1)return oTable.gameOver(aPlayingPlayer[0])
+  if(aPlayingPlayer.length<=1)return oTable.gameOver(aPlayingPlayer[0],'playerLeft')
   return this.passTurn(oTable);
   // oTable.
   }
@@ -379,7 +379,7 @@ class Service {
     if (oTable.toJSON().eState !== 'running') return log.error('table is not in running state.');
     if(!this.aHand.length){
       const winner:any = await oTable.getPlayer(this.iPlayerId)
-      return oTable.gameOver(winner)
+      return oTable.gameOver(winner,'playerWin')
     }
     const { aPlayer } = oTable.toJSON();
 

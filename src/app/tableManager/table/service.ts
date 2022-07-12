@@ -210,7 +210,7 @@ class Service {
     return true;
   }
 
-  public async gameOver(oPlayer: Player) {
+  public async gameOver(oPlayer: Player, eReason:any) {
     // TODO :- Need to update players state.
     await this.update({eState:'finished'})
     const aPlayer= this.toJSON().aPlayer.filter(p => p.eState != 'left');
@@ -218,8 +218,8 @@ class Service {
       await player.update({eState:'declared'})
       player.nScore=await player.handCardCounts(player.aHand)
     }
-    const sortedPlayer=aPlayer.sort((a,b)=>a.nScore-b.nScore)
-    this.emit('resGameOver', {aPlayer:sortedPlayer,oWinner:oPlayer });
+    const sortedPlayer=aPlayer.sort((a,b)=>a.nScore-b.nScore).map((p,i)=>{return{aHand:p.aHand,nScore:p.nScore,iPlayerId:p.iPlayerId,nRank:i}})
+    this.emit('resGameOver', {aPlayer:sortedPlayer,oWinner:oPlayer,eReason });
     return true;
   }
 

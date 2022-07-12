@@ -213,7 +213,7 @@ class Player extends service_1.default {
             oTable.emit('resPlayerLeft', { iPlayerId: this.iPlayerId });
             const aPlayingPlayer = oTable.toJSON().aPlayer.filter(p => p.eState === 'playing');
             if (aPlayingPlayer.length <= 1)
-                return oTable.gameOver(aPlayingPlayer[0]);
+                return oTable.gameOver(aPlayingPlayer[0], 'playerLeave');
             if (oTable.toJSON().iPlayerTurn === this.iPlayerId)
                 return this.passTurn(oTable);
         });

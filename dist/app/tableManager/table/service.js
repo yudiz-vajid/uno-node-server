@@ -187,7 +187,7 @@ class Service {
             return true;
         });
     }
-    gameOver(oPlayer) {
+    gameOver(oPlayer, eReason) {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.update({ eState: 'finished' });
             const aPlayer = this.toJSON().aPlayer.filter(p => p.eState != 'left');
@@ -195,8 +195,8 @@ class Service {
                 yield player.update({ eState: 'declared' });
                 player.nScore = yield player.handCardCounts(player.aHand);
             }
-            const sortedPlayer = aPlayer.sort((a, b) => a.nScore - b.nScore);
-            this.emit('resGameOver', { aPlayer: sortedPlayer, oWinner: oPlayer });
+            const sortedPlayer = aPlayer.sort((a, b) => a.nScore - b.nScore).map((p, i) => { return { aHand: p.aHand, nScore: p.nScore, iPlayerId: p.iPlayerId, nRank: i }; });
+            this.emit('resGameOver', { aPlayer: sortedPlayer, oWinner: oPlayer, eReason });
             return true;
         });
     }

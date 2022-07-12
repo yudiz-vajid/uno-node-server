@@ -328,7 +328,7 @@ class Service {
             oTable.emit('resPlayerLeft', { iPlayerId: this.iPlayerId });
             const aPlayingPlayer = oTable.toJSON().aPlayer.filter(p => p.eState === 'playing');
             if (aPlayingPlayer.length <= 1)
-                return oTable.gameOver(aPlayingPlayer[0]);
+                return oTable.gameOver(aPlayingPlayer[0], 'playerLeft');
             return this.passTurn(oTable);
         });
     }
@@ -339,7 +339,7 @@ class Service {
                 return log.error('table is not in running state.');
             if (!this.aHand.length) {
                 const winner = yield oTable.getPlayer(this.iPlayerId);
-                return oTable.gameOver(winner);
+                return oTable.gameOver(winner, 'playerWin');
             }
             const { aPlayer } = oTable.toJSON();
             const aPlayingPlayer = aPlayer.filter(p => p.eState === 'playing');

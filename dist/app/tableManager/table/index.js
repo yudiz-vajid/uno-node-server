@@ -66,7 +66,7 @@ class Table extends service_1.default {
             }
             const sortedPlayer = aPlayingPlayer.sort((a, b) => a.nScore - b.nScore);
             yield _.delay(1500);
-            this.gameOver(sortedPlayer[0]);
+            this.gameOver(sortedPlayer[0], 'masterTimerExpire');
             return true;
         });
     }
