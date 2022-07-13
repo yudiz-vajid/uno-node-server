@@ -55,6 +55,10 @@ class TableManager {
         oTable.masterTimerExpired();
         return true;
 
+      case 'masterTimerWillExpire':
+        oTable.masterTimerWillExpire();
+        return true;
+
       case 'gameInitializeTimerExpired':
         oTable.gameInitializeTimerExpired();
         return true;

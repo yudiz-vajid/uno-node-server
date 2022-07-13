@@ -40,6 +40,7 @@ class Table extends Service {
     this.emit('resDiscardPileTopCard', { oDiscardPileTopCard: this.getDiscardPileTopCard() });
     this.emit('resInitMasterTimer', { ttl: this.oSettings.nTotalGameTime, timestamp: Date.now() });
     this.setSchedular('masterTimerExpired', '', this.oSettings.nTotalGameTime); // -  game lifetime second
+    this.setSchedular('masterTimerWillExpire', '', this.oSettings.nTotalGameTime-this.oSettings.nFastTimerAt); // -  game last time (60-10)
     this.assignRandomTurn(); // assign turn to random player
     return true;
   }
@@ -55,6 +56,14 @@ class Table extends Service {
     const sortedPlayer=aPlayingPlayer.sort((a,b)=>a.nScore-b.nScore)
     await _.delay(1500)
     this.gameOver(sortedPlayer[0],'masterTimerExpire')
+    return true;
+  }
+
+  public async masterTimerWillExpire() {
+    log.verbose('masterTimerWillExpire, game should fast now');
+    this.emit('resMasterTimerWillExpire', {});
+    let updatedSettings={...this.oSettings,nTurnTime:this.oSettings.nTurnTime/2}
+    await this.update({oSettings:updatedSettings})
     return true;
   }
 

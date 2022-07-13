@@ -52,6 +52,7 @@ class Table extends service_1.default {
             this.emit('resDiscardPileTopCard', { oDiscardPileTopCard: this.getDiscardPileTopCard() });
             this.emit('resInitMasterTimer', { ttl: this.oSettings.nTotalGameTime, timestamp: Date.now() });
             this.setSchedular('masterTimerExpired', '', this.oSettings.nTotalGameTime);
+            this.setSchedular('masterTimerWillExpire', '', this.oSettings.nTotalGameTime - this.oSettings.nFastTimerAt);
             this.assignRandomTurn();
             return true;
         });
@@ -67,6 +68,15 @@ class Table extends service_1.default {
             const sortedPlayer = aPlayingPlayer.sort((a, b) => a.nScore - b.nScore);
             yield _.delay(1500);
             this.gameOver(sortedPlayer[0], 'masterTimerExpire');
+            return true;
+        });
+    }
+    masterTimerWillExpire() {
+        return __awaiter(this, void 0, void 0, function* () {
+            log.verbose('masterTimerWillExpire, game should fast now');
+            this.emit('resMasterTimerWillExpire', {});
+            let updatedSettings = Object.assign(Object.assign({}, this.oSettings), { nTurnTime: this.oSettings.nTurnTime / 2 });
+            yield this.update({ oSettings: updatedSettings });
             return true;
         });
     }

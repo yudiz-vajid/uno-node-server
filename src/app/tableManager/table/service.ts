@@ -30,7 +30,7 @@ class Service {
 
   protected dCreatedAt: ITableWithPlayer['dCreatedAt'];
 
-  protected readonly oSettings: ITableWithPlayer['oSettings'];
+  protected  oSettings: ITableWithPlayer['oSettings'];
 
   protected aPlayer: Player[];
 
@@ -60,7 +60,7 @@ class Service {
 
   public async update(
     oDate: Partial<
-      Pick<ITable, 'iPlayerTurn' | 'iSkippedPLayer' |'iDrawPenltyPlayerId'| 'aPlayerId' | 'aDrawPile' | 'aDiscardPile' | 'bToSkip' | 'eState' | 'bTurnClockwise'|'bIsReverseNow' | 'eNextCardColor' | 'nDrawCount'>
+      Pick<ITable, 'iPlayerTurn' | 'iSkippedPLayer' |'iDrawPenltyPlayerId'| 'aPlayerId' | 'aDrawPile' | 'aDiscardPile' | 'bToSkip' | 'eState' | 'bTurnClockwise'|'bIsReverseNow' | 'eNextCardColor' | 'nDrawCount'|'oSettings'>
     >
   ) {
     try {
@@ -115,6 +115,10 @@ class Service {
             break;
           case 'nDrawCount':
             this.nDrawCount = v as ITable['nDrawCount'];
+            aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'oSettings':
+            this.oSettings = v as ITable['oSettings'];
             aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
             break;
           default:

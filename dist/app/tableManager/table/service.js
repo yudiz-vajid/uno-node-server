@@ -98,6 +98,10 @@ class Service {
                             this.nDrawCount = v;
                             aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v));
                             break;
+                        case 'oSettings':
+                            this.oSettings = v;
+                            aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v));
+                            break;
                         default:
                             break;
                     }

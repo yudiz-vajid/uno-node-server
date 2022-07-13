@@ -35,6 +35,7 @@ declare interface ISettings {
   bMustCollectOnMissTurn: boolean;
 
   nTotalGameTime: number; // ms : game lifetime
+  nFastTimerAt: number; // ms : fast turn timer on given remaining time in nTotalGameTime
   nTurnTime: number; // ms :
   nGraceTime: number; // ms
   nWildCardColorTimer: number; // ms
