@@ -55,6 +55,10 @@ class Table extends Service {
     }
     const sortedPlayer=aPlayingPlayer.sort((a,b)=>a.nScore-b.nScore)
     await _.delay(1500)
+    if(this.iDrawPenltyPlayerId){
+      const penaltyUser=this.getPlayer(this.iDrawPenltyPlayerId)
+      if(penaltyUser?.eState==='playing')await penaltyUser.assignDrawPenalty(this)
+    }
     this.gameOver(sortedPlayer[0],'masterTimerExpire')
     return true;
   }

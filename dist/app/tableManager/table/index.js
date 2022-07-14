@@ -67,6 +67,11 @@ class Table extends service_1.default {
             }
             const sortedPlayer = aPlayingPlayer.sort((a, b) => a.nScore - b.nScore);
             yield _.delay(1500);
+            if (this.iDrawPenltyPlayerId) {
+                const penaltyUser = this.getPlayer(this.iDrawPenltyPlayerId);
+                if ((penaltyUser === null || penaltyUser === void 0 ? void 0 : penaltyUser.eState) === 'playing')
+                    yield penaltyUser.assignDrawPenalty(this);
+            }
             this.gameOver(sortedPlayer[0], 'masterTimerExpire');
             return true;
         });
