@@ -40,7 +40,7 @@ class TableManager {
         callback({ oData: {}, status: response.TABLE_NOT_RUNNING });
         return (log.warn(`${_.now()} Table is not in running state. { iBattleId : ${iBattleId}, eState : ${oTable.toJSON().eState} }`) && null) ?? false;
       }
-      if (!oTable.hasValidTurn(iPlayerId) && ['drawCard', 'discardCard','decalreUno'].includes(sTaskName)) {
+      if (!oTable.hasValidTurn(iPlayerId) && ['drawCard', 'discardCard'].includes(sTaskName)) {
         callback({ oData: {}, status: response.NOT_YOUR_TURN });
         return (log.silly(`${_.now()} ${iPlayerId} has not valid turn.`) && null) ?? false;
       }
