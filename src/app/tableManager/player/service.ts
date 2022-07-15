@@ -378,6 +378,10 @@ class Service {
   public async passTurn(oTable: Table) {
     if (oTable.toJSON().eState !== 'running') return log.error('table is not in running state.');
     if(!this.aHand.length){
+      if(oTable.toJSON().iDrawPenltyPlayerId){
+        let penaltyPlayer=oTable.getPlayer(oTable.toJSON().iDrawPenltyPlayerId)
+        if(penaltyPlayer?.eState==='playing')await penaltyPlayer.assignDrawPenalty(oTable)
+      }
       const winner:any = await oTable.getPlayer(this.iPlayerId)
       return oTable.gameOver(winner,'playerWin')
     }

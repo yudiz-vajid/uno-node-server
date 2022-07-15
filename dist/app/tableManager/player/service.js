@@ -338,6 +338,11 @@ class Service {
             if (oTable.toJSON().eState !== 'running')
                 return log.error('table is not in running state.');
             if (!this.aHand.length) {
+                if (oTable.toJSON().iDrawPenltyPlayerId) {
+                    let penaltyPlayer = oTable.getPlayer(oTable.toJSON().iDrawPenltyPlayerId);
+                    if ((penaltyPlayer === null || penaltyPlayer === void 0 ? void 0 : penaltyPlayer.eState) === 'playing')
+                        yield penaltyPlayer.assignDrawPenalty(oTable);
+                }
                 const winner = yield oTable.getPlayer(this.iPlayerId);
                 return oTable.gameOver(winner, 'playerWin');
             }
