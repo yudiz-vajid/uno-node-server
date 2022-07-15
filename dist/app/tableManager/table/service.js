@@ -201,6 +201,10 @@ class Service {
             }
             const sortedPlayer = aPlayer.sort((a, b) => a.nScore - b.nScore).map((p, i) => { return { aHand: p.aHand, nScore: p.nScore, iPlayerId: p.iPlayerId, nRank: i }; });
             this.emit('resGameOver', { aPlayer: sortedPlayer, oWinner: oPlayer, eReason });
+            const keys = yield redis.client.KEYS(`t:${this.iBattleId}:*`);
+            yield redis.client.del(keys);
+            const schedularKey = yield redis.client.KEYS(`sch:${this.iBattleId}:`);
+            yield redis.client.del(schedularKey);
             return true;
         });
     }
