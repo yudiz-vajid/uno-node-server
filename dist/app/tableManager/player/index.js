@@ -104,6 +104,11 @@ class Player extends service_1.default {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
             log.verbose(`${_.now()} event: drawCard, player: ${this.iPlayerId}`);
+            if (oTable.toJSON().iDrawPenltyPlayerId === this.iPlayerId) {
+                callback({ oData: {}, status: util_1.response.SUCCESS });
+                yield this.assignDrawPenalty(oTable);
+                return true;
+            }
             const aCard = this.bSpecialMeterFull ? oTable.drawCard('special', 1) : oTable.drawCard('normal', 1);
             if (!aCard) {
                 callback({ oData: {}, status: util_1.response.SERVER_ERROR });

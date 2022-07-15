@@ -136,6 +136,11 @@ class Player extends Service {
    */
   public async drawCard(oData: Record<string, never>, oTable: Table, callback: ICallback) {
     log.verbose(`${_.now()} event: drawCard, player: ${this.iPlayerId}`);
+    if(oTable.toJSON().iDrawPenltyPlayerId===this.iPlayerId){
+      callback({ oData:{}, status: response.SUCCESS });
+      await this.assignDrawPenalty(oTable)
+      return true
+    }
     const aCard = this.bSpecialMeterFull ? oTable.drawCard('special', 1) : oTable.drawCard('normal', 1);
     if (!aCard) {
       callback({ oData: {}, status: response.SERVER_ERROR });
