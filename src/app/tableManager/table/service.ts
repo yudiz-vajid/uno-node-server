@@ -225,9 +225,9 @@ class Service {
     const sortedPlayer=aPlayer.sort((a,b)=>a.nScore-b.nScore).map((p,i)=>{return{aHand:p.aHand,nScore:p.nScore,iPlayerId:p.iPlayerId,nRank:i}})
     this.emit('resGameOver', {aPlayer:sortedPlayer,oWinner:oPlayer,eReason });
     const keys = await redis.client.KEYS(`t:${this.iBattleId}:*`)
-    if(keys)await redis.client.del(keys)
+    if(keys.length)await redis.client.del(keys)
     const schedularKey=await redis.client.KEYS(`sch:${this.iBattleId}:`)
-    if(schedularKey)await redis.client.del(schedularKey)
+    if(schedularKey.length)await redis.client.del(schedularKey)
     return true;
   }
 
