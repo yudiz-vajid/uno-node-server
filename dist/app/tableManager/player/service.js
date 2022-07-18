@@ -130,6 +130,8 @@ class Service {
     }
     getPlayableCardIds(oDiscardPileTopCard, eNextCardColor) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (!oDiscardPileTopCard || oDiscardPileTopCard === undefined)
+                return this.aHand;
             if (oDiscardPileTopCard.nLabel === 12)
                 return this.aHand.filter(card => card.nLabel > 12 || card.nLabel === 12 || oDiscardPileTopCard.eColor === card.eColor).map(card => card.iCardId);
             if (oDiscardPileTopCard.nLabel === 14)
