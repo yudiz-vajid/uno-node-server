@@ -155,6 +155,13 @@ class Service {
         var _a;
         return (_a = this.aPlayer.find(oParticipant => oParticipant.toJSON().iPlayerId === iPlayerId)) !== null && _a !== void 0 ? _a : null;
     }
+    reshuffleClosedDeck() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.aDrawPile = this.aDiscardPile.splice(0, this.aDiscardPile.length - 1);
+            yield this.update({ aDiscardPile: this.aDiscardPile, aDrawPile: this.aDrawPile });
+            this.emit('resShuffleDeck', {});
+        });
+    }
     initializeGame() {
         return __awaiter(this, void 0, void 0, function* () {
             const _a = this.toJSON(), { aDrawPile, aPlayer, aPlayerId } = _a, rest = __rest(_a, ["aDrawPile", "aPlayer", "aPlayerId"]);

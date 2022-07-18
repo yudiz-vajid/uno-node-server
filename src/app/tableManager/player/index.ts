@@ -139,6 +139,7 @@ class Player extends Service {
    */
   public async drawCard(oData: Record<string, never>, oTable: Table, callback: ICallback) {
     log.verbose(`${_.now()} event: drawCard, player: ${this.iPlayerId}`);
+    if(!oTable.toJSON().aDrawPile.length)await oTable.reshuffleClosedDeck()
     if(oTable.toJSON().iDrawPenltyPlayerId===this.iPlayerId){
       callback({ oData:{}, status: response.SUCCESS });
       await this.assignDrawPenalty(oTable)

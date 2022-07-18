@@ -107,6 +107,8 @@ class Player extends service_1.default {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
             log.verbose(`${_.now()} event: drawCard, player: ${this.iPlayerId}`);
+            if (!oTable.toJSON().aDrawPile.length)
+                yield oTable.reshuffleClosedDeck();
             if (oTable.toJSON().iDrawPenltyPlayerId === this.iPlayerId) {
                 callback({ oData: {}, status: util_1.response.SUCCESS });
                 yield this.assignDrawPenalty(oTable);

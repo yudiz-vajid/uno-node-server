@@ -173,6 +173,13 @@ class Service {
     return this.aPlayer.find(oParticipant => oParticipant.toJSON().iPlayerId === iPlayerId) ?? null;
   }
 
+  public async reshuffleClosedDeck() {
+    // TODO :- Need to reshuffle open deck into closed deck.
+    this.aDrawPile=this.aDiscardPile.splice(0,this.aDiscardPile.length-1)
+    await this.update({aDiscardPile:this.aDiscardPile,aDrawPile:this.aDrawPile})
+    this.emit('resShuffleDeck', { });
+  }
+
   public async initializeGame() {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { aDrawPile, aPlayer, aPlayerId, ...rest } = this.toJSON();
