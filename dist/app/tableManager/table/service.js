@@ -124,25 +124,41 @@ class Service {
         switch (eCardType) {
             case 'normal':
                 for (let i = 0; i < nCount; i += 1) {
-                    const nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
+                    let nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
+                    if (nCardIndex === -1) {
+                        this.reshuffleClosedDeck();
+                        nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
+                    }
                     aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
                 }
                 break;
             case 'action':
                 for (let i = 0; i < nCount; i += 1) {
-                    const nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9 && c.nLabel < 13);
+                    let nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9 && c.nLabel < 13);
+                    if (nCardIndex === -1) {
+                        this.reshuffleClosedDeck();
+                        nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9 && c.nLabel < 13);
+                    }
                     aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
                 }
                 break;
             case 'wild':
                 for (let i = 0; i < nCount; i += 1) {
-                    const nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 12);
+                    let nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 12);
+                    if (nCardIndex === -1) {
+                        this.reshuffleClosedDeck();
+                        nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 12);
+                    }
                     aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
                 }
                 break;
             case 'special':
                 for (let i = 0; i < nCount; i += 1) {
-                    const nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9);
+                    let nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9);
+                    if (nCardIndex === -1) {
+                        this.reshuffleClosedDeck();
+                        nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9);
+                    }
                     aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
                 }
                 break;
@@ -158,6 +174,10 @@ class Service {
     reshuffleClosedDeck() {
         return __awaiter(this, void 0, void 0, function* () {
             this.aDrawPile = this.aDiscardPile.splice(0, this.aDiscardPile.length - 1);
+            for (let i = 0; i < this.aDrawPile.length; i++) {
+                if (this.aDrawPile[i].nLabel > 12)
+                    this.aDrawPile[i].eColor = "black";
+            }
             yield this.update({ aDiscardPile: this.aDiscardPile, aDrawPile: this.aDrawPile });
             this.emit('resShuffleDeck', {});
         });
