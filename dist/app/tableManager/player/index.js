@@ -110,8 +110,15 @@ class Player extends service_1.default {
             if (oTable.toJSON().iDrawPenltyPlayerId === this.iPlayerId) {
                 callback({ oData: {}, status: util_1.response.SUCCESS });
                 yield this.assignDrawPenalty(oTable);
-                if (oTable.toJSON().oSettings.bSkipTurnOnDrawTwoOrFourCard)
+                if (oTable.toJSON().oSettings.bSkipTurnOnDrawTwoOrFourCard) {
                     this.passTurn(oTable);
+                }
+                else {
+                    const aPlayableCardId = yield this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
+                    let remainingTurnTimer = yield oTable.getTTL('assignTurnTimerExpired', this.iPlayerId);
+                    this.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: remainingTurnTimer - 500, timestamp: Date.now(), aPlayableCards: aPlayableCardId });
+                    oTable.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: remainingTurnTimer - 500, timestamp: Date.now(), aPlayableCards: [] }, [this.iPlayerId]);
+                }
                 return true;
             }
             const aCard = this.bSpecialMeterFull ? oTable.drawCard('special', 1) : oTable.drawCard('normal', 1);
