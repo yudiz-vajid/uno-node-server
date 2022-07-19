@@ -27,19 +27,19 @@ class Table extends service_1.default {
             this.aPlayer.forEach((player) => __awaiter(this, void 0, void 0, function* () {
                 var _c, _d, _e;
                 log.verbose(`length(drawPile): ${this.aDrawPile.length} `);
-                const aNormalCard = this.drawCard('normal', nStartingNormalCardCount);
+                const aNormalCard = yield this.drawCard('normal', nStartingNormalCardCount);
                 if (!aNormalCard)
                     return (_c = (log.error(`Could not draw normal cards for player ${player.toJSON().iPlayerId}`) && null)) !== null && _c !== void 0 ? _c : false;
-                const aActionCard = this.drawCard('action', nStartingActionCardCount);
+                const aActionCard = yield this.drawCard('action', nStartingActionCardCount);
                 if (!aActionCard)
                     return (_d = (log.error(`Could not draw action cards for player ${player.toJSON().iPlayerId}`) && null)) !== null && _d !== void 0 ? _d : false;
-                const aWildCard = this.drawCard('wild', nStartingWildCardCount);
+                const aWildCard = yield this.drawCard('wild', nStartingWildCardCount);
                 if (!aWildCard)
                     return (_e = (log.error(`Could not draw wild cards for player ${player.toJSON().iPlayerId}`) && null)) !== null && _e !== void 0 ? _e : false;
                 yield player.setHand(aNormalCard, aActionCard, aWildCard);
                 return true;
             }));
-            const oDiscardPileTopCard = this.drawCard('normal', 1);
+            const oDiscardPileTopCard = yield this.drawCard('normal', 1);
             if (!oDiscardPileTopCard)
                 return (_b = (log.error(`Could not draw discard pile top card`) && null)) !== null && _b !== void 0 ? _b : false;
             this.aDiscardPile.push(...oDiscardPileTopCard);

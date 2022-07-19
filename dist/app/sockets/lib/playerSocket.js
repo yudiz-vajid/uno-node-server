@@ -60,6 +60,7 @@ class PlayerSocket {
                         bSpecialMeterFull: false,
                         bNextTurnSkip: false,
                         bUnoDeclared: false,
+                        bSkipSpecialMeterProcess: false,
                         aHand: [],
                         eState: 'waiting',
                         dCreatedAt: new Date(),

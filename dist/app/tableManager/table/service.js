@@ -120,52 +120,69 @@ class Service {
     }
     drawCard(eCardType, nCount) {
         var _a;
-        const aCards = [];
-        switch (eCardType) {
-            case 'normal':
-                for (let i = 0; i < nCount; i += 1) {
-                    let nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
-                    if (nCardIndex === -1) {
-                        this.reshuffleClosedDeck();
-                        nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
+        return __awaiter(this, void 0, void 0, function* () {
+            const aCards = [];
+            let skipSpecialMeter = false;
+            switch (eCardType) {
+                case 'normal':
+                    for (let i = 0; i < nCount; i += 1) {
+                        let nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
+                        if (nCardIndex === -1) {
+                            yield this.reshuffleClosedDeck();
+                            nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
+                        }
+                        aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
                     }
-                    aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
-                }
-                break;
-            case 'action':
-                for (let i = 0; i < nCount; i += 1) {
-                    let nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9 && c.nLabel < 13);
-                    if (nCardIndex === -1) {
-                        this.reshuffleClosedDeck();
-                        nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9 && c.nLabel < 13);
+                    break;
+                case 'action':
+                    for (let i = 0; i < nCount; i += 1) {
+                        let nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9 && c.nLabel < 13);
+                        if (nCardIndex === -1) {
+                            yield this.reshuffleClosedDeck();
+                            nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9 && c.nLabel < 13);
+                            if (nCardIndex === -1) {
+                                nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
+                                skipSpecialMeter = true;
+                            }
+                        }
+                        aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
                     }
-                    aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
-                }
-                break;
-            case 'wild':
-                for (let i = 0; i < nCount; i += 1) {
-                    let nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 12);
-                    if (nCardIndex === -1) {
-                        this.reshuffleClosedDeck();
-                        nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 12);
+                    break;
+                case 'wild':
+                    for (let i = 0; i < nCount; i += 1) {
+                        let nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 12);
+                        if (nCardIndex === -1) {
+                            yield this.reshuffleClosedDeck();
+                            nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 12);
+                            if (nCardIndex === -1) {
+                                nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
+                                skipSpecialMeter = true;
+                            }
+                        }
+                        aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
                     }
-                    aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
-                }
-                break;
-            case 'special':
-                for (let i = 0; i < nCount; i += 1) {
-                    let nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9);
-                    if (nCardIndex === -1) {
-                        this.reshuffleClosedDeck();
-                        nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9);
+                    break;
+                case 'special':
+                    for (let i = 0; i < nCount; i += 1) {
+                        let nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9);
+                        if (nCardIndex === -1) {
+                            yield this.reshuffleClosedDeck();
+                            nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9);
+                            if (nCardIndex === -1) {
+                                nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
+                                skipSpecialMeter = true;
+                            }
+                        }
+                        aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
                     }
-                    aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
-                }
-                break;
-            default:
-                return (_a = (log.error(`drawCard called with invalid eCardType: ${eCardType}`) && null)) !== null && _a !== void 0 ? _a : null;
-        }
-        return aCards;
+                    break;
+                default:
+                    return (_a = (log.error(`drawCard called with invalid eCardType: ${eCardType}`) && null)) !== null && _a !== void 0 ? _a : null;
+            }
+            const player = yield this.getPlayer(this.iPlayerTurn);
+            yield (player === null || player === void 0 ? void 0 : player.update({ bSkipSpecialMeterProcess: skipSpecialMeter }));
+            return aCards;
+        });
     }
     getPlayer(iPlayerId) {
         var _a;
@@ -173,7 +190,7 @@ class Service {
     }
     reshuffleClosedDeck() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.aDrawPile = this.aDiscardPile.splice(0, this.aDiscardPile.length - 1);
+            this.aDrawPile = this.aDrawPile.length ? [...this.aDrawPile, ...this.aDiscardPile.splice(0, this.aDiscardPile.length - 1)] : this.aDiscardPile.splice(0, this.aDiscardPile.length - 1);
             for (let i = 0; i < this.aDrawPile.length; i++) {
                 if (this.aDrawPile[i].nLabel > 12)
                     this.aDrawPile[i].eColor = "black";
@@ -292,7 +309,6 @@ class Service {
     }
     handleReverseCard() {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('handleReverseCard called ...');
             yield this.update({ bTurnClockwise: !(this.bTurnClockwise), bIsReverseNow: true });
             return true;
         });

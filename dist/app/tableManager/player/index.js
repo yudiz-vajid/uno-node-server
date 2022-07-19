@@ -123,14 +123,16 @@ class Player extends service_1.default {
                 }
                 return true;
             }
-            const aCard = this.bSpecialMeterFull ? oTable.drawCard('special', 1) : oTable.drawCard('normal', 1);
-            if (!aCard) {
+            const aCard = this.bSpecialMeterFull ? yield oTable.drawCard('special', 1) : yield oTable.drawCard('normal', 1);
+            if (!aCard || aCard === undefined) {
                 callback({ oData: {}, status: util_1.response.SERVER_ERROR });
                 return (_a = (log.error(`${_.now()} no card found for iCardId: ${oData.iCardId}`) && null)) !== null && _a !== void 0 ? _a : false;
             }
             const { nSpecialMeterFillCount } = oTable.toJSON().oSettings;
-            this.nDrawNormal = this.nDrawNormal === nSpecialMeterFillCount ? 0 : this.nDrawNormal + 1;
-            this.bSpecialMeterFull = this.nDrawNormal === nSpecialMeterFillCount;
+            if (!this.bSkipSpecialMeterProcess) {
+                this.nDrawNormal = this.nDrawNormal === nSpecialMeterFillCount ? 0 : this.nDrawNormal + 1;
+                this.bSpecialMeterFull = this.nDrawNormal === nSpecialMeterFillCount;
+            }
             log.verbose(`${_.now()} player: ${this.iPlayerId}, drawnCard: ${aCard[0].iCardId}`);
             let isPlayableCard = yield this.checkPlayableCard(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor, aCard[0]);
             callback({ oData: {}, status: util_1.response.SUCCESS });
@@ -189,7 +191,6 @@ class Player extends service_1.default {
     }
     setWildCardColor(oData, oTable, callback) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('setWildCardColor called.... ', oData);
             log.verbose(`${_.now()} event: setWildCardColor, player: ${this.iPlayerId}`);
             const aPromises = [];
             const nRemainingTime = yield oTable.getTTL('assignWildCardColorTimerExpired', this.iPlayerId);

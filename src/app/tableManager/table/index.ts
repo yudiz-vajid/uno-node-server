@@ -15,17 +15,17 @@ class Table extends Service {
 
     this.aPlayer.forEach(async player => {
       log.verbose(`length(drawPile): ${this.aDrawPile.length} `);
-      const aNormalCard = this.drawCard('normal', nStartingNormalCardCount); // 1-9
+      const aNormalCard =await this.drawCard('normal', nStartingNormalCardCount); // 1-9
       if (!aNormalCard) return (log.error(`Could not draw normal cards for player ${player.toJSON().iPlayerId}`) && null) ?? false;
-      const aActionCard = this.drawCard('action', nStartingActionCardCount); // 10-12
+      const aActionCard =await this.drawCard('action', nStartingActionCardCount); // 10-12
       if (!aActionCard) return (log.error(`Could not draw action cards for player ${player.toJSON().iPlayerId}`) && null) ?? false;
-      const aWildCard = this.drawCard('wild', nStartingWildCardCount); // 13-14
+      const aWildCard =await this.drawCard('wild', nStartingWildCardCount); // 13-14
       if (!aWildCard) return (log.error(`Could not draw wild cards for player ${player.toJSON().iPlayerId}`) && null) ?? false;
       await player.setHand(aNormalCard, aActionCard, aWildCard);
       return true;
     });
 
-    const oDiscardPileTopCard = this.drawCard('normal', 1); // - should not be special card
+    const oDiscardPileTopCard =await this.drawCard('normal', 1); // - should not be special card
     if (!oDiscardPileTopCard) return (log.error(`Could not draw discard pile top card`) && null) ?? false;
     this.aDiscardPile.push(...oDiscardPileTopCard);
 

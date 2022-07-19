@@ -1,6 +1,6 @@
 import type Table from '.';
 import type Player from '../player';
-import { ICard, ITable, ITableWithPlayer, RedisJSON } from '../../../types/global';
+import { ICard, IPlayer, ITable, ITableWithPlayer, RedisJSON } from '../../../types/global';
 
 class Service {
   protected readonly iBattleId: ITableWithPlayer['iBattleId'];
@@ -34,7 +34,8 @@ class Service {
 
   protected aPlayer: Player[];
 
-  constructor(oData: ITable & { aPlayer?: Player[] }) {
+
+  constructor(oData: ITable & { aPlayer?: Player[]}) {
     this.iBattleId = oData.iBattleId;
     this.iPlayerTurn = oData.iPlayerTurn;
     this.iSkippedPLayer = oData.iSkippedPLayer;
@@ -60,7 +61,7 @@ class Service {
 
   public async update(
     oDate: Partial<
-      Pick<ITable, 'iPlayerTurn' | 'iSkippedPLayer' |'iDrawPenltyPlayerId'| 'aPlayerId' | 'aDrawPile' | 'aDiscardPile' | 'bToSkip' | 'eState' | 'bTurnClockwise'|'bIsReverseNow' | 'eNextCardColor' | 'nDrawCount'|'oSettings'>
+      Pick<ITable, 'iPlayerTurn' | 'iSkippedPLayer' |'iDrawPenltyPlayerId'| 'aPlayerId' | 'aDrawPile' | 'aDiscardPile' | 'bToSkip' | 'eState' | 'bTurnClockwise' | 'bIsReverseNow' | 'eNextCardColor' | 'nDrawCount'|'oSettings'>
     >
   ) {
     try {
@@ -136,15 +137,17 @@ class Service {
     }
   }
 
-  public drawCard(eCardType: 'normal' | 'action' | 'wild' | 'special', nCount: number) {
+  public async drawCard(eCardType: 'normal' | 'action' | 'wild' | 'special', nCount: number) {
+    // TODO :- need to give normal card if there is no special card
     const aCards: Table['aDrawPile'] = [];
+    let skipSpecialMeter=false
     switch (eCardType) {
       case 'normal':
         for (let i = 0; i < nCount; i += 1) {
           let nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
-          if(nCardIndex ===-1){
-            this.reshuffleClosedDeck()
-            nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
+          if(nCardIndex === -1){
+           await this.reshuffleClosedDeck()
+           nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
           }
           aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
         }
@@ -153,8 +156,12 @@ class Service {
         for (let i = 0; i < nCount; i += 1) {
           let nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9 && c.nLabel < 13);
           if(nCardIndex ===-1){
-            this.reshuffleClosedDeck()
+            await this.reshuffleClosedDeck()
             nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9 && c.nLabel < 13);
+            if(nCardIndex ===-1){
+              nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
+              skipSpecialMeter=true
+            }
           }
           aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
         }
@@ -163,8 +170,12 @@ class Service {
         for (let i = 0; i < nCount; i += 1) {
           let nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 12);
           if(nCardIndex ===-1){
-            this.reshuffleClosedDeck()
+            await this.reshuffleClosedDeck()
             nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 12);
+            if(nCardIndex ===-1){
+              nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
+              skipSpecialMeter=true
+            }
           }
           aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
         }
@@ -173,8 +184,13 @@ class Service {
         for (let i = 0; i < nCount; i += 1) {
           let nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9);
           if(nCardIndex ===-1){
-            this.reshuffleClosedDeck()
+            await this.reshuffleClosedDeck()
             nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9);
+            
+            if(nCardIndex ===-1){
+              nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
+              skipSpecialMeter=true
+            }
           }
           aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
         }
@@ -182,6 +198,8 @@ class Service {
       default:
         return (log.error(`drawCard called with invalid eCardType: ${eCardType}`) && null) ?? null;
     }
+    const player=await this.getPlayer(this.iPlayerTurn)
+    await player?.update({bSkipSpecialMeterProcess:skipSpecialMeter})
     return aCards;
   }
 
@@ -191,7 +209,7 @@ class Service {
 
   public async reshuffleClosedDeck() {
     // TODO :- Need to reshuffle open deck into closed deck.
-    this.aDrawPile=this.aDiscardPile.splice(0,this.aDiscardPile.length-1)
+    this.aDrawPile=this.aDrawPile.length ?[...this.aDrawPile ,...this.aDiscardPile.splice(0,this.aDiscardPile.length-1)]: this.aDiscardPile.splice(0,this.aDiscardPile.length-1)
     for (let i = 0; i < this.aDrawPile.length; i++) {
       if(this.aDrawPile[i].nLabel>12)this.aDrawPile[i].eColor="black"
     }
@@ -302,7 +320,6 @@ class Service {
   }
 
   public async handleReverseCard() {
-    console.log('handleReverseCard called ...');
     await this.update({ bTurnClockwise: !(this.bTurnClockwise),bIsReverseNow:true });
     return true
   }

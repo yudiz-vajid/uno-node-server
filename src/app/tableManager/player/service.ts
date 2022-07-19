@@ -35,6 +35,8 @@ class Service {
   public eState: IPlayer['eState'];
 
   protected readonly dCreatedAt: IPlayer['dCreatedAt'];
+  
+  public bSkipSpecialMeterProcess: IPlayer['bSkipSpecialMeterProcess'];;
 
   constructor(oData: IPlayer) {
     this.iPlayerId = oData.iPlayerId;
@@ -51,13 +53,14 @@ class Service {
     this.bSpecialMeterFull = oData.bSpecialMeterFull;
     this.bUnoDeclared = oData.bUnoDeclared;
     this.bNextTurnSkip = oData.bNextTurnSkip;
+    this.bSkipSpecialMeterProcess = oData.bSkipSpecialMeterProcess;
     this.aHand = oData.aHand;
     this.eState = oData.eState;
     this.dCreatedAt = oData.dCreatedAt;
   }
 
   // prettier-ignore
-  public async update(oData: Partial<Pick<IPlayer, 'sSocketId' | 'nScore' | 'nUnoTime' | 'nGraceTime' | 'nMissedTurn' | 'nDrawNormal' | 'nReconnectionAttempt' | 'bSpecialMeterFull'|'bNextTurnSkip' |'bUnoDeclared'| 'aHand' | 'eState'>>) {
+  public async update(oData: Partial<Pick<IPlayer, 'sSocketId' | 'nScore' | 'nUnoTime' | 'nGraceTime' | 'nMissedTurn' | 'nDrawNormal' | 'nReconnectionAttempt' | 'bSpecialMeterFull'|'bNextTurnSkip' |'bUnoDeclared'| 'bSkipSpecialMeterProcess' | 'aHand' | 'eState'>>) {
     try {
       const aPromise: Array<Promise<unknown>> = [];
       const sPlayerKey = _.getPlayerKey(this.iBattleId, this.iPlayerId);
@@ -101,6 +104,10 @@ class Service {
             break;
           case 'bUnoDeclared':
             this.bUnoDeclared = v as IPlayer['bUnoDeclared'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'bSkipSpecialMeterProcess':
+            this.bSkipSpecialMeterProcess = v as IPlayer['bSkipSpecialMeterProcess'];
             aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
             break;
           case 'aHand':
@@ -247,7 +254,6 @@ class Service {
     if (!aPlayingPlayer.length) return (log.error('no playing participant') && null) ?? false; // TODO: declare result
     const oNextPlayer = await oTable.getNextPlayer(this.nSeat);
     if (!oNextPlayer) return (log.error('No playing player found...') && null) ?? false;
-    console.log('assignSkipCard :: ',oNextPlayer.iPlayerId);
     await oNextPlayer.update({bNextTurnSkip:true})
     return oNextPlayer.iPlayerId
   }
@@ -288,7 +294,6 @@ class Service {
   // prettier-ignore
   public async takeTurn(oTable: Table) {
     await _.delay(600)
-    console.log('takeTurn called for :: ',this.iPlayerId);
     await oTable.update({ iPlayerTurn: this.iPlayerId });
     let aStackingCardId:any=[]
     if(oTable.toJSON().aDiscardPile.slice(-1)[0].nLabel===12 || oTable.toJSON().aDiscardPile.slice(-1)[0].nLabel===14){
@@ -356,7 +361,6 @@ class Service {
      * TODO : set wild card random color
      * Pass turn
      */
-    console.log('assignWildCardColorTimerExpired called ... ');
     let randomColor:any=_.randomizeArray(["red","green","blue","yellow"])
     let updatedDiscardPile=[...oTable.toJSON().aDiscardPile]
     updatedDiscardPile[updatedDiscardPile.length-1].eColor=randomColor[0]
@@ -422,6 +426,7 @@ class Service {
       nDrawNormal: this.nDrawNormal,
       nReconnectionAttempt: this.nReconnectionAttempt,
       bSpecialMeterFull: this.bSpecialMeterFull,
+      bSkipSpecialMeterProcess: this.bSkipSpecialMeterProcess,
       aHand: this.aHand,
       eState: this.eState,
       dCreatedAt: this.dCreatedAt,

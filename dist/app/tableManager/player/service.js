@@ -25,10 +25,12 @@ class Service {
         this.bSpecialMeterFull = oData.bSpecialMeterFull;
         this.bUnoDeclared = oData.bUnoDeclared;
         this.bNextTurnSkip = oData.bNextTurnSkip;
+        this.bSkipSpecialMeterProcess = oData.bSkipSpecialMeterProcess;
         this.aHand = oData.aHand;
         this.eState = oData.eState;
         this.dCreatedAt = oData.dCreatedAt;
     }
+    ;
     update(oData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -74,6 +76,10 @@ class Service {
                             break;
                         case 'bUnoDeclared':
                             this.bUnoDeclared = v;
+                            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v));
+                            break;
+                        case 'bSkipSpecialMeterProcess':
+                            this.bSkipSpecialMeterProcess = v;
                             aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v));
                             break;
                         case 'aHand':
@@ -218,7 +224,6 @@ class Service {
             const oNextPlayer = yield oTable.getNextPlayer(this.nSeat);
             if (!oNextPlayer)
                 return (_b = (log.error('No playing player found...') && null)) !== null && _b !== void 0 ? _b : false;
-            console.log('assignSkipCard :: ', oNextPlayer.iPlayerId);
             yield oNextPlayer.update({ bNextTurnSkip: true });
             return oNextPlayer.iPlayerId;
         });
@@ -251,7 +256,6 @@ class Service {
     takeTurn(oTable) {
         return __awaiter(this, void 0, void 0, function* () {
             yield _.delay(600);
-            console.log('takeTurn called for :: ', this.iPlayerId);
             yield oTable.update({ iPlayerTurn: this.iPlayerId });
             let aStackingCardId = [];
             if (oTable.toJSON().aDiscardPile.slice(-1)[0].nLabel === 12 || oTable.toJSON().aDiscardPile.slice(-1)[0].nLabel === 14) {
@@ -314,7 +318,6 @@ class Service {
     }
     assignWildCardColorTimerExpired(oTable) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('assignWildCardColorTimerExpired called ... ');
             let randomColor = _.randomizeArray(["red", "green", "blue", "yellow"]);
             let updatedDiscardPile = [...oTable.toJSON().aDiscardPile];
             updatedDiscardPile[updatedDiscardPile.length - 1].eColor = randomColor[0];
@@ -388,6 +391,7 @@ class Service {
             nDrawNormal: this.nDrawNormal,
             nReconnectionAttempt: this.nReconnectionAttempt,
             bSpecialMeterFull: this.bSpecialMeterFull,
+            bSkipSpecialMeterProcess: this.bSkipSpecialMeterProcess,
             aHand: this.aHand,
             eState: this.eState,
             dCreatedAt: this.dCreatedAt,

@@ -139,6 +139,7 @@ class Player extends Service {
    */
   public async drawCard(oData: Record<string, never>, oTable: Table, callback: ICallback) {
     log.verbose(`${_.now()} event: drawCard, player: ${this.iPlayerId}`);
+    
     if(!oTable.toJSON().aDrawPile.length)await oTable.reshuffleClosedDeck()
     if(oTable.toJSON().iDrawPenltyPlayerId===this.iPlayerId){
       callback({ oData:{}, status: response.SUCCESS });
@@ -156,22 +157,21 @@ class Player extends Service {
       }
       return true
     }
-    const aCard = this.bSpecialMeterFull ? oTable.drawCard('special', 1) : oTable.drawCard('normal', 1);
-    if (!aCard) {
+    const aCard:any = this.bSpecialMeterFull ? await oTable.drawCard('special', 1) : await oTable.drawCard('normal', 1);
+    
+    if (!aCard || aCard===undefined) {
       callback({ oData: {}, status: response.SERVER_ERROR });
       return (log.error(`${_.now()} no card found for iCardId: ${oData.iCardId}`) && null) ?? false;
     }
-    
-
     // - setting up special meter from nDrawNormal
     const { nSpecialMeterFillCount } = oTable.toJSON().oSettings;
-    this.nDrawNormal = this.nDrawNormal === nSpecialMeterFillCount ? 0 : this.nDrawNormal + 1;
-    this.bSpecialMeterFull = this.nDrawNormal === nSpecialMeterFillCount;
+    if(!this.bSkipSpecialMeterProcess){
+      this.nDrawNormal = this.nDrawNormal === nSpecialMeterFillCount ? 0 : this.nDrawNormal + 1;
+      this.bSpecialMeterFull = this.nDrawNormal === nSpecialMeterFillCount;
+    }
 
     log.verbose(`${_.now()} player: ${this.iPlayerId}, drawnCard: ${aCard[0].iCardId}`);
-    // check if it is playable or not
     let isPlayableCard=await this.checkPlayableCard(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor,aCard[0])
-    // callback({ oData:{oCard: aCard[0],nDrawNormal:this.nDrawNormal,nSpecialMeterFillCount,bIsPlayable:isPlayableCard,nHandScore:await this.handCardCounts()}, status: response.SUCCESS });
     callback({ oData:{}, status: response.SUCCESS });
     
     this.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[aCard[0]], nDrawNormal:this.nDrawNormal,nSpecialMeterFillCount,bIsPlayable:isPlayableCard,nHandScore:await this.handCardCounts() ,eReason:'normalDraw' });
@@ -179,11 +179,6 @@ class Player extends Service {
     if(!isPlayableCard)await oTable.update({iPlayerTurn:""})
     await _.delay(300) // draw card animation
     let aPromise:any=[]
-    // if(this.bUnoDeclared&&this.aHand.length+1>2)aPromise.push(this.update({bUnoDeclared:false}))
-    // if(this.aHand.length<=2&&this.aHand.length+1>=2){
-    //   aPromise.push(this.update({bUnoDeclared:false}))
-    //   aPromise.push(oTable.update({iDrawPenltyPlayerId:""}))
-    // }
     await Promise.all([
       ...aPromise,
       oTable.updateDrawPile(),
@@ -211,7 +206,6 @@ class Player extends Service {
       this.passTurn(oTable)
 
     }
-    // return true;
 
     // TODO : reqKeepPlay for playable drawnCard
     // TODO : pass turn
@@ -245,7 +239,6 @@ class Player extends Service {
   }
 
   public async setWildCardColor(oData: any, oTable: Table, callback: ICallback) {
-    console.log('setWildCardColor called.... ',oData);
     log.verbose(`${_.now()} event: setWildCardColor, player: ${this.iPlayerId}`);
     const aPromises = [];
 

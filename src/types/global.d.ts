@@ -66,6 +66,7 @@ export declare interface IPlayer {
   bSpecialMeterFull: boolean;
   bUnoDeclared: boolean;
   bNextTurnSkip: boolean;
+  bSkipSpecialMeterProcess: boolean;
   aHand: ICard[];
   eState: 'waiting' | 'disconnected' | 'playing' | 'left' | 'declared';
   dCreatedAt: Date;
