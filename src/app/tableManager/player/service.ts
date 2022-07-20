@@ -218,7 +218,7 @@ class Service {
     const aCard:any =[];
     const { nSpecialMeterFillCount } = oTable.toJSON().oSettings;
     for (let i = 0; i < 2; i++) {
-      const oCard:any = this.bSpecialMeterFull ? oTable.drawCard('special', 1) : oTable.drawCard('normal', 1);      
+      const oCard:any = this.bSpecialMeterFull ?await oTable.drawCard('special', 1) :await oTable.drawCard('normal', 1);      
       this.nDrawNormal = this.nDrawNormal === nSpecialMeterFillCount ? 0 : this.nDrawNormal + 1;
       this.bSpecialMeterFull = this.nDrawNormal === nSpecialMeterFillCount;
       aCard.push(...oCard)
@@ -274,11 +274,12 @@ class Service {
     let aCard:any=[]
     const { nSpecialMeterFillCount } = oTable.toJSON().oSettings;
     for (let i = 0; i < oTable.toJSON().nDrawCount; i++) {
-      const oCard:any = this.bSpecialMeterFull ? oTable.drawCard('special', 1) : oTable.drawCard('normal', 1);      
+      const oCard:any = this.bSpecialMeterFull ?await oTable.drawCard('special', 1) :await oTable.drawCard('normal', 1);      
       if(!this.bSkipSpecialMeterProcess){
         this.nDrawNormal = this.nDrawNormal === nSpecialMeterFillCount ? 0 : this.nDrawNormal + 1;
         this.bSpecialMeterFull = this.nDrawNormal === nSpecialMeterFillCount;
       }
+      console.log('oCard in assignDrawPenalty :: ',oCard);
       aCard.push(...oCard)
     }
     await oTable.updateDrawPile()
