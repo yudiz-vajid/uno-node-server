@@ -1,6 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 /* eslint-disable vars-on-top */
 /* eslint-disable no-var */
+import './lib/ip';
 import { Server } from 'socket.io';
 import type { Express } from 'express';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';

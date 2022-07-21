@@ -12,8 +12,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-require("./env");
+require("dotenv/config");
 require("./globals");
+const grpc_1 = __importDefault(require("./grpc"));
 const server_1 = __importDefault(require("./server"));
 const sockets_1 = __importDefault(require("./app/sockets"));
 process.env.UV_THREADPOOL_SIZE = '1';
@@ -25,12 +26,32 @@ process.once('unhandledRejection', (ex) => {
     log.error(`${_.now()} we have unhandledRejection, ${ex.message}, ${ex.stack}`);
     process.exit(1);
 });
+function pathFinderInit() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            pf.initialize({ appName: 'Uno', protosToLoad: grpc_1.default, promisify: true });
+            const client = yield pf.getInstance().getClient({
+                serviceName: 'UnoService',
+                serviceNameInProto: 'UnoService',
+            });
+            client.authenticate({
+                requestId: 'req_1',
+                authToken: 'authToken_1',
+            });
+        }
+        catch (err) {
+            log.error(`${_.now()} we have error, ${err.message}, ${err.stack}`);
+        }
+    });
+}
 (() => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield Promise.all([server_1.default.initialize(), redis.initialize()]);
         yield sockets_1.default.initialize(server_1.default.httpServer);
+        log.info(`[HOST: ${process.env.HOST}]  we have initialized everything`);
         yield redis.client.flushAll();
-        log.info(':-)');
+        pathFinderInit();
+        log.info(`:-)`);
     }
     catch (err) {
         log.info(':-(');

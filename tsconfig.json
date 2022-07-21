@@ -35,6 +35,6 @@
       "skipLibCheck": true /* Skip type checking of declaration files. */,
       "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */
     },
-    "exclude": ["node_modules", "dist"] /* Specify files to be excluded from compilation. */,
+    "exclude": ["node_modules", "dist", "src/globals/lib/lib-pathfinder-node"] /* Specify files to be excluded from compilation. */,
     "include": ["./src"] /* Specify files to be included in compilation. */
   }

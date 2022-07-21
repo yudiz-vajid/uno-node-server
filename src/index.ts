@@ -1,4 +1,4 @@
-import './env';
+import 'dotenv/config';
 import './globals';
 import protos from './grpc';
 import server from './server';
@@ -38,9 +38,10 @@ async function pathFinderInit() {
   try {
     await Promise.all([server.initialize(), redis.initialize()]);
     await socket.initialize(server.httpServer);
-    await redis.client.flushAll();
+    log.info(`[HOST: ${process.env.HOST}]  we have initialized everything`);
+    await redis.client.flushAll(); // TODO: remove
     pathFinderInit();
-    log.info(':-)');
+    log.info(`:-)`);
   } catch (err: any) {
     log.info(':-(');
     log.error(`reason: ${err.message}, stack: ${err.stack}`);

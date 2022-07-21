@@ -44,7 +44,7 @@
         ".resources": false,
         "node_modules": true,
         ".prettierrc.json": false,
-        "dist": true
+        "dist": false
     },
     "explorerExclude.backup": null,
     "cSpell.ignoreWords": [],
