@@ -31,7 +31,7 @@ class TableManager {
 
     const oPlayer = oTable.getPlayer(iPlayerId);
 
-    if (['assignTurnTimerExpired', 'assignGraceTimerExpired', 'drawCard', 'discardCard'].includes(sTaskName)) {
+    if (['assignTurnTimerExpired', 'assignGraceTimerExpired', 'drawCard', 'discardCard','decalreUno'].includes(sTaskName)) {
       if (!oPlayer) {
         callback({ oData: {}, status: response.PLAYER_NOT_FOUND });
         return (log.warn(`${_.now()} oPlayer not found in table. { iBattleId : ${iBattleId}, iPlayerId : ${iPlayerId} }`) && null) ?? false;
@@ -55,6 +55,10 @@ class TableManager {
         oTable.masterTimerExpired();
         return true;
 
+      case 'masterTimerWillExpire':
+        oTable.masterTimerWillExpire();
+        return true;
+
       case 'gameInitializeTimerExpired':
         oTable.gameInitializeTimerExpired();
         return true;
@@ -67,8 +71,28 @@ class TableManager {
         oPlayer?.assignGraceTimerExpired(oTable);
         return true;
 
+      case 'assignWildCardColorTimerExpired':
+        oPlayer?.assignWildCardColorTimerExpired(oTable);
+        return true;
+
       case 'drawCard':
         oPlayer?.drawCard({}, oTable, callback);
+        return true;
+
+      case 'keepCard':
+        oPlayer?.keepCard({}, oTable, callback);
+        return true;
+
+      case 'setWildCardColor':
+        oPlayer?.setWildCardColor(oData, oTable, callback);
+        return true;
+
+      case 'decalreUno':
+        oPlayer?.decalreUno(oData, oTable, callback);
+        return true;
+
+      case 'leaveMatch':
+        oPlayer?.leaveMatch(oData, oTable, callback);
         return true;
 
       case 'discardCard':
@@ -86,12 +110,14 @@ class TableManager {
         iBattleId: oData.iBattleId,
         iPlayerTurn: '',
         iSkippedPLayer: '',
+        iDrawPenltyPlayerId: '',
         aPlayerId: [],
         aDrawPile: new Deck(oData.oSettings.aCardScore).getDeck(), // - to be initialized during distributeCard
         aDiscardPile: [], // - to be initialized during distributeCard
         bToSkip: false,
         eState: 'waiting',
         bTurnClockwise: true,
+        bIsReverseNow: false,
         eNextCardColor: '',
         nDrawCount: 0,
         oSettings: oData.oSettings,

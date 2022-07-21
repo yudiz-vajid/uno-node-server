@@ -4,6 +4,8 @@ import type Player from '../player';
 class Table extends Service {
   public async distributeCard() {
     // eslint-disable-next-line prefer-const
+    console.log('distributeCard called...');
+    
     let { nStartingNormalCardCount, nStartingActionCardCount, nStartingSpecialCardCount } = this.oSettings;
     nStartingActionCardCount = nStartingActionCardCount || _.getRandomNumber(2, 3);
     const nStartingWildCardCount = nStartingSpecialCardCount - nStartingActionCardCount;
@@ -13,17 +15,17 @@ class Table extends Service {
 
     this.aPlayer.forEach(async player => {
       log.verbose(`length(drawPile): ${this.aDrawPile.length} `);
-      const aNormalCard = this.drawCard('normal', nStartingNormalCardCount); // 1-9
+      const aNormalCard =await this.drawCard('normal', nStartingNormalCardCount); // 1-9
       if (!aNormalCard) return (log.error(`Could not draw normal cards for player ${player.toJSON().iPlayerId}`) && null) ?? false;
-      const aActionCard = this.drawCard('action', nStartingActionCardCount); // 10-12
+      const aActionCard =await this.drawCard('action', nStartingActionCardCount); // 10-12
       if (!aActionCard) return (log.error(`Could not draw action cards for player ${player.toJSON().iPlayerId}`) && null) ?? false;
-      const aWildCard = this.drawCard('wild', nStartingWildCardCount); // 13-14
+      const aWildCard =await this.drawCard('wild', nStartingWildCardCount); // 13-14
       if (!aWildCard) return (log.error(`Could not draw wild cards for player ${player.toJSON().iPlayerId}`) && null) ?? false;
       await player.setHand(aNormalCard, aActionCard, aWildCard);
       return true;
     });
 
-    const oDiscardPileTopCard = this.drawCard('normal', 1); // - should not be special card
+    const oDiscardPileTopCard =await this.drawCard('normal', 1); // - should not be special card
     if (!oDiscardPileTopCard) return (log.error(`Could not draw discard pile top card`) && null) ?? false;
     this.aDiscardPile.push(...oDiscardPileTopCard);
 
@@ -34,10 +36,11 @@ class Table extends Service {
       //
     ]);
 
-    await _.delay(5000); // TODO: get from client
+    await _.delay(500*(1+this.oSettings.nStartingNormalCardCount+this.oSettings.nStartingSpecialCardCount)); // TODO: (0.3 * 7cards)
     this.emit('resDiscardPileTopCard', { oDiscardPileTopCard: this.getDiscardPileTopCard() });
     this.emit('resInitMasterTimer', { ttl: this.oSettings.nTotalGameTime, timestamp: Date.now() });
     this.setSchedular('masterTimerExpired', '', this.oSettings.nTotalGameTime); // -  game lifetime second
+    this.setSchedular('masterTimerWillExpire', '', this.oSettings.nTotalGameTime-this.oSettings.nFastTimerAt); // -  game last time (60-10)
     this.assignRandomTurn(); // assign turn to random player
     return true;
   }
@@ -46,13 +49,32 @@ class Table extends Service {
   public async masterTimerExpired() {
     log.verbose('masterTimerExpired, game should end now');
     this.emit('resMasterTimerExpired', {});
+    const aPlayingPlayer=this.aPlayer.filter(p => p.toJSON().eState === 'playing');
+    for(let player of aPlayingPlayer){
+      player.nScore=await player.handCardCounts(player.aHand)
+    }
+    const sortedPlayer=aPlayingPlayer.sort((a,b)=>a.nScore-b.nScore)
+    await _.delay(1500)
+    if(this.iDrawPenltyPlayerId){
+      const penaltyUser=this.getPlayer(this.iDrawPenltyPlayerId)
+      if(penaltyUser?.eState==='playing')await penaltyUser.assignDrawPenalty(this)
+    }
+    this.gameOver(sortedPlayer[0],'masterTimerExpire')
+    return true;
+  }
+
+  public async masterTimerWillExpire() {
+    log.verbose('masterTimerWillExpire, game should fast now');
+    this.emit('resMasterTimerWillExpire', {});
+    let updatedSettings={...this.oSettings,nTurnTime:this.oSettings.nTurnTime/2}
+    await this.update({oSettings:updatedSettings})
     return true;
   }
 
   public async gameInitializeTimerExpired() {
     log.verbose('gameInitializeTimerExpired, game should start now');
     this.emit('resGameInitializeTimerExpired', {});
-    this.setSchedular('distributeCard', '', 2000); // TODO: replace with nAnimationDelay
+    this.setSchedular('distributeCard', '',100); 
     return true;
   }
 

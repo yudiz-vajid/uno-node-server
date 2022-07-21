@@ -26,12 +26,14 @@ class Service {
         this.iBattleId = oData.iBattleId;
         this.iPlayerTurn = oData.iPlayerTurn;
         this.iSkippedPLayer = oData.iSkippedPLayer;
+        this.iDrawPenltyPlayerId = oData.iDrawPenltyPlayerId;
         this.aPlayerId = oData.aPlayerId;
         this.aDrawPile = oData.aDrawPile;
         this.aDiscardPile = oData.aDiscardPile;
         this.bToSkip = oData.bToSkip;
         this.eState = oData.eState;
         this.bTurnClockwise = oData.bTurnClockwise;
+        this.bIsReverseNow = oData.bIsReverseNow;
         this.eNextCardColor = oData.eNextCardColor;
         this.nDrawCount = oData.nDrawCount;
         this.dCreatedAt = oData.dCreatedAt;
@@ -54,6 +56,10 @@ class Service {
                             break;
                         case 'iSkippedPLayer':
                             this.iSkippedPLayer = v;
+                            aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v));
+                            break;
+                        case 'iDrawPenltyPlayerId':
+                            this.iDrawPenltyPlayerId = v;
                             aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v));
                             break;
                         case 'aPlayerId':
@@ -80,12 +86,20 @@ class Service {
                             this.bTurnClockwise = v;
                             aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v));
                             break;
+                        case 'bIsReverseNow':
+                            this.bIsReverseNow = v;
+                            aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v));
+                            break;
                         case 'eNextCardColor':
                             this.eNextCardColor = v;
                             aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v));
                             break;
                         case 'nDrawCount':
                             this.nDrawCount = v;
+                            aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v));
+                            break;
+                        case 'oSettings':
+                            this.oSettings = v;
                             aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v));
                             break;
                         default:
@@ -106,40 +120,84 @@ class Service {
     }
     drawCard(eCardType, nCount) {
         var _a;
-        const aCards = [];
-        switch (eCardType) {
-            case 'normal':
-                for (let i = 0; i < nCount; i += 1) {
-                    const nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
-                    aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
-                }
-                break;
-            case 'action':
-                for (let i = 0; i < nCount; i += 1) {
-                    const nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9 && c.nLabel < 13);
-                    aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
-                }
-                break;
-            case 'wild':
-                for (let i = 0; i < nCount; i += 1) {
-                    const nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 12);
-                    aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
-                }
-                break;
-            case 'special':
-                for (let i = 0; i < nCount; i += 1) {
-                    const nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9);
-                    aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
-                }
-                break;
-            default:
-                return (_a = (log.error(`drawCard called with invalid eCardType: ${eCardType}`) && null)) !== null && _a !== void 0 ? _a : null;
-        }
-        return aCards;
+        return __awaiter(this, void 0, void 0, function* () {
+            const aCards = [];
+            let skipSpecialMeter = false;
+            switch (eCardType) {
+                case 'normal':
+                    for (let i = 0; i < nCount; i += 1) {
+                        let nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
+                        if (nCardIndex === -1) {
+                            yield this.reshuffleClosedDeck();
+                            nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
+                        }
+                        aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
+                    }
+                    break;
+                case 'action':
+                    for (let i = 0; i < nCount; i += 1) {
+                        let nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9 && c.nLabel < 13);
+                        if (nCardIndex === -1) {
+                            yield this.reshuffleClosedDeck();
+                            nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9 && c.nLabel < 13);
+                            if (nCardIndex === -1) {
+                                nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
+                                skipSpecialMeter = true;
+                            }
+                        }
+                        aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
+                    }
+                    break;
+                case 'wild':
+                    for (let i = 0; i < nCount; i += 1) {
+                        let nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 12);
+                        if (nCardIndex === -1) {
+                            yield this.reshuffleClosedDeck();
+                            nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 12);
+                            if (nCardIndex === -1) {
+                                nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
+                                skipSpecialMeter = true;
+                            }
+                        }
+                        aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
+                    }
+                    break;
+                case 'special':
+                    for (let i = 0; i < nCount; i += 1) {
+                        let nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9);
+                        if (nCardIndex === -1) {
+                            yield this.reshuffleClosedDeck();
+                            nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9);
+                            if (nCardIndex === -1) {
+                                nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
+                                skipSpecialMeter = true;
+                            }
+                        }
+                        aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
+                    }
+                    break;
+                default:
+                    return (_a = (log.error(`drawCard called with invalid eCardType: ${eCardType}`) && null)) !== null && _a !== void 0 ? _a : null;
+            }
+            const player = yield this.getPlayer(this.iPlayerTurn);
+            yield (player === null || player === void 0 ? void 0 : player.update({ bSkipSpecialMeterProcess: skipSpecialMeter }));
+            return aCards;
+        });
     }
     getPlayer(iPlayerId) {
         var _a;
         return (_a = this.aPlayer.find(oParticipant => oParticipant.toJSON().iPlayerId === iPlayerId)) !== null && _a !== void 0 ? _a : null;
+    }
+    reshuffleClosedDeck() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.aDrawPile = this.aDrawPile.length ? [...this.aDrawPile, ...this.aDiscardPile.splice(0, this.aDiscardPile.length - 1)] : this.aDiscardPile.splice(0, this.aDiscardPile.length - 1);
+            for (let i = 0; i < this.aDrawPile.length; i++) {
+                if (this.aDrawPile[i].nLabel > 12)
+                    this.aDrawPile[i].eColor = "black";
+            }
+            yield this.update({ aDiscardPile: this.aDiscardPile, aDrawPile: this.aDrawPile });
+            this.emit('resShuffleDeck', {});
+        });
     }
     initializeGame() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -174,6 +232,25 @@ class Service {
             if (this.aPlayerId.length === this.oSettings.nTotalPlayerCount) {
                 this.initializeGame();
             }
+            return true;
+        });
+    }
+    gameOver(oPlayer, eReason) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.update({ eState: 'finished' });
+            const aPlayer = this.toJSON().aPlayer.filter(p => p.eState != 'left');
+            for (let player of aPlayer) {
+                yield player.update({ eState: 'declared' });
+                player.nScore = yield player.handCardCounts(player.aHand);
+            }
+            const sortedPlayer = aPlayer.sort((a, b) => a.nScore - b.nScore).map((p, i) => { return { aHand: p.aHand, nScore: p.nScore, iPlayerId: p.iPlayerId, nRank: i }; });
+            this.emit('resGameOver', { aPlayer: sortedPlayer, oWinner: oPlayer, eReason });
+            const keys = yield redis.client.KEYS(`t:${this.iBattleId}:*`);
+            if (keys.length)
+                yield redis.client.del(keys);
+            const schedularKey = yield redis.client.KEYS(`sch:${this.iBattleId}:`);
+            if (schedularKey.length)
+                yield redis.client.del(schedularKey);
             return true;
         });
     }
@@ -230,6 +307,12 @@ class Service {
             }
         });
     }
+    handleReverseCard() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.update({ bTurnClockwise: !(this.bTurnClockwise), bIsReverseNow: true });
+            return true;
+        });
+    }
     getTTL(sTaskName = '', iPlayerId = '*') {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -269,10 +352,12 @@ class Service {
             iBattleId: this.iBattleId,
             iPlayerTurn: this.iPlayerTurn,
             iSkippedPLayer: this.iSkippedPLayer,
+            iDrawPenltyPlayerId: this.iDrawPenltyPlayerId,
             aPlayerId: this.aPlayerId,
             aDrawPile: this.aDrawPile,
             aDiscardPile: this.aDiscardPile,
             bToSkip: this.bToSkip,
+            bIsReverseNow: this.bIsReverseNow,
             eState: this.eState,
             bTurnClockwise: this.bTurnClockwise,
             eNextCardColor: this.eNextCardColor,

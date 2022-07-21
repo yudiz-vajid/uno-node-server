@@ -32,10 +32,13 @@ declare interface ISettings {
   bSkipTurnOnDrawTwoOrFourCard: boolean;
   bStackingDrawCards: boolean;
   bVisualEffectOnUnoButton: boolean;
+  bMustCollectOnMissTurn: boolean;
 
   nTotalGameTime: number; // ms : game lifetime
+  nFastTimerAt: number; // ms : fast turn timer on given remaining time in nTotalGameTime
   nTurnTime: number; // ms :
   nGraceTime: number; // ms
+  nWildCardColorTimer: number; // ms
   nStartingNormalCardCount: number;
   nStartingSpecialCardCount: number;
   nStartingActionCardCount: number;
@@ -61,8 +64,11 @@ export declare interface IPlayer {
   nDrawNormal: number;
   nReconnectionAttempt: number;
   bSpecialMeterFull: boolean;
+  bUnoDeclared: boolean;
+  bNextTurnSkip: boolean;
+  bSkipSpecialMeterProcess: boolean;
   aHand: ICard[];
-  eState: 'waiting' | 'disconnected' | 'playing' | 'left';
+  eState: 'waiting' | 'disconnected' | 'playing' | 'left' | 'declared';
   dCreatedAt: Date;
 }
 
@@ -70,11 +76,13 @@ export declare interface ITable {
   iBattleId: string;
   iPlayerTurn: string;
   iSkippedPLayer: string;
+  iDrawPenltyPlayerId: string;
   aPlayerId: string[];
   aDrawPile: ICard[];
   aDiscardPile: ICard[];
   bToSkip: boolean;
   bTurnClockwise: boolean;
+  bIsReverseNow: boolean;
   eState: 'waiting' | 'initialized' | 'running' | 'finished';
   eNextCardColor: Omit<ICard['eColor'], 'black'>;
   nDrawCount: number;

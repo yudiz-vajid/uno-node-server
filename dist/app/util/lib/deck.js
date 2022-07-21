@@ -51,7 +51,7 @@ class Deck {
     generateBlackCards() {
         const aWildCard = [];
         for (let i = 13; i <= 14; i++) {
-            for (let j = 0; j < 4; j++) {
+            for (let j = 0; j < 2; j++) {
                 if (i === 13)
                     aWildCard.push({ iCardId: `wd${i}${String.fromCharCode(97 + j)}`, eColor: 'black', nLabel: i, nScore: this.aScore[i] });
                 else

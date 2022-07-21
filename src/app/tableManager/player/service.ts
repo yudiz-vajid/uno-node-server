@@ -2,7 +2,7 @@ import { ICard, IPlayer, ITable, RedisJSON } from '../../../types/global';
 import type Table from '../table';
 
 class Service {
-  protected readonly iPlayerId: IPlayer['iPlayerId'];
+  public readonly iPlayerId: IPlayer['iPlayerId'];
 
   protected readonly iBattleId: IPlayer['iBattleId'];
 
@@ -12,7 +12,7 @@ class Service {
 
   protected readonly nSeat: IPlayer['nSeat'];
 
-  protected nScore: IPlayer['nScore'];
+  public nScore: IPlayer['nScore'];
 
   protected nUnoTime: IPlayer['nUnoTime'];
 
@@ -26,11 +26,17 @@ class Service {
 
   protected bSpecialMeterFull: IPlayer['bSpecialMeterFull'];
 
-  protected aHand: IPlayer['aHand'];
+  protected bNextTurnSkip: IPlayer['bNextTurnSkip'];
+  
+  protected bUnoDeclared: IPlayer['bUnoDeclared'];
 
-  protected eState: IPlayer['eState'];
+  public aHand: IPlayer['aHand'];
+
+  public eState: IPlayer['eState'];
 
   protected readonly dCreatedAt: IPlayer['dCreatedAt'];
+  
+  public bSkipSpecialMeterProcess: IPlayer['bSkipSpecialMeterProcess'];;
 
   constructor(oData: IPlayer) {
     this.iPlayerId = oData.iPlayerId;
@@ -45,13 +51,16 @@ class Service {
     this.nDrawNormal = oData.nDrawNormal;
     this.nReconnectionAttempt = oData.nReconnectionAttempt;
     this.bSpecialMeterFull = oData.bSpecialMeterFull;
+    this.bUnoDeclared = oData.bUnoDeclared;
+    this.bNextTurnSkip = oData.bNextTurnSkip;
+    this.bSkipSpecialMeterProcess = oData.bSkipSpecialMeterProcess;
     this.aHand = oData.aHand;
     this.eState = oData.eState;
     this.dCreatedAt = oData.dCreatedAt;
   }
 
   // prettier-ignore
-  public async update(oData: Partial<Pick<IPlayer, 'sSocketId' | 'nScore' | 'nUnoTime' | 'nGraceTime' | 'nMissedTurn' | 'nDrawNormal' | 'nReconnectionAttempt' | 'bSpecialMeterFull' | 'aHand' | 'eState'>>) {
+  public async update(oData: Partial<Pick<IPlayer, 'sSocketId' | 'nScore' | 'nUnoTime' | 'nGraceTime' | 'nMissedTurn' | 'nDrawNormal' | 'nReconnectionAttempt' | 'bSpecialMeterFull'|'bNextTurnSkip' |'bUnoDeclared'| 'bSkipSpecialMeterProcess' | 'aHand' | 'eState'>>) {
     try {
       const aPromise: Array<Promise<unknown>> = [];
       const sPlayerKey = _.getPlayerKey(this.iBattleId, this.iPlayerId);
@@ -87,6 +96,18 @@ class Service {
             break;
           case 'bSpecialMeterFull':
             this.bSpecialMeterFull = v as IPlayer['bSpecialMeterFull'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'bNextTurnSkip':
+            this.bNextTurnSkip = v as IPlayer['bNextTurnSkip'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'bUnoDeclared':
+            this.bUnoDeclared = v as IPlayer['bUnoDeclared'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'bSkipSpecialMeterProcess':
+            this.bSkipSpecialMeterProcess = v as IPlayer['bSkipSpecialMeterProcess'];
             aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
             break;
           case 'aHand':
@@ -140,30 +161,160 @@ class Service {
     this.aHand.push(...aWildCard);
 
     await this.update({ aHand: this.aHand, eState: 'playing' });
-    this.emit('resHand', { aHand: this.aHand });
+    this.emit('resHand', { aHand: this.aHand,nHandScore:await this.handCardCounts() });
   }
 
   /**
    * get list of cards for user to play wrt discard pile top card
    */
-  public async getPlayableCardIds(oDiscardPileTopCard: ICard, eNextCardColor?: Table['eNextCardColor']) {
-    if (oDiscardPileTopCard.nLabel === 12) return this.aHand.filter(card => card.nLabel === 12).map(card => card.iCardId); // TODO check color as well
-    if (oDiscardPileTopCard.nLabel === 14) return this.aHand.filter(card => card.nLabel === 14).map(card => card.iCardId);
-    if (oDiscardPileTopCard.nLabel === 13) return this.aHand.filter(card => card.nLabel > 12 || card.eColor === eNextCardColor).map(card => card.iCardId);
+  public async getPlayableCardIds(oDiscardPileTopCard: any, eNextCardColor?: Table['eNextCardColor']) {
+    if(!oDiscardPileTopCard || oDiscardPileTopCard===undefined)return this.aHand
+    if (oDiscardPileTopCard.nLabel === 12) return this.aHand.filter(card => card.nLabel > 12 || card.nLabel === 12||oDiscardPileTopCard.eColor=== card.eColor).map(card => card.iCardId); // TODO check color as well
+    if (oDiscardPileTopCard.nLabel === 14) return this.aHand.filter(card => card.nLabel > 12 || card.nLabel === 14||oDiscardPileTopCard.eColor=== card.eColor).map(card => card.iCardId);
+    if (oDiscardPileTopCard.nLabel === 13) return this.aHand.filter(card => card.nLabel > 12 || card.eColor === oDiscardPileTopCard.eColor).map(card => card.iCardId);
     return this.aHand
       .filter(card => oDiscardPileTopCard.eColor === card.eColor || oDiscardPileTopCard.nLabel === card.nLabel || card.nLabel === 13 || card.nLabel === 14)
       .map(card => card.iCardId);
   }
 
+  public async getStackingCardIds(oDiscardPileTopCard: ICard) {
+    // if (oDiscardPileTopCard.nLabel === 12) return this.aHand.filter(card => card.nLabel === 12&&oDiscardPileTopCard.eColor=== card.eColor).map(card => card.iCardId);
+    if (oDiscardPileTopCard.nLabel === 12) return this.aHand.filter(card => card.nLabel === 12).map(card => card.iCardId);
+    if (oDiscardPileTopCard.nLabel === 14) return this.aHand.filter(card => card.nLabel === 14).map(card => card.iCardId);
+  }
+
+  /**
+   * get list of cards for user to play wrt discard pile top card
+   */
+  public async handCardCounts(aHand=this.aHand) {
+    console.log(this.aHand);
+    const nPlayerScore = aHand.reduce((p, c) => p + c.nScore, 0);
+    return nPlayerScore
+  }
+  /**
+   * 
+   * @param oDiscardPileTopCard 
+   * @param eNextCardColor 
+   * @returns 
+   */
+  public async autoPickCard(oTable:Table) {
+    log.verbose(`${_.now()} event: autoPickCard, player: ${this.iPlayerId}`);
+    const aCard:any =await oTable.drawCard('normal', 1);
+    let aPromise:any=[]
+    if(this.bUnoDeclared && this.aHand.length+1 >2)aPromise.push(this.update({ bUnoDeclared:false}))
+    await Promise.all([
+      oTable.updateDrawPile(),
+      ...aPromise,
+      this.update({ aHand: [...this.aHand, ...aCard] }),
+    ]); 
+  
+    this.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[aCard[0]], nCardCount: 1,nDrawNormal:this.nDrawNormal,nSpecialMeterFillCount:oTable.toJSON().oSettings.nSpecialMeterFillCount,nHandCardCount:this.aHand.length,nHandScore:await this.handCardCounts(),eReason:'autoDraw' });
+    oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[], nCardCount: 1,nHandCardCount:this.aHand.length,eReason:'autoDraw' },[this.iPlayerId]);
+    await _.delay(300)
+  }
+
+  public async assignUnoMissPenalty(oTable:Table) {
+    log.verbose(`${_.now()} event: autoPickCard, player: ${this.iPlayerId}`);
+    const aCard:any =[];
+    const { nSpecialMeterFillCount } = oTable.toJSON().oSettings;
+    for (let i = 0; i < 2; i++) {
+      const oCard:any = this.bSpecialMeterFull ?await oTable.drawCard('special', 1) :await oTable.drawCard('normal', 1);      
+      this.nDrawNormal = this.nDrawNormal === nSpecialMeterFillCount ? 0 : this.nDrawNormal + 1;
+      this.bSpecialMeterFull = this.nDrawNormal === nSpecialMeterFillCount;
+      aCard.push(...oCard)
+    }
+    await Promise.all([
+      oTable.updateDrawPile(),
+      this.update({ aHand: [...this.aHand, ...aCard] }),
+    ]); 
+    this.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard, nCardCount: 2,nDrawNormal:this.nDrawNormal,nSpecialMeterFillCount:oTable.toJSON().oSettings.nSpecialMeterFillCount,nHandCardCount:this.aHand.length,nHandScore:await this.handCardCounts(),eReason:'unoMissPenalty' });
+    oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[], nCardCount: 2,nHandCardCount:this.aHand.length,eReason:'unoMissPenalty' },[this.iPlayerId]);
+    await _.delay(300*2) // draw card animation.per card 300 ml
+  }
+
+  /**
+   * check if given card is playable or not NOTE :- just for single card only.
+   */
+  public async checkPlayableCard(oDiscardPileTopCard: ICard, eNextCardColor?: Table['eNextCardColor'],oUserCard?:any) {
+    if (oDiscardPileTopCard.nLabel === 12) return oUserCard.nLabel === 12 || oUserCard.eColor===oDiscardPileTopCard.eColor 
+    if (oDiscardPileTopCard.nLabel === 14) return oUserCard.nLabel === 14 || oUserCard.eColor===oDiscardPileTopCard.eColor
+    if (oDiscardPileTopCard.nLabel === 13) return oUserCard.nLabel > 12|| oUserCard.eColor === oDiscardPileTopCard.eColor
+    return oDiscardPileTopCard.eColor === oUserCard.eColor || oDiscardPileTopCard.nLabel === oUserCard.nLabel || oUserCard.nLabel === 13 || oUserCard.nLabel === 14
+  }
+
+/**
+ * 
+ * @param oTable skip player turn
+ * need bNextTurnSkip false as turn is skipped 
+ */
+  async assignSkipCard(oTable:Table) {
+    if (oTable.toJSON().eState !== 'running') return log.error('table is not in running state.');
+    const { aPlayer } = oTable.toJSON();
+    const aPlayingPlayer = aPlayer.filter(p => p.eState === 'playing');
+    if (!aPlayingPlayer.length) return (log.error('no playing participant') && null) ?? false; // TODO: declare result
+    const oNextPlayer = await oTable.getNextPlayer(this.nSeat);
+    if (!oNextPlayer) return (log.error('No playing player found...') && null) ?? false;
+    await oNextPlayer.update({bNextTurnSkip:true})
+    return oNextPlayer.iPlayerId
+  }
+/**
+ * 
+ * @param oTable skip player turn
+ * need bNextTurnSkip false as turn is skipped 
+ */
+  async skipPlayer(oTable:Table) {
+    this.bNextTurnSkip = false;
+    // oTable.emit('resSkippedPlayer', { iPlayerId: this.iPlayerId }); // Not required from front side @keval.
+    await this.update({ bNextTurnSkip: this.bNextTurnSkip });
+    this.passTurn(oTable);
+  }
+
+  async assignDrawPenalty(oTable:Table) {
+    // add penalty card to user along wih spcial meter
+    let aCard:any=[]
+    const { nSpecialMeterFillCount } = oTable.toJSON().oSettings;
+    for (let i = 0; i < oTable.toJSON().nDrawCount; i++) {
+      const oCard:any = this.bSpecialMeterFull ?await oTable.drawCard('special', 1) :await oTable.drawCard('normal', 1);      
+      if(!this.bSkipSpecialMeterProcess){
+        this.nDrawNormal = this.nDrawNormal === nSpecialMeterFillCount ? 0 : this.nDrawNormal + 1;
+        this.bSpecialMeterFull = this.nDrawNormal === nSpecialMeterFillCount;
+      }
+      console.log('oCard in assignDrawPenalty :: ',oCard);
+      aCard.push(...oCard)
+    }
+    await oTable.updateDrawPile()
+    await this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard],bUnoDeclared:false });
+    await oTable.update({ iDrawPenltyPlayerId:"" ,nDrawCount:0});
+    // await _.delay(300*aCard.length)
+    this.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard, nCardCount: aCard.length,nHandCardCount:this.aHand.length,nDrawNormal:this.nDrawNormal,nSpecialMeterFillCount,nHandScore:await this.handCardCounts(), eReason:'drawCardPenalty'});
+    oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[], nCardCount: aCard.length,nHandCardCount:this.aHand.length,eReason:'drawCardPenalty' },[this.iPlayerId]);
+    await _.delay(300*aCard.length) // draw card animation.
+    // this.passTurn(oTable);
+  }
+
+
+
   // prettier-ignore
   public async takeTurn(oTable: Table) {
-    // log.debug(`take turn called... for user ${this.iPlayerId}`);
+    await _.delay(600)
     await oTable.update({ iPlayerTurn: this.iPlayerId });
-    const aPlayableCardId = await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
+    let aStackingCardId:any=[]
+    if(oTable.toJSON().aDiscardPile.slice(-1)[0].nLabel===12 || oTable.toJSON().aDiscardPile.slice(-1)[0].nLabel===14){
+      if(oTable.toJSON().oSettings.bStackingDrawCards && oTable.toJSON().iDrawPenltyPlayerId===this.iPlayerId){
+        aStackingCardId = await this.getStackingCardIds(oTable.getDiscardPileTopCard());  
+        if(!aStackingCardId?.length)await this.assignDrawPenalty(oTable)
+        if(!aStackingCardId?.length && oTable.toJSON().oSettings.bSkipTurnOnDrawTwoOrFourCard)return this.skipPlayer(oTable);
+      }else if(oTable.toJSON().iDrawPenltyPlayerId===this.iPlayerId){
+        await this.assignDrawPenalty(oTable) // Assign penalty card to user
+        if(oTable.toJSON().oSettings.bSkipTurnOnDrawTwoOrFourCard)return this.skipPlayer(oTable);
+      }
+    }
+    if (this.bNextTurnSkip) return this.skipPlayer(oTable);
+    const aPlayableCardId =aStackingCardId.length ? aStackingCardId : await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
     log.debug(`${_.now()} discard pile top card:: ${oTable.getDiscardPileTopCard().iCardId}`);
     log.debug(`${_.now()} playable cards for player ${this.iPlayerId}:: ${aPlayableCardId}`);
-    this.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nTurnTime, timestamp: Date.now(), aPlayableCards: aPlayableCardId });
-    oTable.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nTurnTime, timestamp: Date.now(), aPlayableCards: [] }, [this.iPlayerId]);
+    this.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nTurnTime-500, timestamp: Date.now(), aPlayableCards: aPlayableCardId });
+    oTable.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nTurnTime-500, timestamp: Date.now(), aPlayableCards: [] }, [this.iPlayerId]);
     oTable.setSchedular('assignTurnTimerExpired', this.iPlayerId, oTable.toJSON().oSettings.nTurnTime);
   }
 
@@ -171,9 +322,21 @@ class Service {
   public async assignTurnTimerExpired(oTable: Table) {
     // log.verbose('assignTurnTimerExpired called...');
     if (this.nGraceTime < 3) return this.assignGraceTimerExpired(oTable); // Nothing changed in table so no need to save it. // ? why
-    const aPlayableCardId = await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
-    this.emit('resTurnTimer', { bIsGraceTimer: true, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nGraceTime, timestamp: Date.now(), aPlayableCards: aPlayableCardId });
-    oTable.emit('resTurnTimer', { bIsGraceTimer: true, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nGraceTime, timestamp: Date.now(), aPlayableCards: []  }, [this.iPlayerId]);
+    // const aPlayableCardId = await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
+    // this.emit('resTurnTimer', { bIsGraceTimer: true, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nGraceTime, timestamp: Date.now(), aPlayableCards: aPlayableCardId });
+    // oTable.emit('resTurnTimer', { bIsGraceTimer: true, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nGraceTime, timestamp: Date.now(), aPlayableCards: []  }, [this.iPlayerId]);
+    // start stacking 
+    let aStackingCardId:any=[]
+    if(oTable.toJSON().aDiscardPile.slice(-1)[0].nLabel===12 || oTable.toJSON().aDiscardPile.slice(-1)[0].nLabel===14){
+      if(oTable.toJSON().oSettings.bStackingDrawCards && oTable.toJSON().iDrawPenltyPlayerId===this.iPlayerId){
+        aStackingCardId = await this.getStackingCardIds(oTable.getDiscardPileTopCard());  
+      }
+    }
+    // end stacking 
+
+    const aPlayableCardId =aStackingCardId.length ? aStackingCardId : await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
+    this.emit('resTurnTimer', { bIsGraceTimer: true, iPlayerId: this.iPlayerId, ttl: this.nGraceTime-500, timestamp: Date.now(), aPlayableCards: aPlayableCardId });
+    oTable.emit('resTurnTimer', { bIsGraceTimer: true, iPlayerId: this.iPlayerId, ttl: this.nGraceTime-500, timestamp: Date.now(), aPlayableCards: []  }, [this.iPlayerId]);
     oTable.setSchedular('assignGraceTimerExpired', this.iPlayerId, this.toJSON().nGraceTime);
     return true;
   }
@@ -181,22 +344,75 @@ class Service {
   public async assignGraceTimerExpired(oTable: Table) {
     // log.verbose('assignGraceTimerExpired called...');
     await this.update({ nMissedTurn: this.nMissedTurn + 1, nGraceTime: 0 });
+    const aPlayableCardId = await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
+    if(oTable.toJSON().iDrawPenltyPlayerId===this.iPlayerId && (!aPlayableCardId.length||aPlayableCardId.length&&oTable.toJSON().oSettings.bMustCollectOnMissTurn)){
+      await this.assignDrawPenalty(oTable)
+    }
+    else if(!aPlayableCardId.length)this.autoPickCard(oTable)
+    else if(aPlayableCardId.length&&oTable.toJSON().oSettings.bMustCollectOnMissTurn)this.autoPickCard(oTable)
 
-    // TODO : kick process for player if missed turn is more than 3 times.
+    oTable.emit('resTurnMissed', { iPlayerId: this.iPlayerId,nMissedTurn:this.nMissedTurn});
+    /**
+     * TODO : kick process for player if missed turn is more than 3 times.
+     */
+    if(this.nMissedTurn>= oTable.toJSON().oSettings.nTotalSkipTurnCount)return await this.leftPlayer(oTable,'missTurnLimit')
     return this.passTurn(oTable);
   }
 
+  public async assignWildCardColorTimerExpired(oTable: Table) {
+    /**
+     * TODO : set wild card random color
+     * Pass turn
+     */
+    let randomColor:any=_.randomizeArray(["red","green","blue","yellow"])
+    let updatedDiscardPile=[...oTable.toJSON().aDiscardPile]
+    updatedDiscardPile[updatedDiscardPile.length-1].eColor=randomColor[0]
+    await oTable.update({aDiscardPile:updatedDiscardPile})
+    oTable.emit('resWildCardColor', { iPlayerId: this.iPlayerId,eColor:randomColor[0]});
+    return this.passTurn(oTable);
+  }
+
+  public async leftPlayer(oTable: Table,reason:any) {
+  await _.delay(600)
+  await this.update({eState:'left'})
+  oTable.emit('resPlayerLeft', { iPlayerId: this.iPlayerId});
+  // TODO :- need to check for game finish.
+  const aPlayingPlayer = oTable.toJSON().aPlayer.filter(p => p.eState === 'playing');
+  if(aPlayingPlayer.length<=1)return oTable.gameOver(aPlayingPlayer[0],'playerLeft')
+  return this.passTurn(oTable);
+  // oTable.
+  }
+
   public async passTurn(oTable: Table) {
-    // log.verbose('passTurn called...');
     if (oTable.toJSON().eState !== 'running') return log.error('table is not in running state.');
+    if(!this.aHand.length){
+      if(oTable.toJSON().iDrawPenltyPlayerId){
+        let penaltyPlayer=oTable.getPlayer(oTable.toJSON().iDrawPenltyPlayerId)
+        if(penaltyPlayer?.eState==='playing')await penaltyPlayer.assignDrawPenalty(oTable)
+      }
+      const winner:any = await oTable.getPlayer(this.iPlayerId)
+      return oTable.gameOver(winner,'playerWin')
+    }
     const { aPlayer } = oTable.toJSON();
 
     const aPlayingPlayer = aPlayer.filter(p => p.eState === 'playing');
     if (!aPlayingPlayer.length) return (log.error('no playing participant') && null) ?? false; // TODO: declare result
-    const oNextPlayer = await oTable.getNextPlayer(this.nSeat);
+    let oNextPlayer 
+    if(aPlayingPlayer.length ===2 && oTable.toJSON().aDiscardPile[oTable.toJSON().aDiscardPile.length-1].nLabel === 11 && oTable.toJSON().bIsReverseNow){
+      oNextPlayer=await oTable.getPlayer(this.iPlayerId)
+      await oTable.update({bIsReverseNow:false})
+    } else{
+      oNextPlayer=await oTable.getNextPlayer(this.nSeat); // For reverse card flow
+    }
     if (!oNextPlayer) return (log.error('No playing player found...') && null) ?? false;
     oNextPlayer.takeTurn(oTable);
     return true;
+  }
+
+  public async wildCardColorTimer(oTable: Table) {
+    log.verbose('wildCardColorTimer...');
+    if (oTable.toJSON().eState !== 'running') return log.error('table is not in running state.');
+    oTable.setSchedular('assignWildCardColorTimerExpired', this.iPlayerId, oTable.toJSON().oSettings.nWildCardColorTimer);
   }
 
   public toJSON() {
@@ -213,6 +429,7 @@ class Service {
       nDrawNormal: this.nDrawNormal,
       nReconnectionAttempt: this.nReconnectionAttempt,
       bSpecialMeterFull: this.bSpecialMeterFull,
+      bSkipSpecialMeterProcess: this.bSkipSpecialMeterProcess,
       aHand: this.aHand,
       eState: this.eState,
       dCreatedAt: this.dCreatedAt,

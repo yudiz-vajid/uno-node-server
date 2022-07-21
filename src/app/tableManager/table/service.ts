@@ -1,6 +1,6 @@
 import type Table from '.';
 import type Player from '../player';
-import { ICard, ITable, ITableWithPlayer, RedisJSON } from '../../../types/global';
+import { ICard, IPlayer, ITable, ITableWithPlayer, RedisJSON } from '../../../types/global';
 
 class Service {
   protected readonly iBattleId: ITableWithPlayer['iBattleId'];
@@ -8,6 +8,8 @@ class Service {
   protected iPlayerTurn: ITableWithPlayer['iPlayerTurn'];
 
   protected iSkippedPLayer: ITableWithPlayer['iSkippedPLayer'];
+  
+  protected iDrawPenltyPlayerId: ITableWithPlayer['iDrawPenltyPlayerId'];
 
   protected aPlayerId: ITableWithPlayer['aPlayerId'];
 
@@ -20,6 +22,7 @@ class Service {
   protected eState: ITableWithPlayer['eState'];
 
   protected bTurnClockwise: ITableWithPlayer['bTurnClockwise'];
+  protected bIsReverseNow: ITableWithPlayer['bIsReverseNow'];
 
   protected eNextCardColor: ITableWithPlayer['eNextCardColor'];
 
@@ -27,20 +30,23 @@ class Service {
 
   protected dCreatedAt: ITableWithPlayer['dCreatedAt'];
 
-  protected readonly oSettings: ITableWithPlayer['oSettings'];
+  protected  oSettings: ITableWithPlayer['oSettings'];
 
   protected aPlayer: Player[];
 
-  constructor(oData: ITable & { aPlayer?: Player[] }) {
+
+  constructor(oData: ITable & { aPlayer?: Player[]}) {
     this.iBattleId = oData.iBattleId;
     this.iPlayerTurn = oData.iPlayerTurn;
     this.iSkippedPLayer = oData.iSkippedPLayer;
+    this.iDrawPenltyPlayerId = oData.iDrawPenltyPlayerId;
     this.aPlayerId = oData.aPlayerId;
     this.aDrawPile = oData.aDrawPile;
     this.aDiscardPile = oData.aDiscardPile;
     this.bToSkip = oData.bToSkip;
     this.eState = oData.eState;
     this.bTurnClockwise = oData.bTurnClockwise;
+    this.bIsReverseNow = oData.bIsReverseNow;
     this.eNextCardColor = oData.eNextCardColor;
     this.nDrawCount = oData.nDrawCount;
     this.dCreatedAt = oData.dCreatedAt;
@@ -55,7 +61,7 @@ class Service {
 
   public async update(
     oDate: Partial<
-      Pick<ITable, 'iPlayerTurn' | 'iSkippedPLayer' | 'aPlayerId' | 'aDrawPile' | 'aDiscardPile' | 'bToSkip' | 'eState' | 'bTurnClockwise' | 'eNextCardColor' | 'nDrawCount'>
+      Pick<ITable, 'iPlayerTurn' | 'iSkippedPLayer' |'iDrawPenltyPlayerId'| 'aPlayerId' | 'aDrawPile' | 'aDiscardPile' | 'bToSkip' | 'eState' | 'bTurnClockwise' | 'bIsReverseNow' | 'eNextCardColor' | 'nDrawCount'|'oSettings'>
     >
   ) {
     try {
@@ -69,6 +75,10 @@ class Service {
             break;
           case 'iSkippedPLayer':
             this.iSkippedPLayer = v as ITable['iSkippedPLayer'];
+            aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'iDrawPenltyPlayerId':
+            this.iDrawPenltyPlayerId = v as ITable['iDrawPenltyPlayerId'];
             aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
             break;
           case 'aPlayerId':
@@ -96,12 +106,20 @@ class Service {
             this.bTurnClockwise = v as ITable['bTurnClockwise'];
             aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
             break;
+          case 'bIsReverseNow':
+            this.bIsReverseNow = v as ITable['bIsReverseNow'];
+            aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
+            break;
           case 'eNextCardColor':
             this.eNextCardColor = v as ITable['eNextCardColor'];
             aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
             break;
           case 'nDrawCount':
             this.nDrawCount = v as ITable['nDrawCount'];
+            aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'oSettings':
+            this.oSettings = v as ITable['oSettings'];
             aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
             break;
           default:
@@ -119,41 +137,84 @@ class Service {
     }
   }
 
-  public drawCard(eCardType: 'normal' | 'action' | 'wild' | 'special', nCount: number) {
+  public async drawCard(eCardType: 'normal' | 'action' | 'wild' | 'special', nCount: number) {
+    // TODO :- need to give normal card if there is no special card
     const aCards: Table['aDrawPile'] = [];
+    let skipSpecialMeter=false
     switch (eCardType) {
       case 'normal':
         for (let i = 0; i < nCount; i += 1) {
-          const nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
+          let nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
+          if(nCardIndex === -1){
+           await this.reshuffleClosedDeck()
+           nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
+          }
           aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
         }
         break;
       case 'action':
         for (let i = 0; i < nCount; i += 1) {
-          const nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9 && c.nLabel < 13);
+          let nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9 && c.nLabel < 13);
+          if(nCardIndex ===-1){
+            await this.reshuffleClosedDeck()
+            nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9 && c.nLabel < 13);
+            if(nCardIndex ===-1){
+              nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
+              skipSpecialMeter=true
+            }
+          }
           aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
         }
         break;
       case 'wild':
         for (let i = 0; i < nCount; i += 1) {
-          const nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 12);
+          let nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 12);
+          if(nCardIndex ===-1){
+            await this.reshuffleClosedDeck()
+            nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 12);
+            if(nCardIndex ===-1){
+              nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
+              skipSpecialMeter=true
+            }
+          }
           aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
         }
         break;
       case 'special':
         for (let i = 0; i < nCount; i += 1) {
-          const nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9);
+          let nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9);
+          if(nCardIndex ===-1){
+            await this.reshuffleClosedDeck()
+            nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9);
+            
+            if(nCardIndex ===-1){
+              nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
+              skipSpecialMeter=true
+            }
+          }
           aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
         }
         break;
       default:
         return (log.error(`drawCard called with invalid eCardType: ${eCardType}`) && null) ?? null;
     }
+    const player=await this.getPlayer(this.iPlayerTurn)
+    await player?.update({bSkipSpecialMeterProcess:skipSpecialMeter})
     return aCards;
   }
 
   public getPlayer(iPlayerId: string) {
     return this.aPlayer.find(oParticipant => oParticipant.toJSON().iPlayerId === iPlayerId) ?? null;
+  }
+
+  public async reshuffleClosedDeck() {
+    // TODO :- Need to reshuffle open deck into closed deck.
+    this.aDrawPile=this.aDrawPile.length ?[...this.aDrawPile ,...this.aDiscardPile.splice(0,this.aDiscardPile.length-1)]: this.aDiscardPile.splice(0,this.aDiscardPile.length-1)
+    for (let i = 0; i < this.aDrawPile.length; i++) {
+      if(this.aDrawPile[i].nLabel>12)this.aDrawPile[i].eColor="black"
+    }
+    await this.update({aDiscardPile:this.aDiscardPile,aDrawPile:this.aDrawPile})
+    this.emit('resShuffleDeck', { });
   }
 
   public async initializeGame() {
@@ -194,6 +255,23 @@ class Service {
       this.initializeGame();
     }
 
+    return true;
+  }
+
+  public async gameOver(oPlayer: Player, eReason:any) {
+    // TODO :- Need to update players state.
+    await this.update({eState:'finished'})
+    const aPlayer= this.toJSON().aPlayer.filter(p => p.eState != 'left');
+    for(let player of aPlayer){
+      await player.update({eState:'declared'})
+      player.nScore=await player.handCardCounts(player.aHand)
+    }
+    const sortedPlayer=aPlayer.sort((a,b)=>a.nScore-b.nScore).map((p,i)=>{return{aHand:p.aHand,nScore:p.nScore,iPlayerId:p.iPlayerId,nRank:i}})
+    this.emit('resGameOver', {aPlayer:sortedPlayer,oWinner:oPlayer,eReason });
+    const keys = await redis.client.KEYS(`t:${this.iBattleId}:*`)
+    if(keys.length)await redis.client.del(keys)
+    const schedularKey=await redis.client.KEYS(`sch:${this.iBattleId}:`)
+    if(schedularKey.length)await redis.client.del(schedularKey)
     return true;
   }
 
@@ -241,6 +319,11 @@ class Service {
     }
   }
 
+  public async handleReverseCard() {
+    await this.update({ bTurnClockwise: !(this.bTurnClockwise),bIsReverseNow:true });
+    return true
+  }
+
   public async getTTL(sTaskName = '', iPlayerId = '*') {
     try {
       const sKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
@@ -277,10 +360,12 @@ class Service {
       iBattleId: this.iBattleId,
       iPlayerTurn: this.iPlayerTurn,
       iSkippedPLayer: this.iSkippedPLayer,
+      iDrawPenltyPlayerId: this.iDrawPenltyPlayerId,
       aPlayerId: this.aPlayerId,
       aDrawPile: this.aDrawPile,
       aDiscardPile: this.aDiscardPile,
       bToSkip: this.bToSkip,
+      bIsReverseNow: this.bIsReverseNow,
       eState: this.eState,
       bTurnClockwise: this.bTurnClockwise,
       eNextCardColor: this.eNextCardColor,

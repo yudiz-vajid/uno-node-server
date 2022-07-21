@@ -45,7 +45,7 @@ class TableManager {
             if (!oTable)
                 return false;
             const oPlayer = oTable.getPlayer(iPlayerId);
-            if (['assignTurnTimerExpired', 'assignGraceTimerExpired', 'drawCard', 'discardCard'].includes(sTaskName)) {
+            if (['assignTurnTimerExpired', 'assignGraceTimerExpired', 'drawCard', 'discardCard', 'decalreUno'].includes(sTaskName)) {
                 if (!oPlayer) {
                     callback({ oData: {}, status: util_1.response.PLAYER_NOT_FOUND });
                     return (_a = (log.warn(`${_.now()} oPlayer not found in table. { iBattleId : ${iBattleId}, iPlayerId : ${iPlayerId} }`) && null)) !== null && _a !== void 0 ? _a : false;
@@ -66,6 +66,9 @@ class TableManager {
                 case 'masterTimerExpired':
                     oTable.masterTimerExpired();
                     return true;
+                case 'masterTimerWillExpire':
+                    oTable.masterTimerWillExpire();
+                    return true;
                 case 'gameInitializeTimerExpired':
                     oTable.gameInitializeTimerExpired();
                     return true;
@@ -75,8 +78,23 @@ class TableManager {
                 case 'assignGraceTimerExpired':
                     oPlayer === null || oPlayer === void 0 ? void 0 : oPlayer.assignGraceTimerExpired(oTable);
                     return true;
+                case 'assignWildCardColorTimerExpired':
+                    oPlayer === null || oPlayer === void 0 ? void 0 : oPlayer.assignWildCardColorTimerExpired(oTable);
+                    return true;
                 case 'drawCard':
                     oPlayer === null || oPlayer === void 0 ? void 0 : oPlayer.drawCard({}, oTable, callback);
+                    return true;
+                case 'keepCard':
+                    oPlayer === null || oPlayer === void 0 ? void 0 : oPlayer.keepCard({}, oTable, callback);
+                    return true;
+                case 'setWildCardColor':
+                    oPlayer === null || oPlayer === void 0 ? void 0 : oPlayer.setWildCardColor(oData, oTable, callback);
+                    return true;
+                case 'decalreUno':
+                    oPlayer === null || oPlayer === void 0 ? void 0 : oPlayer.decalreUno(oData, oTable, callback);
+                    return true;
+                case 'leaveMatch':
+                    oPlayer === null || oPlayer === void 0 ? void 0 : oPlayer.leaveMatch(oData, oTable, callback);
                     return true;
                 case 'discardCard':
                     oPlayer === null || oPlayer === void 0 ? void 0 : oPlayer.discardCard(oData, oTable, callback);
@@ -93,12 +111,14 @@ class TableManager {
                     iBattleId: oData.iBattleId,
                     iPlayerTurn: '',
                     iSkippedPLayer: '',
+                    iDrawPenltyPlayerId: '',
                     aPlayerId: [],
                     aDrawPile: new util_1.Deck(oData.oSettings.aCardScore).getDeck(),
                     aDiscardPile: [],
                     bToSkip: false,
                     eState: 'waiting',
                     bTurnClockwise: true,
+                    bIsReverseNow: false,
                     eNextCardColor: '',
                     nDrawCount: 0,
                     oSettings: oData.oSettings,

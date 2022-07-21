@@ -17,6 +17,7 @@ class Table extends service_1.default {
     distributeCard() {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
+            console.log('distributeCard called...');
             let { nStartingNormalCardCount, nStartingActionCardCount, nStartingSpecialCardCount } = this.oSettings;
             nStartingActionCardCount = nStartingActionCardCount || _.getRandomNumber(2, 3);
             const nStartingWildCardCount = nStartingSpecialCardCount - nStartingActionCardCount;
@@ -26,19 +27,19 @@ class Table extends service_1.default {
             this.aPlayer.forEach((player) => __awaiter(this, void 0, void 0, function* () {
                 var _c, _d, _e;
                 log.verbose(`length(drawPile): ${this.aDrawPile.length} `);
-                const aNormalCard = this.drawCard('normal', nStartingNormalCardCount);
+                const aNormalCard = yield this.drawCard('normal', nStartingNormalCardCount);
                 if (!aNormalCard)
                     return (_c = (log.error(`Could not draw normal cards for player ${player.toJSON().iPlayerId}`) && null)) !== null && _c !== void 0 ? _c : false;
-                const aActionCard = this.drawCard('action', nStartingActionCardCount);
+                const aActionCard = yield this.drawCard('action', nStartingActionCardCount);
                 if (!aActionCard)
                     return (_d = (log.error(`Could not draw action cards for player ${player.toJSON().iPlayerId}`) && null)) !== null && _d !== void 0 ? _d : false;
-                const aWildCard = this.drawCard('wild', nStartingWildCardCount);
+                const aWildCard = yield this.drawCard('wild', nStartingWildCardCount);
                 if (!aWildCard)
                     return (_e = (log.error(`Could not draw wild cards for player ${player.toJSON().iPlayerId}`) && null)) !== null && _e !== void 0 ? _e : false;
                 yield player.setHand(aNormalCard, aActionCard, aWildCard);
                 return true;
             }));
-            const oDiscardPileTopCard = this.drawCard('normal', 1);
+            const oDiscardPileTopCard = yield this.drawCard('normal', 1);
             if (!oDiscardPileTopCard)
                 return (_b = (log.error(`Could not draw discard pile top card`) && null)) !== null && _b !== void 0 ? _b : false;
             this.aDiscardPile.push(...oDiscardPileTopCard);
@@ -47,10 +48,11 @@ class Table extends service_1.default {
                 this.updateDiscardPile(this.aDiscardPile),
                 this.update({ eState: 'running' }),
             ]);
-            yield _.delay(5000);
+            yield _.delay(500 * (1 + this.oSettings.nStartingNormalCardCount + this.oSettings.nStartingSpecialCardCount));
             this.emit('resDiscardPileTopCard', { oDiscardPileTopCard: this.getDiscardPileTopCard() });
             this.emit('resInitMasterTimer', { ttl: this.oSettings.nTotalGameTime, timestamp: Date.now() });
             this.setSchedular('masterTimerExpired', '', this.oSettings.nTotalGameTime);
+            this.setSchedular('masterTimerWillExpire', '', this.oSettings.nTotalGameTime - this.oSettings.nFastTimerAt);
             this.assignRandomTurn();
             return true;
         });
@@ -59,6 +61,27 @@ class Table extends service_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             log.verbose('masterTimerExpired, game should end now');
             this.emit('resMasterTimerExpired', {});
+            const aPlayingPlayer = this.aPlayer.filter(p => p.toJSON().eState === 'playing');
+            for (let player of aPlayingPlayer) {
+                player.nScore = yield player.handCardCounts(player.aHand);
+            }
+            const sortedPlayer = aPlayingPlayer.sort((a, b) => a.nScore - b.nScore);
+            yield _.delay(1500);
+            if (this.iDrawPenltyPlayerId) {
+                const penaltyUser = this.getPlayer(this.iDrawPenltyPlayerId);
+                if ((penaltyUser === null || penaltyUser === void 0 ? void 0 : penaltyUser.eState) === 'playing')
+                    yield penaltyUser.assignDrawPenalty(this);
+            }
+            this.gameOver(sortedPlayer[0], 'masterTimerExpire');
+            return true;
+        });
+    }
+    masterTimerWillExpire() {
+        return __awaiter(this, void 0, void 0, function* () {
+            log.verbose('masterTimerWillExpire, game should fast now');
+            this.emit('resMasterTimerWillExpire', {});
+            let updatedSettings = Object.assign(Object.assign({}, this.oSettings), { nTurnTime: this.oSettings.nTurnTime / 2 });
+            yield this.update({ oSettings: updatedSettings });
             return true;
         });
     }
@@ -66,7 +89,7 @@ class Table extends service_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             log.verbose('gameInitializeTimerExpired, game should start now');
             this.emit('resGameInitializeTimerExpired', {});
-            this.setSchedular('distributeCard', '', 2000);
+            this.setSchedular('distributeCard', '', 100);
             return true;
         });
     }
