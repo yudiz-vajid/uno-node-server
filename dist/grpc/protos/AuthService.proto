@@ -1,0 +1,121 @@
+syntax = "proto3";
+
+package com.mpl.services.auth;
+option java_multiple_files = true;
+
+// Common //
+message AuthServiceError {
+    enum Reason {
+        NONE                       = 0;
+        UNKNOWN                    = 1;
+        BAD_REQUEST                = 2;
+        INTERNAL_ERROR             = 3;
+        INVALID_USER_ID            = 4;
+    }
+    Reason reason  = 1;
+    string message = 2;
+}
+
+// Messages //
+message AuthenticationRequest {
+    string requestId = 1;
+    string authToken = 2;
+}
+
+message AuthenticationRequestV1 {
+    string requestId = 1;
+    string authToken = 2;
+    string gameId = 3;
+}
+message AuthenticationResponse {
+    AuthServiceError error = 1;
+    bool isAuthentic       = 2;
+    uint32 userId          = 3;
+    string mobileNumber    = 4;
+    string countryCode     = 5;
+}
+
+message GetKeystoreRequest {
+    string requestId = 1;
+    uint32 userId    = 2;
+}
+message GetKeystoreResponse {
+    AuthServiceError error = 1;
+    string keystore        = 2;
+}
+
+message GetLastKnownAppTypeRequest {
+    string requestId = 1;
+    uint32 userId    = 2;
+}
+message GetLastKnownAppTypeResponse {
+    AuthServiceError error = 1;
+    string appType         = 2;
+}
+
+// Block User //
+message BlockUserRequest {
+    string requestId    = 1;
+    string mobileNumber = 2;
+    string reason       = 3;
+}
+message BlockUserResponse {
+    AuthServiceError error = 1;
+}
+
+message GetUnblockTicketIdRequest {
+    string requestId       = 1;
+    string mobileNumber    = 2;
+    string deviceId        = 3;
+}
+message GetUnblockTicketIdResponse {
+    AuthServiceError error = 1;
+    bool isUserBlocked     = 2;
+    uint64 unblockTicketId = 3;
+}
+
+message UpdateUnblockTicketIdRequest {
+    string requestId       = 1;
+    string mobileNumber    = 2;
+    string deviceId        = 3;
+    uint64 unblockTicketId = 4;
+}
+message UpdateUnblockTicketIdResponse {
+    AuthServiceError error = 1;
+}
+
+message SetPermanentBlockStatusRequest {
+    string requestId          = 1;
+    string mobileNumber       = 2;
+    string deviceId           = 3;
+    bool isPermanentlyBlocked = 4;
+}
+message SetPermanentBlockStatusResponse {
+    AuthServiceError error = 1;
+}
+
+message UserIdRequest{
+    uint32 userId = 1;
+    string mobileNumber = 2;
+    string requestId = 3;
+}
+
+message UserBlockedResponse{
+    bool blocked = 1;
+    AuthServiceError error = 2;
+}
+
+// Services //
+service AuthService {
+    rpc authenticate(AuthenticationRequest) returns(AuthenticationResponse);
+    rpc authenticateV1(AuthenticationRequestV1) returns(AuthenticationResponse);
+    rpc getKeystore(GetKeystoreRequest) returns(GetKeystoreResponse);
+
+    rpc blockUser(BlockUserRequest) returns(BlockUserResponse);
+    rpc getUnblockTicketId(GetUnblockTicketIdRequest) returns(GetUnblockTicketIdResponse);
+    rpc updateUnblockTicketId(UpdateUnblockTicketIdRequest) returns(UpdateUnblockTicketIdResponse);
+    rpc setPermanentBlockStatus(SetPermanentBlockStatusRequest) returns(SetPermanentBlockStatusResponse);
+    rpc getLastKnownAppType(GetLastKnownAppTypeRequest) returns(GetLastKnownAppTypeResponse);
+    rpc isUserBlocked(UserIdRequest) returns(UserBlockedResponse);
+    rpc deleteBlockedUser(UserIdRequest) returns (BlockUserResponse);
+}
