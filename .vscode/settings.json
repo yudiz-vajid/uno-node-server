@@ -36,7 +36,7 @@
         ".eslintignore": true,
         "*.json": false,
         ".eslintrc.js": false,
-        ".gitignore": true,
+        ".gitignore": false,
         ".nvmrc": true,
         "yarn.lock": false,
         ".git": true,

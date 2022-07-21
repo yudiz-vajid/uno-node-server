@@ -64,6 +64,5 @@ module.exports = {
     redis: 'readonly',
     io: 'readonly',
     app: 'readonly',
-    pf: 'readonly',
   },
 };

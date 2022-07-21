@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import './globals';
+import PathFinder from 'lib-pathfinder-node';
 import protos from './grpc';
 import server from './server';
 import socket from './app/sockets';
@@ -18,11 +19,11 @@ process.once('unhandledRejection', (ex: any) => {
 
 async function pathFinderInit() {
   try {
-    pf.initialize({ appName: 'Uno', protosToLoad: protos, promisify: true });
+    PathFinder.initialize({ appName: 'Uno', protosToLoad: protos, promisify: true });
 
-    const client = await pf.getInstance().getClient({
-      serviceName: 'UnoService',
-      serviceNameInProto: 'UnoService',
+    const client = await PathFinder.getInstance().getClient({
+      serviceName: 'AuthService',
+      serviceNameInProto: 'AuthService',
     });
 
     client.authenticate({
