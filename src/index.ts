@@ -21,10 +21,10 @@ async function startGrpcServer() {
     'service-uno',
     50100
   );
-  server.addService(
-    path.join(__dirname, 'grpc/protos/AuthService.proto'),
-    path.join(__dirname, 'protosMethod/index.js')
-  );
+  // server.addService(
+  //   path.join(__dirname, 'grpc/protos/AuthService.proto'),
+  //   path.join(__dirname, 'protosMethod/index.js')
+  // );
   await server.start();
 }
 
