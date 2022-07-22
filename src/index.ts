@@ -17,19 +17,25 @@ process.once('unhandledRejection', (ex: any) => {
   process.exit(1);
 });
 
+const loadOpts = {
+  keepCase: true,
+  longs: String,
+  enums: String,
+  defaults: true,
+  oneofs: true,
+};
+
 async function pathFinderInit() {
   try {
-    PathFinder.initialize({ appName: 'Uno', protosToLoad: protos, promisify: true });
+    PathFinder.initialize({ appName: 'Uno', protosToLoad: protos, loadOpts, promisify: true });
 
     const client = await PathFinder.getInstance().getClient({
-      serviceName: 'AuthService',
+      serviceName: 'service-auth',
       serviceNameInProto: 'AuthService',
     });
 
-    client.authenticate({
-      requestId: 'req_1',
-      authToken: 'authToken_1',
-    });
+    const resp = await client.authenticate().sendMessage({ requestId: 'req_1', authToken: 'authToken_1' });
+    console.log('resp', resp);
   } catch (err: any) {
     log.error(`${h.now()} we have error, ${err.message}, ${err.stack}`);
   }

@@ -14,7 +14,13 @@
     }
   ],
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "dev": "ts-node-dev -r tsconfig-paths/register --transpile-only --respawn ./src/index.ts",
+    "dev:type_check": "ts-node-dev -r tsconfig-paths/register --typeCheck --respawn ./src/index.ts",
+    "debug": "ts-node-dev -r tsconfig-paths/register --transpile-only --respawn --inspect=9229 ./src/index.ts",
+    "debug:type_check": "ts-node-dev -r tsconfig-paths/register --typeCheck --respawn --inspect=9229 ./src/index.ts",
+    "build": "tsc --project tsconfig.json"
+  },
   "dependencies": {
     "@socket.io/redis-adapter": "^7.2.0",
     "compression": "^1.7.4",
