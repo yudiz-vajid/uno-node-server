@@ -8,7 +8,7 @@ class Service {
   protected iPlayerTurn: ITableWithPlayer['iPlayerTurn'];
 
   protected iSkippedPLayer: ITableWithPlayer['iSkippedPLayer'];
-  
+
   protected iDrawPenltyPlayerId: ITableWithPlayer['iDrawPenltyPlayerId'];
 
   protected aPlayerId: ITableWithPlayer['aPlayerId'];
@@ -66,7 +66,7 @@ class Service {
   ) {
     try {
       const aPromise: Array<Promise<unknown>> = [];
-      const sTableKey = _.getTableKey(this.iBattleId);
+      const sTableKey = h.getTableKey(this.iBattleId);
       Object.entries(oDate).forEach(([k, v]) => {
         switch (k) {
           case 'iPlayerTurn':
@@ -186,7 +186,7 @@ class Service {
           if(nCardIndex ===-1){
             await this.reshuffleClosedDeck()
             nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9);
-            
+
             if(nCardIndex ===-1){
               nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
               skipSpecialMeter=true
@@ -294,7 +294,7 @@ class Service {
     try {
       if (!sTaskName) return false;
       if (!nTimeMS) return false;
-      await redis.client.pSetEx(_.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId), nTimeMS, sTaskName);
+      await redis.client.pSetEx(h.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId), nTimeMS, sTaskName);
       return true;
     } catch (err: any) {
       log.error(`table.setSchedular() failed.${{ reason: err.message, stack: err.stack }}`);
@@ -304,7 +304,7 @@ class Service {
 
   public async deleteScheduler(sTaskName = '', iPlayerId = '*') {
     try {
-      const sKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
+      const sKey = h.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
       const schedularKeys = await redis.client.keys(sKey); // TODO : non efficient, use scan instead
       if (!schedularKeys.length) throw new Error(`schedular doesn't exists`);
 
@@ -326,7 +326,7 @@ class Service {
 
   public async getTTL(sTaskName = '', iPlayerId = '*') {
     try {
-      const sKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
+      const sKey = h.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
       const schedularKeys = await redis.client.keys(sKey); // TODO : non efficient, use scan instead
       if (!schedularKeys.length) return null; // - throw new Error(`schedular doesn't exists`);
 

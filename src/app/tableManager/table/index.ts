@@ -5,9 +5,9 @@ class Table extends Service {
   public async distributeCard() {
     // eslint-disable-next-line prefer-const
     console.log('distributeCard called...');
-    
+
     let { nStartingNormalCardCount, nStartingActionCardCount, nStartingSpecialCardCount } = this.oSettings;
-    nStartingActionCardCount = nStartingActionCardCount || _.getRandomNumber(2, 3);
+    nStartingActionCardCount = nStartingActionCardCount || h.getRandomNumber(2, 3);
     const nStartingWildCardCount = nStartingSpecialCardCount - nStartingActionCardCount;
     const nInitialCardsPerUser = nStartingNormalCardCount + nStartingSpecialCardCount;
 
@@ -36,7 +36,7 @@ class Table extends Service {
       //
     ]);
 
-    await _.delay(500*(1+this.oSettings.nStartingNormalCardCount+this.oSettings.nStartingSpecialCardCount)); // TODO: (0.3 * 7cards)
+    await h.delay(500*(1+this.oSettings.nStartingNormalCardCount+this.oSettings.nStartingSpecialCardCount)); // TODO: (0.3 * 7cards)
     this.emit('resDiscardPileTopCard', { oDiscardPileTopCard: this.getDiscardPileTopCard() });
     this.emit('resInitMasterTimer', { ttl: this.oSettings.nTotalGameTime, timestamp: Date.now() });
     this.setSchedular('masterTimerExpired', '', this.oSettings.nTotalGameTime); // -  game lifetime second
@@ -54,7 +54,7 @@ class Table extends Service {
       player.nScore=await player.handCardCounts(player.aHand)
     }
     const sortedPlayer=aPlayingPlayer.sort((a,b)=>a.nScore-b.nScore)
-    await _.delay(1500)
+    await h.delay(1500)
     if(this.iDrawPenltyPlayerId){
       const penaltyUser=this.getPlayer(this.iDrawPenltyPlayerId)
       if(penaltyUser?.eState==='playing')await penaltyUser.assignDrawPenalty(this)
@@ -74,7 +74,7 @@ class Table extends Service {
   public async gameInitializeTimerExpired() {
     log.verbose('gameInitializeTimerExpired, game should start now');
     this.emit('resGameInitializeTimerExpired', {});
-    this.setSchedular('distributeCard', '',100); 
+    this.setSchedular('distributeCard', '',100);
     return true;
   }
 
@@ -82,7 +82,7 @@ class Table extends Service {
    * assign turn to random player
    */
   public async assignRandomTurn() {
-    const oRandomPlayer = _.randomizeArray(this.aPlayer)[0];
+    const oRandomPlayer = h.randomizeArray(this.aPlayer)[0];
     oRandomPlayer.takeTurn(this);
   }
 

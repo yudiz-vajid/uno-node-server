@@ -64,7 +64,7 @@ class RedisClient {
 
     let parsedMessage = '';
     try {
-      parsedMessage = _.parse(_message);
+      parsedMessage = h.parse(_message);
     } catch (err: any) {
       log.error(`can not parse message -> ${_message} ${{ reason: err.message, stack: err.stack }}`);
       parsedMessage = _message;

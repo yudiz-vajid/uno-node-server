@@ -12,7 +12,7 @@ import _emitter from './lib/emitter';
 import builder from './lib/messages';
 
 declare global {
-  var _: typeof helper;
+  var h: typeof helper;
   var log: typeof logger;
   var emitter: typeof _emitter;
   var messages: typeof builder;
@@ -21,7 +21,7 @@ declare global {
   var app: Express;
 }
 
-global._ = helper;
+global.h = helper;
 global.log = logger;
 global.emitter = _emitter;
 global.messages = builder;

@@ -68,7 +68,7 @@ class Deck {
 
   private generateDeck() {
     this.aDeck = [...this.generateRedCards(), ...this.generateGreenCards(), ...this.generateYellowCards(), ...this.generateBlueCards(), ...this.generateBlackCards()]; // - x108
-    _.randomizeArray(this.aDeck); // - x108
+    h.randomizeArray(this.aDeck); // - x108
   }
 
   public getDeck() {

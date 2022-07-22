@@ -27,7 +27,7 @@ class PlayerSocket {
 
     this.socket.data = {}; // - clean up socket payload
     this.setEventListeners(); // - register listeners
-    log.debug(`${_.now()} client: ${this.iPlayerId} connected with socketId : ${this.socket.id}`);
+    log.debug(`${h.now()} client: ${this.iPlayerId} connected with socketId : ${this.socket.id}`);
   }
 
   private setEventListeners() {
@@ -85,7 +85,7 @@ class PlayerSocket {
 
       return true;
     } catch (err: any) {
-      log.error(`${_.now()} client: '${this.iPlayerId}' joinTable event failed. reason: ${err.message}`);
+      log.error(`${h.now()} client: '${this.iPlayerId}' joinTable event failed. reason: ${err.message}`);
       _ack({ oData: { iBattleId: this.iBattleId, iPlayerId: this.iPlayerId }, status: response.SERVER_ERROR });
       return false;
     }
@@ -93,11 +93,11 @@ class PlayerSocket {
 
   private reqPing(body: any, _ack?: ICallback) {
     if (typeof _ack === 'function') _ack('pong');
-    log.verbose(`${_.now()} client: '${this.iPlayerId}' => ping`);
+    log.verbose(`${h.now()} client: '${this.iPlayerId}' => ping`);
   }
 
   private async disconnect(reason: string) {
-    log.debug(`${_.now()} client: ${this.iPlayerId} disconnected with socketId : ${this.socket.id}. reason: ${reason}`);
+    log.debug(`${h.now()} client: ${this.iPlayerId} disconnected with socketId : ${this.socket.id}. reason: ${reason}`);
     try {
       if (reason === 'server namespace disconnect') return;
       const table = await TableManager.getTable(this.iBattleId);
@@ -108,12 +108,12 @@ class PlayerSocket {
       table?.emit('playerDisconnected', { iPlayerId: this.iPlayerId });
       // TODO : remove table and player if no participant is left
     } catch (err: any) {
-      log.debug(`${_.now()} client: '${this.iPlayerId}' disconnect event failed. reason: ${err.message}`);
+      log.debug(`${h.now()} client: '${this.iPlayerId}' disconnect event failed. reason: ${err.message}`);
     }
   }
 
   private errorHandler(err: Error) {
-    log.error(`${_.now()} socket error. iPlayerId: ${this.iPlayerId}, iBattleId: ${this.iBattleId}. reason: ${err.message}`);
+    log.error(`${h.now()} socket error. iPlayerId: ${this.iPlayerId}, iBattleId: ${this.iBattleId}. reason: ${err.message}`);
   }
 
   public toJSON() {
