@@ -5,7 +5,6 @@ import protos from './grpc';
 import server from './server';
 import socket from './app/sockets';
 
-
 const loadOpts = {
   keepCase: true,
   longs: String,
@@ -17,12 +16,12 @@ const loadOpts = {
 async function pathFinderInit() {
   try {
     PathFinder.initialize({ appName: 'Uno', protosToLoad: protos, loadOpts, promisify: true });
-
+    log.info('PathFinder initialized');
     const client = await PathFinder.getInstance().getClient({
       serviceName: 'service-auth',
       serviceNameInProto: 'AuthService',
     });
-
+    log.info('Initiated Client');
     const resp = await client.authenticate().sendMessage({ requestId: 'req_1', authToken: 'authToken_1' });
     console.log('resp', resp);
   } catch (err: any) {
