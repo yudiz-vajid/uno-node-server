@@ -16,29 +16,25 @@ const loadOpts = {
 };
 
 async function startGrpcServer() {
-
-  const server = new PFServer(
-    'service-uno',
-    50100
-  );
+  const server = new PFServer('service-uno', 50100);
   // server.addService(
   //   path.join(__dirname, 'grpc/protos/AuthService.proto'),
   //   path.join(__dirname, 'protosMethod/index.js')
   // );
   await server.start();
+  const client = await PathFinder.getInstance().getClient({
+    serviceName: 'service-auth',
+    serviceNameInProto: 'AuthService',
+  });
+  log.info('Initiated Client');
+  const resp = await client.authenticate().sendMessage({ requestId: 'req_1', authToken: 'authToken_1' });
+  console.log('resp', resp);
 }
 
 async function pathFinderInit() {
   try {
     PathFinder.initialize({ appName: 'Uno', protosToLoad: protos, loadOpts, promisify: true });
     log.info('PathFinder initialized');
-    // const client = await PathFinder.getInstance().getClient({
-    //   serviceName: 'service-auth',
-    //   serviceNameInProto: 'AuthService',
-    // });
-    // log.info('Initiated Client');
-    // const resp = await client.authenticate().sendMessage({ requestId: 'req_1', authToken: 'authToken_1' });
-    // console.log('resp', resp);
   } catch (err: any) {
     log.error(`${h.now()} we have error, ${err.message}, ${err.stack}`);
   }
