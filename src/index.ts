@@ -1,6 +1,8 @@
 import 'dotenv/config';
 import './globals';
+import path from 'path';
 import PathFinder from 'lib-pathfinder-node';
+import { PFServer } from 'lib-pathfinder-node';
 import protos from './grpc';
 import server from './server';
 import socket from './app/sockets';
@@ -12,6 +14,18 @@ const loadOpts = {
   defaults: true,
   oneofs: true,
 };
+
+async function startGrpcServer() {
+
+  const server = new PFServer(
+    'service-uno',
+    50100
+  );
+  server.addService(
+    path.join(__dirname, 'grpc/protos/AuthService.proto'),
+  );
+  await server.start();
+}
 
 async function pathFinderInit() {
   try {
@@ -31,6 +45,7 @@ async function pathFinderInit() {
 
 (async () => {
   try {
+    await startGrpcServer();
     await Promise.all([server.initialize(), redis.initialize()]);
     await socket.initialize(server.httpServer);
     log.info(`[HOST: ${process.env.HOST}]  we have initialized everything`);
