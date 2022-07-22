@@ -5,17 +5,6 @@ import protos from './grpc';
 import server from './server';
 import socket from './app/sockets';
 
-process.env.UV_THREADPOOL_SIZE = '1';
-
-process.once('uncaughtException', (ex: any) => {
-  log.error(`${h.now()} we have uncaughtException, ${ex.message}, ${ex.stack}`);
-  process.exit(1);
-});
-
-process.once('unhandledRejection', (ex: any) => {
-  log.error(`${h.now()} we have unhandledRejection, ${ex.message}, ${ex.stack}`);
-  process.exit(1);
-});
 
 const loadOpts = {
   keepCase: true,
