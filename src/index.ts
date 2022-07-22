@@ -32,13 +32,13 @@ async function pathFinderInit() {
   try {
     PathFinder.initialize({ appName: 'Uno', protosToLoad: protos, loadOpts, promisify: true });
     log.info('PathFinder initialized');
-    const client = await PathFinder.getInstance().getClient({
-      serviceName: 'service-auth',
-      serviceNameInProto: 'AuthService',
-    });
-    log.info('Initiated Client');
-    const resp = await client.authenticate().sendMessage({ requestId: 'req_1', authToken: 'authToken_1' });
-    console.log('resp', resp);
+    // const client = await PathFinder.getInstance().getClient({
+    //   serviceName: 'service-auth',
+    //   serviceNameInProto: 'AuthService',
+    // });
+    // log.info('Initiated Client');
+    // const resp = await client.authenticate().sendMessage({ requestId: 'req_1', authToken: 'authToken_1' });
+    // console.log('resp', resp);
   } catch (err: any) {
     log.error(`${h.now()} we have error, ${err.message}, ${err.stack}`);
   }
@@ -46,12 +46,12 @@ async function pathFinderInit() {
 
 (async () => {
   try {
+    pathFinderInit();
     await startGrpcServer();
     await Promise.all([server.initialize(), redis.initialize()]);
     await socket.initialize(server.httpServer);
     log.info(`[HOST: ${process.env.HOST}]  we have initialized everything`);
     await redis.client.flushAll(); // TODO: remove
-    pathFinderInit();
     log.info(`:-)`);
   } catch (err: any) {
     log.info(':-(');
