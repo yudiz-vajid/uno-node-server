@@ -41,7 +41,7 @@ async function addServiceAndStartGrpcServer() {
   } catch (err: any) {
     log.error(`${h.now()} we have error, ${err.message}, ${err.stack}`);
   }
-}``
+}
 
 export async function initializePathFinder() {
   try {
@@ -62,11 +62,12 @@ export async function initializePathFinder() {
     log.info('fetching ZKConfig ...');
     const ZKConfig = getConfig;
     log.info('fetched ZKConfig.');
+    log.info(`ZKConfig = ${ZKConfig}\n`);
 
-    await addServiceAndStartGrpcServer();
-    const client = await createClient('service-auth', 'AuthService');
-    if (!client) throw new Error('client is not available');
-    log.info(`client: ${client}`);
+    // await addServiceAndStartGrpcServer();
+    // const client = await createClient('service-auth', 'AuthService');
+    // if (!client) throw new Error('client is not available');
+    // log.info(`client: ${client}`);
 
     return true;
   } catch (err: any) {

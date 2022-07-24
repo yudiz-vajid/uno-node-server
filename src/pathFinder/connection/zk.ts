@@ -257,17 +257,18 @@ async function init() {
 
       // TODO: remove
       Logger.debug('paths:', paths);
-      Logger.debug('\nserverConfigData:', serverConfigData);
-      // Logger.debug('\nproductConfigData:', productConfigData);
-      // Logger.debug('\nmessageConfigData:', messageConfigData);
+      Logger.debug('serverConfigData:', serverConfigData, '\n');
+      // Logger.debug('\nproductConfigData:', productConfigData, '\n');
+      // Logger.debug('\nmessageConfigData:', messageConfigData, '\n');
       // TODO: remove
 
-      // * DEBUG purpose only. remove later
+      // TODO: remove & uncomment
       const updatedServerConfigData = serverConfigData;
       // const updatedServerConfigData = await verifyConfig(serverConfigData);
+      // TODO: remove & uncomment
 
       // TODO: remove
-      Logger.debug('\nupdatedServerConfigData:', updatedServerConfigData);
+      Logger.debug('updatedServerConfigData:', updatedServerConfigData, '\n');
       // TODO: remove
 
       // TODO: add joi validation check here
@@ -278,7 +279,7 @@ async function init() {
       });
 
       // TODO: remove
-      Logger.debug('\nconfigData:', configData);
+      Logger.debug('configData:', configData, '\n');
       // TODO: remove
 
       resolve(configData);
