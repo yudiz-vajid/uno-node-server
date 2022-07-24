@@ -10,7 +10,7 @@ import { initializePathFinder } from './pathFinder';
     await Promise.all([server.initialize(), redis.initialize()]);
     await socket.initialize(server.httpServer);
     log.info(`[HOST: ${process.env.HOST}]  we have initialized everything`);
-    await redis.client.flushAll(); // TODO: remove
+    // await redis.client.flushAll(); // TODO: remove
     log.info(`:-)`);
   } catch (err: any) {
     log.error(`${h.now()} ${err.message}`);
