@@ -252,7 +252,7 @@ async function init() {
       Logger.debug('paths:', paths);
       Logger.debug('\nserverConfigData:', serverConfigData);
       Logger.debug('\nproductConfigData:', productConfigData);
-      Logger.debug('\nmessageConfigData:', messageConfigData);
+      // Logger.debug('\nmessageConfigData:', messageConfigData);
       // TODO: remove
 
       const updatedServerConfigData = await verifyConfig(serverConfigData);
