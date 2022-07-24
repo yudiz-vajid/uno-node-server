@@ -13,7 +13,7 @@
                 "${workspaceFolder}/src/index.ts",
             ],
             "outputCapture": "std",
-            "runtimeExecutable": "/home/evil/.nvm/versions/node/v16.15.0/bin/node"
+            "runtimeExecutable": "/home/evil/.local/share/nvm/v16.15.0/bin/node"
         },
         {
             "type": "pwa-node",

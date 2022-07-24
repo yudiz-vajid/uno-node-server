@@ -1,56 +1,20 @@
 import 'dotenv/config';
 import './globals';
-import path from 'path';
-import PathFinder from 'lib-pathfinder-node';
-import { PFServer } from 'lib-pathfinder-node';
-import protos from './grpc';
 import server from './server';
 import socket from './app/sockets';
-
-const loadOpts = {
-  keepCase: true,
-  longs: String,
-  enums: String,
-  defaults: true,
-  oneofs: true,
-};
-
-async function startGrpcServer() {
-  const server = new PFServer('service-uno', 50100);
-  // server.addService(
-  //   path.join(__dirname, 'grpc/protos/AuthService.proto'),
-  //   path.join(__dirname, 'protosMethod/index.js')
-  // );
-  await server.start();
-  const client = await PathFinder.getInstance().getClient({
-    serviceName: 'service-auth',
-    serviceNameInProto: 'AuthService',
-  });
-  log.info('Initiated Client');
-  const resp = await client.authenticate().sendMessage({ requestId: 'req_1', authToken: 'authToken_1' });
-  console.log('resp', resp);
-}
-
-async function pathFinderInit() {
-  try {
-    PathFinder.initialize({ appName: 'Uno', protosToLoad: protos, loadOpts, promisify: true });
-    log.info('PathFinder initialized');
-  } catch (err: any) {
-    log.error(`${h.now()} we have error, ${err.message}, ${err.stack}`);
-  }
-}
+import { initializePathFinder } from './pathFinder';
 
 (async () => {
   try {
-    pathFinderInit();
-    await startGrpcServer();
+    if(! await initializePathFinder()) throw new Error('PathFinder Error');
     await Promise.all([server.initialize(), redis.initialize()]);
     await socket.initialize(server.httpServer);
     log.info(`[HOST: ${process.env.HOST}]  we have initialized everything`);
     await redis.client.flushAll(); // TODO: remove
     log.info(`:-)`);
   } catch (err: any) {
+    log.error(`${h.now()} ${err.message}`);
     log.info(':-(');
-    log.error(`reason: ${err.message}, stack: ${err.stack}`);
+    process.exit(1);
   }
 })();
