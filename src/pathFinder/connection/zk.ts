@@ -215,6 +215,13 @@ async function init() {
   const productConfigPath = ZOOKEEPER.GAME_CONFIG_PATH;
   const messageConfigPath = ZOOKEEPER.MSG_CONFIG_PATH;
 
+  // TODO: remove
+  Logger.debug('zkIps:', zkIps);
+  Logger.debug('serverConfigPath:', serverConfigPath);
+  Logger.debug('productConfigPath:', productConfigPath);
+  Logger.debug('messageConfigPath:', messageConfigPath);
+  // TODO: remove
+
   zkClient = zookeeper.createClient(zkIps);
   zkClient.connect();
 
@@ -241,7 +248,17 @@ async function init() {
         messageConfigData = messageConfigData || {};
       }
 
+      // TODO: remove
+      Logger.debug('paths:', paths);
+      Logger.debug('serverConfigData:', serverConfigData);
+      Logger.debug('productConfigData:', productConfigData);
+      Logger.debug('messageConfigData:', messageConfigData);
+      // TODO: remove
+
       const updatedServerConfigData = await verifyConfig(serverConfigData);
+      // TODO: remove
+      Logger.debug('updatedServerConfigData:', updatedServerConfigData);
+      // TODO: remove
 
       // TODO: add joi validation check here
       configData = Object.freeze({
@@ -249,12 +266,21 @@ async function init() {
         ...productConfigData,
         ...messageConfigData,
       });
+
+      // TODO: remove
+      Logger.debug('configData:', configData);
+      // TODO: remove
+
       resolve(configData);
     }
 
     return zkClient.once(MESSAGES.ZOOKEEPER.CONNECTED, onConnectCB);
   }
 
+  // TODO: remove
+  // Logger.debug('zkClient:', zkClient);
+  Logger.debug('returning connection listener (promisified)');
+  // TODO: remove
   // connection listener promisify
   return new Promise(promiseCB);
 }

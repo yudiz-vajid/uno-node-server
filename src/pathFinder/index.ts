@@ -1,7 +1,7 @@
 import path from 'path';
 import PathFinder, { PFServer } from 'lib-pathfinder-node';
 import protos from './protos';
-import { init, getConfig } from './connection/zk';
+import { init, getConfig, getHostWithPort, getHostWithPortOnly } from './connection/zk';
 import grpc from './connection/grpc';
 
 const loadOpts = {
@@ -41,15 +41,19 @@ async function addServiceAndStartGrpcServer() {
   } catch (err: any) {
     log.error(`${h.now()} we have error, ${err.message}, ${err.stack}`);
   }
-}
+}``
 
 export async function initializePathFinder() {
   try {
     PathFinder.initialize({ appName: 'service-callbreak', protosToLoad: protos, loadOpts, promisify: true });
     log.info('PathFinder initialize seq started ... ');
 
-    await init();
-    log.info('PathFinder initialize seq completed.');
+    const _zk = await init();
+    log.info('PathFinder initialize seq completed.', _zk);
+
+    /* */
+    log.info(`getConfig() => ${JSON.stringify(getConfig())}, `);
+    /* */
 
     log.info('gRPC initialize seq started ... ');
     await grpc.init();
