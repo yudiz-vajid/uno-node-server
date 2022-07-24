@@ -60,7 +60,7 @@ export async function initializePathFinder() {
     log.info('gRPC initialize seq completed. ');
 
     log.info('fetching ZKConfig ...');
-    const ZKConfig = getConfig;
+    const ZKConfig = getConfig();
     log.info('fetched ZKConfig.');
     log.info(`ZKConfig = ${ZKConfig}\n`);
 
