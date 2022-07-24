@@ -6,7 +6,6 @@ import "GamePlayService.proto";
 import "TournamentConsoleService.proto";
 import "UserDataService.proto";
 import "CountryInfo.proto";
-import "UserGameStatsService.proto";
 
 message LobbyServiceError {
     enum Reason {
@@ -28,11 +27,15 @@ message LobbyServiceError {
         KO_DEVICE_ID_CHECK = 15;
         SEGMENT_BLOCKED_USER = 16;
         USER_EXITED_RUMMY_TOURNAMENT = 17;
-        KO_GAMEPLAY_ERROR = 18;
     }
     Reason reason = 1;
     string message = 2;
     repeated int32 segmentBlockedUsers = 3;
+}
+
+enum PlayerType{
+    STARTER = 0;
+    CHALLENGER = 1;
 }
 
 message LobbyGame {
@@ -90,15 +93,11 @@ message LobbyLeaderboardEntry {
     uint64 lastOnline = 12;
     FraudCheck fraudCheck = 13;
     com.mpl.services.userdata.grpc.BasicProfile profile = 20;
-    int32 lobbyId = 21;
-    bool isUserKickedOut = 22;
 }
 
 message LobbyLeaderboard {
     LobbyLeaderboardEntry userEntry = 1;
     repeated LobbyLeaderboardEntry lobbyLeaderboard = 2;
-    string category = 3;
-    string lobbyType = 4;
 }
 
 message GetGamesRequest {
@@ -167,10 +166,6 @@ message JoinLobbyRequest {
     string ticketValue = 10;
     bool isPartPay = 11;
     string apkType = 12;
-    string language = 13;
-    bool isChallengeCreator = 14;
-    string groupId = 15;
-    string challengeId = 16;
 }
 
 message JoinLobbyResponse {
@@ -201,7 +196,6 @@ message BattleRegistrationResponse {
     bool matched = 5;
     int32 userId = 7;
     bool canPlayAgain = 8;
-    int32 spinAndGoAmount = 13;
 }
 
 message UpdateBattleScoreRequest {
@@ -214,7 +208,6 @@ message UpdateBattleScoreRequest {
     string partnerKey = 7;
     double decimalScore = 8;
     bool forceSubmit = 9; // server submitted score
-    string stateChangelog = 10;
 }
 
 message UpdateBattleScoreResponse {
@@ -231,7 +224,6 @@ message UpdateBattleScoreResponse {
     PlayerType playerType = 11;
     string moneyAmount = 12;
     com.mpl.commons.lci.CountryInfo countryInfo = 13;
-    bool allScoredSubmitted = 14;
 }
 
 message LobbyPlayerData {
@@ -272,8 +264,6 @@ message LobbyPlayerDataWithUserDetails{
 message GetBattleRequest {
     string requestId = 1;
     string battleId = 2;
-    bool isOldBattle = 3;
-    bool useWriter = 4;
 }
 
 message GetBattleResponse {
@@ -331,8 +321,7 @@ message CancelBattleRequest {
     string requestId = 1;
     string battleId = 2;
     repeated int32 userId = 3;
-    string partnerKey = 4;
-    string cancelReason = 5;
+  string partnerKey = 4;
 }
 
 message CancelBattleResponse {
@@ -349,7 +338,6 @@ message CreateBattleRequest {
     repeated int32 userIds = 4;
     map<int32,string> userAppTypes = 5;
     string partnerKey = 6;
-    string challengeId = 7;
 }
 
 message CreatBattlePlayer {
@@ -383,13 +371,6 @@ message CreateBattleResponse {
     string moneyAmount = 8;
     string moneyBonusAmount = 9;
     com.mpl.commons.lci.CountryInfo countryInfo = 10;
-    double spinAndGoAmount = 13;
-    bool isBumperLobby = 14;
-    string gameConfig =15;
-//    bool randomizerEnabled=16;
-    string randomizedGameConfig = 16;
-    bool isBumperLobby1vn = 17;
-    repeated double spinAndGoAmount1vn = 18;
 }
 
 message GetPlayerStatsRequest {
@@ -417,8 +398,6 @@ message GetPlayerLobbyHistoryRequest {
     int64 endTimeStamp = 6;
     string battleId = 7;
     int32 gameId = 8;
-    bool fromAPIgw = 9;
-    bool fetchReplay = 10;
 }
 
 message GetPlayerLobbyHistoryResponse {
@@ -446,9 +425,7 @@ message BattleHistoryDetails {
     string battleStartTime = 10;
     string battleType = 11;
     bool isExclusiveVIP = 12;
-    bool unseen = 13;
-    string battleEndTime = 14;
-    bool replayAvailable = 15;
+
 }
 
 message BattlePlayerDetails {
@@ -480,17 +457,7 @@ message BattlePlayerDetails {
     string displayName = 18;
     string moneyEntryFee = 19;
     com.mpl.commons.lci.CountryInfo countryInfo = 20;
-    bool bumperBattle = 21;
-    double guaranteedPrize = 22;
-    double bumperPrize = 23;
-    string replay = 24;
-    string playerState = 25;
-    bool isFraudDetected = 26;
-    bool disconnection = 27;
-
-    string avatar = 28;
 }
-
 
 message GetLobbyDetailsResponse {
     string requestId = 1;
@@ -510,11 +477,6 @@ message UserMatchFoundData {
     int32 netSkillDelta = 9;
     bool redZone = 10;
     double churnWinRate = 11;
-    int32 userAdjustedRating = 12;
-    int32 opponentAdjustedRating = 13;
-    com.mpl.services.usergamestats.CombinedData combinedData = 14;
-    bool userMatchFoundFailed = 15;
-    bool isNew = 16;
 }
 
 message UserMatchFoundRequest {
@@ -522,7 +484,6 @@ message UserMatchFoundRequest {
     int32 lobbyId = 2;
     string battleId = 3;
     repeated UserMatchFoundData playerData = 4;
-    string randomizedGameConfig=5;
 }
 
 message UserMatchFoundResponse {
@@ -559,8 +520,6 @@ message KickoutUserFromLobbyRequest {
     int32 userId = 2;
     string reason = 3;
     int32 battleId = 4;
-    string kickedOutBy = 5;
-    int32 gameId = 6;
 }
 
 message KickoutUserFromLobbyResponse {
@@ -652,7 +611,6 @@ message UserProfile {
     string tier = 5;
     bool isPro = 6;
     int32 appVersion = 7;
-    PlayerType playerType=8;
 }
 
 message GetKnockOutMatchDataRequest{
@@ -757,8 +715,6 @@ message AuthenticationRequest {
     string requestId = 1;
     string authToken = 2;
     int32 lobbyId =3;
-    string flowType = 4; // SIGN_UP,INSTANT_DEBIT_VALIDATION
-    int32 userId = 5;
 }
 message AuthenticationResponse {
     LobbyServiceError error = 1;
@@ -873,11 +829,6 @@ message CreateBattleAsyncResponse{
     string moneyAmount = 10;
     string moneyAllowedBonusAmount = 11;
     com.mpl.commons.lci.CountryInfo countryInfo = 12;
-    double spinAndGoAmount = 13;
-    bool isBumperLobby = 14;
-    string gameConfig=15;
-    string randomizedGameConfig=16;
-
 }
 
 message FinishBattleAsyncRequest {
@@ -991,12 +942,6 @@ message TestLobbyRequest{
     int32 lobbyId = 7;
 }
 
-message TestLobbyRequest1vn{
-    repeated int32 userIds = 1;
-    repeated int32 userScores = 2;
-    int32 lobbyId = 3;
-}
-
 message TestLobbyResponse {
     bool isSuccess = 1;
     string message = 2;
@@ -1037,175 +982,6 @@ message UpdateLeaderBoardForRummyTournamentResponse{
     LobbyServiceError error = 3;
 }
 
-message GetRummyLeaderBoardIdsForLobbyRequest{
-    string requestId = 1;
-    int32 lobbyId = 2;
-}
-
-message GetRummyLeaderBoardIdsForLobbyResponse{
-    string requestId = 1;
-    bool isSuccess = 2;
-    LobbyServiceError error = 3;
-    map<int32,string>  leaderBoardToEndTime = 4;
-}
-
-message GetLeaderBoardIdsForLobbyRequest{
-    string requestId = 1;
-    int32 lobbyId = 2;
-}
-
-message GetLeaderBoardIdsForLobbyResponse{
-    string requestId = 1;
-    bool isSuccess = 2;
-    LobbyServiceError error = 3;
-    map<int32,string>  leaderBoardToEndTime = 4;
-}
-
-message ProcessPlayMoreForCardGamesRequest {
-    string requestId = 1;
-    int32 lobbyId = 2;
-    string userId = 3;
-}
-
-message ProcessPlayMoreForCardGamesResponse{
-    string requestId = 1;
-    bool isSuccess = 2;
-    LobbyServiceError error = 3;
-}
-
-message GetAsyncKnockOutMatchDataRequest{
-    int32 userId = 1;
-    int32 lobbyId = 2;
-}
-
-message GetAsyncKnockOutMatchDataResponse{
-    string matchId = 1;
-    AsyncKnockoutProfile user = 2;
-    AsyncKnockoutProfile opponent = 3;
-    int32 timeLeft = 4;
-    string roundName = 5;
-    int32 winnerUserId = 6;
-
-}
-
-message UpdateAsyncKnockOutPlayerScoreRequest{
-    string matchId = 1;
-    int32 userId = 2;
-    int32 lobbyId = 3;
-    int32 score = 4;
-    string scoreData = 5;
-}
-
-message UpdateAsyncKnockOutPlayerScoreResponse {
-
-    string requestId = 1;
-    LobbyServiceError error = 2;
-    repeated AsyncKnockoutProfile players = 3;
-    Reward loserReward = 4;
-    Reward winnerReward = 5;
-    bool isFinalRound = 6;
-    bool reMatch = 7;
-    bool canPlayAgain = 8;
-    bool hasBalance = 9;
-    bool segmentedUser = 10;
-    bool isPartial = 11;
-    bool userBlocked = 12;
-    bool isFightAgainDisabled = 13;
-    bool opponentNotSubmittedScore=14;
-    bool isSlotsAvailable=15;
-    double asyncKOLobbyCashAmt=16;
-}
-
-message LobbyByBattleRequest{
-    string battleId = 1;
-    int64 userId = 2;
-}
-
-message RejoinAsyncKnockoutUserRequest{
-    int32 userId = 1;
-    int32 lobbyId = 2;
-    string appType = 3;
-    string apkType = 4;
-}
-
-message RejoinAsyncKnockoutUserResponse{
-    bool isSuccess = 1;
-}
-
-message RefundLobbyScheduler{
-    string command=1;
-    int32 id=2;
-}
-
-message ProcessEventsForGSTInPoolRummySplitRequest{
-    string requestId = 1;
-    int32 lobbyId = 2;
-    int32 gameId = 3;
-    string battleId = 4;
-}
-
-message ProcessEventsForGSTInPoolRummySplitResponse{
-    bool isSuccess = 1;
-    string requestId = 2;
-    LobbyServiceError error = 3;
-}
-
-message UpdateLeaderBoardForCGTournamentRequest {
-    string requestId = 1;
-    int32 tournamentId = 2;
-    map<int32, double> userIdToScores = 3;
-    string tableId = 4;
-    int32 levelNumber = 5;
-}
-
-message UpdateLeaderBoardForCGTournamentResponse {
-    string requestId = 1;
-    bool isSuccess = 2;
-    LobbyServiceError error = 3;
-}
-
-message   GetBattleByBattleRequest {
-    string battleId = 1;
-}
-
-message GetBattleDetailResponse {
-    string battleStartTime = 1;
-}
-
-
-message GetFreeToPlayLobbiesRequest{
-    int32 userId = 1;
-    int32 gameId = 2;
-    string apkType = 3;
-    int32 reactVersion = 4;
-    string requestId = 5;
-}
-
-message GetFreeToPlayLobbiesResponse{
-    string requestId = 1;
-    bool isSuccess = 2;
-    LobbyServiceError error = 3;
-    int32 lobbyId = 4;
-}
-
-message LeaderBoardWinningsRequest{
-
-    int32 userId=1;
-    int32 lobbyId=2;
-    string battleId=3;
-
-}
-
-message LeaderBoardWinningsResponse{
-
-    int32 userId=1;
-    int32 lobbyId=2;
-    string battleId=3;
-    string winnings=4;
-    string leaderboardWinnings=5;
-    string state=6;
-
-}
 
 service LobbyService {
     rpc getLobbies (GetLobbiesRequest) returns (GetLobbiesResponse);
@@ -1283,34 +1059,9 @@ service LobbyService {
 
     //test lobby
     rpc testLobby(TestLobbyRequest) returns (TestLobbyResponse);
-    rpc testLobby1vn(TestLobbyRequest1vn) returns (TestLobbyResponse);
 
     //SFS instrumentation
     rpc generateUserDisconnectedEvent (UserDisconnectedRequest) returns (UserDisconnectedResponse);
 
     rpc updateLeaderBoardForRummyTournament(UpdateLeaderBoardForRummyTournamentRequest) returns (UpdateLeaderBoardForRummyTournamentResponse);
-    rpc getRummyLeaderBoardIdsForLobby(GetRummyLeaderBoardIdsForLobbyRequest) returns (GetRummyLeaderBoardIdsForLobbyResponse);
-    rpc getLeaderBoardIdsForLobby(GetLeaderBoardIdsForLobbyRequest) returns (GetLeaderBoardIdsForLobbyResponse);
-    rpc processPlayMoreForCardGames(ProcessPlayMoreForCardGamesRequest) returns (ProcessPlayMoreForCardGamesResponse);
-
-    rpc getAsyncKnockOutMatchData(GetAsyncKnockOutMatchDataRequest) returns (GetAsyncKnockOutMatchDataResponse);
-    rpc updateAsyncKnockOutPlayerScore(UpdateAsyncKnockOutPlayerScoreRequest) returns (UpdateAsyncKnockOutPlayerScoreResponse) ;
-    rpc rejoinAsyncKnockoutUser(RejoinAsyncKnockoutUserRequest) returns (RejoinAsyncKnockoutUserResponse);
-
-
-    // Get lobby from battle
-    rpc getLobbyByBattle(LobbyByBattleRequest) returns (GetLobbyDetailsResponse);
-
-    rpc createOrAsyncLobbyRefundScheduler(RefundLobbyScheduler) returns (RefundLobbyScheduler);
-    // For Pool Rummy Split - GST invoice generation
-    rpc processEventsForGSTInPoolRummySplit(ProcessEventsForGSTInPoolRummySplitRequest) returns (ProcessEventsForGSTInPoolRummySplitResponse);
-
-    // Card games tournament
-    rpc updateLeaderBoardForCGTournament (UpdateLeaderBoardForCGTournamentRequest) returns (UpdateLeaderBoardForCGTournamentResponse);
-
-    rpc getBattleDetailsByBattleId(GetBattleByBattleRequest) returns (GetBattleDetailResponse);
-
-    rpc getFreeToPlayLobbies(GetFreeToPlayLobbiesRequest) returns (GetFreeToPlayLobbiesResponse);
-
-    rpc getLeaderBoardWinnings(LeaderBoardWinningsRequest) returns (LeaderBoardWinningsResponse);
 }

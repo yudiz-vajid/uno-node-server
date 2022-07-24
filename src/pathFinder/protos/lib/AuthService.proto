@@ -33,5 +33,5 @@ message AuthenticationResponse {
 
 // Services //
 service AuthService {
-    rpc authenticate(AuthenticationRequest) returns(AuthenticationResponse);
+    rpc authenticate(AuthenticationRequest) returns(AuthenticationResponse);    
 }

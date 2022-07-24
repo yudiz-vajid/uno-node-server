@@ -19,12 +19,6 @@ export declare interface ICard {
   eColor: 'red' | 'green' | 'blue' | 'yellow' | 'black';
   nLabel: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14; // - [0-9] -> numbered card, 10 -> skip , 11 -> reverse, 12 -> drawTwo, 13 -> wild, 14 -> wildDrawFour
   nScore: number;
-
-  // CONFIRM: below fields are required ?
-  // bSkipCard?: boolean; // play on same color or label
-  // bReverseCard?: boolean; // play on same color or label
-  // bDrawTwoCard?: boolean; // play on same color or label
-  // bDrawFourCard?: boolean; // only for black(wild) card
 }
 
 declare interface ISettings {

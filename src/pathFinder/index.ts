@@ -1,6 +1,8 @@
 import path from 'path';
 import PathFinder, { PFServer } from 'lib-pathfinder-node';
 import protos from './protos';
+import { init, getConfig } from './connection/zk';
+import grpc from './connection/grpc';
 
 const loadOpts = {
   keepCase: true,
@@ -12,12 +14,12 @@ const loadOpts = {
 
 async function createClient(serviceName: string, serviceNameInProto: string) {
   try {
-    // For Consul Service Discovery - IP Only
-    const url = await PathFinder.getInstance().getServerUrl('AuthService');
+    /* For Consul Service Discovery - IP Only */
+    // const url = await PathFinder.getInstance().getServerUrl('AuthService');
     const client = await PathFinder.getInstance().getClient({
       serviceName,
       serviceNameInProto,
-      tag: 'IN'
+      tag: 'IN',
     });
     log.info('Initiated Client');
     return client;
@@ -43,12 +45,25 @@ async function addServiceAndStartGrpcServer() {
 
 export async function initializePathFinder() {
   try {
-    PathFinder.initialize({ appName: 'service-uno', protosToLoad: protos, loadOpts, promisify: true });
-    log.info('PathFinder initialized');
+    PathFinder.initialize({ appName: 'service-callbreak', protosToLoad: protos, loadOpts, promisify: true });
+    log.info('PathFinder initialize seq started ... ');
+
+    await init();
+    log.info('PathFinder initialize seq completed.');
+
+    log.info('gRPC initialize seq started ... ');
+    await grpc.init();
+    log.info('gRPC initialize seq completed. ');
+
+    log.info('fetching ZKConfig ...');
+    const ZKConfig = getConfig;
+    log.info('fetched ZKConfig.');
+
     await addServiceAndStartGrpcServer();
     const client = await createClient('service-auth', 'AuthService');
-    if(!client) throw new Error('client is not available');
+    if (!client) throw new Error('client is not available');
     log.info(`client: ${client}`);
+
     return true;
   } catch (err: any) {
     log.error(`${h.now()} we have error, ${err.message}`);
