@@ -62,7 +62,7 @@ export async function initializePathFinder() {
     log.info('fetching ZKConfig ...');
     const ZKConfig = getConfig();
     log.info('fetched ZKConfig.');
-    log.info(`ZKConfig = ${ZKConfig}\n`);
+    log.info(`ZKConfig = ${JSON.stringify(ZKConfig)}\n`);
 
     // await addServiceAndStartGrpcServer();
     // const client = await createClient('service-auth', 'AuthService');
