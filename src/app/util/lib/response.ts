@@ -14,7 +14,7 @@ const response = {
   PLAYER_NOT_ACTIVE: { code: 11, message: 'player is not in active state' },
   NOT_ENOUGH_CARDS: { code: 12, message: 'not enough cards' },
   NOT_YOUR_TURN: { code: 13, message: 'please wait for your turn' },
-  WRONG_UNO: { code: 13, message: 'Please press Uno before playing the second last card from the hand' },
+  WRONG_UNO: { code: 13, message: 'please press Uno before playing the second last card from the hand' },
   CARD_NOT_IN_HAND: { code: 14, message: 'card not in hand' },
   EMPTY_HAND: { code: 15, message: 'hand is empty' },
   CARD_COLOR_REQUIRED: { code: 16, message: 'card color required when discarding wild card' },

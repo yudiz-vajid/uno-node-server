@@ -6,6 +6,8 @@ import zookeeper from 'node-zookeeper-client';
 import { currentIndexForServicesOfGRPC } from '../modules';
 import { ZOOKEEPER, MESSAGES, CONFIG_FILE_PATH, SERVICE_NAME, GENERAL_CLUSTER, PM2_ERRORS } from '../constants';
 
+type IzkClient = zookeeper.Client;
+
 const hostObj: any = {};
 let counter = 50;
 let zkClient: any = null;
@@ -17,6 +19,7 @@ function getConfig() {
 
 /**
  * check if path exists
+ * i.e, Check the existence of a node
  * @param {String} zkPath
  * @returns {Boolean}
  */
@@ -42,7 +45,7 @@ async function doesPathExists(path: any) {
 }
 
 /**
- * Get the data from path
+ * Retrieve the data and the stat of the node of the given path
  * @param {Object} event
  */
 const getNodeData = async (path: any) => {
@@ -229,6 +232,7 @@ async function init() {
     async function onConnectCB() {
       Logger.info(MESSAGES.ZOOKEEPER.CONNECTION_ESTABLISHED);
 
+      /* check existence of node */
       const paths = await Promise.all([doesPathExists(serverConfigPath), doesPathExists(productConfigPath), doesPathExists(messageConfigPath)]).catch(reject);
 
       let serverConfigData: any = null;
@@ -236,14 +240,17 @@ async function init() {
       let messageConfigData: any = null;
 
       if (paths[0]) {
+        /* retrieve data from node */
         serverConfigData = await getNodeData(serverConfigPath).catch(reject);
         serverConfigData = serverConfigData || {};
       }
       if (paths[1]) {
+        /* retrieve data from node */
         productConfigData = await getNodeData(productConfigPath).catch(reject);
         productConfigData = productConfigData || {};
       }
       if (paths[2]) {
+        /* retrieve data from node */
         messageConfigData = await getNodeData(messageConfigPath).catch(reject);
         messageConfigData = messageConfigData || {};
       }
@@ -251,11 +258,14 @@ async function init() {
       // TODO: remove
       Logger.debug('paths:', paths);
       Logger.debug('\nserverConfigData:', serverConfigData);
-      Logger.debug('\nproductConfigData:', productConfigData);
+      // Logger.debug('\nproductConfigData:', productConfigData);
       // Logger.debug('\nmessageConfigData:', messageConfigData);
       // TODO: remove
 
-      const updatedServerConfigData = await verifyConfig(serverConfigData);
+      // * DEBUG purpose only. remove later
+      const updatedServerConfigData = serverConfigData;
+      // const updatedServerConfigData = await verifyConfig(serverConfigData);
+
       // TODO: remove
       Logger.debug('\nupdatedServerConfigData:', updatedServerConfigData);
       // TODO: remove
