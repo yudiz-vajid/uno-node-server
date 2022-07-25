@@ -60,10 +60,10 @@ export async function initializePathFinder() {
     log.info('fetched ZKConfig.');
     log.info(`ZKConfig = ${JSON.stringify(ZKConfig)}\n`);
 
-    await addServiceAndStartGrpcServer();
-    const client = await createClient('service-auth', 'AuthService');
-    if (!client) throw new Error('client is not available');
-    log.info(`client: ${client}`);
+    // await addServiceAndStartGrpcServer();
+    // const client = await createClient('service-auth', 'AuthService');
+    // if (!client) throw new Error('client is not available');
+    // log.info(`client: ${client}`);
 
     /* testing grpc services */
 
