@@ -1,7 +1,7 @@
 const protos = [
   {
     path: `${__dirname}/lib/AuthService.proto`,
-    name: 'AuthService',
+    name: 'service-auth',
   },
 ];
 
