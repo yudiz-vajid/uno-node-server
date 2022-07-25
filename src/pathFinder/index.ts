@@ -51,17 +51,17 @@ export async function initializePathFinder() {
     PathFinder.initialize({ appName: 'service-callbreak', protosToLoad: protos, loadOpts, promisify: true });
     log.info('PathFinder initialize seq started ... ');
 
-    const _zk = await init();
-    log.info('PathFinder initialize seq completed.', _zk);
+    // const _zk = await init();
+    // log.info('PathFinder initialize seq completed.', _zk);
 
-    log.info('gRPC initialize seq started ... ');
-    await grpc.init();
-    log.info('gRPC initialize seq completed. ');
+    // log.info('gRPC initialize seq started ... ');
+    // await grpc.init();
+    // log.info('gRPC initialize seq completed. ');
 
-    log.info('fetching ZKConfig ...');
-    const ZKConfig = getConfig();
-    log.info('fetched ZKConfig.');
-    log.info(`ZKConfig = ${JSON.stringify(ZKConfig)}\n`);
+    // log.info('fetching ZKConfig ...');
+    // const ZKConfig = getConfig();
+    // log.info('fetched ZKConfig.');
+    // log.info(`ZKConfig = ${JSON.stringify(ZKConfig)}\n`);
 
     // await addServiceAndStartGrpcServer();
     // const client = await createClient('service-auth', 'AuthService');
