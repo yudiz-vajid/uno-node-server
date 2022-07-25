@@ -2,7 +2,7 @@ import path from 'path';
 import PathFinder, { PFServer } from 'lib-pathfinder-node';
 import protos from './protos';
 import { init, getConfig, getHostWithPort, getHostWithPortOnly } from './connection/zk';
-import grpc, { getGrpcClient } from './connection/grpc';
+import grpc from './connection/grpc';
 
 const loadOpts = {
   keepCase: true,
