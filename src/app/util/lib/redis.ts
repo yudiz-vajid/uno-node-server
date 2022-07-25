@@ -5,19 +5,19 @@ import { createAdapter } from '@socket.io/redis-adapter';
 import { createClient, RedisClientType, RedisClientOptions } from 'redis';
 
 class RedisClient {
-  private readonly gamePlayOptions: RedisClientOptions;
+  public readonly gamePlayOptions: RedisClientOptions;
 
-  private readonly schedularOptions: RedisClientOptions;
+  public readonly schedularOptions: RedisClientOptions;
 
-  private readonly pubSubOptions: RedisClientOptions;
+  public readonly pubSubOptions: RedisClientOptions;
 
-  private readonly client!: RedisClientType;
+  public readonly client!: RedisClientType;
 
-  private readonly publisher!: RedisClientType;
+  public readonly publisher!: RedisClientType;
 
-  private readonly subscriber!: RedisClientType;
+  public readonly subscriber!: RedisClientType;
 
-  private readonly schedular!: RedisClientType;
+  public readonly schedular!: RedisClientType;
 
   constructor() {
     this.gamePlayOptions = Object.freeze({
