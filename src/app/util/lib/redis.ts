@@ -5,30 +5,46 @@ import { createAdapter } from '@socket.io/redis-adapter';
 import { createClient, RedisClientType, RedisClientOptions } from 'redis';
 
 class RedisClient {
-  public options: RedisClientOptions;
+  private readonly gamePlayOptions: RedisClientOptions;
 
-  public client!: RedisClientType;
+  private readonly schedularOptions: RedisClientOptions;
 
-  public publisher!: RedisClientType;
+  private readonly pubSubOptions: RedisClientOptions;
 
-  public subscriber!: RedisClientType;
+  private readonly client!: RedisClientType;
+
+  private readonly publisher!: RedisClientType;
+
+  private readonly subscriber!: RedisClientType;
+
+  private readonly schedular!: RedisClientType;
 
   constructor() {
-    this.options = {
-      url: process.env.REDIS_URL,
-      username: process.env.REDIS_USERNAME,
-      password: process.env.REDIS_PASSWORD,
+    this.gamePlayOptions = Object.freeze({
+      url: `redis://${process.env.GAMEPLAY_REDIS_HOST}:${process.env.GAMEPLAY_REDIS_HOST}`,
+      password: process.env.GAMEPLAY_REDIS_PASSWORD,
       legacyMode: false,
-    };
+    });
+    this.schedularOptions = Object.freeze({
+      url: `redis://${process.env.SCHEDULER_REDIS_HOST}:${process.env.SCHEDULER_REDIS_PORT}`,
+      password: process.env.SCHEDULER_REDIS_PASSWORD,
+      legacyMode: false,
+    });
+    this.pubSubOptions = Object.freeze({
+      url: `redis://${process.env.PUBSUB_REDIS_HOST}:${process.env.PUBSUB_REDIS_HOST}`,
+      password: process.env.PUBSUB_REDIS_PASSWORD,
+      legacyMode: false,
+    });
   }
 
   async initialize() {
     try {
-      (this.client as unknown) = createClient(this.options);
-      (this.publisher as unknown) = createClient(this.options);
-      (this.subscriber as unknown) = createClient(this.options);
+      (this.client as unknown) = createClient(this.gamePlayOptions);
+      (this.publisher as unknown) = createClient(this.pubSubOptions);
+      (this.subscriber as unknown) = createClient(this.pubSubOptions);
+      (this.schedular as unknown) = createClient(this.schedularOptions);
 
-      await Promise.all([this.client.connect(), this.publisher.connect(), this.subscriber.connect()]);
+      await Promise.all([this.client.connect(), this.publisher.connect(), this.subscriber.connect(), this.schedular.connect()]);
 
       await this.client.CONFIG_SET('notify-keyspace-events', 'Ex');
       await this.setupConfig.apply(this);
