@@ -48,22 +48,22 @@ async function addServiceAndStartGrpcServer() {
 
 export async function initializePathFinder() {
   try {
-    // PathFinder.initialize({ appName: 'service-callbreak', protosToLoad: protos, loadOpts, promisify: true });
-    // log.info('PathFinder initialize seq started ... ');
+    PathFinder.initialize({ appName: 'service-callbreak', protosToLoad: protos, loadOpts, promisify: true });
+    log.info('PathFinder initialize seq started ... ');
 
-    // const _zk = await init();
-    // log.info('PathFinder initialize seq completed.', _zk);
+    const _zk = await init();
+    log.info('PathFinder initialize seq completed.', _zk);
 
-    // log.info('gRPC initialize seq started ... ');
-    // await grpc.init();
-    // log.info('gRPC initialize seq completed. ');
+    log.info('gRPC initialize seq started ... ');
+    await grpc.init();
+    log.info('gRPC initialize seq completed. ');
 
-    // log.info('fetching ZKConfig ...');
-    // const ZKConfig = getConfig();
-    // log.info('fetched ZKConfig.');
-    // log.info(`ZKConfig = ${JSON.stringify(ZKConfig)}\n`);
+    log.info('fetching ZKConfig ...');
+    const ZKConfig = getConfig();
+    log.info('fetched ZKConfig.');
+    log.info(`ZKConfig = ${JSON.stringify(ZKConfig)}\n`);
 
-    // await addServiceAndStartGrpcServer();
+    await addServiceAndStartGrpcServer();
     // const client = await createClient('service-auth', 'AuthService');
     // if (!client) throw new Error('client is not available');
     // log.info(`client: ${client}`);
