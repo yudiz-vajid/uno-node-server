@@ -15,9 +15,9 @@ const loadOpts = {
 async function createClient(serviceName: string, serviceNameInProto: string) {
   try {
     /* For Consul Service Discovery - IP Only */
-    log.info('Consul Service Discovery deq Initiated ...');
+    log.info('Consul Service Discovery seq Initiated ...');
     const url = await PathFinder.getInstance().getServerUrl('AuthService');
-    log.info('Consul Service Discovery deq Initiated ...');
+    log.info(`Consul Service Discovery seq Completed. url: ${url}`);
 
     const client = await PathFinder.getInstance().getClient({
       serviceName,
