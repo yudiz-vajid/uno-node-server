@@ -15,9 +15,10 @@ const loadOpts = {
 async function createClient(serviceName: string, serviceNameInProto: string) {
   try {
     /* For Consul Service Discovery - IP Only */
-    log.info('Consul Service Discovery seq Initiated ...');
-    const url = await PathFinder.getInstance().getServerUrl('AuthService');
-    log.info(`Consul Service Discovery seq Completed. url: ${url}`);
+    // ! getting error  'getaddrinfo ENOTFOUND dev-consul.mpl.live, Error: getaddrinfo ENOTFOUND dev-consul.mpl.live'
+    // log.info('Consul Service Discovery seq Initiated ...');
+    // const url = await PathFinder.getInstance().getServerUrl('AuthService');
+    // log.info(`Consul Service Discovery seq Completed. url: ${url}`);
 
     const client = await PathFinder.getInstance().getClient({
       serviceName,
@@ -69,10 +70,10 @@ export async function initializePathFinder() {
     log.info(`client: ${client}`);
 
     /* testing grpc services */
-
-    // const authClient = grpc.getGrpcClient().getAuthServiceClient();
-    // if (!authClient) throw new Error('client is not available');
-    // log.info(`authClient: ${JSON.stringify(authClient)}`);
+    // ! getting error  'getaddrinfo ENOTFOUND dev-consul.mpl.live, Error: getaddrinfo ENOTFOUND dev-consul.mpl.live'
+    const authClient = grpc.getGrpcClient().getAuthServiceClient();
+    if (!authClient) throw new Error('client is not available');
+    log.info(`authClient: ${JSON.stringify(authClient)}`);
 
     return true;
   } catch (err: any) {
