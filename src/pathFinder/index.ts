@@ -71,9 +71,9 @@ export async function initializePathFinder() {
 
     /* testing grpc services */
 
-    const authClient = getGrpcClient().getAuthServiceClient();
-    if (!authClient) throw new Error('client is not available');
-    log.info(`client: ${JSON.stringify(client)}`);
+    // const authClient = getGrpcClient().getAuthServiceClient();
+    // if (!authClient) throw new Error('client is not available');
+    // log.info(`client: ${JSON.stringify(client)}`);
 
     return true;
   } catch (err: any) {
