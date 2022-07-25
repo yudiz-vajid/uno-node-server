@@ -44,9 +44,9 @@ class RedisClient {
       (this.subscriber as unknown) = createClient(this.pubSubOptions);
       (this.schedular as unknown) = createClient(this.schedularOptions);
 
-      // await Promise.all([this.client.connect(), this.publisher.connect(), this.subscriber.connect(), this.schedular.connect()]);
+      await Promise.all([this.client.connect(), this.publisher.connect(), this.subscriber.connect(), this.schedular.connect()]);
 
-      await this.client.CONFIG_SET('notify-keyspace-events', 'Ex');
+      // await this.client.CONFIG_SET('notify-keyspace-events', 'Ex');
       await this.setupConfig.apply(this);
 
       this.client.on('error', log.error);
