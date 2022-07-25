@@ -2,7 +2,7 @@ import path from 'path';
 import PathFinder, { PFServer } from 'lib-pathfinder-node';
 import protos from './protos';
 import { init, getConfig, getHostWithPort, getHostWithPortOnly } from './connection/zk';
-import grpc from './connection/grpc';
+import grpc, { getGrpcClient } from './connection/grpc';
 
 const loadOpts = {
   keepCase: true,
@@ -68,6 +68,10 @@ export async function initializePathFinder() {
     // const client = await createClient('service-auth', 'AuthService');
     // if (!client) throw new Error('client is not available');
     // log.info(`client: ${client}`);
+
+    const client = getGrpcClient();
+    if (!client) throw new Error('client is not available');
+    log.info(`client: ${JSO.stringify(client)}`);
 
     return true;
   } catch (err: any) {
