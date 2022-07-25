@@ -71,7 +71,7 @@ export async function initializePathFinder() {
 
     const client = getGrpcClient();
     if (!client) throw new Error('client is not available');
-    log.info(`client: ${JSO.stringify(client)}`);
+    log.info(`client: ${JSON.stringify(client)}`);
 
     return true;
   } catch (err: any) {
