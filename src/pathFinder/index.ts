@@ -71,9 +71,9 @@ export async function initializePathFinder() {
 
     /* testing grpc services */
     // ! getting error  'getaddrinfo ENOTFOUND dev-consul.mpl.live, Error: getaddrinfo ENOTFOUND dev-consul.mpl.live'
-    const authClient = grpc.getGrpcClient().getAuthServiceClient();
-    if (!authClient) throw new Error('client is not available');
-    log.info(`authClient: ${JSON.stringify(authClient)}`);
+    // const authClient = grpc.getGrpcClient().getAuthServiceClient();
+    // if (!authClient) throw new Error('client is not available');
+    // log.info(`authClient: ${JSON.stringify(authClient)}`);
 
     return true;
   } catch (err: any) {
