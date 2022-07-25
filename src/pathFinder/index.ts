@@ -51,10 +51,6 @@ export async function initializePathFinder() {
     const _zk = await init();
     log.info('PathFinder initialize seq completed.', _zk);
 
-    /* */
-    log.info(`getConfig() => ${JSON.stringify(getConfig())}, `);
-    /* */
-
     log.info('gRPC initialize seq started ... ');
     await grpc.init();
     log.info('gRPC initialize seq completed. ');
