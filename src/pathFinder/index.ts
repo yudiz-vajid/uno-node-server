@@ -48,8 +48,8 @@ async function addServiceAndStartGrpcServer() {
 
 export async function initializePathFinder() {
   try {
-    PathFinder.initialize({ appName: 'service-callbreak', protosToLoad: protos, loadOpts, promisify: true });
-    log.info('PathFinder initialize seq started ... ');
+    // PathFinder.initialize({ appName: 'service-callbreak', protosToLoad: protos, loadOpts, promisify: true });
+    // log.info('PathFinder initialize seq started ... ');
 
     // const _zk = await init();
     // log.info('PathFinder initialize seq completed.', _zk);
