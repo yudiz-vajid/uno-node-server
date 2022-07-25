@@ -21,7 +21,7 @@ class RedisClient {
 
   constructor() {
     this.gamePlayOptions = Object.freeze({
-      url: `redis://${process.env.GAMEPLAY_REDIS_HOST}:${process.env.GAMEPLAY_REDIS_HOST}`,
+      url: `redis://${process.env.GAMEPLAY_REDIS_HOST}:${process.env.GAMEPLAY_REDIS_PORT}`,
       password: process.env.GAMEPLAY_REDIS_PASSWORD,
       legacyMode: false,
     });
@@ -31,7 +31,7 @@ class RedisClient {
       legacyMode: false,
     });
     this.pubSubOptions = Object.freeze({
-      url: `redis://${process.env.PUBSUB_REDIS_HOST}:${process.env.PUBSUB_REDIS_HOST}`,
+      url: `redis://${process.env.PUBSUB_REDIS_HOST}:${process.env.PUBSUB_REDIS_PORT}`,
       password: process.env.PUBSUB_REDIS_PASSWORD,
       legacyMode: false,
     });
