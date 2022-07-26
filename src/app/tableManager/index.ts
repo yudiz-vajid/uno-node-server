@@ -31,7 +31,7 @@ class TableManager {
 
     const oPlayer = oTable.getPlayer(iPlayerId);
 
-    if (['assignTurnTimerExpired', 'assignGraceTimerExpired', 'drawCard', 'discardCard','decalreUno'].includes(sTaskName)) {
+    if (['assignTurnTimerExpired', 'assignGraceTimerExpired', 'drawCard', 'discardCard', 'decalreUno'].includes(sTaskName)) {
       if (!oPlayer) {
         callback({ oData: {}, status: response.PLAYER_NOT_FOUND });
         return (log.warn(`${_.now()} oPlayer not found in table. { iBattleId : ${iBattleId}, iPlayerId : ${iPlayerId} }`) && null) ?? false;

@@ -19,7 +19,7 @@ class Channel {
         return __awaiter(this, void 0, void 0, function* () {
             if (process.env.NODE_ENV === 'dev' && typeof body === 'object')
                 body = _.stringify(body);
-            let parseBody = JSON.parse(body);
+            const parseBody = JSON.parse(body);
             try {
                 if (typeof ack !== 'function')
                     return false;

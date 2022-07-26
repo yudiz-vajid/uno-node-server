@@ -190,10 +190,12 @@ class Service {
     }
     reshuffleClosedDeck() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.aDrawPile = this.aDrawPile.length ? [...this.aDrawPile, ...this.aDiscardPile.splice(0, this.aDiscardPile.length - 1)] : this.aDiscardPile.splice(0, this.aDiscardPile.length - 1);
-            for (let i = 0; i < this.aDrawPile.length; i++) {
+            this.aDrawPile = this.aDrawPile.length
+                ? [...this.aDrawPile, ...this.aDiscardPile.splice(0, this.aDiscardPile.length - 1)]
+                : this.aDiscardPile.splice(0, this.aDiscardPile.length - 1);
+            for (let i = 0; i < this.aDrawPile.length; i += 1) {
                 if (this.aDrawPile[i].nLabel > 12)
-                    this.aDrawPile[i].eColor = "black";
+                    this.aDrawPile[i].eColor = 'black';
             }
             yield this.update({ aDiscardPile: this.aDiscardPile, aDrawPile: this.aDrawPile });
             this.emit('resShuffleDeck', {});
@@ -238,14 +240,18 @@ class Service {
     gameOver(oPlayer, eReason) {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.update({ eState: 'finished' });
-            const aPlayer = this.toJSON().aPlayer.filter(p => p.eState != 'left');
-            for (let i = 0; i < aPlayer.length; i++) {
+            const aPlayer = this.toJSON().aPlayer.filter(p => p.eState !== 'left');
+            for (let i = 0; i < aPlayer.length; i += 1) {
                 yield aPlayer[i].update({ eState: 'declared' });
                 aPlayer[i].nScore = yield aPlayer[i].handCardCounts(aPlayer[i].aHand);
             }
-            const sortedPlayer = aPlayer.sort((a, b) => a.nScore - b.nScore).map((p, i) => { return { aHand: p.aHand, nScore: p.nScore, iPlayerId: p.iPlayerId, nRank: i }; });
+            const sortedPlayer = aPlayer
+                .sort((a, b) => a.nScore - b.nScore)
+                .map((p, i) => {
+                return { aHand: p.aHand, nScore: p.nScore, iPlayerId: p.iPlayerId, nRank: i };
+            });
             this.emit('resGameOver', { aPlayer: sortedPlayer, oWinner: oPlayer, eReason });
-            let keys = yield redis.client.KEYS(`t:${this.iBattleId}:*`);
+            const keys = yield redis.client.KEYS(`t:${this.iBattleId}:*`);
             const tbl_keys = yield redis.client.KEYS(`t:${this.iBattleId}`);
             keys.push(...tbl_keys);
             console.log('delete keys ..', keys);
@@ -312,7 +318,7 @@ class Service {
     }
     handleReverseCard() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.update({ bTurnClockwise: !(this.bTurnClockwise), bIsReverseNow: true });
+            yield this.update({ bTurnClockwise: !this.bTurnClockwise, bIsReverseNow: true });
             return true;
         });
     }

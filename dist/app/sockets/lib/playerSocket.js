@@ -73,7 +73,7 @@ class PlayerSocket {
                 }
                 else {
                     _ack({ oData: { iBattleId: this.iBattleId, iPlayerId: this.iPlayerId }, status: util_1.response.SUCCESS });
-                    yield oPlayer.reconnect(this.socket.id, oTable.toJSON().eState);
+                    yield oPlayer.reconnect(this.socket.id, oTable);
                 }
                 if (!this.socket.eventNames().includes(this.iBattleId)) {
                     const channel = new channel_1.default(this.iBattleId, this.iPlayerId);

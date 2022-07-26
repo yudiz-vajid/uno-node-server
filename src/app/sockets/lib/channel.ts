@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import { ICallback } from '../../../types/global';
 
 class Channel {
@@ -12,9 +13,10 @@ class Channel {
 
   // { sTaskName: 'reqDiscardCard' | 'reqDrawCard'; oData: Record<string, unknown> }
   public async onEvent(body: any, ack: ICallback) {
-    if(process.env.NODE_ENV==='dev' && typeof body==='object') body=_.stringify(body) // For postman use
-    let parseBody: { sTaskName: 'reqDiscardCard' | 'reqDrawCard'| 'reqKeepCard'|'reqSetWildCardColor'|'reqUno'|'reqLeave'; oData: Record<string, unknown> } = JSON.parse(body)
-    try {      
+    if (process.env.NODE_ENV === 'dev' && typeof body === 'object') body = _.stringify(body); // For postman use
+    const parseBody: { sTaskName: 'reqDiscardCard' | 'reqDrawCard' | 'reqKeepCard' | 'reqSetWildCardColor' | 'reqUno' | 'reqLeave'; oData: Record<string, unknown> } =
+      JSON.parse(body);
+    try {
       if (typeof ack !== 'function') return false;
       const { sTaskName, oData } = parseBody;
       switch (sTaskName) {
@@ -33,14 +35,14 @@ class Channel {
         case 'reqSetWildCardColor':
           emitter.emit('channelEvent', { sTaskName: 'setWildCardColor', iBattleId: this.iBattleId, iPlayerId: this.iPlayerId ?? '', oData }, ack);
           break;
-        
+
         case 'reqUno':
-        emitter.emit('channelEvent', { sTaskName: 'decalreUno', iBattleId: this.iBattleId, iPlayerId: this.iPlayerId ?? '', oData }, ack);
-        break;
-        
+          emitter.emit('channelEvent', { sTaskName: 'decalreUno', iBattleId: this.iBattleId, iPlayerId: this.iPlayerId ?? '', oData }, ack);
+          break;
+
         case 'reqLeave':
-        emitter.emit('channelEvent', { sTaskName: 'leaveMatch', iBattleId: this.iBattleId, iPlayerId: this.iPlayerId ?? '', oData }, ack);
-        break;
+          emitter.emit('channelEvent', { sTaskName: 'leaveMatch', iBattleId: this.iBattleId, iPlayerId: this.iPlayerId ?? '', oData }, ack);
+          break;
 
         default:
           return false;

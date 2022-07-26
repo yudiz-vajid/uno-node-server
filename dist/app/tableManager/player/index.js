@@ -42,7 +42,7 @@ class Player extends service_1.default {
                 if (oCardToDiscard.nLabel === 10)
                     iSkipPlayer = yield this.assignSkipCard(oTable);
                 if (oCardToDiscard.nLabel === 11) {
-                    oTable.toJSON().bTurnClockwise = !(oTable.toJSON().bTurnClockwise);
+                    oTable.toJSON().bTurnClockwise = !oTable.toJSON().bTurnClockwise;
                     oTable.toJSON().bIsReverseNow = true;
                     bIsReverseCard = yield oTable.handleReverseCard();
                 }
@@ -50,16 +50,19 @@ class Player extends service_1.default {
                     const iNextPlayerId = yield oTable.getNextPlayer(this.nSeat);
                     aPromises.push(oTable.update({ iDrawPenltyPlayerId: iNextPlayerId === null || iNextPlayerId === void 0 ? void 0 : iNextPlayerId.iPlayerId }));
                 }
-                aPromises.push(oTable.update({ eNextCardColor: oCardToDiscard.eColor, nDrawCount: oCardToDiscard.nLabel < 12 ? 1 : (2 + (oTable.toJSON().nDrawCount === 1 ? 0 : oTable.toJSON().nDrawCount)) }));
+                aPromises.push(oTable.update({
+                    eNextCardColor: oCardToDiscard.eColor,
+                    nDrawCount: oCardToDiscard.nLabel < 12 ? 1 : 2 + (oTable.toJSON().nDrawCount === 1 ? 0 : oTable.toJSON().nDrawCount),
+                }));
             }
             else {
                 const iNextPlayerId = yield oTable.getNextPlayer(this.nSeat);
                 aPromises.push(oTable.update({
-                    nDrawCount: oCardToDiscard.nLabel === 13 ? 1 : (4 + (oTable.toJSON().nDrawCount === 1 ? 0 : oTable.toJSON().nDrawCount)),
-                    iDrawPenltyPlayerId: oCardToDiscard.nLabel === 13 ? '' : iNextPlayerId === null || iNextPlayerId === void 0 ? void 0 : iNextPlayerId.iPlayerId
+                    nDrawCount: oCardToDiscard.nLabel === 13 ? 1 : 4 + (oTable.toJSON().nDrawCount === 1 ? 0 : oTable.toJSON().nDrawCount),
+                    iDrawPenltyPlayerId: oCardToDiscard.nLabel === 13 ? '' : iNextPlayerId === null || iNextPlayerId === void 0 ? void 0 : iNextPlayerId.iPlayerId,
                 }));
             }
-            aPromises.push(oTable.update({ iPlayerTurn: "" }));
+            aPromises.push(oTable.update({ iPlayerTurn: '' }));
             aPromises.push(oTable.addToDiscardPile(oCardToDiscard));
             const nRemainingGraceTime = yield oTable.getTTL('assignGraceTimerExpired', this.iPlayerId);
             if (nRemainingGraceTime) {
@@ -117,9 +120,11 @@ class Player extends service_1.default {
                 }
                 else {
                     const aPlayableCardId = yield this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
-                    let remainingTurnTimer = yield oTable.getTTL('assignTurnTimerExpired', this.iPlayerId);
+                    const remainingTurnTimer = yield oTable.getTTL('assignTurnTimerExpired', this.iPlayerId);
                     this.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: remainingTurnTimer - 500, timestamp: Date.now(), aPlayableCards: aPlayableCardId });
-                    oTable.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: remainingTurnTimer - 500, timestamp: Date.now(), aPlayableCards: [] }, [this.iPlayerId]);
+                    oTable.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: remainingTurnTimer - 500, timestamp: Date.now(), aPlayableCards: [] }, [
+                        this.iPlayerId,
+                    ]);
                 }
                 return true;
             }
@@ -134,21 +139,29 @@ class Player extends service_1.default {
                 this.bSpecialMeterFull = this.nDrawNormal === nSpecialMeterFillCount;
             }
             log.verbose(`${_.now()} player: ${this.iPlayerId}, drawnCard: ${aCard[0].iCardId}`);
-            let isPlayableCard = yield this.checkPlayableCard(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor, aCard[0]);
+            const isPlayableCard = yield this.checkPlayableCard(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor, aCard[0]);
             callback({ oData: {}, status: util_1.response.SUCCESS });
-            this.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [aCard[0]], nDrawNormal: this.nDrawNormal, nSpecialMeterFillCount, bIsPlayable: isPlayableCard, nHandScore: yield this.handCardCounts(), eReason: 'normalDraw' });
+            this.emit('resDrawCard', {
+                iPlayerId: this.iPlayerId,
+                aCard: [aCard[0]],
+                nDrawNormal: this.nDrawNormal,
+                nSpecialMeterFillCount,
+                bIsPlayable: isPlayableCard,
+                nHandScore: yield this.handCardCounts(),
+                eReason: 'normalDraw',
+            });
             oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [], nCardCount: 1, nHandCardCount: this.aHand.length + 1, eReason: 'normalDraw' }, [this.iPlayerId]);
             if (!isPlayableCard)
-                yield oTable.update({ iPlayerTurn: "" });
+                yield oTable.update({ iPlayerTurn: '' });
             yield _.delay(300);
-            let aPromise = [];
+            const aPromise = [];
             yield Promise.all([
                 ...aPromise,
                 oTable.updateDrawPile(),
                 this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard] }),
             ]);
             if (!isPlayableCard) {
-                let aPromises = [];
+                const aPromises = [];
                 const nRemainingGraceTime = yield oTable.getTTL('assignGraceTimerExpired', this.iPlayerId);
                 if (nRemainingGraceTime) {
                     this.nGraceTime = nRemainingGraceTime;
@@ -157,13 +170,10 @@ class Player extends service_1.default {
                 else {
                     aPromises.push(oTable.deleteScheduler(`assignTurnTimerExpired`, this.iPlayerId));
                 }
-                yield Promise.all([
-                    ...aPromises,
-                    this.update({ nGraceTime: this.nGraceTime, bUnoDeclared: false }),
-                    oTable.update({ iDrawPenltyPlayerId: "" })
-                ]);
+                yield Promise.all([...aPromises, this.update({ nGraceTime: this.nGraceTime, bUnoDeclared: false }), oTable.update({ iDrawPenltyPlayerId: '' })]);
                 this.passTurn(oTable);
             }
+            return true;
         });
     }
     keepCard(oData, oTable, callback) {
@@ -180,7 +190,7 @@ class Player extends service_1.default {
             }
             if (this.aHand.length <= 2 && this.aHand.length + 1 >= 2) {
                 aPromises.push(this.update({ bUnoDeclared: false }));
-                aPromises.push(oTable.update({ iDrawPenltyPlayerId: "" }));
+                aPromises.push(oTable.update({ iDrawPenltyPlayerId: '' }));
             }
             aPromises.push(this.update({ nGraceTime: this.nGraceTime }));
             yield Promise.all(aPromises);
@@ -200,7 +210,7 @@ class Player extends service_1.default {
             else {
                 aPromises.push(oTable.deleteScheduler(`assignWildCardColorTimerExpired`, this.iPlayerId));
             }
-            let updatedDiscardPile = [...oTable.toJSON().aDiscardPile];
+            const updatedDiscardPile = [...oTable.toJSON().aDiscardPile];
             updatedDiscardPile[updatedDiscardPile.length - 1].eColor = oData.eColor;
             oTable.emit('resWildCardColor', { iPlayerId: this.iPlayerId, eColor: oData.eColor });
             aPromises.push(oTable.update({ eNextCardColor: oData.eColor, aDiscardPile: updatedDiscardPile }));
@@ -214,15 +224,16 @@ class Player extends service_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             log.verbose(`${_.now()} event: decalreUno, player: ${this.iPlayerId}`);
             const eligibleUno = this.aHand.length === 2;
-            let playableCards = yield this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
+            const playableCards = yield this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
             if (eligibleUno && playableCards.length) {
-                yield this.update({ 'bUnoDeclared': true });
+                yield this.update({ bUnoDeclared: true });
                 callback({ oData: {}, status: util_1.response.SUCCESS });
             }
             else {
                 callback({ oData: {}, status: util_1.response.WRONG_UNO });
                 return (_a = (log.silly(`${_.now()} ${this.iPlayerId} has not valid uno.`) && null)) !== null && _a !== void 0 ? _a : false;
             }
+            return true;
         });
     }
     leaveMatch(oData, oTable, callback) {
@@ -236,6 +247,7 @@ class Player extends service_1.default {
                 return oTable.gameOver(aPlayingPlayer[0], 'playerLeft');
             if (oTable.toJSON().iPlayerTurn === this.iPlayerId)
                 return this.passTurn(oTable);
+            return true;
         });
     }
 }

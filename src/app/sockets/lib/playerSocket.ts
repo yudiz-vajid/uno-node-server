@@ -65,7 +65,7 @@ class PlayerSocket {
           bSpecialMeterFull: false,
           bNextTurnSkip: false,
           bUnoDeclared: false,
-          bSkipSpecialMeterProcess:false,
+          bSkipSpecialMeterProcess: false,
           aHand: [],
           eState: 'waiting',
           dCreatedAt: new Date(),
@@ -75,7 +75,7 @@ class PlayerSocket {
         if (!(await oTable.addPlayer(oPlayer))) throw new Error('Player not added to table');
       } else {
         _ack({ oData: { iBattleId: this.iBattleId, iPlayerId: this.iPlayerId }, status: response.SUCCESS });
-        await oPlayer.reconnect(this.socket.id, oTable.toJSON().eState);
+        await oPlayer.reconnect(this.socket.id, oTable);
       }
 
       if (!this.socket.eventNames().includes(this.iBattleId)) {

@@ -18,7 +18,8 @@ class Table extends service_1.default {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
             console.log('distributeCard called...');
-            let { nStartingNormalCardCount, nStartingActionCardCount, nStartingSpecialCardCount } = this.oSettings;
+            let { nStartingActionCardCount } = this.oSettings;
+            const { nStartingNormalCardCount, nStartingSpecialCardCount } = this.oSettings;
             nStartingActionCardCount = nStartingActionCardCount || _.getRandomNumber(2, 3);
             const nStartingWildCardCount = nStartingSpecialCardCount - nStartingActionCardCount;
             const nInitialCardsPerUser = nStartingNormalCardCount + nStartingSpecialCardCount;
@@ -62,7 +63,7 @@ class Table extends service_1.default {
             log.verbose('masterTimerExpired, game should end now');
             this.emit('resMasterTimerExpired', {});
             const aPlayingPlayer = this.aPlayer.filter(p => p.toJSON().eState === 'playing');
-            for (let player of aPlayingPlayer) {
+            for (const player of aPlayingPlayer) {
                 player.nScore = yield player.handCardCounts(player.aHand);
             }
             const sortedPlayer = aPlayingPlayer.sort((a, b) => a.nScore - b.nScore);
@@ -80,7 +81,7 @@ class Table extends service_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             log.verbose('masterTimerWillExpire, game should fast now');
             this.emit('resMasterTimerWillExpire', {});
-            let updatedSettings = Object.assign(Object.assign({}, this.oSettings), { nTurnTime: this.oSettings.nTurnTime / 2 });
+            const updatedSettings = Object.assign(Object.assign({}, this.oSettings), { nTurnTime: this.oSettings.nTurnTime / 2 });
             yield this.update({ oSettings: updatedSettings });
             return true;
         });

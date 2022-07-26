@@ -1,6 +1,8 @@
+/* eslint-disable camelcase */
+/* eslint-disable no-await-in-loop */
 import type Table from '.';
 import type Player from '../player';
-import { ICard, IPlayer, ITable, ITableWithPlayer, RedisJSON } from '../../../types/global';
+import { ICard, ITable, ITableWithPlayer, RedisJSON } from '../../../types/global';
 
 class Service {
   protected readonly iBattleId: ITableWithPlayer['iBattleId'];
@@ -8,7 +10,7 @@ class Service {
   protected iPlayerTurn: ITableWithPlayer['iPlayerTurn'];
 
   protected iSkippedPLayer: ITableWithPlayer['iSkippedPLayer'];
-  
+
   protected iDrawPenltyPlayerId: ITableWithPlayer['iDrawPenltyPlayerId'];
 
   protected aPlayerId: ITableWithPlayer['aPlayerId'];
@@ -22,6 +24,7 @@ class Service {
   protected eState: ITableWithPlayer['eState'];
 
   protected bTurnClockwise: ITableWithPlayer['bTurnClockwise'];
+
   protected bIsReverseNow: ITableWithPlayer['bIsReverseNow'];
 
   protected eNextCardColor: ITableWithPlayer['eNextCardColor'];
@@ -30,12 +33,11 @@ class Service {
 
   protected dCreatedAt: ITableWithPlayer['dCreatedAt'];
 
-  protected  oSettings: ITableWithPlayer['oSettings'];
+  protected oSettings: ITableWithPlayer['oSettings'];
 
   protected aPlayer: Player[];
 
-
-  constructor(oData: ITable & { aPlayer?: Player[]}) {
+  constructor(oData: ITable & { aPlayer?: Player[] }) {
     this.iBattleId = oData.iBattleId;
     this.iPlayerTurn = oData.iPlayerTurn;
     this.iSkippedPLayer = oData.iSkippedPLayer;
@@ -61,7 +63,22 @@ class Service {
 
   public async update(
     oDate: Partial<
-      Pick<ITable, 'iPlayerTurn' | 'iSkippedPLayer' |'iDrawPenltyPlayerId'| 'aPlayerId' | 'aDrawPile' | 'aDiscardPile' | 'bToSkip' | 'eState' | 'bTurnClockwise' | 'bIsReverseNow' | 'eNextCardColor' | 'nDrawCount'|'oSettings'>
+      Pick<
+        ITable,
+        | 'iPlayerTurn'
+        | 'iSkippedPLayer'
+        | 'iDrawPenltyPlayerId'
+        | 'aPlayerId'
+        | 'aDrawPile'
+        | 'aDiscardPile'
+        | 'bToSkip'
+        | 'eState'
+        | 'bTurnClockwise'
+        | 'bIsReverseNow'
+        | 'eNextCardColor'
+        | 'nDrawCount'
+        | 'oSettings'
+      >
     >
   ) {
     try {
@@ -140,14 +157,14 @@ class Service {
   public async drawCard(eCardType: 'normal' | 'action' | 'wild' | 'special', nCount: number) {
     // TODO :- need to give normal card if there is no special card
     const aCards: Table['aDrawPile'] = [];
-    let skipSpecialMeter=false
+    let skipSpecialMeter = false;
     switch (eCardType) {
       case 'normal':
         for (let i = 0; i < nCount; i += 1) {
           let nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
-          if(nCardIndex === -1){
-           await this.reshuffleClosedDeck()
-           nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
+          if (nCardIndex === -1) {
+            await this.reshuffleClosedDeck();
+            nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
           }
           aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
         }
@@ -155,12 +172,12 @@ class Service {
       case 'action':
         for (let i = 0; i < nCount; i += 1) {
           let nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9 && c.nLabel < 13);
-          if(nCardIndex ===-1){
-            await this.reshuffleClosedDeck()
+          if (nCardIndex === -1) {
+            await this.reshuffleClosedDeck();
             nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9 && c.nLabel < 13);
-            if(nCardIndex ===-1){
+            if (nCardIndex === -1) {
               nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
-              skipSpecialMeter=true
+              skipSpecialMeter = true;
             }
           }
           aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
@@ -169,12 +186,12 @@ class Service {
       case 'wild':
         for (let i = 0; i < nCount; i += 1) {
           let nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 12);
-          if(nCardIndex ===-1){
-            await this.reshuffleClosedDeck()
+          if (nCardIndex === -1) {
+            await this.reshuffleClosedDeck();
             nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 12);
-            if(nCardIndex ===-1){
+            if (nCardIndex === -1) {
               nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
-              skipSpecialMeter=true
+              skipSpecialMeter = true;
             }
           }
           aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
@@ -183,13 +200,13 @@ class Service {
       case 'special':
         for (let i = 0; i < nCount; i += 1) {
           let nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9);
-          if(nCardIndex ===-1){
-            await this.reshuffleClosedDeck()
+          if (nCardIndex === -1) {
+            await this.reshuffleClosedDeck();
             nCardIndex = this.aDrawPile.findIndex(c => c.nLabel > 9);
-            
-            if(nCardIndex ===-1){
+
+            if (nCardIndex === -1) {
               nCardIndex = this.aDrawPile.findIndex(c => c.nLabel < 10);
-              skipSpecialMeter=true
+              skipSpecialMeter = true;
             }
           }
           aCards.push(...this.aDrawPile.splice(nCardIndex, 1));
@@ -198,8 +215,8 @@ class Service {
       default:
         return (log.error(`drawCard called with invalid eCardType: ${eCardType}`) && null) ?? null;
     }
-    const player=await this.getPlayer(this.iPlayerTurn)
-    await player?.update({bSkipSpecialMeterProcess:skipSpecialMeter})
+    const player = await this.getPlayer(this.iPlayerTurn);
+    await player?.update({ bSkipSpecialMeterProcess: skipSpecialMeter });
     return aCards;
   }
 
@@ -209,12 +226,14 @@ class Service {
 
   public async reshuffleClosedDeck() {
     // TODO :- Need to reshuffle open deck into closed deck.
-    this.aDrawPile=this.aDrawPile.length ?[...this.aDrawPile ,...this.aDiscardPile.splice(0,this.aDiscardPile.length-1)]: this.aDiscardPile.splice(0,this.aDiscardPile.length-1)
-    for (let i = 0; i < this.aDrawPile.length; i++) {
-      if(this.aDrawPile[i].nLabel>12)this.aDrawPile[i].eColor="black"
+    this.aDrawPile = this.aDrawPile.length
+      ? [...this.aDrawPile, ...this.aDiscardPile.splice(0, this.aDiscardPile.length - 1)]
+      : this.aDiscardPile.splice(0, this.aDiscardPile.length - 1);
+    for (let i = 0; i < this.aDrawPile.length; i += 1) {
+      if (this.aDrawPile[i].nLabel > 12) this.aDrawPile[i].eColor = 'black';
     }
-    await this.update({aDiscardPile:this.aDiscardPile,aDrawPile:this.aDrawPile})
-    this.emit('resShuffleDeck', { });
+    await this.update({ aDiscardPile: this.aDiscardPile, aDrawPile: this.aDrawPile });
+    this.emit('resShuffleDeck', {});
   }
 
   public async initializeGame() {
@@ -258,24 +277,28 @@ class Service {
     return true;
   }
 
-  public async gameOver(oPlayer: Player, eReason:any) {
+  public async gameOver(oPlayer: Player, eReason: any) {
     // TODO :- Need to update players state.
-    await this.update({eState:'finished'})
-    const aPlayer= this.toJSON().aPlayer.filter(p => p.eState != 'left');
+    await this.update({ eState: 'finished' });
+    const aPlayer = this.toJSON().aPlayer.filter(p => p.eState !== 'left');
     // for(let player of aPlayer){
-    for(let i=0;i<aPlayer.length;i++){
-      await aPlayer[i].update({eState:'declared'})
-      aPlayer[i].nScore=await aPlayer[i].handCardCounts(aPlayer[i].aHand)
+    for (let i = 0; i < aPlayer.length; i += 1) {
+      await aPlayer[i].update({ eState: 'declared' });
+      aPlayer[i].nScore = await aPlayer[i].handCardCounts(aPlayer[i].aHand);
     }
-    const sortedPlayer=aPlayer.sort((a,b)=>a.nScore-b.nScore).map((p,i)=>{return{aHand:p.aHand,nScore:p.nScore,iPlayerId:p.iPlayerId,nRank:i}})
-    this.emit('resGameOver', {aPlayer:sortedPlayer,oWinner:oPlayer,eReason });
-    let keys = await redis.client.KEYS(`t:${this.iBattleId}:*`)
-    const tbl_keys:any = await redis.client.KEYS(`t:${this.iBattleId}`)
-    keys.push(...tbl_keys)
-    console.log('delete keys ..',keys)
-    if(keys.length)await redis.client.del(keys)
-    const schedularKey=await redis.client.KEYS(`sch:${this.iBattleId}:`)
-    if(schedularKey.length)await redis.client.del(schedularKey)
+    const sortedPlayer = aPlayer
+      .sort((a, b) => a.nScore - b.nScore)
+      .map((p, i) => {
+        return { aHand: p.aHand, nScore: p.nScore, iPlayerId: p.iPlayerId, nRank: i };
+      });
+    this.emit('resGameOver', { aPlayer: sortedPlayer, oWinner: oPlayer, eReason });
+    const keys = await redis.client.KEYS(`t:${this.iBattleId}:*`);
+    const tbl_keys: any = await redis.client.KEYS(`t:${this.iBattleId}`);
+    keys.push(...tbl_keys);
+    console.log('delete keys ..', keys);
+    if (keys.length) await redis.client.del(keys);
+    const schedularKey = await redis.client.KEYS(`sch:${this.iBattleId}:`);
+    if (schedularKey.length) await redis.client.del(schedularKey);
     return true;
   }
 
@@ -324,8 +347,8 @@ class Service {
   }
 
   public async handleReverseCard() {
-    await this.update({ bTurnClockwise: !(this.bTurnClockwise),bIsReverseNow:true });
-    return true
+    await this.update({ bTurnClockwise: !this.bTurnClockwise, bIsReverseNow: true });
+    return true;
   }
 
   public async getTTL(sTaskName = '', iPlayerId = '*') {
