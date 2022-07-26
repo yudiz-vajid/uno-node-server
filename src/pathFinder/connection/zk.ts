@@ -219,10 +219,10 @@ async function init() {
   const messageConfigPath = ZOOKEEPER.MSG_CONFIG_PATH;
 
   // TODO: remove
-  Logger.debug('zkIps:', zkIps);
-  Logger.debug('serverConfigPath:', serverConfigPath);
-  Logger.debug('productConfigPath:', productConfigPath);
-  Logger.debug('messageConfigPath:', messageConfigPath);
+  // Logger.debug('zkIps:', zkIps);
+  // Logger.debug('serverConfigPath:', serverConfigPath);
+  // Logger.debug('productConfigPath:', productConfigPath);
+  // Logger.debug('messageConfigPath:', messageConfigPath);
   // TODO: remove
 
   zkClient = zookeeper.createClient(zkIps);
@@ -256,8 +256,8 @@ async function init() {
       }
 
       // TODO: remove
-      Logger.debug('paths:', paths);
-      Logger.debug('serverConfigData:', serverConfigData, '\n');
+      // Logger.debug('paths:', paths);
+      // Logger.debug('serverConfigData:', serverConfigData, '\n');
       // Logger.debug('\nproductConfigData:', productConfigData, '\n');
       // Logger.debug('\nmessageConfigData:', messageConfigData, '\n');
       // TODO: remove
@@ -268,7 +268,7 @@ async function init() {
       // TODO: remove & uncomment
 
       // TODO: remove
-      Logger.debug('updatedServerConfigData:', updatedServerConfigData, '\n');
+      // Logger.debug('updatedServerConfigData:', updatedServerConfigData, '\n');
       // TODO: remove
 
       // TODO: add joi validation check here
@@ -279,7 +279,7 @@ async function init() {
       });
 
       // TODO: remove
-      Logger.debug('configData:', configData, '\n');
+      // Logger.debug('configData:', configData, '\n');
       // TODO: remove
 
       resolve(configData);
@@ -290,7 +290,7 @@ async function init() {
 
   // TODO: remove
   // Logger.debug('zkClient:', zkClient);
-  Logger.debug('returning connection listener (promisified)');
+  // Logger.debug('returning connection listener (promisified)');
   // TODO: remove
   // connection listener promisify
   return new Promise(promiseCB);

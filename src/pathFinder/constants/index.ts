@@ -3,7 +3,7 @@ import ZOOKEEPER from './zookeeper';
 import CONFIG from './config';
 
 const exportObject = Object.freeze({
-  SERVICE_NAME: 'service-callbreak',
+  SERVICE_NAME: 'service-uno',
   GENERAL_CLUSTER: 'general',
   PM2_ERRORS: {
     KEY_NOT_FOUND: 'KEY_NOT_FOUND',
