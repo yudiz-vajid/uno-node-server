@@ -1,8 +1,7 @@
-import path from 'path';
 import PathFinder, { PFServer } from 'lib-pathfinder-node';
 import protos from './protos';
-import { init, getConfig, getHostWithPort, getHostWithPortOnly } from './connection/zk';
 import grpc from './connection/grpc';
+import { init, getConfig, getHostWithPort, getHostWithPortOnly } from './connection/zk';
 
 const loadOpts = {
   keepCase: true,
@@ -12,34 +11,13 @@ const loadOpts = {
   oneofs: true,
 };
 
-async function createClient(serviceName: string, serviceNameInProto: string) {
-  try {
-    /* For Consul Service Discovery - IP Only */
-    // ! getting error  'getaddrinfo ENOTFOUND dev-consul.mpl.live, Error: getaddrinfo ENOTFOUND dev-consul.mpl.live'
-    // log.info('Consul Service Discovery seq Initiated ...');
-    // const url = await PathFinder.getInstance().getServerUrl('AuthService');
-    // log.info(`Consul Service Discovery seq Completed. url: ${url}`);
 
-    const client = await PathFinder.getInstance().getClient({ serviceName, serviceNameInProto });
-    log.info('Initiated Client');
-    return client;
-  } catch (err: any) {
-    log.error(`${h.now()} we have error, ${err.message}, ${err.stack}`);
-  }
-}
-
-async function addServiceAndStartGrpcServer() {
+async function startGrpcServer() {
   try {
     const server = new PFServer('service-uno', 50100);
-    server.addService(
-      path.join(__dirname, '/protos/lib/AuthService.proto'),
-      path.join(__dirname, 'protosMethod/index.js')
-      //
-    );
     await server.start();
-    log.info('GRPC server started');
   } catch (err: any) {
-    log.error(`${h.now()} we have error, ${err.message}, ${err.stack}`);
+    log.error(`${h.now()} we have error on addServiceAndStartGrpcServer(), ${err.message}`);
   }
 }
 
@@ -60,10 +38,10 @@ export async function initializePathFinder() {
     // log.info('fetched ZKConfig.');
     // log.info(`ZKConfig = ${JSON.stringify(ZKConfig)}\n`);
 
-    await addServiceAndStartGrpcServer();
-    // const client = await createClient('service-auth', 'AuthService');
-    // if (!client) throw new Error('client is not available');
-    // log.info(`client: ${client}`);
+    log.info('gRPC server start seq initiated...');
+    await startGrpcServer();
+    log.info('gRPC server start seq completed.');
+
 
     /* testing grpc services */
     // ! getting error  'getaddrinfo ENOTFOUND dev-consul.mpl.live, Error: getaddrinfo ENOTFOUND dev-consul.mpl.live'
