@@ -22,29 +22,29 @@ async function startGrpcServer() {
 
 export async function initializePathFinder() {
   try {
-    // PathFinder.initialize({ appName: 'service-uno', protosToLoad: protos, loadOpts, promisify: true });
+    PathFinder.initialize({ appName: 'service-uno', protosToLoad: protos, loadOpts, promisify: true });
 
     const _zk = await init();
     log.info('PathFinder initialize seq completed.');
 
-    // log.info('gRPC initialize seq started ... ');
-    // await grpc.init();
-    // log.info('gRPC initialize seq completed. ');
+    log.info('gRPC initialize seq started ... ');
+    await grpc.init();
+    log.info('gRPC initialize seq completed. ');
 
     log.info('fetching ZKConfig ...');
     const ZKConfig = getConfig();
     log.info('fetched ZKConfig.');
     log.info(`ZKConfig = ${JSON.stringify(ZKConfig)}\n`);
 
-    // log.info('gRPC server start seq initiated...');
-    // await startGrpcServer();
-    // log.info('gRPC server start seq completed.');
+    log.info('gRPC server start seq initiated...');
+    await startGrpcServer();
+    log.info('gRPC server start seq completed.');
 
-    // /* AUTH-SERVICE */
-    // const authClient = await PathFinder.getInstance().getClient({ serviceName: 'service-auth', serviceNameInProto: 'AuthService' });
-    // console.log('req authenticate');
-    // const resAuth = await authClient.authenticate().sendMessage({ requestId: '1', authToken: 'admin' });
-    // console.log('res authenticate ', resAuth);
+    /* AUTH-SERVICE */
+    const authClient = await PathFinder.getInstance().getClient({ serviceName: 'service-auth', serviceNameInProto: 'AuthService' });
+    console.log('req authenticate');
+    const resAuth = await authClient.authenticate().sendMessage({ requestId: '1', authToken: 'admin' });
+    console.log('res authenticate ', resAuth);
 
     // /* LOBBY-SERVICE */
     // const lobbyClient = await PathFinder.getInstance().getClient({ serviceName: 'service-tournament-1v1', serviceNameInProto: 'LobbyService' });
