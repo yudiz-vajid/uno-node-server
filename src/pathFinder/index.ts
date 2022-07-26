@@ -24,36 +24,21 @@ export async function initializePathFinder() {
   try {
     PathFinder.initialize({ appName: 'service-uno', protosToLoad: protos, loadOpts, promisify: true });
 
-    // log.info('zookeeper initialize seq started ... ');
-    // await init();
-    // log.info('zookeeper initialize seq completed.');
-
-    // log.info('gRPC initialize seq started ... ');
-    // await grpc.init();
-    // log.info('gRPC initialize seq completed. ');
-
-    // log.info('fetching ZKConfig ...');
-    // const ZKConfig = getConfig();
-    // log.info('fetched ZKConfig.');
-    // log.info(`ZKConfig = ${JSON.stringify(ZKConfig)}\n`);
-
     log.info('gRPC server start seq initiated...');
     await startGrpcServer();
     log.info('gRPC server start seq completed.');
 
-    /* testing grpc services */
-    // ! getting error  'getaddrinfo ENOTFOUND dev-consul.mpl.live, Error: getaddrinfo ENOTFOUND dev-consul.mpl.live'
-    // const authClient = grpc.getGrpcClient().getAuthServiceClient();
-    // if (!authClient) throw new Error('client is not available');
-    // log.info(`authClient: ${JSON.stringify(authClient)}`);
+    /* AUTH-SERVICE */
+    const authClient = await PathFinder.getInstance().getClient({ serviceName: 'service-auth', serviceNameInProto: 'AuthService' });
+    console.log('req authenticate', authClient);
+    const resAuth = await authClient.authenticate().sendMessage({ requestId: '1', authToken: 'admin' });
+    console.log('res authenticate ', resAuth);
 
-    // const res = await authClient.authenticate().sendMessage({ requestId: '1', authToken: 'admin' });
-    // log.info(`authClient.authenticate(): ${JSON.stringify(res)}`);
-
-    const client = await PathFinder.getInstance().getClient({ serviceName: 'service-auth', serviceNameInProto: 'AuthService' });
-    console.log('client', { client });
-    const res = await client.authenticate().sendMessage({ requestId: '1', authToken: 'admin' });
-    console.log('res', { res });
+    /* LOBBY-SERVICE */
+    const lobbyClient = await PathFinder.getInstance().getClient({ serviceName: 'service-lobby', serviceNameInProto: 'LobbyService' });
+    console.log('req authenticate', lobbyClient);
+    const res = await lobbyClient.authenticate().sendMessage({ requestId: '1', authToken: 'admin' });
+    console.log('res authenticate ', res);
 
     return true;
   } catch (err: any) {
