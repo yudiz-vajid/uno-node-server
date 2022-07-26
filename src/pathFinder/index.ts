@@ -24,6 +24,18 @@ export async function initializePathFinder() {
   try {
     PathFinder.initialize({ appName: 'service-uno', protosToLoad: protos, loadOpts, promisify: true });
 
+    const _zk = await init();
+    log.info('PathFinder initialize seq completed.');
+
+    // log.info('gRPC initialize seq started ... ');
+    // await grpc.init();
+    // log.info('gRPC initialize seq completed. ');
+
+    log.info('fetching ZKConfig ...');
+    const ZKConfig = getConfig();
+    log.info('fetched ZKConfig.');
+    log.info(`ZKConfig = ${JSON.stringify(ZKConfig)}\n`);
+
     log.info('gRPC server start seq initiated...');
     await startGrpcServer();
     log.info('gRPC server start seq completed.');
