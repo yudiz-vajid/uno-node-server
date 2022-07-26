@@ -3,7 +3,8 @@ import * as winston from 'winston';
 const { combine } = winston.format;
 
 const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || 'info',
+  level: 'silly',
+  // level: process.env.LOG_LEVEL || 'info',
   silent: false,
   // format: winston.format.cli(), // winston.format.json()
   // format: combine(label({ label: 'right meow!' }), timestamp(), prettyPrint()),
