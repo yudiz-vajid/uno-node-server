@@ -1,6 +1,6 @@
 import PathFinder, { PFServer } from 'lib-pathfinder-node';
 import protos from './protos';
-import grpc from './connection/grpc';
+import grpc, { getGrpcClient } from './connection/grpc';
 import { init, getConfig, getHostWithPort, getHostWithPortOnly } from './connection/zk';
 
 const loadOpts = {
@@ -10,7 +10,6 @@ const loadOpts = {
   defaults: true,
   oneofs: true,
 };
-
 
 async function startGrpcServer() {
   try {
@@ -42,14 +41,13 @@ export async function initializePathFinder() {
     await startGrpcServer();
     log.info('gRPC server start seq completed.');
 
-
     /* testing grpc services */
     // ! getting error  'getaddrinfo ENOTFOUND dev-consul.mpl.live, Error: getaddrinfo ENOTFOUND dev-consul.mpl.live'
     const authClient = grpc.getGrpcClient().getAuthServiceClient();
     if (!authClient) throw new Error('client is not available');
     log.info(`authClient: ${JSON.stringify(authClient)}`);
 
-    const res = await authClient.authenticate({requestId: '1', authToken: 'admin', });
+    const res = await authClient.authenticate().sendMessage({ requestId: '1', authToken: 'admin' });
     log.info(`authClient.authenticate(): ${JSON.stringify(res)}`);
 
     return true;
