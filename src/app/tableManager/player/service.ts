@@ -127,6 +127,7 @@ class Service {
 
       return this.toJSON();
     } catch (err: any) {
+      console.log('oData :: ',oData);
       log.error(`Error Occurred on Player.update(). reason :${err.message}`);
       log.silly(this.toJSON());
       return null;
@@ -199,13 +200,17 @@ class Service {
    */
   public async autoPickCard(oTable:Table) {
     log.verbose(`${_.now()} event: autoPickCard, player: ${this.iPlayerId}`);
-    const aCard:any =await oTable.drawCard('normal', 1);
+    const { nSpecialMeterFillCount } = oTable.toJSON().oSettings;
+    const aCard:any = this.bSpecialMeterFull ?await oTable.drawCard('special', 1) :await oTable.drawCard('normal', 1);      
+    this.nDrawNormal = this.nDrawNormal === nSpecialMeterFillCount ? 0 : this.nDrawNormal + 1;
+    this.bSpecialMeterFull = this.nDrawNormal === nSpecialMeterFillCount;
+    
     let aPromise:any=[]
     if(this.bUnoDeclared && this.aHand.length+1 >2)aPromise.push(this.update({ bUnoDeclared:false}))
     await Promise.all([
       oTable.updateDrawPile(),
       ...aPromise,
-      this.update({ aHand: [...this.aHand, ...aCard] }),
+      this.update({ nDrawNormal:this.nDrawNormal,bSpecialMeterFull:this.bSpecialMeterFull,aHand: [...this.aHand, ...aCard] }),
     ]); 
   
     this.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[aCard[0]], nCardCount: 1,nDrawNormal:this.nDrawNormal,nSpecialMeterFillCount:oTable.toJSON().oSettings.nSpecialMeterFillCount,nHandCardCount:this.aHand.length,nHandScore:await this.handCardCounts(),eReason:'autoDraw' });
@@ -225,7 +230,7 @@ class Service {
     }
     await Promise.all([
       oTable.updateDrawPile(),
-      this.update({ aHand: [...this.aHand, ...aCard] }),
+      this.update({nDrawNormal:this.nDrawNormal,bSpecialMeterFull:this.bSpecialMeterFull , aHand: [...this.aHand, ...aCard] }),
     ]); 
     this.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard, nCardCount: 2,nDrawNormal:this.nDrawNormal,nSpecialMeterFillCount:oTable.toJSON().oSettings.nSpecialMeterFillCount,nHandCardCount:this.aHand.length,nHandScore:await this.handCardCounts(),eReason:'unoMissPenalty' });
     oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId,aCard:[], nCardCount: 2,nHandCardCount:this.aHand.length,eReason:'unoMissPenalty' },[this.iPlayerId]);

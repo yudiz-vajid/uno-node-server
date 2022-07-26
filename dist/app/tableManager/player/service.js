@@ -100,6 +100,7 @@ class Service {
                 return this.toJSON();
             }
             catch (err) {
+                console.log('oData :: ', oData);
                 log.error(`Error Occurred on Player.update(). reason :${err.message}`);
                 log.silly(this.toJSON());
                 return null;
@@ -167,14 +168,17 @@ class Service {
     autoPickCard(oTable) {
         return __awaiter(this, void 0, void 0, function* () {
             log.verbose(`${_.now()} event: autoPickCard, player: ${this.iPlayerId}`);
-            const aCard = yield oTable.drawCard('normal', 1);
+            const { nSpecialMeterFillCount } = oTable.toJSON().oSettings;
+            const aCard = this.bSpecialMeterFull ? yield oTable.drawCard('special', 1) : yield oTable.drawCard('normal', 1);
+            this.nDrawNormal = this.nDrawNormal === nSpecialMeterFillCount ? 0 : this.nDrawNormal + 1;
+            this.bSpecialMeterFull = this.nDrawNormal === nSpecialMeterFillCount;
             let aPromise = [];
             if (this.bUnoDeclared && this.aHand.length + 1 > 2)
                 aPromise.push(this.update({ bUnoDeclared: false }));
             yield Promise.all([
                 oTable.updateDrawPile(),
                 ...aPromise,
-                this.update({ aHand: [...this.aHand, ...aCard] }),
+                this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard] }),
             ]);
             this.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [aCard[0]], nCardCount: 1, nDrawNormal: this.nDrawNormal, nSpecialMeterFillCount: oTable.toJSON().oSettings.nSpecialMeterFillCount, nHandCardCount: this.aHand.length, nHandScore: yield this.handCardCounts(), eReason: 'autoDraw' });
             oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [], nCardCount: 1, nHandCardCount: this.aHand.length, eReason: 'autoDraw' }, [this.iPlayerId]);
@@ -194,7 +198,7 @@ class Service {
             }
             yield Promise.all([
                 oTable.updateDrawPile(),
-                this.update({ aHand: [...this.aHand, ...aCard] }),
+                this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard] }),
             ]);
             this.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard, nCardCount: 2, nDrawNormal: this.nDrawNormal, nSpecialMeterFillCount: oTable.toJSON().oSettings.nSpecialMeterFillCount, nHandCardCount: this.aHand.length, nHandScore: yield this.handCardCounts(), eReason: 'unoMissPenalty' });
             oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [], nCardCount: 2, nHandCardCount: this.aHand.length, eReason: 'unoMissPenalty' }, [this.iPlayerId]);

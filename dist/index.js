@@ -12,7 +12,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-require("./env");
+require("dotenv/config");
+require("./globals/lib/fetch_ip");
 require("./globals");
 const server_1 = __importDefault(require("./server"));
 const sockets_1 = __importDefault(require("./app/sockets"));
@@ -30,6 +31,8 @@ process.once('unhandledRejection', (ex) => {
         yield Promise.all([server_1.default.initialize(), redis.initialize()]);
         yield sockets_1.default.initialize(server_1.default.httpServer);
         yield redis.client.flushAll();
+        log.info(process.env.NODE_ENV);
+        log.info(process.env.HOST);
         log.info(':-)');
     }
     catch (err) {

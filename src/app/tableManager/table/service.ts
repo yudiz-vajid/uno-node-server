@@ -262,13 +262,17 @@ class Service {
     // TODO :- Need to update players state.
     await this.update({eState:'finished'})
     const aPlayer= this.toJSON().aPlayer.filter(p => p.eState != 'left');
-    for(let player of aPlayer){
-      await player.update({eState:'declared'})
-      player.nScore=await player.handCardCounts(player.aHand)
+    // for(let player of aPlayer){
+    for(let i=0;i<aPlayer.length;i++){
+      await aPlayer[i].update({eState:'declared'})
+      aPlayer[i].nScore=await aPlayer[i].handCardCounts(aPlayer[i].aHand)
     }
     const sortedPlayer=aPlayer.sort((a,b)=>a.nScore-b.nScore).map((p,i)=>{return{aHand:p.aHand,nScore:p.nScore,iPlayerId:p.iPlayerId,nRank:i}})
     this.emit('resGameOver', {aPlayer:sortedPlayer,oWinner:oPlayer,eReason });
-    const keys = await redis.client.KEYS(`t:${this.iBattleId}:*`)
+    let keys = await redis.client.KEYS(`t:${this.iBattleId}:*`)
+    const tbl_keys:any = await redis.client.KEYS(`t:${this.iBattleId}`)
+    keys.push(...tbl_keys)
+    console.log('delete keys ..',keys)
     if(keys.length)await redis.client.del(keys)
     const schedularKey=await redis.client.KEYS(`sch:${this.iBattleId}:`)
     if(schedularKey.length)await redis.client.del(schedularKey)

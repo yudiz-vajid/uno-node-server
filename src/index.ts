@@ -1,4 +1,6 @@
-import './env';
+import 'dotenv/config';
+import './globals/lib/fetch_ip';
+// import './env';
 import './globals';
 import server from './server';
 import socket from './app/sockets';
@@ -20,6 +22,8 @@ process.once('unhandledRejection', (ex: any) => {
     await Promise.all([server.initialize(), redis.initialize()]);
     await socket.initialize(server.httpServer);
     await redis.client.flushAll();
+    log.info(process.env.NODE_ENV);
+    log.info(process.env.HOST);
     log.info(':-)');
   } catch (err: any) {
     log.info(':-(');
