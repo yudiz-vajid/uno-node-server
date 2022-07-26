@@ -214,9 +214,10 @@ async function verifyConfig(serverConfigData: any) {
 
 async function init() {
   const zkIps = ZOOKEEPER.IPs;
-  const serverConfigPath = ZOOKEEPER.DB_CONFIG_PATH;
-  const productConfigPath = ZOOKEEPER.GAME_CONFIG_PATH;
-  const messageConfigPath = ZOOKEEPER.MSG_CONFIG_PATH;
+  const serverConfigPath = ZOOKEEPER.SERVER_CONFIG_PATH;
+  // const serverConfigPath = ZOOKEEPER.DB_CONFIG_PATH;
+  // const productConfigPath = ZOOKEEPER.GAME_CONFIG_PATH;
+  // const messageConfigPath = ZOOKEEPER.MSG_CONFIG_PATH;
 
   // TODO: remove
   // Logger.debug('zkIps:', zkIps);
@@ -233,7 +234,8 @@ async function init() {
       Logger.info(MESSAGES.ZOOKEEPER.CONNECTION_ESTABLISHED);
 
       /* check existence of node */
-      const paths = await Promise.all([doesPathExists(serverConfigPath), doesPathExists(productConfigPath), doesPathExists(messageConfigPath)]).catch(reject);
+      const paths = await Promise.all([doesPathExists(serverConfigPath)]).catch(reject);
+      // const paths = await Promise.all([doesPathExists(serverConfigPath), doesPathExists(productConfigPath), doesPathExists(messageConfigPath)]).catch(reject);
 
       let serverConfigData: any = null;
       let productConfigData: any = null;
@@ -244,16 +246,16 @@ async function init() {
         serverConfigData = await getNodeData(serverConfigPath).catch(reject);
         serverConfigData = serverConfigData || {};
       }
-      if (paths[1]) {
-        /* retrieve data from node */
-        productConfigData = await getNodeData(productConfigPath).catch(reject);
-        productConfigData = productConfigData || {};
-      }
-      if (paths[2]) {
-        /* retrieve data from node */
-        messageConfigData = await getNodeData(messageConfigPath).catch(reject);
-        messageConfigData = messageConfigData || {};
-      }
+      // if (paths[1]) {
+      //   /* retrieve data from node */
+      //   productConfigData = await getNodeData(productConfigPath).catch(reject);
+      //   productConfigData = productConfigData || {};
+      // }
+      // if (paths[2]) {
+      //   /* retrieve data from node */
+      //   messageConfigData = await getNodeData(messageConfigPath).catch(reject);
+      //   messageConfigData = messageConfigData || {};
+      // }
 
       // TODO: remove
       // Logger.debug('paths:', paths);
@@ -274,8 +276,8 @@ async function init() {
       // TODO: add joi validation check here
       configData = Object.freeze({
         ...updatedServerConfigData,
-        ...productConfigData,
-        ...messageConfigData,
+        // ...productConfigData,
+        // ...messageConfigData,
       });
 
       // TODO: remove
