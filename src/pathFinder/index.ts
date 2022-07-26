@@ -26,17 +26,17 @@ export async function initializePathFinder() {
     PathFinder.initialize({ appName: 'service-uno', protosToLoad: protos, loadOpts, promisify: true });
 
     log.info('zookeeper initialize seq started ... ');
-    const _zk = await init();
-    log.info('zookeeper initialize seq completed.', _zk);
+    await init();
+    log.info('zookeeper initialize seq completed.');
 
     log.info('gRPC initialize seq started ... ');
     await grpc.init();
     log.info('gRPC initialize seq completed. ');
 
-    // log.info('fetching ZKConfig ...');
-    // const ZKConfig = getConfig();
-    // log.info('fetched ZKConfig.');
-    // log.info(`ZKConfig = ${JSON.stringify(ZKConfig)}\n`);
+    log.info('fetching ZKConfig ...');
+    const ZKConfig = getConfig();
+    log.info('fetched ZKConfig.');
+    log.info(`ZKConfig = ${JSON.stringify(ZKConfig)}\n`);
 
     log.info('gRPC server start seq initiated...');
     await startGrpcServer();
