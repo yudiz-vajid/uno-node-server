@@ -7,7 +7,7 @@ const grpcClientMap: any = {};
 const init = async (): Promise<boolean> => {
   const ZKConfig = getConfig();
 
-  if (true) { // isZkConfigUse
+  if (isZkConfigUse) {
     grpcClientMap.getCardGamesClient = async function getCardGamesClient() {
       return PathFinder.getInstance().getClient({
         serviceName: ZKConfig.CARD_GAMES_SERVICE_PATH

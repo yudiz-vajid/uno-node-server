@@ -25,9 +25,9 @@ export async function initializePathFinder() {
   try {
     PathFinder.initialize({ appName: 'service-uno', protosToLoad: protos, loadOpts, promisify: true });
 
-    log.info('PathFinder initialize seq started ... ');
-    const _zk = await init();
-    log.info('PathFinder initialize seq completed.', _zk);
+    // log.info('zookeeper initialize seq started ... ');
+    // const _zk = await init();
+    // log.info('zookeeper initialize seq completed.', _zk);
 
     log.info('gRPC initialize seq started ... ');
     await grpc.init();
