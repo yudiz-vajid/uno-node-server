@@ -23,7 +23,7 @@ async function createClient(serviceName: string, serviceNameInProto: string) {
     const client = await PathFinder.getInstance().getClient({
       serviceName,
       serviceNameInProto,
-      tag: 'IN',
+      // tag: 'IN',
     });
     log.info('Initiated Client');
     return client;
