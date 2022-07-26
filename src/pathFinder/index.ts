@@ -49,6 +49,9 @@ export async function initializePathFinder() {
     if (!authClient) throw new Error('client is not available');
     log.info(`authClient: ${JSON.stringify(authClient)}`);
 
+    const res = await authClient.authenticate({requestId: '1', authToken: 'admin', });
+    log.info(`authClient.authenticate(): ${JSON.stringify(res)}`);
+
     return true;
   } catch (err: any) {
     log.error(`${h.now()} we have error, ${err.message}`);
