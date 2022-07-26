@@ -43,12 +43,17 @@ export async function initializePathFinder() {
 
     /* testing grpc services */
     // ! getting error  'getaddrinfo ENOTFOUND dev-consul.mpl.live, Error: getaddrinfo ENOTFOUND dev-consul.mpl.live'
-    const authClient = grpc.getGrpcClient().getAuthServiceClient();
-    if (!authClient) throw new Error('client is not available');
-    log.info(`authClient: ${JSON.stringify(authClient)}`);
+    // const authClient = grpc.getGrpcClient().getAuthServiceClient();
+    // if (!authClient) throw new Error('client is not available');
+    // log.info(`authClient: ${JSON.stringify(authClient)}`);
 
-    const res = await authClient.authenticate().sendMessage({ requestId: '1', authToken: 'admin' });
-    log.info(`authClient.authenticate(): ${JSON.stringify(res)}`);
+    // const res = await authClient.authenticate().sendMessage({ requestId: '1', authToken: 'admin' });
+    // log.info(`authClient.authenticate(): ${JSON.stringify(res)}`);
+
+    const client = await PathFinder.getInstance().getClient({ serviceName: 'service-auth', serviceNameInProto: 'AuthService' });
+    console.log('client', { client });
+    const res = await client.authenticate().sendMessage({ requestId: '1', authToken: 'admin' });
+    console.log('res', { res });
 
     return true;
   } catch (err: any) {
