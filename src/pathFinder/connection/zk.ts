@@ -226,8 +226,8 @@ async function init() {
   // Logger.debug('messageConfigPath:', messageConfigPath);
   // TODO: remove
 
-  // zkClient = zookeeper.createClient(zkIps);
-  zkClient = zookeeper.createClient('https://zookeeper-qa.mpl.live/node?path=%2Fmpl%2Fmpl-draw4');
+  zkClient = zookeeper.createClient(zkIps);
+  // zkClient = zookeeper.createClient('https://zookeeper-qa.mpl.live/node?path=%2Fmpl%2Fmpl-draw4');
   zkClient.connect();
 
   function promiseCB(resolve: any, reject: any) {
