@@ -20,11 +20,7 @@ async function createClient(serviceName: string, serviceNameInProto: string) {
     // const url = await PathFinder.getInstance().getServerUrl('AuthService');
     // log.info(`Consul Service Discovery seq Completed. url: ${url}`);
 
-    const client = await PathFinder.getInstance().getClient({
-      serviceName,
-      serviceNameInProto,
-      // tag: 'IN',
-    });
+    const client = await PathFinder.getInstance().getClient({ serviceName, serviceNameInProto });
     log.info('Initiated Client');
     return client;
   } catch (err: any) {
@@ -50,8 +46,8 @@ async function addServiceAndStartGrpcServer() {
 export async function initializePathFinder() {
   try {
     PathFinder.initialize({ appName: 'service-uno', protosToLoad: protos, loadOpts, promisify: true });
-    log.info('PathFinder initialize seq started ... ');
 
+    log.info('PathFinder initialize seq started ... ');
     const _zk = await init();
     log.info('PathFinder initialize seq completed.', _zk);
 
@@ -59,21 +55,21 @@ export async function initializePathFinder() {
     await grpc.init();
     log.info('gRPC initialize seq completed. ');
 
-    log.info('fetching ZKConfig ...');
-    const ZKConfig = getConfig();
-    log.info('fetched ZKConfig.');
-    log.info(`ZKConfig = ${JSON.stringify(ZKConfig)}\n`);
+    // log.info('fetching ZKConfig ...');
+    // const ZKConfig = getConfig();
+    // log.info('fetched ZKConfig.');
+    // log.info(`ZKConfig = ${JSON.stringify(ZKConfig)}\n`);
 
     await addServiceAndStartGrpcServer();
-    const client = await createClient('service-auth', 'AuthService');
-    if (!client) throw new Error('client is not available');
-    log.info(`client: ${client}`);
+    // const client = await createClient('service-auth', 'AuthService');
+    // if (!client) throw new Error('client is not available');
+    // log.info(`client: ${client}`);
 
     /* testing grpc services */
     // ! getting error  'getaddrinfo ENOTFOUND dev-consul.mpl.live, Error: getaddrinfo ENOTFOUND dev-consul.mpl.live'
-    // const authClient = grpc.getGrpcClient().getAuthServiceClient();
-    // if (!authClient) throw new Error('client is not available');
-    // log.info(`authClient: ${JSON.stringify(authClient)}`);
+    const authClient = grpc.getGrpcClient().getAuthServiceClient();
+    if (!authClient) throw new Error('client is not available');
+    log.info(`authClient: ${JSON.stringify(authClient)}`);
 
     return true;
   } catch (err: any) {
