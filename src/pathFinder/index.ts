@@ -47,10 +47,10 @@ export async function initializePathFinder() {
     console.log('res authenticate ', resAuth);
 
     // /* LOBBY-SERVICE */
-    // const lobbyClient = await PathFinder.getInstance().getClient({ serviceName: 'service-tournament-1v1', serviceNameInProto: 'LobbyService' });
-    // console.log('req authenticate');
-    // const res = await lobbyClient.getLobbyById().sendMessage({ requestId: 'ccaedda7-60b1-4af8-af68-f7eec170ac78', id: 1, userId: '1' });
-    // console.log('res getLobbyById ', res);
+    const lobbyClient = await PathFinder.getInstance().getClient({ serviceName: 'service-tournament-1v1', serviceNameInProto: 'LobbyService' });
+    console.log('req authenticate');
+    const res = await lobbyClient.getLobbyById().sendMessage({ requestId: 'ccaedda7-60b1-4af8-af68-f7eec170ac78', id: 6186650, userId: 1 });
+    console.log('res getLobbyById ', res);
 
     return true;
   } catch (err: any) {
