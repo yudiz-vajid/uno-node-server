@@ -15,10 +15,10 @@ const protos = [
   //   path: `${__dirname}/lib/GamePlayService.proto`,
   //   name: 'service-auth',
   // },
-  // {
-  //   path: `${__dirname}/lib/LobbyService.proto`,
-  //   name: 'service-tournament-1v1',
-  // },
+  {
+    path: `${__dirname}/lib/LobbyService.proto`,
+    name: 'service-tournament-1v1',
+  },
   // {
   //   path: `${__dirname}/lib/TournamentConsoleService.proto`,
   //   name: 'service-auth',
