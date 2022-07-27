@@ -123,6 +123,7 @@ class TableManager {
                     nDrawCount: 0,
                     oSettings: oData.oSettings,
                     dCreatedAt: new Date(),
+                    oWinningCard: {},
                 };
                 const sRedisSetResponse = yield redis.client.json.SET(_.getTableKey(oTableWithParticipant.iBattleId), '.', oTableWithParticipant);
                 if (!sRedisSetResponse)

@@ -38,10 +38,8 @@ class Service {
         this.nDrawCount = oData.nDrawCount;
         this.dCreatedAt = oData.dCreatedAt;
         this.oSettings = oData.oSettings;
+        this.oWinningCard = oData.oWinningCard;
         this.aPlayer = (_a = oData.aPlayer) !== null && _a !== void 0 ? _a : [];
-    }
-    distributeCards() {
-        log.info(this.aDrawPile);
     }
     update(oDate) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -100,6 +98,10 @@ class Service {
                             break;
                         case 'oSettings':
                             this.oSettings = v;
+                            aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v));
+                            break;
+                        case 'oWinningCard':
+                            this.oWinningCard = v;
                             aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v));
                             break;
                         default:
@@ -373,6 +375,7 @@ class Service {
             nDrawCount: this.nDrawCount,
             dCreatedAt: this.dCreatedAt,
             oSettings: this.oSettings,
+            oWinningCard: this.oWinningCard,
             aPlayer: this.aPlayer,
         };
     }

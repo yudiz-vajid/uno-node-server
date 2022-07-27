@@ -112,8 +112,8 @@ class TableManager {
         iSkippedPLayer: '',
         iDrawPenltyPlayerId: '',
         aPlayerId: [],
-        aDrawPile: new Deck(oData.oSettings.aCardScore).getDeck(), // - to be initialized during distributeCard
-        aDiscardPile: [], // - to be initialized during distributeCard
+        aDrawPile: new Deck(oData.oSettings.aCardScore).getDeck(),
+        aDiscardPile: [],
         bToSkip: false,
         eState: 'waiting',
         bTurnClockwise: true,
@@ -122,6 +122,7 @@ class TableManager {
         nDrawCount: 0,
         oSettings: oData.oSettings,
         dCreatedAt: new Date(),
+        oWinningCard: {},
       };
       const sRedisSetResponse = await redis.client.json.SET(_.getTableKey(oTableWithParticipant.iBattleId), '.', oTableWithParticipant as unknown as RedisJSON);
       if (!sRedisSetResponse) return null;

@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-unused-vars */
-import { ICard, IPlayer, ITable, RedisJSON } from '../../../types/global';
+import { ICard, IPlayer, RedisJSON } from '../../../types/global';
 import type Table from '../table';
 
 class Service {
@@ -41,17 +41,26 @@ class Service {
 
   public bSkipSpecialMeterProcess: IPlayer['bSkipSpecialMeterProcess'];
 
+  protected nStartHandSum: IPlayer['nStartHandSum'];
+
+  protected sStartingHand: IPlayer['sStartingHand'];
+
+  protected nUsedCard: IPlayer['nUsedCard'];
+
   constructor(oData: IPlayer) {
     this.iPlayerId = oData.iPlayerId;
     this.iBattleId = oData.iBattleId;
     this.sPlayerName = oData.sPlayerName;
     this.sSocketId = oData.sSocketId;
+    this.sStartingHand = oData.sStartingHand;
     this.nSeat = oData.nSeat;
     this.nScore = oData.nScore;
     this.nUnoTime = oData.nUnoTime;
     this.nGraceTime = oData.nGraceTime;
     this.nMissedTurn = oData.nMissedTurn;
     this.nDrawNormal = oData.nDrawNormal;
+    this.nUsedCard = oData.nUsedCard;
+    this.nStartHandSum = oData.nStartHandSum;
     this.nReconnectionAttempt = oData.nReconnectionAttempt;
     this.bSpecialMeterFull = oData.bSpecialMeterFull;
     this.bUnoDeclared = oData.bUnoDeclared;
@@ -63,7 +72,7 @@ class Service {
   }
 
   // prettier-ignore
-  public async update(oData: Partial<Pick<IPlayer, 'sSocketId' | 'nScore' | 'nUnoTime' | 'nGraceTime' | 'nMissedTurn' | 'nDrawNormal' | 'nReconnectionAttempt' | 'bSpecialMeterFull'|'bNextTurnSkip' |'bUnoDeclared'| 'bSkipSpecialMeterProcess' | 'aHand' | 'eState'>>) {
+  public async update(oData: Partial<Pick<IPlayer, 'sSocketId' | 'sStartingHand' | 'nScore' | 'nUnoTime' | 'nGraceTime' | 'nMissedTurn' | 'nDrawNormal' | 'nReconnectionAttempt' | 'nStartHandSum' | 'bSpecialMeterFull'|'bNextTurnSkip' |'bUnoDeclared'| 'bSkipSpecialMeterProcess' | 'aHand' | 'eState'>>) {
     try {
       const aPromise: Array<Promise<unknown>> = [];
       const sPlayerKey = _.getPlayerKey(this.iBattleId, this.iPlayerId);
@@ -71,6 +80,10 @@ class Service {
         switch (k) {
           case 'sSocketId':
             this.sSocketId = v as IPlayer['sSocketId'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'sStartingHand':
+            this.sStartingHand = v as IPlayer['sStartingHand'];
             aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
             break;
           case 'nScore':
@@ -91,6 +104,10 @@ class Service {
             break;
           case 'nDrawNormal':
             this.nDrawNormal = v as IPlayer['nDrawNormal'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'nStartHandSum':
+            this.nStartHandSum = v as IPlayer['nStartHandSum'];
             aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
             break;
           case 'nReconnectionAttempt':
@@ -133,7 +150,6 @@ class Service {
       console.log('oData :: ',oData);
       log.error(`Error Occurred on Player.update(). reason :${err.message}`);
       log.silly(this.toJSON());
-console.log('hello');
       return null;
 
     }
@@ -166,8 +182,9 @@ console.log('hello');
     this.aHand.push(...aNormalCard);
     this.aHand.push(...aActionCard);
     this.aHand.push(...aWildCard);
-
-    await this.update({ aHand: this.aHand, eState: 'playing' });
+    const handScore = await this.handCardCounts(this.aHand);
+    const startingHand = this.aHand.map(c => c.iCardId).join(';');
+    await this.update({ aHand: this.aHand, eState: 'playing', nStartHandSum: handScore, sStartingHand: startingHand });
     this.emit('resHand', { aHand: this.aHand, nHandScore: await this.handCardCounts() });
   }
 
@@ -207,7 +224,7 @@ console.log('hello');
         ttl,
         nTotalTurnTime: nRemainingGraceTime ? oTable.toJSON().oSettings.nGraceTime : oTable.toJSON().oSettings.nTurnTime,
         bIsGraceTimer: !!nRemainingGraceTime,
-        aPlayableCards: iUserTurn === this.iPlayerId ? this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor) : [],
+        aPlayableCards: iUserTurn === this.iPlayerId ? await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor) : [],
       },
     };
     await this.emit('resGameState', oData);
@@ -224,7 +241,6 @@ console.log('hello');
    * get list of cards for user to play wrt discard pile top card
    */
   public async handCardCounts(aHand = this.aHand) {
-    console.log(this.aHand);
     const nPlayerScore = aHand.reduce((p, c) => p + c.nScore, 0);
     return nPlayerScore;
   }
@@ -457,6 +473,7 @@ console.log('hello');
         if (penaltyPlayer?.eState === 'playing') await penaltyPlayer.assignDrawPenalty(oTable);
       }
       const winner: any = await oTable.getPlayer(this.iPlayerId);
+      oTable.update({ oWinningCard: oTable.getDiscardPileTopCard() });
       return oTable.gameOver(winner, 'playerWin');
     }
     const { aPlayer } = oTable.toJSON();
@@ -488,13 +505,16 @@ console.log('hello');
       iBattleId: this.iBattleId,
       sPlayerName: this.sPlayerName,
       sSocketId: this.sSocketId,
+      sStartingHand: this.sStartingHand,
       nSeat: this.nSeat,
       nScore: this.nScore,
       nUnoTime: this.nUnoTime,
       nGraceTime: this.nGraceTime,
       nMissedTurn: this.nMissedTurn,
+      nStartHandSum: this.nStartHandSum,
       nDrawNormal: this.nDrawNormal,
       nReconnectionAttempt: this.nReconnectionAttempt,
+      nUsedCard: this.nUsedCard,
       bSpecialMeterFull: this.bSpecialMeterFull,
       bSkipSpecialMeterProcess: this.bSkipSpecialMeterProcess,
       aHand: this.aHand,

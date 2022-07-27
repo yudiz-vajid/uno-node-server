@@ -15,12 +15,15 @@ class Service {
         this.iBattleId = oData.iBattleId;
         this.sPlayerName = oData.sPlayerName;
         this.sSocketId = oData.sSocketId;
+        this.sStartingHand = oData.sStartingHand;
         this.nSeat = oData.nSeat;
         this.nScore = oData.nScore;
         this.nUnoTime = oData.nUnoTime;
         this.nGraceTime = oData.nGraceTime;
         this.nMissedTurn = oData.nMissedTurn;
         this.nDrawNormal = oData.nDrawNormal;
+        this.nUsedCard = oData.nUsedCard;
+        this.nStartHandSum = oData.nStartHandSum;
         this.nReconnectionAttempt = oData.nReconnectionAttempt;
         this.bSpecialMeterFull = oData.bSpecialMeterFull;
         this.bUnoDeclared = oData.bUnoDeclared;
@@ -41,6 +44,10 @@ class Service {
                             this.sSocketId = v;
                             aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v));
                             break;
+                        case 'sStartingHand':
+                            this.sStartingHand = v;
+                            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v));
+                            break;
                         case 'nScore':
                             this.nScore = v;
                             aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v));
@@ -59,6 +66,10 @@ class Service {
                             break;
                         case 'nDrawNormal':
                             this.nDrawNormal = v;
+                            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v));
+                            break;
+                        case 'nStartHandSum':
+                            this.nStartHandSum = v;
                             aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v));
                             break;
                         case 'nReconnectionAttempt':
@@ -102,7 +113,6 @@ class Service {
                 console.log('oData :: ', oData);
                 log.error(`Error Occurred on Player.update(). reason :${err.message}`);
                 log.silly(this.toJSON());
-                console.log('hello');
                 return null;
             }
         });
@@ -132,7 +142,9 @@ class Service {
             this.aHand.push(...aNormalCard);
             this.aHand.push(...aActionCard);
             this.aHand.push(...aWildCard);
-            yield this.update({ aHand: this.aHand, eState: 'playing' });
+            const handScore = yield this.handCardCounts(this.aHand);
+            const startingHand = this.aHand.map(c => c.iCardId).join(';');
+            yield this.update({ aHand: this.aHand, eState: 'playing', nStartHandSum: handScore, sStartingHand: startingHand });
             this.emit('resHand', { aHand: this.aHand, nHandScore: yield this.handCardCounts() });
         });
     }
@@ -173,7 +185,7 @@ class Service {
                     ttl,
                     nTotalTurnTime: nRemainingGraceTime ? oTable.toJSON().oSettings.nGraceTime : oTable.toJSON().oSettings.nTurnTime,
                     bIsGraceTimer: !!nRemainingGraceTime,
-                    aPlayableCards: iUserTurn === this.iPlayerId ? this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor) : [],
+                    aPlayableCards: iUserTurn === this.iPlayerId ? yield this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor) : [],
                 },
             };
             yield this.emit('resGameState', oData);
@@ -189,7 +201,6 @@ class Service {
     }
     handCardCounts(aHand = this.aHand) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(this.aHand);
             const nPlayerScore = aHand.reduce((p, c) => p + c.nScore, 0);
             return nPlayerScore;
         });
@@ -409,6 +420,7 @@ class Service {
                         yield penaltyPlayer.assignDrawPenalty(oTable);
                 }
                 const winner = yield oTable.getPlayer(this.iPlayerId);
+                oTable.update({ oWinningCard: oTable.getDiscardPileTopCard() });
                 return oTable.gameOver(winner, 'playerWin');
             }
             const { aPlayer } = oTable.toJSON();
@@ -444,13 +456,16 @@ class Service {
             iBattleId: this.iBattleId,
             sPlayerName: this.sPlayerName,
             sSocketId: this.sSocketId,
+            sStartingHand: this.sStartingHand,
             nSeat: this.nSeat,
             nScore: this.nScore,
             nUnoTime: this.nUnoTime,
             nGraceTime: this.nGraceTime,
             nMissedTurn: this.nMissedTurn,
+            nStartHandSum: this.nStartHandSum,
             nDrawNormal: this.nDrawNormal,
             nReconnectionAttempt: this.nReconnectionAttempt,
+            nUsedCard: this.nUsedCard,
             bSpecialMeterFull: this.bSpecialMeterFull,
             bSkipSpecialMeterProcess: this.bSkipSpecialMeterProcess,
             aHand: this.aHand,

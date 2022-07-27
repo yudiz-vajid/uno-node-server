@@ -69,6 +69,9 @@ class PlayerSocket {
           aHand: [],
           eState: 'waiting',
           dCreatedAt: new Date(),
+          sStartingHand: '',
+          nStartHandSum: 0,
+          nUsedCard: 0,
         }); // - since player joining for the first time.
         if (!oPlayer) throw new Error('Player not created');
         _ack({ oData: { iBattleId: this.iBattleId, iPlayerId: this.iPlayerId }, status: response.SUCCESS });

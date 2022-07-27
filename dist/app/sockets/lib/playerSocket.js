@@ -64,6 +64,9 @@ class PlayerSocket {
                         aHand: [],
                         eState: 'waiting',
                         dCreatedAt: new Date(),
+                        sStartingHand: '',
+                        nStartHandSum: 0,
+                        nUsedCard: 0,
                     });
                     if (!oPlayer)
                         throw new Error('Player not created');

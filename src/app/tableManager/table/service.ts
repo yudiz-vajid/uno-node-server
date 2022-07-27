@@ -37,6 +37,8 @@ class Service {
 
   protected aPlayer: Player[];
 
+  protected oWinningCard: ITableWithPlayer['oWinningCard'];
+
   constructor(oData: ITable & { aPlayer?: Player[] }) {
     this.iBattleId = oData.iBattleId;
     this.iPlayerTurn = oData.iPlayerTurn;
@@ -53,12 +55,8 @@ class Service {
     this.nDrawCount = oData.nDrawCount;
     this.dCreatedAt = oData.dCreatedAt;
     this.oSettings = oData.oSettings;
+    this.oWinningCard = oData.oWinningCard;
     this.aPlayer = oData.aPlayer ?? [];
-  }
-
-  public distributeCards() {
-    // return Deck.aDeck.slice(0, 7);
-    log.info(this.aDrawPile);
   }
 
   public async update(
@@ -78,6 +76,7 @@ class Service {
         | 'eNextCardColor'
         | 'nDrawCount'
         | 'oSettings'
+        | 'oWinningCard'
       >
     >
   ) {
@@ -137,6 +136,10 @@ class Service {
             break;
           case 'oSettings':
             this.oSettings = v as ITable['oSettings'];
+            aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'oWinningCard':
+            this.oWinningCard = v as ITable['oWinningCard'];
             aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
             break;
           default:
@@ -399,6 +402,7 @@ class Service {
       nDrawCount: this.nDrawCount,
       dCreatedAt: this.dCreatedAt,
       oSettings: this.oSettings,
+      oWinningCard: this.oWinningCard,
       aPlayer: this.aPlayer, //  WARNING : don't save using toJSON() as it contain non-existed field 'aPlayer'
     };
   }

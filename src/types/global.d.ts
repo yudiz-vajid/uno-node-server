@@ -56,12 +56,15 @@ export declare interface IPlayer {
   iBattleId: string;
   sPlayerName: string;
   sSocketId: string;
+  sStartingHand: string;
   nSeat: number;
   nScore: number;
   nUnoTime: number;
   nGraceTime: number;
   nMissedTurn: number;
   nDrawNormal: number;
+  nStartHandSum: number;
+  nUsedCard: number;
   nReconnectionAttempt: number;
   bSpecialMeterFull: boolean;
   bUnoDeclared: boolean;
@@ -87,6 +90,7 @@ export declare interface ITable {
   eNextCardColor: Omit<ICard['eColor'], 'black'>;
   nDrawCount: number;
   oSettings: ISettings;
+  oWinningCard: object;
   dCreatedAt: Date;
 }
 
