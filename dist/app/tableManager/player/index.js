@@ -38,17 +38,24 @@ class Player extends service_1.default {
             const aPromises = [];
             let iSkipPlayer;
             let bIsReverseCard = false;
+            let usedCard;
             if (oCardToDiscard.nLabel < 13) {
-                if (oCardToDiscard.nLabel === 10)
+                if (oCardToDiscard.nLabel < 10)
+                    usedCard = 'nUsedNormalCard';
+                if (oCardToDiscard.nLabel === 10) {
                     iSkipPlayer = yield this.assignSkipCard(oTable);
+                    usedCard = 'nUsedActionCard';
+                }
                 if (oCardToDiscard.nLabel === 11) {
                     oTable.toJSON().bTurnClockwise = !oTable.toJSON().bTurnClockwise;
                     oTable.toJSON().bIsReverseNow = true;
                     bIsReverseCard = yield oTable.handleReverseCard();
+                    usedCard = 'nUsedActionCard';
                 }
                 if (oCardToDiscard.nLabel === 12) {
                     const iNextPlayerId = yield oTable.getNextPlayer(this.nSeat);
                     aPromises.push(oTable.update({ iDrawPenltyPlayerId: iNextPlayerId === null || iNextPlayerId === void 0 ? void 0 : iNextPlayerId.iPlayerId }));
+                    usedCard = 'nUsedActionCard';
                 }
                 aPromises.push(oTable.update({
                     eNextCardColor: oCardToDiscard.eColor,
@@ -57,6 +64,7 @@ class Player extends service_1.default {
             }
             else {
                 const iNextPlayerId = yield oTable.getNextPlayer(this.nSeat);
+                usedCard = 'nUsedSpecialCard';
                 aPromises.push(oTable.update({
                     nDrawCount: oCardToDiscard.nLabel === 13 ? 1 : 4 + (oTable.toJSON().nDrawCount === 1 ? 0 : oTable.toJSON().nDrawCount),
                     iDrawPenltyPlayerId: oCardToDiscard.nLabel === 13 ? '' : iNextPlayerId === null || iNextPlayerId === void 0 ? void 0 : iNextPlayerId.iPlayerId,
@@ -72,7 +80,12 @@ class Player extends service_1.default {
             else {
                 aPromises.push(oTable.deleteScheduler(`assignTurnTimerExpired`, this.iPlayerId));
             }
-            aPromises.push(this.update({ aHand: this.aHand, nGraceTime: this.nGraceTime }));
+            let usedCardCount = this.nUsedNormalCard;
+            if (usedCard === 'nUsedActionCard')
+                usedCardCount = this.nUsedActionCard;
+            else if (usedCard === 'nUsedSpecialCard')
+                usedCardCount = this.nUsedSpecialCard;
+            aPromises.push(this.update({ aHand: this.aHand, nGraceTime: this.nGraceTime, [usedCard]: usedCardCount + 1 }));
             yield Promise.all(aPromises);
             if (this.aHand.length === 1 && this.bUnoDeclared)
                 oTable.emit('resUnoDeclare', { iPlayerId: this.iPlayerId });
@@ -141,6 +154,8 @@ class Player extends service_1.default {
             log.verbose(`${_.now()} player: ${this.iPlayerId}, drawnCard: ${aCard[0].iCardId}`);
             const isPlayableCard = yield this.checkPlayableCard(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor, aCard[0]);
             callback({ oData: {}, status: util_1.response.SUCCESS });
+            const drawnCardType = aCard[0].nLabel < 10 ? 'nDrawnNormalCard' : 'nDrawnSpecialCard';
+            const drawnCardCount = aCard[0].nLabel < 10 ? this.nDrawnNormalCard : this.nDrawnSpecialCard;
             this.emit('resDrawCard', {
                 iPlayerId: this.iPlayerId,
                 aCard: [aCard[0]],

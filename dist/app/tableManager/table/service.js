@@ -125,6 +125,7 @@ class Service {
         return __awaiter(this, void 0, void 0, function* () {
             const aCards = [];
             let skipSpecialMeter = false;
+            const drawnCardType = eCardType === 'normal' ? 'nDrawnNormalCard' : 'nDrawnSpecialCard';
             switch (eCardType) {
                 case 'normal':
                     for (let i = 0; i < nCount; i += 1) {
@@ -182,7 +183,8 @@ class Service {
                     return (_a = (log.error(`drawCard called with invalid eCardType: ${eCardType}`) && null)) !== null && _a !== void 0 ? _a : null;
             }
             const player = yield this.getPlayer(this.iPlayerTurn);
-            yield (player === null || player === void 0 ? void 0 : player.update({ bSkipSpecialMeterProcess: skipSpecialMeter }));
+            const drawnCardCount = eCardType === 'normal' ? player === null || player === void 0 ? void 0 : player.toJSON().nDrawnNormalCard : player === null || player === void 0 ? void 0 : player.toJSON().nDrawnSpecialCard;
+            yield (player === null || player === void 0 ? void 0 : player.update({ bSkipSpecialMeterProcess: skipSpecialMeter, [drawnCardType]: drawnCardCount + 1 }));
             return aCards;
         });
     }
@@ -256,7 +258,7 @@ class Service {
             const keys = yield redis.client.KEYS(`t:${this.iBattleId}:*`);
             const tbl_keys = yield redis.client.KEYS(`t:${this.iBattleId}`);
             keys.push(...tbl_keys);
-            console.log('delete keys ..', keys);
+            log.verbose('Table removed');
             if (keys.length)
                 yield redis.client.del(keys);
             const schedularKey = yield redis.client.KEYS(`sch:${this.iBattleId}:`);

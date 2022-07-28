@@ -4,7 +4,7 @@
 import Service from './service';
 import type Table from '../table';
 import { response } from '../../util';
-import { ICallback, ICard } from '../../../types/global';
+import { ICallback, ICard, IPlayer } from '../../../types/global';
 
 class Player extends Service {
   /**
@@ -50,17 +50,24 @@ class Player extends Service {
     // TODO : handle stacking for card.nLabel 12 (+2 card)
     let iSkipPlayer;
     let bIsReverseCard = false;
+    let usedCard: Player['nUsedActionCard' | 'nUsedNormalCard' | 'nUsedSpecialCard'] | string;
     if (oCardToDiscard.nLabel < 13) {
-      if (oCardToDiscard.nLabel === 10) iSkipPlayer = await this.assignSkipCard(oTable);
+      if (oCardToDiscard.nLabel < 10) usedCard = 'nUsedNormalCard';
+      if (oCardToDiscard.nLabel === 10) {
+        iSkipPlayer = await this.assignSkipCard(oTable);
+        usedCard = 'nUsedActionCard';
+      }
       if (oCardToDiscard.nLabel === 11) {
         oTable.toJSON().bTurnClockwise = !oTable.toJSON().bTurnClockwise;
         oTable.toJSON().bIsReverseNow = true;
         bIsReverseCard = await oTable.handleReverseCard();
+        usedCard = 'nUsedActionCard';
       }
       if (oCardToDiscard.nLabel === 12) {
         // Find next player for stacking
         const iNextPlayerId = await oTable.getNextPlayer(this.nSeat);
         aPromises.push(oTable.update({ iDrawPenltyPlayerId: iNextPlayerId?.iPlayerId }));
+        usedCard = 'nUsedActionCard';
       }
       aPromises.push(
         oTable.update({
@@ -71,6 +78,7 @@ class Player extends Service {
     } else {
       // TODO : handle stacking for card.nLabel 14 (wild draw 4 card)
       const iNextPlayerId = await oTable.getNextPlayer(this.nSeat);
+      usedCard = 'nUsedSpecialCard';
       // aPromises.push(oTable.update({  nDrawCount: oCardToDiscard.nLabel === 13 ? 1 : 4,iDrawPenltyPlayerId: iNextPlayerId?.iPlayerId }));
       aPromises.push(
         oTable.update({
@@ -94,7 +102,10 @@ class Player extends Service {
     }
 
     /* used when user discard his card in grace time. */
-    aPromises.push(this.update({ aHand: this.aHand, nGraceTime: this.nGraceTime }));
+    let usedCardCount = this.nUsedNormalCard;
+    if (usedCard === 'nUsedActionCard') usedCardCount = this.nUsedActionCard;
+    else if (usedCard === 'nUsedSpecialCard') usedCardCount = this.nUsedSpecialCard;
+    aPromises.push(this.update({ aHand: this.aHand, nGraceTime: this.nGraceTime, [usedCard]: usedCardCount + 1 }));
     await Promise.all(aPromises);
 
     if (this.aHand.length === 1 && this.bUnoDeclared) oTable.emit('resUnoDeclare', { iPlayerId: this.iPlayerId });
@@ -181,7 +192,8 @@ class Player extends Service {
     log.verbose(`${_.now()} player: ${this.iPlayerId}, drawnCard: ${aCard[0].iCardId}`);
     const isPlayableCard = await this.checkPlayableCard(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor, aCard[0]);
     callback({ oData: {}, status: response.SUCCESS });
-
+    const drawnCardType = aCard[0].nLabel < 10 ? 'nDrawnNormalCard' : 'nDrawnSpecialCard';
+    const drawnCardCount = aCard[0].nLabel < 10 ? this.nDrawnNormalCard : this.nDrawnSpecialCard;
     this.emit('resDrawCard', {
       iPlayerId: this.iPlayerId,
       aCard: [aCard[0]],

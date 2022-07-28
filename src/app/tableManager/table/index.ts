@@ -6,8 +6,7 @@ import type Player from '../player';
 class Table extends Service {
   public async distributeCard() {
     // eslint-disable-next-line prefer-const
-    console.log('distributeCard called...');
-
+    log.verbose('distributeCard');
     let { nStartingActionCardCount } = this.oSettings;
     const { nStartingNormalCardCount, nStartingSpecialCardCount } = this.oSettings;
     nStartingActionCardCount = nStartingActionCardCount || _.getRandomNumber(2, 3);

@@ -45,7 +45,25 @@ class Service {
 
   protected sStartingHand: IPlayer['sStartingHand'];
 
-  protected nUsedCard: IPlayer['nUsedCard'];
+  protected nUsedNormalCard: IPlayer['nUsedNormalCard'];
+
+  protected nUsedActionCard: IPlayer['nUsedActionCard'];
+
+  protected nUsedSpecialCard: IPlayer['nUsedSpecialCard'];
+
+  protected nDrawnNormalCard: IPlayer['nDrawnNormalCard'];
+
+  protected nDrawnSpecialCard: IPlayer['nDrawnSpecialCard'];
+
+  protected nSkipUsed: IPlayer['nSkipUsed'];
+
+  protected nReverseUsed: IPlayer['nReverseUsed'];
+
+  protected nDraw2Used: IPlayer['nDraw2Used'];
+
+  protected nDraw4Used: IPlayer['nDraw4Used'];
+
+  protected nWildUsed: IPlayer['nWildUsed'];
 
   constructor(oData: IPlayer) {
     this.iPlayerId = oData.iPlayerId;
@@ -59,9 +77,18 @@ class Service {
     this.nGraceTime = oData.nGraceTime;
     this.nMissedTurn = oData.nMissedTurn;
     this.nDrawNormal = oData.nDrawNormal;
-    this.nUsedCard = oData.nUsedCard;
+    this.nUsedNormalCard = oData.nUsedNormalCard;
+    this.nUsedActionCard = oData.nUsedActionCard;
+    this.nUsedSpecialCard = oData.nUsedSpecialCard;
+    this.nDrawnNormalCard = oData.nDrawnNormalCard;
+    this.nDrawnSpecialCard = oData.nDrawnSpecialCard;
     this.nStartHandSum = oData.nStartHandSum;
     this.nReconnectionAttempt = oData.nReconnectionAttempt;
+    this.nSkipUsed = oData.nSkipUsed;
+    this.nReverseUsed = oData.nReverseUsed;
+    this.nDraw2Used = oData.nDraw2Used;
+    this.nDraw4Used = oData.nDraw4Used;
+    this.nWildUsed = oData.nWildUsed;
     this.bSpecialMeterFull = oData.bSpecialMeterFull;
     this.bUnoDeclared = oData.bUnoDeclared;
     this.bNextTurnSkip = oData.bNextTurnSkip;
@@ -72,7 +99,27 @@ class Service {
   }
 
   // prettier-ignore
-  public async update(oData: Partial<Pick<IPlayer, 'sSocketId' | 'sStartingHand' | 'nScore' | 'nUnoTime' | 'nGraceTime' | 'nMissedTurn' | 'nDrawNormal' | 'nReconnectionAttempt' | 'nStartHandSum' | 'bSpecialMeterFull'|'bNextTurnSkip' |'bUnoDeclared'| 'bSkipSpecialMeterProcess' | 'aHand' | 'eState'>>) {
+  public async update(oData: Partial<Pick<IPlayer, 
+      'sSocketId' 
+    | 'sStartingHand' 
+    | 'nScore' 
+    | 'nUnoTime' 
+    | 'nGraceTime' 
+    | 'nMissedTurn' 
+    | 'nDrawNormal' 
+    | 'nReconnectionAttempt' 
+    | 'nStartHandSum' 
+    | 'nUsedNormalCard' 
+    | 'nUsedActionCard' 
+    | 'nUsedSpecialCard' 
+    | 'nDrawnNormalCard' 
+    | 'nDrawnSpecialCard' 
+    | 'bSpecialMeterFull'
+    | 'bNextTurnSkip' 
+    | 'bUnoDeclared'
+    | 'bSkipSpecialMeterProcess' 
+    | 'aHand' 
+    | 'eState'>>) {
     try {
       const aPromise: Array<Promise<unknown>> = [];
       const sPlayerKey = _.getPlayerKey(this.iBattleId, this.iPlayerId);
@@ -114,6 +161,26 @@ class Service {
             this.nReconnectionAttempt = v as IPlayer['nReconnectionAttempt'];
             aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
             break;
+          case 'nUsedNormalCard':
+            this.nUsedNormalCard = v as IPlayer['nUsedNormalCard'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'nUsedActionCard':
+            this.nUsedActionCard = v as IPlayer['nUsedActionCard'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'nUsedSpecialCard':
+            this.nUsedSpecialCard = v as IPlayer['nUsedSpecialCard'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'nDrawnNormalCard':
+            this.nDrawnNormalCard = v as IPlayer['nDrawnNormalCard'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'nDrawnSpecialCard':
+            this.nDrawnSpecialCard = v as IPlayer['nDrawnSpecialCard'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
           case 'bSpecialMeterFull':
             this.bSpecialMeterFull = v as IPlayer['bSpecialMeterFull'];
             aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
@@ -147,7 +214,6 @@ class Service {
 
       return this.toJSON();
     } catch (err: any) {
-      console.log('oData :: ',oData);
       log.error(`Error Occurred on Player.update(). reason :${err.message}`);
       log.silly(this.toJSON());
       return null;
@@ -458,11 +524,9 @@ class Service {
     await _.delay(600);
     await this.update({ eState: 'left' });
     oTable.emit('resPlayerLeft', { iPlayerId: this.iPlayerId });
-    // TODO :- need to check for game finish.
     const aPlayingPlayer = oTable.toJSON().aPlayer.filter(p => p.eState === 'playing');
     if (aPlayingPlayer.length <= 1) return oTable.gameOver(aPlayingPlayer[0], 'playerLeft');
     return this.passTurn(oTable);
-    // oTable.
   }
 
   public async passTurn(oTable: Table) {
@@ -511,10 +575,21 @@ class Service {
       nUnoTime: this.nUnoTime,
       nGraceTime: this.nGraceTime,
       nMissedTurn: this.nMissedTurn,
+      // Instrumentation params
       nStartHandSum: this.nStartHandSum,
       nDrawNormal: this.nDrawNormal,
       nReconnectionAttempt: this.nReconnectionAttempt,
-      nUsedCard: this.nUsedCard,
+      nUsedNormalCard: this.nUsedNormalCard,
+      nUsedActionCard: this.nUsedActionCard,
+      nUsedSpecialCard: this.nUsedSpecialCard,
+      nDrawnNormalCard: this.nDrawnNormalCard,
+      nDrawnSpecialCard: this.nDrawnSpecialCard,
+      nSkipUsed: this.nSkipUsed,
+      nReverseUsed: this.nReverseUsed,
+      nDraw2Used: this.nDraw2Used,
+      nDraw4Used: this.nDraw4Used,
+      nWildUsed: this.nWildUsed,
+
       bSpecialMeterFull: this.bSpecialMeterFull,
       bSkipSpecialMeterProcess: this.bSkipSpecialMeterProcess,
       aHand: this.aHand,

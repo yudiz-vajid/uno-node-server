@@ -52,6 +52,7 @@ declare interface ISettings {
 }
 
 export declare interface IPlayer {
+  nUsedSpecialCard: any;
   iPlayerId: string;
   iBattleId: string;
   sPlayerName: string;
@@ -64,7 +65,16 @@ export declare interface IPlayer {
   nMissedTurn: number;
   nDrawNormal: number;
   nStartHandSum: number;
-  nUsedCard: number;
+  nUsedNormalCard: number;
+  nUsedActionCard: number;
+  nUsedSpecialCard: number;
+  nDrawnNormalCard: number;
+  nDrawnSpecialCard: number;
+  nSkipUsed: number;
+  nReverseUsed: number;
+  nDraw2Used: number;
+  nDraw4Used: number;
+  nWildUsed: number;
   nReconnectionAttempt: number;
   bSpecialMeterFull: boolean;
   bUnoDeclared: boolean;

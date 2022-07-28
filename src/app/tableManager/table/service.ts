@@ -158,9 +158,9 @@ class Service {
   }
 
   public async drawCard(eCardType: 'normal' | 'action' | 'wild' | 'special', nCount: number) {
-    // TODO :- need to give normal card if there is no special card
     const aCards: Table['aDrawPile'] = [];
     let skipSpecialMeter = false;
+    const drawnCardType = eCardType === 'normal' ? 'nDrawnNormalCard' : 'nDrawnSpecialCard';
     switch (eCardType) {
       case 'normal':
         for (let i = 0; i < nCount; i += 1) {
@@ -219,7 +219,8 @@ class Service {
         return (log.error(`drawCard called with invalid eCardType: ${eCardType}`) && null) ?? null;
     }
     const player = await this.getPlayer(this.iPlayerTurn);
-    await player?.update({ bSkipSpecialMeterProcess: skipSpecialMeter });
+    const drawnCardCount: any = eCardType === 'normal' ? player?.toJSON().nDrawnNormalCard : player?.toJSON().nDrawnSpecialCard;
+    await player?.update({ bSkipSpecialMeterProcess: skipSpecialMeter, [drawnCardType]: drawnCardCount + 1 });
     return aCards;
   }
 
@@ -298,7 +299,7 @@ class Service {
     const keys = await redis.client.KEYS(`t:${this.iBattleId}:*`);
     const tbl_keys: any = await redis.client.KEYS(`t:${this.iBattleId}`);
     keys.push(...tbl_keys);
-    console.log('delete keys ..', keys);
+    log.verbose('Table removed');
     if (keys.length) await redis.client.del(keys);
     const schedularKey = await redis.client.KEYS(`sch:${this.iBattleId}:`);
     if (schedularKey.length) await redis.client.del(schedularKey);

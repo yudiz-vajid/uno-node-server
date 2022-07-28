@@ -57,6 +57,17 @@ class PlayerSocket {
                         nMissedTurn: 0,
                         nDrawNormal: 0,
                         nReconnectionAttempt: 0,
+                        nStartHandSum: 0,
+                        nUsedNormalCard: 0,
+                        nUsedActionCard: 0,
+                        nUsedSpecialCard: 0,
+                        nDrawnNormalCard: 0,
+                        nDrawnSpecialCard: 0,
+                        nSkipUsed: 0,
+                        nReverseUsed: 0,
+                        nDraw2Used: 0,
+                        nDraw4Used: 0,
+                        nWildUsed: 0,
                         bSpecialMeterFull: false,
                         bNextTurnSkip: false,
                         bUnoDeclared: false,
@@ -65,8 +76,6 @@ class PlayerSocket {
                         eState: 'waiting',
                         dCreatedAt: new Date(),
                         sStartingHand: '',
-                        nStartHandSum: 0,
-                        nUsedCard: 0,
                     });
                     if (!oPlayer)
                         throw new Error('Player not created');

@@ -22,9 +22,18 @@ class Service {
         this.nGraceTime = oData.nGraceTime;
         this.nMissedTurn = oData.nMissedTurn;
         this.nDrawNormal = oData.nDrawNormal;
-        this.nUsedCard = oData.nUsedCard;
+        this.nUsedNormalCard = oData.nUsedNormalCard;
+        this.nUsedActionCard = oData.nUsedActionCard;
+        this.nUsedSpecialCard = oData.nUsedSpecialCard;
+        this.nDrawnNormalCard = oData.nDrawnNormalCard;
+        this.nDrawnSpecialCard = oData.nDrawnSpecialCard;
         this.nStartHandSum = oData.nStartHandSum;
         this.nReconnectionAttempt = oData.nReconnectionAttempt;
+        this.nSkipUsed = oData.nSkipUsed;
+        this.nReverseUsed = oData.nReverseUsed;
+        this.nDraw2Used = oData.nDraw2Used;
+        this.nDraw4Used = oData.nDraw4Used;
+        this.nWildUsed = oData.nWildUsed;
         this.bSpecialMeterFull = oData.bSpecialMeterFull;
         this.bUnoDeclared = oData.bUnoDeclared;
         this.bNextTurnSkip = oData.bNextTurnSkip;
@@ -76,6 +85,26 @@ class Service {
                             this.nReconnectionAttempt = v;
                             aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v));
                             break;
+                        case 'nUsedNormalCard':
+                            this.nUsedNormalCard = v;
+                            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v));
+                            break;
+                        case 'nUsedActionCard':
+                            this.nUsedActionCard = v;
+                            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v));
+                            break;
+                        case 'nUsedSpecialCard':
+                            this.nUsedSpecialCard = v;
+                            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v));
+                            break;
+                        case 'nDrawnNormalCard':
+                            this.nDrawnNormalCard = v;
+                            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v));
+                            break;
+                        case 'nDrawnSpecialCard':
+                            this.nDrawnSpecialCard = v;
+                            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v));
+                            break;
                         case 'bSpecialMeterFull':
                             this.bSpecialMeterFull = v;
                             aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v));
@@ -110,7 +139,6 @@ class Service {
                 return this.toJSON();
             }
             catch (err) {
-                console.log('oData :: ', oData);
                 log.error(`Error Occurred on Player.update(). reason :${err.message}`);
                 log.silly(this.toJSON());
                 return null;
@@ -465,7 +493,16 @@ class Service {
             nStartHandSum: this.nStartHandSum,
             nDrawNormal: this.nDrawNormal,
             nReconnectionAttempt: this.nReconnectionAttempt,
-            nUsedCard: this.nUsedCard,
+            nUsedNormalCard: this.nUsedNormalCard,
+            nUsedActionCard: this.nUsedActionCard,
+            nUsedSpecialCard: this.nUsedSpecialCard,
+            nDrawnNormalCard: this.nDrawnNormalCard,
+            nDrawnSpecialCard: this.nDrawnSpecialCard,
+            nSkipUsed: this.nSkipUsed,
+            nReverseUsed: this.nReverseUsed,
+            nDraw2Used: this.nDraw2Used,
+            nDraw4Used: this.nDraw4Used,
+            nWildUsed: this.nWildUsed,
             bSpecialMeterFull: this.bSpecialMeterFull,
             bSkipSpecialMeterProcess: this.bSkipSpecialMeterProcess,
             aHand: this.aHand,

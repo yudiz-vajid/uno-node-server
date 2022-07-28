@@ -17,7 +17,7 @@ class Table extends service_1.default {
     distributeCard() {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('distributeCard called...');
+            log.verbose('distributeCard');
             let { nStartingActionCardCount } = this.oSettings;
             const { nStartingNormalCardCount, nStartingSpecialCardCount } = this.oSettings;
             nStartingActionCardCount = nStartingActionCardCount || _.getRandomNumber(2, 3);
