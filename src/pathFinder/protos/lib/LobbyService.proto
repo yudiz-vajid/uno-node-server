@@ -1,0 +1,1067 @@
+syntax = "proto3";
+
+package com.mpl.services.grpc;
+option java_multiple_files = true;
+import "GamePlayService.proto";
+import "TournamentConsoleService.proto";
+import "UserDataService.proto";
+import "CountryInfo.proto";
+
+message LobbyServiceError {
+    enum Reason {
+        NONE = 0;
+        UNKNOWN = 1;
+        BAD_REQUEST = 2;
+        INTERNAL_ERROR = 3;
+        EXTERNAL_ERROR = 4;
+        INSUFFICIENT_FUNDS = 5;
+        LOBBY_ENDED = 6;
+        VIOLATED_THE_FRAUD_RULES =7;
+        UNAUTHORIZED = 8;
+        GAME_WISE_USER_BLOCKED = 9;
+        DUPLICATE = 10;
+        APP_LEVEL_USER_BLOCKED = 11;
+        MIN_VERSION_UPDATE = 12;
+        COLLUSION_DETECTED = 13;
+        FORMAT_NOT_SUPPORTED =14;
+        KO_DEVICE_ID_CHECK = 15;
+        SEGMENT_BLOCKED_USER = 16;
+        USER_EXITED_RUMMY_TOURNAMENT = 17;
+    }
+    Reason reason = 1;
+    string message = 2;
+    repeated int32 segmentBlockedUsers = 3;
+}
+
+enum PlayerType{
+    STARTER = 0;
+    CHALLENGER = 1;
+}
+
+message LobbyGame {
+    int32 id = 1;
+    string name = 2;
+    string platform = 3;
+    string thumb = 4;
+    string previewImage = 5;
+    string previewVideo = 6;
+    string assetUrl = 7;
+    string battleType = 8;
+    bool active = 9;
+}
+
+
+message LobbyConfig {
+
+    int32 id = 1;
+    string name = 2;
+    string description = 3;
+    string startTime = 4;
+    int32 refreshTime = 5;
+    int32 endTime = 6;
+    int32 gameId = 7;
+    string gameConfig = 8;
+    string currencyType = 9;
+    int32 entryFee = 10;
+    string rewards = 11;
+    string status = 12;
+    bool active = 13;
+    repeated int32 linkedLobbies = 14;
+    string extraInfo = 15;
+    string createdOn = 16;
+    string modifiedOn = 17;
+    int32 minPlayers = 18;
+    int32 maxPlayers = 19;
+    string moneyEntryFee = 20;
+    com.mpl.commons.lci.CountryInfo countryInfo = 21;
+
+}
+
+
+message LobbyLeaderboardEntry {
+    int32 userId = 1;
+    string name = 2;
+    int32 rank = 3;
+    int32 wins = 4;
+    string avatar = 5;
+    bool isPro = 6;
+    string tier = 7;
+    Reward reward = 8;
+    int32 videoCount = 9 ;
+    string acr = 10;
+    string state = 11;
+    uint64 lastOnline = 12;
+    FraudCheck fraudCheck = 13;
+    com.mpl.services.userdata.grpc.BasicProfile profile = 20;
+}
+
+message LobbyLeaderboard {
+    LobbyLeaderboardEntry userEntry = 1;
+    repeated LobbyLeaderboardEntry lobbyLeaderboard = 2;
+}
+
+message GetGamesRequest {
+    string requestId = 1;
+    string gameType = 2;
+    int32 userId = 3;
+}
+
+message GetGamesResponse {
+    string requestId = 1;
+    LobbyServiceError error = 2;
+    repeated LobbyGame games = 3;
+}
+
+message GetLobbiesRequest {
+    string requestId = 1;
+    int32 userId = 2;
+    int32 gameId = 3;
+    string appType = 4;
+    int32 appVersion = 5;
+    int32 reactVersion = 6;
+}
+
+message GetLobbiesResponse {
+    string requestId = 1;
+    LobbyServiceError error = 2;
+    repeated LobbyDetails lobbies = 3;
+}
+
+message GetLobbyConfigsRequest {
+    string requestId = 1;
+    bool active = 2;
+
+}
+
+message GetLobbyConfigsResponse {
+    string requestId = 1;
+    LobbyServiceError error = 2;
+    repeated LobbyConfig lobbyConfigs = 3;
+}
+
+message GetLeaderboardRequest {
+    string requestId = 1;
+    int32 lobbyId = 2;
+    int32 userId = 3;
+    int32 start = 4;
+    int32 count = 5;
+}
+
+message GetLeaderboardResponse {
+    string requestId = 1;
+    LobbyServiceError error = 2;
+    LobbyLeaderboard leaderboard = 3;
+}
+
+message JoinLobbyRequest {
+    string requestId = 1;
+    int32 lobbyId = 2;
+    int32 userId = 3;
+    string appType = 4;
+    string appVersion = 5;
+    int32 reactVersion = 6;
+    bool rejoin =7;
+    bool isPractice = 8;
+    string ticketCode = 9;
+    string ticketValue = 10;
+    bool isPartPay = 11;
+    string apkType = 12;
+}
+
+message JoinLobbyResponse {
+    string requestId = 1;
+    LobbyServiceError error = 2;
+    int32 userId = 3;
+    int32 deficit = 4;
+    bool canJoin = 5;
+    string message = 6;
+    string gameConfig = 7;
+    string moneyDeficit = 8;
+    com.mpl.commons.lci.CountryInfo countryInfo = 9;
+}
+
+message BattleRegistrationRequest {
+    string requestId = 1;
+    string battleId = 2;
+    bool matched = 3;
+    int32 userId = 4;
+    int32 lobbyId = 5;
+}
+
+message BattleRegistrationResponse {
+    string requestId = 1;
+    LobbyServiceError error = 2;
+    bool success = 3;
+    string battleId = 4;
+    bool matched = 5;
+    int32 userId = 7;
+    bool canPlayAgain = 8;
+}
+
+message UpdateBattleScoreRequest {
+    string requestId = 1;
+    string battleId = 2;
+    int32 userId = 3;
+    int32 score = 4;
+    string scoreData = 5;
+    bool isFirstScore = 6;
+    string partnerKey = 7;
+    double decimalScore = 8;
+    bool forceSubmit = 9; // server submitted score
+}
+
+message UpdateBattleScoreResponse {
+    string requestId = 1;
+    LobbyServiceError error = 2;
+    bool success = 3;
+    bool matched = 4;
+    bool resultsDeclared = 5;
+    bool winner = 6;
+    int32 amount = 7;
+    string currencyType = 8;
+    int32 rank = 9;
+    LobbyPlayerData playerData = 10;
+    PlayerType playerType = 11;
+    string moneyAmount = 12;
+    com.mpl.commons.lci.CountryInfo countryInfo = 13;
+}
+
+message LobbyPlayerData {
+    string battleId = 1;
+    int32 userId = 2;
+    int32 score = 3;
+    string scoreData = 4;
+    string status = 5;
+    bool matched = 6;
+    int32 rank = 7;
+    int32 cashWinnings = 8;
+    int32 tokenWinnings = 9;
+    bool canPlayAgain = 10;
+    bool followingOpponent = 11;
+    double cashWinningsDecimal = 12;
+    string nextLobbySuggestedConfig = 13;
+    LobbyDetails nextSuggestedLobby = 14;
+    double decimalScore = 15;
+    string extraInfo = 16;
+    int32 entryFee =17;
+    string entryCurrency =18;
+    string rewards = 19;
+    bool isTicketUsed = 20;
+    double ticketContribution = 21;
+    string moneyEntryFee= 22;
+    com.mpl.commons.lci.CountryInfo countryInfo = 23;
+    bool hasBalance = 24;
+    bool segmentedUser = 25;
+    bool userBlocked = 26;
+}
+
+message LobbyPlayerDataWithUserDetails{
+    LobbyPlayerData lobbyPlayerData = 1;
+    string userName = 2;
+    string imageUrl = 3;
+}
+
+message GetBattleRequest {
+    string requestId = 1;
+    string battleId = 2;
+}
+
+message GetBattleResponse {
+    string requestId = 1;
+    LobbyServiceError error = 2;
+    repeated LobbyPlayerData playersData = 3;
+    string battleStatus = 4;
+    bool battlePlayAgainDisabled = 5 ;
+    RummyInfo rummyInfo = 6;
+}
+
+message UpdateBattleRequest {
+    string requestId = 1;
+    string battleId = 2;
+    repeated LobbyPlayerData playerData = 3;
+    string roomStatus = 4;
+}
+
+message UpdateBattleResponse {
+    string requestId = 1;
+    LobbyServiceError error = 2;
+    repeated LobbyPlayerData playerData = 3;
+    string roomStatus = 4;
+}
+
+message GetHistoryRequest {
+    string requestId = 1;
+    int32 userId = 2;
+    int32 start = 3;
+    int32 count = 4;
+}
+
+message GetHistoryResponse {
+    string requestId = 1;
+    LobbyServiceError error = 2;
+    repeated LobbyPlayerData allPlayerData = 3;
+    string name = 4;
+    string avatar = 5;
+    bool isPro = 6;
+    string tier = 7;
+    int32 totalPlayed = 8;
+    int32 totalWon = 9;
+    int32 waitingForResults = 10;
+    string moneyTotalWon = 11;
+    com.mpl.commons.lci.CountryInfo countryInfo = 12;
+}
+
+message GetLobbyRequest {
+    string requestId = 1;
+    int32 id = 2;
+    int32 userId = 3;
+}
+
+message CancelBattleRequest {
+    string requestId = 1;
+    string battleId = 2;
+    repeated int32 userId = 3;
+  string partnerKey = 4;
+}
+
+message CancelBattleResponse {
+    string requestId = 1;
+    LobbyServiceError error = 2;
+    repeated LobbyPlayerData playerData = 3;
+    string battleStatus = 4;
+}
+
+message CreateBattleRequest {
+    string requestId = 1;
+    int32 lobbyId = 2;
+    string battleId = 3;
+    repeated int32 userIds = 4;
+    map<int32,string> userAppTypes = 5;
+    string partnerKey = 6;
+}
+
+message CreatBattlePlayer {
+    string requestId = 1;
+    int32 userId = 2;
+    bool success = 3;
+    int32 deficit = 4;
+    int32 cashDeduction = 5;
+    int32 bonusDeduction = 6;
+    int32 tokenDeduction = 7;
+    int32 winningDeduction = 8;
+    int32 depositDeduction = 9;
+    double decimalDeficit = 10;
+    double decimalCashDeduction = 11;
+    double decimalBonusDeduction = 12;
+    double decimalTokenDeduction = 13;
+    double decimalWinningDeduction = 14;
+    double decimalDepositDeduction = 15;
+    PlayerType playerType = 16;
+    uint32 score = 17; // only applicable for async
+}
+
+message CreateBattleResponse {
+    string requestId = 1;
+    LobbyServiceError error = 2;
+    bool success = 3;
+    repeated CreatBattlePlayer battlePlayers = 4;
+    string currency = 5;
+    int32 amount = 6;
+    int32 allowedBonusAmount = 7;
+    string moneyAmount = 8;
+    string moneyBonusAmount = 9;
+    com.mpl.commons.lci.CountryInfo countryInfo = 10;
+}
+
+message GetPlayerStatsRequest {
+    string requestId = 1;
+    int32 userId = 2;
+    int32 gameId = 3;
+}
+
+message GetPlayerStatsResponse {
+    string requestId = 1;
+    LobbyServiceError error = 2;
+    int32 userId = 3;
+    int32 gameId = 4;
+    int64 totalScore = 5;
+    int32 gamesPlayed = 6;
+    int32 gamesWon = 7;
+}
+
+message GetPlayerLobbyHistoryRequest {
+    string requestId = 1;
+    int32 userId = 2;
+    int32 start = 3;
+    int32 count = 4;
+    int64 startTimeStamp = 5;
+    int64 endTimeStamp = 6;
+    string battleId = 7;
+    int32 gameId = 8;
+}
+
+message GetPlayerLobbyHistoryResponse {
+    string requestId = 1;
+    LobbyServiceError error = 2;
+    repeated BattleHistoryDetails pendingBattles = 3;
+    repeated BattleHistoryDetails finishedBattles = 4;
+}
+
+message BattleHistoryDetails {
+    enum UserBattleState {
+        WAITING = 0;
+        FINISHED = 1;
+        CANCELLED = 2;
+
+    }
+    UserBattleState userBattleState = 1;
+    int32 gameId = 3;
+    string gameName = 4;
+    string gameImageUrl = 5;
+    string battleId = 6;
+    int32 lobbyId = 7;
+    string lobbyName = 8;
+    repeated BattlePlayerDetails battlePlayers = 9;
+    string battleStartTime = 10;
+    string battleType = 11;
+    bool isExclusiveVIP = 12;
+
+}
+
+message BattlePlayerDetails {
+    enum WinningState {
+        WINNER = 0;
+        LOSER = 1;
+        TIED = 2;
+        PENDING = 3;
+        REFUNDED = 4;
+    }
+
+    int32 userId = 1;
+    string userName = 2;
+    string userImageUrl = 3;
+    bool isPro = 4;
+    string tier = 5;
+    int32 rank = 6;
+    int32 cashWinnings = 7;
+    int32 tokenWinnings = 8;
+    int32 entryFee = 9;
+    string entryCurrency = 10;
+    WinningState winningState = 11;
+    int32 score = 12;
+    int32 videoCount = 13;
+    double cashWinningsDecimal = 14;
+    double decimalScore = 15;
+    string extraInfo = 16;
+    string rewards = 17;
+    string displayName = 18;
+    string moneyEntryFee = 19;
+    com.mpl.commons.lci.CountryInfo countryInfo = 20;
+}
+
+message GetLobbyDetailsResponse {
+    string requestId = 1;
+    LobbyServiceError error = 2;
+    LobbyDetails lobbyDetails = 3;
+}
+
+message UserMatchFoundData {
+    int32 userId = 1;
+    bool success = 2;
+    int32 skillDelta = 3;
+    string failReason = 4;
+    string matchType = 5;
+    int32 waitTime = 6;
+    int32 userSkillRating = 7;
+    int32 opponentSkillRating = 8;
+    int32 netSkillDelta = 9;
+    bool redZone = 10;
+    double churnWinRate = 11;
+}
+
+message UserMatchFoundRequest {
+    string requestId = 1;
+    int32 lobbyId = 2;
+    string battleId = 3;
+    repeated UserMatchFoundData playerData = 4;
+}
+
+message UserMatchFoundResponse {
+    string requestId = 1;
+    LobbyServiceError error = 2;
+    bool success = 3;
+}
+
+message FinishUnfinishedBattlesRequest {
+    string requestId = 1;
+    int32 lobbyId = 2;
+    int32 startTimeBefore =3;
+}
+
+message FinishUnfinishedBattlesResponse {
+    string requestId = 1;
+    bool status = 2;
+}
+
+message GetAllLobbiesRequest {
+
+}
+
+message GetAllGameLobbiesRequest {
+    int32 gameId = 1;
+}
+
+message TableUserRegistered {
+    string eventData = 1;
+}
+
+message KickoutUserFromLobbyRequest {
+    int32 lobbyId = 1;
+    int32 userId = 2;
+    string reason = 3;
+    int32 battleId = 4;
+}
+
+message KickoutUserFromLobbyResponse {
+    bool success = 1;
+    LobbyServiceError error = 2;
+}
+
+message TableUserPlayedGame {
+    string eventData = 1;
+}
+
+message TableUserWon {
+    string eventData = 1;
+}
+
+message TableGiftPurchased {
+    string eventData = 1;
+}
+
+message EventSentStatus {
+    bool status = 1;
+}
+
+message EventData{
+    string eventData = 1;
+}
+
+message GetBattleDataRequest{
+    string battleId = 1;
+}
+
+message GetBattleDataResponse{
+    map<int32,string> userBattleGameData = 1;
+}
+
+message PublishEventRequest{
+    string userId = 1;
+    string eventId = 2;
+    string eventType = 3;
+    string eventName = 4;
+    string properties = 5;
+}
+
+message BattleIdResponse {
+    string battleId = 1;
+    string extraInfo = 2;
+}
+
+message GetPlayersInBattleRequest{
+    string requestId = 1;
+    string battleId = 2;
+    uint32 lobbyId = 3;
+}
+
+message GetPlayersInBattleResponse{
+    bool isSuccess = 1;
+    repeated LobbyPlayerDataWithUserDetails lobbyPlayerDataWithUserDetails = 2;
+}
+
+message FinishAmbigousBattleRequest {
+    int32 userId = 1;
+    string battleId = 2;
+}
+
+message FinishAmbigousBattleResponse {
+    bool isSuccess = 1;
+    string sfsState = 2;
+    string reason = 3;
+    string userStatus = 4;
+    string battleStatus = 5;
+    double transactionAmount = 6;
+    bool isFirstTime = 7;
+}
+
+message SessionFinishRequest{
+    string battleId = 1;
+    int32 userId = 2;
+    double deposits = 3;
+    double bonus = 4;
+    double winnings = 5;
+    double actualWinnings = 6;
+}
+
+message UserProfile {
+    int32 userId = 1;
+    string mobile = 2;
+    string displayName = 3;
+    string avatar = 4;
+    string tier = 5;
+    bool isPro = 6;
+    int32 appVersion = 7;
+}
+
+message GetKnockOutMatchDataRequest{
+    int32 userId = 1;
+    int32 lobbyId = 2;
+}
+
+message GetKnockOutMatchDataResponse{
+    string matchId = 1;
+    UserProfile user = 2;
+    UserProfile opponent = 3;
+    int32 timeLeft = 4;
+    string roundName = 5;
+    int32 winnerUserId = 6;
+
+}
+
+message Get1vNKnockOutMatchDataRequest{
+    int32 userId = 1;
+    int32 lobbyId = 2;
+}
+
+message Get1vNKnockOutMatchDataResponse{
+    string matchId = 1;
+    UserProfile user = 2;
+    repeated UserProfile opponent = 3;
+    int32 timeLeft = 4;
+    string roundName = 5;
+    repeated int32 winners = 6;
+    int32 minPlayers = 7;
+}
+
+message UpdateKnockOutPlayerScoreRequest{
+    string matchId = 1;
+    int32 userId = 2;
+    int32 lobbyId = 3;
+    int32 score = 4;
+    string scoreData = 5;
+}
+
+message UpdateKnockOutPlayerScoreResponse {
+}
+
+message FinishMatchRequest {
+    string matchId = 1;
+    int32 lobbyId = 2;
+}
+
+message FinishMatchResponse {
+    string requestId = 1;
+    LobbyServiceError error = 2;
+    repeated KnockoutProfile players = 3;
+}
+
+message RestoreUserInLobbyRequest{
+    int32 userId = 1;
+    int32 lobbyId = 2;
+}
+
+message RestoreUserInLobbyResponse{
+    bool success = 1;
+    LobbyServiceError error = 2;
+}
+
+message FinishTimeoutMatchRequest {
+    string matchId = 1;
+    int32 lobbyId = 2;
+    int32 winnerUserId = 3;
+}
+
+message FinishTimeoutMatchResponse {
+
+}
+
+message Finish1vNTimeoutMatchRequest {
+    string matchId = 1;
+    int32 lobbyId = 2;
+    repeated int32 winners = 3;
+}
+
+message Finish1vNTimeoutMatchResponse {
+}
+
+message GetUserBalanceRequest{
+    int32 userId = 1;
+    double rummyWalletBalance = 2;
+    int32 lobbyId = 3;
+}
+
+message GetUserBalanceResponse{
+    LobbyServiceError error =1;
+    uint32 userId = 2;
+    double depositBalance = 3;
+    double bonusBalance = 4;
+    double withdrawableBalance = 5;
+    double totalBalance = 6;
+    uint32 tokenBalance = 7;
+    uint32 heartBalance = 8;
+}
+
+message AuthenticationRequest {
+    string requestId = 1;
+    string authToken = 2;
+    int32 lobbyId =3;
+}
+message AuthenticationResponse {
+    LobbyServiceError error = 1;
+    bool isAuthentic = 2;
+    uint32 userId = 3;
+    string mobileNumber = 4;
+    bool canPlayAgain = 5;
+}
+
+message RummyInfo{
+    bool collusionDetected = 1;
+    repeated uint32 colludedUsers = 2;
+}
+
+message FinishBattleScoreRequest{
+    string requestId = 1;
+    repeated UpdateBattleScoreRequest score = 2;
+    bool isFinalRound = 3;
+    string uniqueId = 4;
+    string roundId = 5;
+}
+
+message FinishBattleScoreResponse {
+    string requestId = 1;
+    LobbyServiceError error = 2;
+    repeated LobbyPlayerData playersData = 3;
+    string battleStatus = 4;
+    bool battlePlayAgainDisabled = 5;
+    RummyInfo rummyInfo = 6;
+
+}
+
+message RejoinBattleRequest{
+    string requestId = 1;
+    string battleId = 2;
+    int32 userId = 3;
+    int32 lobbyId = 4;
+}
+
+message RejoinBattleResponse{
+    string requestId = 1;
+    LobbyServiceError error = 2;
+    bool success = 3;
+}
+
+message GetActiveBattlesRequest {
+    string requestId = 1;
+    int32 userId = 2;
+    int32 gameId = 3;
+    int32 lobbyId = 4;
+    string battleId = 5;
+}
+
+message GetActiveBattleResponse {
+    string requestId = 1;
+    LobbyServiceError error = 2;
+    repeated BattleHistoryDetails activeBattles = 3;
+}
+
+
+message RemoveUserFromLobbyLeaderboardRequest{
+    int32 userId = 1;
+}
+message RemoveUserFromLobbyLeaderboardResponse{
+    GamePlayServiceError gamePlayServiceError = 1;
+}
+
+message UpdateKnockoutRHServerRequest {
+    string battleId = 1;
+}
+
+message UpdateKnockoutRHServerResponse{
+
+}
+
+message PoolRummyManualSplitRequest{
+    string requestId =1;
+    string roundId = 2;
+    string battleId = 3;
+    repeated UpdateBattleScoreRequest score = 4; // to mention userIds and their scores
+}
+
+message PoolRummyManualSplitResponse{
+    bool isSuccess = 1;
+    string requestId = 2;
+    LobbyServiceError error = 3;
+    repeated LobbyPlayerData playersData = 4;
+    string battleStatus = 5;
+    bool battlePlayAgainDisabled = 6 ;
+}
+
+message CreateBattleAsyncRequest{
+    string requestId = 1;
+    int32 lobbyId = 2;
+    int32 userId = 3;
+    double eloRating = 4;
+    PlayerType playerType = 5;
+    string battleId = 6;
+    int32 gameVersion=7;
+}
+
+message CreateBattleAsyncResponse{
+    string requestId = 1;
+    LobbyServiceError error = 2;
+    bool isSuccess = 3;
+    repeated CreatBattlePlayer battlePlayer = 4;
+    string currency = 5;
+    int32 amount = 6;
+    int32 allowedBonusAmount = 7;
+    string battleId = 8;
+    repeated UserProfile userData=9;
+    string moneyAmount = 10;
+    string moneyAllowedBonusAmount = 11;
+    com.mpl.commons.lci.CountryInfo countryInfo = 12;
+}
+
+message FinishBattleAsyncRequest {
+    string requestId = 1;
+    string battleId = 2;
+    string lobbyId = 3;
+    int32 userId = 4;
+    PlayerType playerType = 5;
+}
+
+message FinishBattleAsyncResponse {
+    string requestId = 1;
+    LobbyServiceError error = 2;
+    repeated LobbyPlayerData playersData = 3;
+    string battleStatus = 4;
+    bool battlePlayAgainDisabled = 5 ;
+}
+
+message GetPendingBattlesRequest{
+    string requestId =1;
+    uint32 lobbyId =2;
+}
+
+message PendingBattleInfo{
+    uint32 userId = 1;
+    string battleId = 2;
+    double eloRating = 3;
+    string expiryDate = 4;
+    uint32 score = 5;
+    UserProfile userData=6;
+    int32 gameVersion=7;
+}
+
+message GetPendingBattlesResponse{
+    string requestId = 1;
+    bool isSuccess = 2;
+    LobbyServiceError error = 3;
+    repeated PendingBattleInfo pendingBattles = 4;
+}
+
+message NextLobbySuggestionRequest{
+    string requestId = 1;
+    int32 userId = 2;
+    int32 lobbyId = 3;
+}
+
+message NextLobbySuggestionResponse{
+    string requestId = 1;
+    bool isSuccess = 2;
+    string nextLobbySuggestedConfig = 3;
+    LobbyDetails nextSuggestedLobby = 4;
+    LobbyServiceError error = 5;
+}
+
+message ProcessSegmentationLogicRequest{
+    string requestId = 1;
+    int32 userId = 2;
+    int32 lobbyId = 3;
+}
+
+message ProcessSegmentationLogicResponse{
+    string requestId = 1;
+    bool isSuccess = 2;
+    bool isUserEligible = 3;
+    LobbyServiceError error = 4;
+}
+
+message ProcessSkillUpdaterTaskLogicRequest{
+    string requestId = 1;
+    int32 lobbyId = 2;
+    repeated LobbyPlayerData playersData = 3;
+    string battleId = 4;
+}
+
+message ProcessSkillUpdaterTaskLogicResponse{
+    string requestId = 1;
+    bool isSuccess = 2;
+    LobbyServiceError error = 3;
+}
+
+message RefundBattleRequest{
+    string requestId = 1;
+    string battleId = 2;
+    bool isClawBack = 3;
+}
+
+message RefundBattleResponse{
+    bool isSuccess = 1;
+    LobbyServiceError error = 2;
+}
+
+message GetGuardingChurnAlgoStatsRequest{
+    int32 userId = 1;
+    int32 gameId = 2;
+}
+
+
+message GetGuardingChurnAlgoStatsResponse{
+    int32 userId = 1;
+    int32 cashBattlesWon = 2;
+    int32 cashBattlesFought = 3;
+}
+
+message TestLobbyRequest{
+    int32 userId1 = 1;
+    int32 userId2 = 2;
+    int32 user1Score = 3;
+    int32 user2Score = 4;
+    string user1GameEndReason = 5;
+    string user2GameEndReason = 6;
+    int32 lobbyId = 7;
+}
+
+message TestLobbyResponse {
+    bool isSuccess = 1;
+    string message = 2;
+}
+
+message UserDisconnectedRequest {
+    string requestId = 1;
+    int32 userId = 2;
+    int32 lobbyId = 3;
+    string battleId = 4;
+    string disconnectionReason = 5;
+    string errorMessage = 6;
+    int32 lastScore = 7;
+    int32 totalReconnectionTime = 8;
+    int32 totalReconnectionAttempts = 9;
+    int32 reconnectionAttemptsLeft = 10;
+    bool reconnectionEnabled = 11;
+    bool isScoreSubmitted = 12;
+}
+
+
+message UserDisconnectedResponse {
+    string requestId = 1;
+    bool success = 2;
+}
+
+message UpdateLeaderBoardForRummyTournamentRequest{
+    string requestId = 1;
+    int32 tournamentId = 2;
+    map<int32,int32>  userIdToScores = 3;
+    string tableId = 4;
+    int32 levelNumber = 5;
+}
+
+message UpdateLeaderBoardForRummyTournamentResponse{
+    string requestId = 1;
+    bool isSuccess = 2;
+    LobbyServiceError error = 3;
+}
+
+
+service LobbyService {
+    rpc getLobbies (GetLobbiesRequest) returns (GetLobbiesResponse);
+    rpc kickoutUserFromLobby(KickoutUserFromLobbyRequest) returns (KickoutUserFromLobbyResponse);
+    rpc joinLobby (JoinLobbyRequest) returns (JoinLobbyResponse);
+    rpc createOrUpdateBattle (BattleRegistrationRequest) returns (BattleRegistrationResponse);
+    rpc updateBattleScore (UpdateBattleScoreRequest) returns (UpdateBattleScoreResponse);
+    rpc getBattleDetails (GetBattleRequest) returns (GetBattleResponse);
+    rpc finishBattle (GetBattleRequest) returns (GetBattleResponse);
+    rpc createBattle (CreateBattleRequest) returns (CreateBattleResponse);
+    rpc getLobbyById (GetLobbyRequest) returns (GetLobbyDetailsResponse);
+    rpc getLeaderboard (GetLeaderboardRequest) returns (GetLeaderboardResponse);
+    rpc getHistory (GetHistoryRequest) returns (GetHistoryResponse);
+    rpc cancelBattle (CancelBattleRequest) returns (CancelBattleResponse);
+    rpc getPlayerStats (GetPlayerStatsRequest) returns (GetPlayerStatsResponse);
+    rpc getPlayerLobbyHistory (GetPlayerLobbyHistoryRequest) returns (GetPlayerLobbyHistoryResponse);
+    rpc generateUserMatchFoundEvent (UserMatchFoundRequest) returns (UserMatchFoundResponse);
+    rpc finishUnfinishedBattles (FinishUnfinishedBattlesRequest) returns (FinishUnfinishedBattlesResponse);
+    rpc finishUnfinishedBattlesTimeBased (FinishUnfinishedBattlesRequest) returns (FinishUnfinishedBattlesResponse);
+    rpc getAllLobbies(GetAllLobbiesRequest) returns(GetLobbiesResponse);
+    rpc getAllGameLobbies(GetAllGameLobbiesRequest) returns(GetLobbiesResponse);
+    rpc getGames (GetGamesRequest) returns (GetGamesResponse);
+    rpc getLobbyConfigs (GetLobbyConfigsRequest) returns (GetLobbyConfigsResponse);
+    rpc getLobbyConfigById (GetLobbyRequest) returns (LobbyConfig);
+    rpc createLobbyConfig (LobbyConfig) returns (LobbyConfig);
+    rpc updateLobbyConfig (LobbyConfig) returns (LobbyConfig);
+    rpc updateLobbyDetails (LobbyDetails) returns (LobbyDetails);
+    rpc sendTableUserRegistered (TableUserRegistered) returns (EventSentStatus);
+    rpc sendTableUserPlayedGame (TableUserPlayedGame) returns (EventSentStatus);
+    rpc sendTableUserWon (TableUserWon) returns (EventSentStatus);
+    rpc sendTableGiftPurchased (TableGiftPurchased) returns (EventSentStatus);
+    rpc sendRummyEvent(EventData) returns (EventSentStatus);
+    rpc getBattleGameData(GetBattleDataRequest) returns (GetBattleDataResponse);
+    rpc publishEvents (PublishEventRequest) returns (EmptyParams);
+    rpc getBattleByUser (Id) returns (BattleIdResponse);
+    rpc getPlayersInBattle(GetPlayersInBattleRequest) returns (GetPlayersInBattleResponse);
+    rpc finishAmbigousBattle (FinishAmbigousBattleRequest) returns (FinishAmbigousBattleResponse);
+    rpc finishSession (SessionFinishRequest) returns (GetBattleResponse);
+
+    rpc getKnockOutMatchData(GetKnockOutMatchDataRequest) returns (GetKnockOutMatchDataResponse);
+    rpc updateKnockOutPlayerScore(UpdateKnockOutPlayerScoreRequest) returns (UpdateKnockOutPlayerScoreResponse) ;
+    rpc finishMatch(FinishMatchRequest) returns (FinishMatchResponse);
+    rpc finishTimeoutMatch(FinishTimeoutMatchRequest) returns (FinishTimeoutMatchResponse);
+
+
+    rpc restoreUserInLobby(RestoreUserInLobbyRequest) returns (RestoreUserInLobbyResponse);
+
+    rpc getUserBalance(GetUserBalanceRequest)  returns(GetUserBalanceResponse);
+    rpc authenticate (AuthenticationRequest) returns (AuthenticationResponse);
+
+
+    rpc get1vNKnockOutMatchData(Get1vNKnockOutMatchDataRequest) returns (Get1vNKnockOutMatchDataResponse);
+    rpc finish1vNTimeoutMatch(Finish1vNTimeoutMatchRequest) returns (Finish1vNTimeoutMatchResponse);
+    rpc finishBattleWithScores(FinishBattleScoreRequest) returns(GetBattleResponse);
+    rpc rejoinBattle(RejoinBattleRequest) returns(RejoinBattleResponse);
+    rpc getActiveBattles (GetActiveBattlesRequest) returns (GetActiveBattleResponse);
+    rpc removeUserFromLobbyLeaderboard(RemoveUserFromLobbyLeaderboardRequest) returns(RemoveUserFromLobbyLeaderboardResponse);
+    rpc updateKnockoutRHServer(UpdateKnockoutRHServerRequest) returns (UpdateKnockoutRHServerResponse);
+    rpc poolRummyManualSplit(PoolRummyManualSplitRequest) returns (PoolRummyManualSplitResponse);
+
+    // Async format 1v1 battle support
+    rpc createBattleAsync(CreateBattleAsyncRequest) returns (CreateBattleAsyncResponse);
+    rpc getPendingBattles(GetPendingBattlesRequest) returns (GetPendingBattlesResponse);
+    rpc finishBattleAsync(FinishBattleAsyncRequest) returns (FinishBattleAsyncResponse);
+
+    // Exposing Next Lobby Suggestion Logic
+    rpc getNextLobbySuggestion(NextLobbySuggestionRequest) returns (NextLobbySuggestionResponse);
+    // Exposing Next Lobby Suggestion Logic
+    rpc processSegmentationLogic(ProcessSegmentationLogicRequest) returns (ProcessSegmentationLogicResponse);
+    // Exposing Skill Updater Task
+    rpc processSkillUpdaterTaskLogic(ProcessSkillUpdaterTaskLogicRequest) returns (ProcessSkillUpdaterTaskLogicResponse);
+    rpc refundBattle(RefundBattleRequest) returns (RefundBattleResponse);
+    // ML algo
+    rpc getGuardingChurnAlgoStats(GetGuardingChurnAlgoStatsRequest) returns (GetGuardingChurnAlgoStatsResponse);
+
+    //test lobby
+    rpc testLobby(TestLobbyRequest) returns (TestLobbyResponse);
+
+    //SFS instrumentation
+    rpc generateUserDisconnectedEvent (UserDisconnectedRequest) returns (UserDisconnectedResponse);
+
+    rpc updateLeaderBoardForRummyTournament(UpdateLeaderBoardForRummyTournamentRequest) returns (UpdateLeaderBoardForRummyTournamentResponse);
+}

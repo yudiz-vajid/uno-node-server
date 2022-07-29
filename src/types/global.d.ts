@@ -28,7 +28,6 @@ export declare interface ICard {
 }
 
 declare interface ISettings {
-  bMustCollectOnMissTurn: boolean;
   bSkipTurnOnDrawTwoOrFourCard: boolean;
   bStackingDrawCards: boolean;
   bVisualEffectOnUnoButton: boolean;

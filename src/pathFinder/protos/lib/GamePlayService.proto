@@ -1,0 +1,2159 @@
+syntax = "proto3";
+
+package com.mpl.services.grpc;
+option java_multiple_files = true;
+import "TournamentConsoleService.proto";
+import "UserDataService.proto";
+import "CountryInfo.proto";
+
+message GamePlayServiceError {
+    enum Reason {
+        NONE = 0;
+        UNKNOWN = 1;
+        BAD_REQUEST = 2;
+        EXTERNAL_ERROR = 3;
+        TOURNAMENT_ENDED = 4;
+        FAILED_TO_FETCH_FROM_WEB_URI = 5;
+        SUBMIT_SCORE_IN_PROGRESS = 6;
+        NO_LIVES = 7;
+        TOURNAMENT_CANCELLED = 8;
+        USER_ALREADY_REGISTERED = 9;
+        TOURNAMNET_INACTIVE = 10;
+        TEAM_NOT_FOUND = 11;
+        REGISTRATION_IN_PROGRESS = 12;
+        TOURNAMENT_MAX_LIMIT_REACHED = 13;
+        USER_INELIGIBLE = 14;
+        TEAM_FULL = 15;
+        FAILED_TO_FETCH_USER_DATA = 16;
+        USER_RECORD_UPDATE_FAILED = 17;
+        USER_PLAYED_EVENT_PUBLISH_FAILED = 18;
+        HIGH_SCORE_ALREADY_EXIST = 19;
+        TOURNAMENT_FINISHED = 20;
+        VIOLATED_THE_FRAUD_RULES =21;
+        MAX_ATTEMPTS_REACHED = 22;
+        GAME_WISE_USER_BLOCKED = 23;
+        ACTIVE_PACK_REQUIRED = 24;
+        INSUFFICIENT_BALANCE = 25;
+        INTERNAL_ERROR = 26;
+        TOURNAMENT_REGISTRATION_FAILED = 27;
+        APP_LEVEL_USER_BLOCKED = 28;
+        MIN_VERSION_UPDATE = 29;
+        USER_EXITED_RUMMY_TOURNAMENT = 30;
+    }
+    Reason reason = 1;
+    string message = 2;
+}
+
+
+message TournamentOrder {
+    int32 id = 1;
+    string name = 2;
+    string description = 3;
+    string imageUrl = 4;
+    string currency = 5;
+    int32 entryFee = 6;
+    string startTime = 7;
+    string endTime = 8;
+    int32 duration = 9;
+    string registrationStartTime = 10;
+    string registrationEndTime = 11;
+    int32 registeredPlayers = 12;
+    int32 totalSlots = 13;
+    bool guranteed = 14;
+    Rewards rewards = 15;
+    string style = 16;
+    bool userRegistered = 17;
+    string extraInfo = 18;
+    int32 gameId = 19;
+    string gameName = 20;
+    string gameConfigName = 21;
+    bool enableChat = 22;
+    bool applyBonusLimit = 23;
+    double bonusLimit = 24;
+    bool recurring = 25;
+    int32 configId = 26;
+    int32 livesRequired = 27;
+    repeated TopRank topRanks = 28;
+    int32 zoneId = 29;
+    string zoneName = 30;
+    bool defaultZoneTournament = 31;
+    int32 minPlayers = 32;
+    string gameIcon = 33;
+    repeated Team topTeamRanks = 34;
+    string tournamentCode = 35;
+    string status = 36;
+    int32 attemptsLeft = 37;
+    int32 totalAttempts = 38;
+    string moneyEntryFee = 39;
+    com.mpl.commons.lci.CountryInfo countryInfo = 40;
+    string userStatus = 41;
+    string tournamentStatus = 42;
+}
+
+
+message OrderGroup {
+    string type = 1;
+    int32 id = 2;
+    string description = 3;
+    string name = 4;
+    repeated TournamentOrder tournaments = 5;
+    repeated LobbyDetails lobbies = 6;
+    string leaderboardWeight = 7;
+
+}
+
+message AllGroups {
+    int32 gameId = 1;
+    repeated int32 userTournaments = 2;
+    repeated OrderGroup allGroups = 3;
+    string gameName = 4;
+    string gameImage = 5;
+    GamePlayServiceError error = 6;
+    UpsellOffer offerPopup = 7;
+    UserPackDetails userPackDetails = 8;
+    UpsellOffers upsellOffers = 9;
+    bool isWeightedLeaderboard = 10;
+    bool firstTimeUser = 11;
+}
+
+message GameAndUserId {
+    int32 gameid = 1;
+    int32 userid = 2;
+
+}
+
+message TournamentAndTeamCode {
+    string teamCode = 1;
+    int32 tournamentId = 2;
+}
+
+message TournamentAndUserId {
+    int32 userId = 1;
+    int32 tournamentId = 2;
+}
+
+message ReferralLeaderboardRequest {
+    int32 userId = 1;
+    int32 tournamentId = 2;
+    int32 page = 3;
+}
+
+message StatusResponse {
+    bool status = 1;
+}
+
+message RegisterUserRequest {
+    string requestId = 1;
+    int32 tournamentId = 2;
+    int32 userId = 3;
+    string appType = 4;
+    string appVersion = 5;
+    string teamCode = 6;
+    string ticketCode = 7;
+    bool isPartPay = 8;
+    string ticketValue = 9;
+    string apkType = 10;
+}
+
+
+message RegisterUserResponse {
+    bool success = 1;
+    string message = 2;
+    int32 deficitAmount = 3;
+    Team team = 4;
+    GamePlayServiceError error = 5;
+    TournamentOrder tournament = 6;
+}
+
+message StartGameRequest {
+    string requestId = 1;
+    int32 tournamentId = 2;
+    int32 userId = 3;
+    string appType = 4;
+    string appVersion = 5;
+}
+
+
+message StartGameResponse {
+    bool canPlay = 1;
+    string serverTime = 2;
+    string gameInputData = 3;
+    int32 highscore = 4;
+    GamePlayServiceError error = 5;
+    bool showAd = 6;
+}
+
+
+message TournamentInfo {
+    int32 tournamentId = 1;
+    string tournamentName = 2;
+    int32 gameId = 3;
+    string gameName = 4;
+    string endTime = 5;
+    int32 prize = 6;
+    string extra_info = 7;
+    string status = 8;
+    string startTime = 9;
+    string moneyPrize =10;
+    com.mpl.commons.lci.CountryInfo countryInfo = 11;
+}
+
+message Leaderboard {
+    UserRank userRank = 1;
+    repeated UserRank neighborRanks = 2;
+    repeated UserRank leaderBoard = 3;
+    TournamentInfo tournamentInfo = 4;
+    TournamentOrder tournament = 5;
+    int32 totalWins = 6;
+    int32 totalGamePlays = 7;
+    string fraudCheckStateMessage = 8;
+    repeated TeamRank teamRanks = 9;
+    int32 totalNumberOfData = 10;
+    int32 totalNumberOfPages = 11;
+}
+
+message TeamRank{
+    string team = 1;
+    int32 rank = 2;
+    int32 totalWins = 3;
+    int32 totalPlayers = 4;
+    int32 prize = 5;
+    string moneyPrize = 6;
+    com.mpl.commons.lci.CountryInfo countryInfo = 7;
+}
+
+message TopLeaderboard {
+    repeated UserRank topRanks = 1;
+}
+
+message UserRank {
+    int32 userId = 1;
+    string name = 2;
+    int32 rank = 3;
+    int32 score = 4;
+    Reward reward = 5;
+    string avatar = 6;
+    bool finished = 7;
+    string tier = 8;
+    bool isPro = 9;
+    int32 videoCount = 10;
+    string acr = 11;
+    int32 gamePlayTimeSec = 12;
+    string state = 13;
+    uint64 lastOnline = 14;
+    string combination = 15;
+    int32 chipsRT =16;// applicable only for rummy tournaments
+    int32 levelRT =17;// applicable only for rummy tournaments
+    FraudCheck fraudCheckMessage = 18; //applicable for all
+    string collectible = 19;
+    com.mpl.services.userdata.grpc.BasicProfile profile = 20;
+}
+
+message Reward {
+    int32 cash = 1;
+    int32 tokens = 2;
+    string extReward = 3;
+    string moneyCash = 4;
+    com.mpl.commons.lci.CountryInfo countryInfo = 5;
+}
+
+message MainOrderJson {
+}
+
+message TournamentHistory {
+    string gameName = 1;
+    int32 tournamentId = 2;
+    int32 rank = 3;
+    string currencyType = 4;
+    int32 entryFee = 5;
+    int32 winningCash = 6;
+    int32 winningTokens = 7;
+    string winningCurrencyType = 8;
+    int32 winningPrize = 9;
+    string tournamentName = 10;
+    string startTime = 11;
+    string endTime = 12;
+    string gameImageUrl = 13;
+    int32 gameId = 14;
+    string extra_info = 15;
+    int32 livesRequired = 16;
+    string status = 17;
+    int32 minPlayers = 18;
+    int64 modifiedTime = 19;
+    bool isTeamTournament = 20;
+    string description = 21;
+    string imageUrl = 22;
+    string moneyEntryFee = 23;
+    string moneyWinningCash = 24;
+    string moneyWinningPrize = 25;
+    com.mpl.commons.lci.CountryInfo countryInfo = 26;
+    string style = 27;
+}
+
+message AllTournamentHistory {
+    repeated TournamentHistory history = 1;
+}
+
+message AllTeamTournamentHistory {
+    repeated TeamTournamentHistory history = 1;
+}
+
+message TeamTournamentHistory {
+    TournamentHistory history = 1;
+    Team team = 2;
+}
+
+message TournamentAndUserIdName {
+    int32 userId = 1;
+    int32 tournamentId = 2;
+    string name = 3;
+}
+message UserHistoryRequest {
+    int32 id = 1;
+    int32 start = 2;
+    int32 count = 3;
+    int32 gameId = 4;
+    int32 tournamentId = 5;
+}
+
+message UserId {
+    int32 id = 1;
+}
+
+message Game {
+    int32 id = 1;
+    string name = 2;
+    string imageUrl = 3;
+}
+
+message AllGamesInfo {
+    repeated Game games = 1;
+}
+
+message GameDetails {
+    int32 id = 1;
+    string name = 2;
+    string thumbnail = 3;
+}
+
+message GameDisplayOrder {
+    GameDetails game = 1;
+    repeated OrderGroup groups = 2;
+}
+
+message AllGamesOrder {
+    repeated GameDisplayOrder displayOrder = 1;
+}
+
+message Score {
+    int32 userId = 1;
+    int32 tournamentId = 2;
+    string score = 3;
+}
+
+message SubmitScoreRequest {
+    string requestId = 1;
+    int32 tournamentId = 2;
+    int32 userId = 3;
+    string score = 4;
+    string appType = 5;
+    string appVersion = 6;
+    string deviceId = 7;
+}
+
+message SubmitScoreManuallyRequest {
+    int32 tournamentId = 1;
+    int32 userId = 2;
+    int32 score = 3;
+    string sessionId = 4;
+    string description = 5;
+}
+
+message SubmitScoreManuallyResponse {
+    GamePlayServiceError error = 1;
+    bool success = 2;
+}
+
+message TeamLeaderboard {
+    Team team = 1;
+    repeated Team neighbors = 2;
+    repeated Team leaderboard = 3;
+    TournamentInfo tournamentInfo = 4;
+}
+
+message SubmitScoreResponse {
+    GamePlayServiceError error = 1;
+    Leaderboard leaderboard = 2;
+    TeamLeaderboard teamLeaderboard = 3;
+}
+
+message GetUserGameOrderRequest {
+    string requestId = 1;
+    int32 userId = 2;
+    int32 order = 3;
+    int32 format = 4;
+
+}
+
+message FetchLeaderboardRequest {
+    string requestId = 1;
+    int32 userId = 2;
+    int32 tournamentId = 3;
+}
+
+message GetMainGroupOrderRequest {
+    string requestId = 1;
+    int32 userId = 2;
+    int32 gameId = 3;
+    string appType = 4;
+    int32 appVersion = 5;
+    int32 reactVersion = 6;
+}
+
+message RegisterWelcomeTournamentRequest {
+    string requestId = 1;
+    int32 userId = 2;
+    int32 gameId = 3;
+    string appType = 4;
+    string appVersion = 5;
+}
+
+message RegisterWelcomeTorunamentResponse {
+    string requestId = 1;
+    GamePlayServiceError errror = 2;
+    TournamentOrder tournament = 3;
+    LobbyDetails lobby = 4;
+
+}
+
+message ZoneTournament {
+    int32 zoneId = 1;
+    string zoneName = 2;
+    TournamentOrder tournament = 3;
+}
+
+message UserLocation {
+    string zoneName = 1;
+    int32 zoneId = 2;
+    double latitude = 3;
+    double longitude = 4;
+    string city = 5;
+    string state = 6;
+    string country = 7;
+}
+
+message GetZonalTournamentsRequest {
+    string requestId = 1;
+    int32 userId = 2;
+    UserLocation userLocation = 3;
+    bool allZoneTournaments = 4;
+}
+
+message GetZonalTournamentsResponse {
+    string requestId = 1;
+    GamePlayServiceError error = 2;
+    repeated ZoneTournament zoneTournaments = 3;
+}
+
+message GetPooledRewardsDistributionRequest {
+    int32 tournamentId = 1;
+    int32 currentPlayersCount = 2;
+    int32 resultsCount = 3;
+}
+
+message GetPooledRewardsDistributionResponse {
+    map<int32, Rewards> playerCountReward = 1;
+    int32 currentlyRegisteredPlayers = 2;
+    TournamentEngineServiceError error = 3;
+}
+
+message RegisterTeamRequest {
+    int32 tournamentId = 1;
+    int32 userId = 2;
+    string appType = 3;
+}
+
+message RegisterTeamResponse {
+    bool success = 1;
+    GamePlayServiceError error = 2;
+    Team team = 3;
+}
+
+message JoinTeamRequest {
+    string requestId = 1;
+    int32 tournamentId = 2;
+    int32 userId = 3;
+    string teamCode = 4;
+    string appType = 5;
+}
+
+message JoinTeamResponse {
+    bool success = 1;
+    GamePlayServiceError error = 2;
+    Team team = 3;
+}
+
+message GetRecentTeamPlayersRequest {
+    int32 userId = 1;
+}
+
+message GetRecentTeamPlayersResponse {
+    repeated BasicTeamPlayerProfile profiles = 1;
+    TournamentEngineServiceError error = 2;
+}
+
+message InviteRequest {
+    int32 tournamentId = 1;
+    string teamCode = 2;
+    int32 inviterId = 3;
+    repeated string invitees = 4;
+}
+
+message InviteResponse {
+    bool status = 1;
+    TournamentEngineServiceError error = 2;
+}
+
+message GetInvitationRequest {
+    int32 userId = 1;
+    int32 tournamentId = 2;
+}
+
+message GetInvitationResponse {
+    repeated Team teams = 1;
+}
+
+message GetInvitationsRequest {
+    int32 userId = 1;
+}
+
+message GetInvitationsResponse {
+    repeated Invitation invitation = 1;
+}
+
+message Invitation {
+    Team team = 1;
+    TournamentOrder tournament = 2;
+}
+
+message GetTeamRequest {
+    string teamCode = 1;
+}
+
+message GetTeamResponse {
+    Team team = 1;
+    TournamentOrder tournament = 2;
+    GamePlayServiceError error = 3;
+}
+
+message GetMyTeamRequest {
+    int32 userId = 1;
+    int32 tournamentId = 2;
+}
+
+message GetMyTeamResponse {
+    Team team = 1;
+}
+
+message GetFeaturedTournamentsRequest {
+    string requestId = 1;
+    int32 userId = 2;
+    int32 gameId = 3;
+    string appType = 4;
+    int32 appVersion = 5;
+    int32 reactVersion = 6;
+}
+
+message GetTournamentDetailsByCodeRequest{
+    string requestId = 1;
+    string tournamentCode = 2;
+    int32 userId = 3;
+}
+
+message GetTournamentDetailsByIdRequest {
+    string requestId = 1;
+    int32 tournamentId = 2;
+    int32 userId = 3;
+}
+
+message GetTournamentDetailsResponse{
+    string requestId = 1;
+    GamePlayServiceError error = 2;
+    TournamentOrder order = 3;
+}
+
+message GetAllTeamTournamentsRequest {
+    string appType = 1;
+    int32 appVersion = 2;
+    int32 reactVersion = 3;
+}
+
+message KickoutUserRequest {
+    int32 tournamentId = 1;
+    int32 userId = 2;
+    string reason = 3;
+    string kickedOutBy = 4;
+}
+
+message KickoutUserResponse {
+    bool success = 1;
+    GamePlayServiceError error = 2;
+}
+
+message GetAllTeamTournamentsResponse {
+    repeated TournamentOrder tournaments = 1;
+}
+
+message GetTournamentsByGameAndTierRequest {
+    string requestId = 1;
+    int32 gameId = 2;
+    string tier = 3;
+}
+
+
+message ExternalScoreModel {
+    int32 userId = 1;
+    double score = 2;
+    string scoreData = 3;
+}
+
+message ExternalSubmitScoreRequest {
+    string requestId = 1;
+    string paperId = 2;
+    int32 tournamentId = 3;
+    repeated ExternalScoreModel scores = 4;
+  string extraInfo = 5;
+}
+
+message FailedExternalScoreModel {
+    int32 userId = 1;
+    double score = 2;
+    string scoreData = 3;
+    GamePlayServiceError error = 4;
+}
+
+message ExternalSubmitScoreResponse{
+    string requestId = 1;
+    GamePlayServiceError error = 2;
+    bool status = 3;
+    repeated FailedExternalScoreModel failedScoreModels = 4;
+}
+
+message ExternalExamEndRequest{
+    string requestId = 1;
+    int32 tournamentId = 2;
+    int32 userId = 3;
+}
+
+message ExternalExamEndResponse{
+    bool status = 1;
+}
+
+message ExternalExamProcessWinningsRequest {
+    string requestId = 1;
+    int32 tournamentId = 2;
+}
+
+message ExternalExamProcessWinningsResponse {
+    bool status = 1;
+}
+
+message GetUserTransactionStatusRequest{
+    enum type{
+        PARTICIPATION = 0;
+        WINNINGS = 1;
+    }
+    string requestId = 1;
+    int32 userId = 2;
+    int32 tournamentId = 3;
+    string battleId = 4;
+    type transactionType =5;
+}
+
+message UserTransaction{
+    string transactionId = 1;
+    string amount = 2;
+    string transactionType = 3;
+    string moneyType = 4;
+    string referenceType = 5;
+    string date = 6;
+    string referenceId = 7;
+    string description = 8;
+    string moneyAmount = 9;
+    com.mpl.commons.lci.CountryInfo countryInfo = 10;
+
+}
+
+message GetUserTransactionStatusResponse{
+    string requestId = 1;
+    int32 userId = 2;
+    repeated UserTransaction transactions = 3;
+    string referenceId = 4;
+
+}
+
+message GetGameUsernameRequest{
+  int32 userId = 1;
+  int32 gameId = 2;
+  int32 tournamentId = 3;
+}
+
+message GetGameUsernameResponse{
+  string username = 1;
+}
+
+message SaveGameUsernameRequest{
+  int32 userId = 1;
+  int32 gameId = 2;
+  string username = 3;
+  int32 tournamentId = 4;
+}
+
+message SaveGameUsernameResponse{
+  string username = 1;
+  bool valid = 2;
+  Status status = 3;
+}
+
+message PartnerPlayerScore {
+  int64 userGameId = 1;
+  double score = 2;
+}
+
+message SubmitPartnerScoreRequest {
+  int64 tournamentId = 1;
+  int64 partnerMatchId = 2;
+  repeated PartnerPlayerScore scores = 3;
+}
+
+message SubmitPartnerScoreResponse{
+  bool status = 1;
+}
+
+message LiveGameInfo {
+    int64 tournamentId = 1;
+    int64 partnerMatchId = 2;
+    repeated int64 userGameId = 3;
+}
+
+message IncrementScoreRequest{
+    string requestId = 1;
+    int32 userId = 2;
+    int32 tournamentId = 3;
+    int32 incrementBy = 4;
+}
+
+message IncrementScoreResponse{
+    string requestId = 1;
+    GamePlayServiceError error = 2;
+    bool status = 3;
+}
+
+message GetTournamentDataRequest{
+    int32 tournamentId = 1;
+}
+
+message GetTournamentDataResponse{
+    map<int32,string> userTournamentGameData = 1;
+}
+
+message GetTournamentRewardedUsersRequest{
+    string requestId = 1;
+    int32 tournamentId = 2;
+}
+
+message GetTournamentRewardedUsersResponse{
+    bool isSuccess = 1;
+    repeated int32 rewardedUser = 2;
+    GamePlayServiceError error = 3;
+    int32 entryFee = 4;
+    string currency = 5;
+    string moneyEntryFee = 6;
+    com.mpl.commons.lci.CountryInfo countryInfo = 7;
+
+}
+
+message PackDetails {
+    int32 id = 1;
+    string name = 2;
+    string description = 3;
+    string imageUrl = 4;
+    bool active = 5;
+    string endTime = 6;
+    int32 packsAvailable = 7;
+    int32 packsLeft = 8;
+    repeated int32 gameIds = 9;
+    double price = 10;
+    int32 duration = 11;
+    string extraInfo = 12;
+    bool previousBuy = 13;
+    int32 passCount = 14;
+}
+
+message UserPackDetails {
+    PackDetails packDetails = 1;
+    int32 userId = 2;
+    int32 packId = 3;
+    int32 transactionId = 4;
+    int32 passesLeft = 5;
+    bool active = 6;
+    string expiryTime = 7;
+    string startTime = 8;
+}
+
+message GetPacksRequest {
+    string requestId = 1;
+    int32 userId = 2;
+}
+
+message GetPacksResponse {
+    string requestId = 1;
+    GamePlayServiceError error = 2;
+    int32 userId = 3;
+    repeated PackDetails allPacks = 4;
+    repeated UserPackDetails userPacks = 5;
+}
+
+message BuyPackRequest {
+    string requestId = 1;
+    int32 userId = 2;
+    int32 packId = 3;
+}
+
+message BuyPackResponse {
+    string RequestId = 1;
+    GamePlayServiceError error = 2;
+    int32 userId = 3;
+    int32 packId = 4;
+    UserPackDetails userPackDetails = 5;
+    bool success = 6;
+    int32 deficit = 7;
+}
+
+message UserLevelInfo{
+    int32 rank = 1;
+    int32 userId = 2;
+    string playerName = 3;
+    int32 reBuysUsed = 4;
+    int32 currentLevel = 5;
+    int32 totalChips = 6;
+    bool finished = 7;
+}
+
+message TableInfo{
+    string tableId = 1;
+    int32 noOfPlayers = 2;
+    int32 minChips = 3;
+    int32 maxChips = 4;
+}
+
+message CurrentLevelTableInfo{
+    int32 minChips = 1;
+    int32 maxChips = 2;
+    repeated TableInfo tableInfo = 3;
+}
+
+message RummyTournamentLevelTransitionRequest{
+    string requestId = 1;
+    int32 tournamentId = 2;
+    int32 currentLevel = 3;
+    int32 previousLevel = 4;
+    repeated UserLevelInfo userLevelInfo= 5;
+    CurrentLevelTableInfo currentLevelTableInfo = 6;
+}
+
+message RummyTournamentLevelTransitionResponse{
+    bool isSuccess = 1;
+    GamePlayServiceError error = 2;
+}
+
+message KnockOutRound {
+    int32 id = 1;
+    string name = 2;
+    string startTime = 3;
+    string endTime = 4;
+    string state = 5;
+    uint32 players = 6;
+    uint32 matches = 7;
+    uint32 byes = 8;
+    uint32 prize = 9;
+    uint32 secondPrize = 10;
+    RoundMeta meta = 11;
+    bool disabled = 12;
+    string moneyPrize = 13;
+    string moneySecondPrize = 14;
+    com.mpl.commons.lci.CountryInfo countryInfo = 15;
+}
+
+message RoundMeta {
+    uint32 upcoming = 1;
+    uint32 live = 2;
+    uint32 completed = 3;
+    repeated KnockoutMatch topMatches = 4;
+}
+
+message FraudCheckInfo {
+    string type = 1;
+    string title = 2;
+    repeated string reason = 3;
+}
+
+message KnockoutProfile {
+    int32 userId = 1;
+    string name = 2;
+    bool won = 3;
+    int32 score = 4;
+    Reward reward = 5;
+    string avatar = 6;
+    string tier = 8;
+    bool isPro = 9;
+    int32 rank = 10;
+    string reason = 11;
+    com.mpl.services.userdata.grpc.BasicProfile profile = 12;
+    FraudCheckInfo fraudCheck = 13;
+    string state = 14;
+}
+
+message KnockoutMatch {
+    string matchId = 1;
+    string state = 2;
+    string startTime = 3;
+    string endTime = 4;
+    KnockoutProfile user = 5;
+    KnockoutProfile opponent = 6;
+    string reason = 7;
+    uint32 lobbyId = 8;
+    uint32 matchSize = 9;
+    repeated KnockoutProfile opponents = 10;
+}
+
+message GetKnockOutRoundRequest{
+    uint32 tournamentId = 1;
+    int32 userId = 2;
+    int32 roundId = 3;
+}
+
+message GetKnockOutRoundResponse{
+    KnockOutRound round = 1;
+    KnockoutMatch userMatch = 2;
+    KnockoutMatch nextOpponentMatch = 3;
+    bool lostPreviousRound = 4;
+    uint32 nextRoundId = 5;
+    repeated KnockOutRound allRounds = 6;
+}
+
+message GetAllKnockOutMatchesRequest {
+    uint32 tournamentId = 1;
+    int32 userId = 2;
+    int32 roundId = 3;
+}
+
+message GetAllKnockOutMatchesResponse {
+    repeated KnockoutMatch upcoming = 1;
+    repeated KnockoutMatch live = 2;
+    repeated KnockoutMatch completed = 3;
+}
+
+message SeedKnockoutRoundRequest{
+    uint32 tournamentId = 1;
+    uint32 roundId = 2;
+    bool isFirstRound = 3;
+}
+
+message SeedKnockoutRoundResponse{
+
+}
+
+message KnockoutResult {
+    uint32 roundId = 1;
+    string roundName = 2;
+    string roundState = 3;
+    int32  totalMatches = 4;
+    int32  totalPrize = 5;
+    bool isExpandable = 6;
+    repeated KnockoutMatch roundMatches = 7;
+}
+
+message GetKnockoutResultsRequest{
+    uint32 tournamentId = 1;
+}
+
+message GetKnockoutResultsResponse{
+    repeated KnockoutResult result = 1;
+}
+
+message RestoreUserInTournamentRequest{
+    int32 userId = 1;
+    int32 lobbyId = 2;
+}
+
+message RestoreUserInTournamentResponse{
+    bool success = 1;
+    GamePlayServiceError error = 2;
+}
+
+message GetKnockOutMatchPlayersRequest{
+    uint32 tournamentId = 1;
+    int32 userId = 2;
+    string matchId = 3;
+}
+
+message GetKnockOutMatchPlayersResponse{
+    repeated KnockoutProfile players = 1;
+    string matchState = 2;
+}
+
+message FraudCheck{
+    string blockType = 1;//TEMP OR PER
+    string status = 2;//SCORE_REC OR PLAYER_REM OR PLAYER_KICK_OUT
+    string message = 3;//Where applicable
+}
+
+message GetUserGameStatsRequest {
+    int32 userId = 1;
+    int32 gameId = 2;
+}
+
+message GetUserGameStatsResponse {
+    double tokenTournamentCashWon = 1;
+    double tokenBattleCashWon = 2;
+    double cashTournamentCashWon = 3;
+    double cashBattleCashWon = 4;
+}
+
+message GetLeagueDataRequest {
+    int32 leagueGameId = 1;
+    int32 userId = 2;
+}
+
+
+message LeagueGame {
+    int32 gameId = 1;
+    string gameName = 2;
+    string gameIconUrl = 3;
+    bool userRegistered = 4;
+}
+
+
+message LeagueLevel {
+    int32 id = 1;
+    string name = 2;
+    string iconUrl = 3;
+    int32 leagueGameId = 4;
+    string startTime = 5;
+    string endTime = 6;
+    repeated LeagueGame supportedGames = 7;
+}
+
+message GetLeagueDataResponse {
+    string name = 1;
+    int32 leagueGameId = 2;
+    string prizeText = 3;
+    int32 prizeTotal = 4;
+    string iconUrl = 5;
+    string registrationEndTime = 6;
+    repeated LeagueGame supportedGames = 7;
+    repeated LeagueLevel supportedLevels = 8;
+    bool userRegistered = 9;
+    repeated LeagueGame userRegisteredGames = 10;
+    repeated string sponsorUrls = 11;
+    bool userVerified = 12;
+}
+
+message SearchCollegeByNameAndLeagueIdRequest {
+    string name = 1;
+    int32 leagueId = 2;
+    string regBaseType = 3;
+}
+
+message GetCollegesByCityNameRequest {
+    string cityName = 1;
+}
+
+message GetCollegeByIdRequest {
+    int32 collegeId = 1;
+}
+
+message GetCollegeByIdResponse {
+    College college = 1;
+}
+
+message AddCollegesRequest{
+    repeated College college = 1;
+}
+
+message CollegesResponse{
+    repeated College college = 1;
+}
+
+message College {
+    int32 id = 1;
+    string name = 2;
+    string domain = 3;
+    string city = 4;
+    string zone = 5;
+    int32 leagueId = 6;
+    string collegeImgUrl = 7;
+    string cityImgUrl = 8;
+    string authType = 9;
+    string fullForm = 10;
+}
+
+message LeagueUser {
+    int32 id = 1;
+    int32 mplUserId = 2;
+    string name = 3;
+    string mobileNumber = 4;
+    string emailId = 5;
+    int32 organizationId = 6;
+    int32 leagueId = 7;
+    string authType = 8;
+    College college = 9;
+}
+
+message LeagueUserWithIdCard{
+    int32 id = 1;
+    int32 mplUserId = 2;
+    string name = 3;
+    string mobileNumber = 4;
+    int32 organizationId = 5;
+    int32 leagueId = 6;
+    string authType = 7;
+    string verificationStatus = 8;
+    string verificationFailReason = 9;
+    string idCardFrontImage = 10;
+    string idCardBackImage = 11;
+    int32 registrationAttempts = 12;
+    College college = 13;
+}
+
+message LeagueUserRegistration{
+    int32 id = 1;
+    int32 leagueUserId = 2;
+    int32 leagueId = 3;
+    repeated int32 gameId = 4;
+}
+
+message LeagueUserRegistrationPerGame{
+    int32 id = 1;
+    int32 leagueUserId = 2;
+    int32 leagueId = 3;
+    int32 gameId = 4;
+}
+
+message CreateNewLeagueUserRequest{
+    LeagueUser leagueUser = 1;
+}
+
+message GetLeagueUserWithIdCardRequest{
+    int32 mplId = 1;
+}
+
+message GetLeagueUserWithIdCardResponse{
+    LeagueUserWithIdCard leagueUser = 1;
+}
+
+message CreateNewLeagueUserWithIdCardRequest{
+    LeagueUserWithIdCard leagueUserWithIdCard = 1;
+}
+
+message RemoveLeagueUserWithIdCardRequest{
+    int32 leagueUserId = 1;
+}
+
+message RemoveLeagueUserWithIdCardResponse{
+    bool removedLeagueUser = 1;
+}
+
+message UpdateLeagueUserWithIdCardRequest{
+    LeagueUserWithIdCard leagueUserWithIdCard = 1;
+}
+
+message UpdateLeagueUserWithIdCardResponse{
+    LeagueUser leagueUser = 1;
+}
+
+message CreateNewLeagueUserResponse{
+    LeagueUser leagueUser = 1;
+}
+
+message RegisterLeagueUserRequest{
+    LeagueUserRegistration leagueUserRegistration = 1;
+}
+
+message RegisterLeagueUserResponse{
+    repeated LeagueUserRegistrationPerGame leagueUserRegistrationPerGame = 1;
+}
+
+message SendEmailOTPRequest{
+    int32 otpLength = 1;
+    string emailId = 2;
+    int32 mplUserId = 3;
+    int32 leagueId = 4;
+}
+
+message SendEmailOTPResponse{
+    bool otpSent = 1;
+    string otpFailReason = 2;
+}
+
+message VerifyEmailOTPRequest{
+    string emailId = 1;
+    string otp = 2;
+    int32 mplUserId = 3;
+    int32 leagueId = 4;
+}
+
+message VerifyEmailOTPResponse{
+    bool otpVerified = 1;
+}
+
+message LeagueZoneAndCity{
+    string zone = 1;
+    repeated string city = 2;
+}
+
+message LeagueZone{
+    string name = 1;
+    string imageUrl = 2;
+}
+
+message LeagueCity{
+    string name = 1;
+    string imageUrl = 2;
+}
+
+message LeagueStageWiseTournament{
+    string name = 1;
+    string gameIconUrl = 2;
+    int32 prize = 3;
+    int32 winners = 4;
+    int32 players = 5;
+    string startTime = 6;
+    string endTime = 7;
+    int32 tournamentId = 8;
+    string moneyPrize = 9;
+    com.mpl.commons.lci.CountryInfo countryInfo = 10;
+    string status = 11;
+}
+message GetLeagueZoneAndCityRequest{
+    int32 leagueGameId = 1;
+}
+
+message GetLeagueZoneRequest{
+    int32 leagueGameId = 1;
+}
+
+message GetLeagueStageCollegeRequest{
+    int32 leagueGameId = 1;
+    string city = 2;
+}
+
+message GetLeagueStageCityRequest{
+    int32 leagueGameId = 1;
+    string zone = 2;
+}
+
+message GetLeagueStageWiseTournamentRequest{
+    int32 leagueGameId = 1;
+    string stageType = 2;
+    string input = 3;
+    int32 mplUserId = 4;
+}
+
+message GetLeagueZoneAndCityResponse{
+    repeated LeagueZoneAndCity zoneAndCity = 1;
+}
+
+message GetLeagueZoneResponse{
+    repeated LeagueZone zone = 1;
+}
+
+message GetLeagueCityResponse{
+    repeated LeagueCity city = 1;
+}
+
+message GetLeagueStageWiseTournamentResponse{
+    string headerOne = 1;
+    string headerTwo = 2;
+    string description = 3;
+    string bgImgUrl = 4;
+    repeated LeagueStageWiseTournament stageWiseTournament = 5;
+}
+
+message GetLeagueAdditionalInfoRequest{
+    int32 leagueId = 1;
+}
+
+message LeaguePrizeAmountDetail{
+    string amount = 1;
+    string description = 2;
+    string moneyAmount = 3;
+    com.mpl.commons.lci.CountryInfo countryInfo = 4;
+}
+
+message LeaguePrize{
+    string scholarship = 1;
+    string prize = 2;
+}
+
+message LeagueGamePrizeTable{
+    string rank = 1;
+    LeaguePrize leaguePrize = 2;
+}
+
+message LeagueGamePrizeDetail{
+    string headerOne = 1;
+    string headerTwo = 2;
+    string iconUrl = 3;
+    repeated LeagueGamePrizeTable prizeTable = 4;
+}
+
+message LeagueGamePrize{
+    string gameName = 2;
+    string imageUrl = 3;
+    string totalPrize = 4;
+    string scholarship = 5;
+    string topPrize = 6;
+    repeated LeagueGamePrizeDetail gamePrizeDetail = 7;
+}
+
+message GetLeaguePrizeDistributionInfoResponse{
+    LeaguePrizeAmountDetail prizePool = 1;
+    repeated LeaguePrizeAmountDetail prizeAmountDetail = 2;
+    repeated LeagueGamePrize leagueGamePrize = 3;
+}
+
+message LeaguePointsInfoTable{
+    string tournamentPosition = 1;
+    string points = 2;
+}
+message LeaguePointsInfo{
+    string pointsEarningHeader = 1;
+    repeated string pointsEarningDescription = 2;
+    string pointsHeader = 3;
+    repeated LeaguePointsInfoTable leaguePointsTable = 4;
+}
+
+message GetLeaguePointsDistributionInfoResponse{
+    LeaguePointsInfo leaguePointsInfo = 1;
+}
+
+message LeagueFormatInfo{
+    string header = 1;
+    string iconURL = 2;
+    repeated string description = 3;
+
+}
+
+message GetLeagueFormatInfoResponse{
+    repeated LeagueFormatInfo leagueFormatInfo = 1;
+}
+
+message LeagueRuleInfo{
+    string header = 1;
+    repeated string description = 2;
+
+}
+
+message GetLeagueRulesInfoResponse{
+    repeated LeagueRuleInfo leagueRuleInfo = 1;
+}
+
+message LeagueFAQ{
+    string question = 1;
+    string answer = 2;
+}
+
+message LeagueFAQList{
+    string faqHeader = 1;
+    repeated LeagueFAQ leagueFAQ = 2;
+}
+
+message LeagueHelp{
+    string helpText = 1;
+    string helpURL = 2;
+}
+
+message LeagueHelpList{
+    string helpHeader = 1;
+    repeated LeagueHelp leagueHelp = 2;
+}
+
+message GetLeagueHelpAndFAQResponse{
+    LeagueHelpList leagueHelpList = 1;
+    LeagueFAQList leagueFAQList = 2;
+}
+
+
+message GetEsportsLeagueDataResponse {
+    string name = 1;
+    int32 leagueGameId = 2;
+    string imageUrl = 3;
+    string header = 4;
+    string subHeader = 5;
+    repeated HeaderItem items = 6;
+    string registrationEndTime = 7;
+    LeagueMatchCard matchCard = 8 ;
+    StageLeaderboard stageLeaderboard = 9;
+    CollegeLeaderboard collegeLeaderboard = 10;
+    StagesCard stagesCard = 11;
+    repeated LeagueGame supportedGames = 12;
+    bool userVerified = 13;
+    int32 entryFee = 14;
+    string registrationStartTime = 15;
+    LeagueUser user = 16;
+    int32 bonusLimit = 17;
+    bool applyBonusLimit = 18;
+    string leagueStartTime = 19;
+    string leagueUserVerificationStatus = 20;
+    string leagueUserVerificationFailReason = 21;
+    LeagueParticipationCard leagueParticipationCard = 22;
+    string allowedIdsLink = 23;
+    string legalTermsLink = 24;
+    string baseType = 25;
+    string termsAndConditionsLink = 26;
+    EsportsRegistration registration = 27;
+    bool disablePointsTable = 28;
+    string moneyEntryFee = 29;
+    com.mpl.commons.lci.CountryInfo countryInfo = 30;
+    bool singleGameLeague = 31;
+    bool singleStageLeague = 32;
+    LeagueUserParticipationResponse leagueUserParticipationResponse = 33;
+    LeagueGamePlayDemo leagueGameDemo = 34;
+    bool skipRegistrationFlow = 35;
+}
+
+message EsportsRegistration {
+    string text = 1;
+    string regBaseType = 2;
+    repeated string validIdCards = 3;
+}
+
+
+message LeagueMatchCard {
+    bool visible = 1;
+    repeated MatchStage stages = 2;
+    string status = 3;
+    string startTime = 4;
+    string endTime = 5;
+    repeated LeagueTournament tournaments = 6;
+    string stageName = 7;
+    int32 stageId = 8;
+    string nextStageSubText = 9;
+}
+
+
+message LeagueTournament {
+    int32 tournamentId = 1;
+    string name = 2;
+    string roundName = 3;
+    string roundStatus = 4;
+    string roundStartTime = 5;
+    bool userWon = 6;
+    string subText = 7;
+    LeagueGame game = 8;
+    string tournamentStartTime = 9;
+    string tournamentEndTime = 10;
+    bool userLost = 11;
+    int32 wonAmount = 12;
+    string moneyWonAmount = 13;
+    com.mpl.commons.lci.CountryInfo countryInfo = 14;
+}
+
+message MatchStage {
+    string name = 1;
+    string state = 2;
+}
+
+message FilterItem {
+    int32 filterId = 1;
+    string filterName = 2;
+    string fitlerIcon = 3;
+}
+
+message StageLeaderboard {
+    bool visible = 1;
+    string header = 2;
+    string subHeader = 3;
+    repeated FilterItem filters = 4;
+    repeated StageLeaderboardItem lbItems = 5;
+    int32 stageId = 6;
+    string stageName = 7;
+    bool filterVisibility = 8;
+    string stageType = 9;
+}
+
+message StageLeaderboardItem {
+    int32 filterId = 1;
+    repeated StageProfile profiles = 2;
+}
+
+
+message StageProfile {
+    KnockoutProfile profile = 1;
+    string college = 2;
+    string city = 3;
+}
+
+
+message CollegeLeaderboard {
+    bool visible = 1;
+    string header = 2;
+    string state = 3;
+    string lastUpdated = 4;
+    repeated FilterItem filters = 5;
+    repeated CollegeLeaderboardItem lbItems = 6;
+    int32 limit = 7;
+}
+
+message CollegeLeaderboardItem {
+    int32 filterId = 1;
+    repeated CollegeProfile profiles = 2;
+}
+
+
+message CollegeProfile {
+    int32 rank = 1;
+    string college = 2;
+    string city = 3;
+    string zone = 4;
+    string imgUrl = 5;
+    int32 points = 6;
+}
+
+message StagesCard {
+    bool visible = 1;
+    string header = 2;
+    repeated LeagueStage stages = 3;
+    int32 currentStageId = 4;
+}
+
+message LeagueStage {
+    int32 id = 1;
+    string name = 2;
+    string startTime = 3;
+    string endTime = 4;
+    string status = 5;
+    string color = 6;
+    string imageUrl = 7;
+    string type = 8;
+    string requestType = 9;
+}
+
+
+message GetStageLeaderboardRequest {
+         int32 leagueGameId = 1;
+         int32 stageId = 2;
+         int32 filterId = 3;
+}
+
+
+message GetEsportsScheduleRequest {
+    int32 leagueGameId = 1;
+    string stageType = 2;
+    int32 userId = 3;
+    string requestType = 4;
+}
+
+message GetEsportsScheduleResponse {
+    string stageType = 1;
+    string responseType = 2;
+    ScheduleListResponse listResponse = 3;
+    SchedulePickListResponse pickListResponse = 4;
+    SingleFilterResponse singleFilterResponse = 5;
+    DoubleFilterResponse doubleFilterResponse = 6;
+}
+
+message ScheduleListResponse {
+    string headerOne = 1;
+    string headerTwo = 2;
+    string description = 3;
+    string bgImgUrl = 4;
+    repeated LeagueStageWiseTournament stageWiseTournament = 5;
+    string status = 6;
+}
+
+
+message SchedulePickListResponse {
+    string startTime = 1;
+    string endTime = 2;
+    repeated MiniStage stagesList = 3;
+    int32 selectedStageId  = 4;
+    string selectedStageName = 5;
+    string childStageType = 6;
+}
+
+message MetaMiniStage {
+    string name = 1;
+    repeated MiniStage childList = 2;
+    int32 stageId = 3;
+}
+
+message MiniStage {
+    int32 stageId = 1;
+    string stageName = 2;
+    string bgImgUrl = 3;
+}
+
+message SingleFilterResponse {
+    string childStage = 1;
+    string parentStage = 2;
+    repeated MiniStage filterList = 3;
+}
+
+message DoubleFilterResponse {
+    string childStage = 1;
+    string parentStage = 2;
+    string grandChildStage = 3;
+    repeated MetaMiniStage doubleList = 4;
+}
+
+message GetSchedulePickListRequest {
+    int32 leagueGameId = 1;
+    int32 stageId = 2;
+}
+
+message GetStageScheduleRequest {
+    int32 leagueGameId = 1;
+    int32 stageId = 2;
+}
+
+message LeagueParticipationCard{
+   string header = 1;
+   string viewAllText = 2;
+   repeated College college = 3;
+   bool visible = 4;
+}
+
+message CollegeParticipationScore{
+    string collegeImageUrl = 1;
+    string rankText = 2;
+    string rank = 3;
+    string pointsText = 4;
+    string points = 5;
+}
+
+message LeagueUserParticipationProfile{
+    string userName = 1;
+    string avatar = 2;
+    com.mpl.services.userdata.grpc.BasicProfile profile = 3;
+}
+
+message GameWiseCollegeLeagueUserParticipation{
+    LeagueGame leagueGame = 1;
+    repeated LeagueUserParticipationProfile participationProfile = 2;
+}
+
+message CollegeLeagueUserParticipation{
+    string headerOne = 1;
+    string headerTwo = 2;
+    repeated GameWiseCollegeLeagueUserParticipation gameWiseCollegeLeagueUserParticipation = 3;
+}
+
+message CollegeParticipation{
+    string collegeName = 1;
+    string city = 2;
+    string zone = 3;
+    CollegeParticipationScore collegeParticipationScore = 4;
+    CollegeLeagueUserParticipation collegeLeagueUserParticipation = 5;
+}
+
+message ParticipationPickListResponse{
+    repeated MiniStage stageList = 3;
+    int32 selectedStageId  = 4;
+    string selectedStageName = 5;
+    string childStageType = 6;
+}
+
+message GetCollegeParticipationRequest{
+    string requestType = 1;
+    int32 leagueGameId = 2;
+    int32 stageId = 3;
+}
+
+message GetCollegeParticipationResponse{
+    string responseType = 2;
+    string nextRequestType = 3;
+    DoubleFilterResponse doubleFilterResponse = 4;
+    SingleFilterResponse singleFilterResponse = 5;
+    ParticipationPickListResponse pickListResponse = 6;
+    CollegeParticipation collegeParticipationResponse = 7;
+}
+
+message IdCardMetaData {
+    string imageName = 1;
+    string imageType = 2;
+}
+
+message IdCardImage {
+    bytes imageContent = 1;
+}
+
+enum IdCardUploadStatus {
+    ID_CARD_UPLOAD_PENDING = 0;
+    ID_CARD_UPLOAD_IN_PROGRESS = 1;
+    ID_CARD_UPLOAD_SUCCESS = 2;
+    ID_CARD_UPLOAD_FAILED = 3;
+}
+
+message IdCardUploadRequest {
+    oneof request {
+        IdCardMetaData metaData = 1;
+        IdCardImage idCardImage = 2;
+    }
+    int32 mplUserId = 3;
+    string userName = 4;
+}
+
+message IdCardUploadResponse {
+    string imageName = 1;
+    IdCardUploadStatus uploadStatus = 2;
+}
+
+message UpdateIdCardVerificationRequest{
+    int32 leagueUserId = 1;
+    string verificationStatus = 2;
+    string verificationReason = 3;
+}
+
+message UpdateIdCardVerificationResponse{
+    bool verificationDetailsUpdated = 1;
+}
+
+message CreateStageLeaderboardRequest {
+    int32 tournamentId = 1;
+    int32 stageId = 2;
+}
+
+message CreateStageLeaderboardResponse {
+}
+
+message GetStageLeaderboardByTypeRequest {
+    int32 leagueGameId = 1;
+    int32 stageId = 2;
+    string requestType = 3;
+    int32 mplUserId = 4;
+}
+
+message GetStageLeaderboardByTypeResponse {
+    string stageType = 1;
+    string responseType = 2;
+    string nextRequestType = 3;
+    SchedulePickListResponse pickListResponse = 4;
+    SingleFilterResponse singleFilterResponse = 5;
+    DoubleFilterResponse doubleFilterResponse = 6;
+    StageLeaderboard stageLeaderboard = 7;
+}
+
+
+message GetCollegeLeaderboardByTypeRequest {
+    int32 leagueGameId = 1;
+    int32 stageId = 2;
+    string requestType = 3;
+    int32 mplUserId = 4;
+}
+
+message GetCollegeLeaderboardByTypeResponse {
+    string stageType = 1;
+    string responseType = 2;
+    string nextRequestType = 3;
+    CollegeLeaderboard collegeLeaderboard = 4;
+    SingleFilterResponse singleFilterResponse = 5;
+    DoubleFilterResponse doubleFilterResponse = 6;
+}
+
+message SendCplSmsRequest {
+    string mobileNumber = 1;
+}
+
+message SendCplSmsResponse{
+
+}
+
+
+message RemoveUserFromTournamentLeaderboardRequest{
+    int32 userId = 1;
+}
+
+message RemoveUserFromTournamentLeaderboardResponse{
+    GamePlayServiceError gamePlayServiceError = 1;
+}
+
+message GetLeaderboardStoriesMetaRequest{
+    int32 userId = 1;
+    int32 leaderBoardId = 2;
+}
+
+message GetLeaderboardStoriesMetaResponse{
+    string eventName = 1;
+    string startTime = 2;
+    string endTime = 3;
+    bool registered = 4;
+    int32 rank = 5;
+    Reward reward = 6;
+    string gameBgUrl = 7;
+    string gameIcon = 8;
+    string gameLogo = 9;
+    com.mpl.services.userdata.grpc.BasicProfile profile = 10;
+}
+
+message GetAllTicketTournamentsRequest{
+    int32 userId = 1;
+    int32 ticketValue = 2;
+    string appType = 3;
+    string moneyTicketValue = 4;
+    com.mpl.commons.lci.CountryInfo countryInfo = 5;
+}
+
+message TicketGame {
+    GameInfo game = 1;
+    int32 size = 2;
+}
+
+message GetAllTicketTournamentsResponse{
+    repeated TicketGame games = 1;
+}
+
+message GetTicketTournamentsByGameRequest{
+    int32 userId = 1;
+    int32 gameId = 2;
+    int32 ticketValue = 3;
+    string moneyTicketValue = 4;
+    com.mpl.commons.lci.CountryInfo countryInfo = 5;
+}
+
+message GetTicketTournamentsByGameResponse{
+    TicketGame game = 1;
+    AllGroups tournaments = 2;
+}
+
+message GetPrimeExclusiveEventsRequest{
+    int32 userId = 1;
+    string appType = 2;
+}
+
+message GetPrimeExclusiveEventsResponse {
+    repeated AllGroups primeEvents = 1;
+}
+
+message GetAllPartPayTicketGamesRequest {
+    int32 userId = 1;
+    string businessDomain = 2;
+    string device = 3;
+}
+
+message GetAllPartPayTicketGamesResponse {
+    repeated TicketGame games = 1;
+}
+
+message ProcessWPLRegistrationRequest {
+    int32 userId = 1;
+    repeated ImageList images = 2;
+    string state = 3;
+}
+
+message ImageList {
+    string imageName = 1;
+    string imageType = 2;
+}
+
+message ProcessWPLRegistrationResponse {
+    bool isSuccess = 1;
+    string error = 2;
+}
+
+message KnockOutRoundInfo {
+    int32 id = 1;
+    string name = 2;
+    string startTime = 3;
+    string endTime = 4;
+    string state = 5;
+    uint32 players = 6;
+    uint32 matches = 7;
+    uint32 byes = 8;
+    double prize = 9;
+    double secondPrize = 10;
+    KnockoutMatch userMatch = 11;
+    bool final = 12;
+    repeated KnockoutMatch topMatch = 13;
+    string moneyPrize = 14;
+    string moneySecondPrize = 15;
+    com.mpl.commons.lci.CountryInfo countryInfo = 16;
+}
+message MatchBanner {
+    string title = 1;
+    string subtitle = 2;
+    string image = 3;
+    bool winner = 4;
+    string bgImage = 5;
+    string type = 6;
+}
+message KnockOutRoundInfoRequest {
+    int32 userId = 1;
+    int32 tournamentId = 2;
+}
+message KnockOutRoundInfoResponse {
+    KnockOutRoundInfo currentRound = 1;
+    repeated KnockOutRoundInfo previousRounds = 2;
+    MatchBanner matchBanner = 3;
+}
+
+message BracketRoundConfig {
+    int32 id = 1;
+    string name = 2;
+    string startTime = 3;
+    string endTime = 4;
+    string state = 5;
+    int32 players = 6;
+    int32 matches = 7;
+    bool isDisabled = 8;
+}
+
+message GetBracketsRequest {
+    int32 tournamentId = 1;
+    int32 userId = 2;
+    int32 roundId = 3;
+}
+
+message GetBracketsResponse {
+    bool isSuccess = 1;
+    string error = 2;
+    KnockOutRoundInfo currentRound = 3;
+    repeated BracketRoundConfig rounds = 4;
+}
+
+message PhotonAppRequest{
+    string battleId = 1;
+    string lobbyId = 2;
+}
+
+message PhotonAppResponse{
+    string appId = 1;
+    string region =2;
+}
+
+message LeagueUserParticipationRequest {
+    int32 gameId = 1;
+    int32 leagueGameId = 2;
+    int32 stageId = 3;
+    int32 pageNo = 4;
+    int32 limit = 5;
+}
+
+message LeagueUserParticipationResponse {
+    GameWiseCollegeLeagueUserParticipation leagueUserParticipation = 1;
+    bool visible = 2;
+    int32 pageCount = 3;
+    int32 pageNo = 4;
+    int32 limit = 5;
+    string headerOne = 6;
+    string headerTwo = 7;
+    string participationText = 8;
+}
+
+message LeagueGamePlayDemo {
+    int32 gameId = 1;
+    string text = 2;
+    bool visible = 3;
+}
+
+message RegisterLeagueUserRequestV2 {
+    int32 leagueId = 1;
+    int32 gameId = 2;
+    string name = 3;
+    int32 mplUserId = 4;
+    string mobileNumber = 5;
+    string authType = 6;
+}
+
+message DeRegisterUserForRummyTournamentRequest {
+    string requestId = 1;
+    int32 tournamentId = 2;
+    int32 userId = 3;
+    string appType = 4;
+    string appVersion = 5;
+    string apkType = 6;
+}
+
+message DeRegisterUserForRummyTournamentResponse {
+    bool success = 1;
+    string message = 2;
+    GamePlayServiceError error = 3;
+    TournamentOrder tournament = 4;
+}
+
+message SetOneClickPaymentRequest {
+    int32 userId = 1;
+    bool enabled = 2;
+}
+
+message GetOneClickPaymentRequest {
+    int32 userId = 1;
+}
+
+message SetOneClickPaymentResponse {
+    bool enabled = 1;
+}
+
+
+message DeleteBucketRequest{
+    int32 userId = 1;
+    int32 gameId = 2;
+}
+
+message DeleteBucketResponse{
+
+}
+
+message GetUserGameBucketRequest{
+    int32 userId = 1;
+    int32 gameId = 2;
+}
+
+message GetUserGameBucketResponse{
+    string json = 1;
+}
+
+message DeleteRedisKeyRequest{
+    int32 userId = 1;
+}
+
+
+message DeleteRedisKeyResponse{
+
+}
+
+
+
+service GamePlayService {
+    rpc getMainGroupOrder (GetMainGroupOrderRequest) returns (AllGroups);
+    rpc kickoutUserFromLeaderboard(KickoutUserRequest) returns (KickoutUserResponse);
+    rpc getAllTeamTournaments (GetAllTeamTournamentsRequest) returns (GetAllTeamTournamentsResponse);
+    rpc registerUser (RegisterUserRequest) returns (RegisterUserResponse);
+    rpc startGame (StartGameRequest) returns (StartGameResponse);
+    rpc submitScore (SubmitScoreRequest) returns (SubmitScoreResponse);
+    rpc submitScoreManually(SubmitScoreManuallyRequest) returns (SubmitScoreManuallyResponse);
+    rpc fetchLeaderboard (TournamentAndUserId) returns (Leaderboard);
+    rpc fetchReferralLeaderboard (ReferralLeaderboardRequest) returns (Leaderboard);
+    rpc getUserHistory (UserHistoryRequest) returns (AllTournamentHistory);
+    rpc getUserActiveTournamentData (UserHistoryRequest) returns (AllTournamentHistory);
+    rpc getGamesHistoryTeamTournamentsLive (UserId) returns (AllTeamTournamentHistory);
+    rpc getGamesHistoryTeamTournamentsCompleted (UserHistoryRequest) returns (AllTeamTournamentHistory);
+    rpc getGamesByUser (UserId) returns (AllGames);
+    rpc getGamesByUser2 (UserId) returns (AllGames);
+    rpc getGamesOrder (GetUserGameOrderRequest) returns (AllGames);
+    rpc getGames (EmptyParams) returns (AllGames);
+    rpc getDisplayOrder (UserId) returns (AllGamesOrder);
+    rpc getFTUETournament (UserId) returns (Tournament);
+    rpc getCombinedTournamentOrder (GetMainGroupOrderRequest) returns (AllGroups);
+    rpc registerWelcomeTournament (RegisterWelcomeTournamentRequest) returns (RegisterWelcomeTorunamentResponse);
+    rpc getZonalTournaments (GetZonalTournamentsRequest) returns (GetZonalTournamentsResponse);
+    rpc registerTeam (RegisterTeamRequest) returns (RegisterTeamResponse);
+    rpc joinTeam (JoinTeamRequest) returns (JoinTeamResponse);
+    rpc getRecentTeamPlayers (GetRecentTeamPlayersRequest) returns (GetRecentTeamPlayersResponse);
+    rpc invite (InviteRequest) returns (InviteResponse);
+    rpc getInvitation (GetInvitationRequest) returns (GetInvitationResponse);
+    rpc getInvitations (GetInvitationsRequest) returns (GetInvitationsResponse);
+    rpc getTeam (GetTeamRequest) returns (GetTeamResponse);
+    rpc getMyTeam (GetMyTeamRequest) returns (GetMyTeamResponse);
+    rpc fetchTeamLeaderboard (TournamentAndTeamCode) returns (TeamLeaderboard);
+    rpc getPooledRewardsDistribution (GetPooledRewardsDistributionRequest) returns (GetPooledRewardsDistributionResponse);
+    rpc getFeaturedTournaments (GetFeaturedTournamentsRequest) returns (AllGroups);
+    rpc getTournamentDetailsByCode(GetTournamentDetailsByCodeRequest) returns(GetTournamentDetailsResponse);
+    rpc getTournamentDetailsById (GetTournamentDetailsByIdRequest) returns (GetTournamentDetailsResponse);
+    rpc getTournamentsByGameAndTier(GetTournamentsByGameAndTierRequest) returns(AllGroups);
+    rpc getLobbyDisplayOrder (UserId) returns (AllGamesOrder);
+    rpc externalSubmitScore(ExternalSubmitScoreRequest) returns(ExternalSubmitScoreResponse);
+    rpc externalExamEnd(ExternalExamEndRequest) returns(ExternalExamEndResponse);
+    rpc externalExamEndStatus(ExternalExamEndRequest) returns(ExternalExamEndResponse);
+    rpc externalExamProcessWinnings (ExternalExamProcessWinningsRequest) returns (ExternalExamProcessWinningsResponse);
+    rpc getGameUsername(GetGameUsernameRequest) returns (GetGameUsernameResponse);
+    rpc saveGameUsername(SaveGameUsernameRequest) returns (SaveGameUsernameResponse);
+    rpc getUserTransactions(GetUserTransactionStatusRequest) returns(GetUserTransactionStatusResponse);
+    rpc submitPartnerScore(SubmitPartnerScoreRequest) returns(SubmitPartnerScoreResponse);
+    rpc incrementUserScore(IncrementScoreRequest) returns(IncrementScoreResponse);
+    rpc getTournamentGameData(GetTournamentDataRequest) returns (GetTournamentDataResponse);
+    rpc postLiveGameInfo (LiveGameInfo) returns (EmptyParams);
+    rpc getPacks (GetPacksRequest) returns (GetPacksResponse);
+    rpc getExpiredPacks (GetPacksRequest) returns (GetPacksResponse);
+    rpc buyPack (BuyPackRequest) returns (BuyPackResponse);
+    rpc addSubscriptionPack(PackDetails) returns(PackDetails);
+    rpc updateSubscriptionPack(PackDetails) returns(PackDetails);
+    rpc processRummyTournamentLevelTransition(RummyTournamentLevelTransitionRequest) returns(RummyTournamentLevelTransitionResponse);
+    rpc GetTournamentRewardedUsers(GetTournamentRewardedUsersRequest) returns (GetTournamentRewardedUsersResponse);
+    rpc getGame (Id) returns (GameInfo);
+
+    rpc getKnockOutRound(GetKnockOutRoundRequest) returns (GetKnockOutRoundResponse);
+    rpc getAllKnockOutMatches(GetAllKnockOutMatchesRequest) returns (GetAllKnockOutMatchesResponse);
+    rpc seedKnockoutRound(SeedKnockoutRoundRequest) returns (SeedKnockoutRoundResponse);
+    rpc getKnockoutResults(GetKnockoutResultsRequest) returns (GetKnockoutResultsResponse);
+    rpc getKnockOutMatchPlayers(GetKnockOutMatchPlayersRequest) returns (GetKnockOutMatchPlayersResponse);
+
+    rpc restoreUserInTournament(RestoreUserInTournamentRequest) returns (RestoreUserInTournamentResponse);
+    rpc getUserGameStats(GetUserGameStatsRequest) returns (GetUserGameStatsResponse);
+
+    rpc removeUserFromTournamentLeaderboard(RemoveUserFromTournamentLeaderboardRequest) returns(RemoveUserFromTournamentLeaderboardResponse);
+    rpc getLeagueData (GetLeagueDataRequest) returns (GetLeagueDataResponse);
+    rpc searchCollegeByName (SearchCollegeByNameAndLeagueIdRequest) returns (CollegesResponse);
+    rpc addColleges (AddCollegesRequest) returns (CollegesResponse);
+    rpc getCollegesByCityName (GetCollegesByCityNameRequest) returns (CollegesResponse);
+    rpc createNewLeagueUser (CreateNewLeagueUserRequest) returns (CreateNewLeagueUserResponse);
+    rpc createNewLeagueUserWithIdCard (CreateNewLeagueUserWithIdCardRequest) returns (CreateNewLeagueUserResponse);
+    rpc removeLeagueUserWithIdCard (RemoveLeagueUserWithIdCardRequest) returns (RemoveLeagueUserWithIdCardResponse);
+    rpc updateLeagueUserWithIdCard(UpdateLeagueUserWithIdCardRequest) returns (UpdateLeagueUserWithIdCardResponse);
+    rpc registerLeagueUser (RegisterLeagueUserRequest) returns (RegisterLeagueUserResponse);
+    rpc sendEmailOTP (SendEmailOTPRequest) returns (SendEmailOTPResponse);
+    rpc verifyEmailOTP (VerifyEmailOTPRequest) returns (VerifyEmailOTPResponse);
+    rpc getLeaguePrizeDistributionInfo (GetLeagueAdditionalInfoRequest) returns (GetLeaguePrizeDistributionInfoResponse);
+    rpc getLeaguePointsDistributionInfo (GetLeagueAdditionalInfoRequest) returns (GetLeaguePointsDistributionInfoResponse);
+    rpc getLeagueFormatInfo (GetLeagueAdditionalInfoRequest) returns (GetLeagueFormatInfoResponse);
+    rpc getLeagueRulesInfo (GetLeagueAdditionalInfoRequest) returns (GetLeagueRulesInfoResponse);
+    rpc getLeagueHelpAndFAQInfo (GetLeagueAdditionalInfoRequest) returns (GetLeagueHelpAndFAQResponse);
+    rpc getEsportsLeagueData (GetLeagueDataRequest) returns (GetEsportsLeagueDataResponse);
+    rpc getLeagueZoneAndCity (GetLeagueZoneAndCityRequest) returns (GetLeagueZoneAndCityResponse);
+    rpc getLeagueZone (GetLeagueZoneRequest) returns (GetLeagueZoneResponse);
+    rpc getLeagueStageWiseColleges (GetLeagueStageCollegeRequest) returns (CollegesResponse);
+    rpc getLeagueStageWiseCities (GetLeagueStageCityRequest) returns (GetLeagueCityResponse);
+    rpc getLeagueStageWiseTournaments (GetLeagueStageWiseTournamentRequest) returns (GetLeagueStageWiseTournamentResponse);
+    rpc getStageLeaderboard (GetStageLeaderboardRequest) returns (StageLeaderboard);
+    rpc getEsportsSchedule (GetEsportsScheduleRequest) returns (GetEsportsScheduleResponse);
+    rpc getSchedulePickListRequest (GetSchedulePickListRequest) returns (GetEsportsScheduleResponse);
+    rpc getStageScheduleRequest (GetStageScheduleRequest) returns (GetEsportsScheduleResponse);
+    rpc getCollegeParticipation(GetCollegeParticipationRequest) returns (GetCollegeParticipationResponse);
+    rpc uploadIdCard(stream IdCardUploadRequest) returns(IdCardUploadResponse);
+    rpc updateIdCardVerificationDetails(UpdateIdCardVerificationRequest) returns (UpdateIdCardVerificationResponse);
+
+    rpc createStageLeaderboardRequest (CreateStageLeaderboardRequest) returns (CreateStageLeaderboardResponse);
+    rpc getStageLeaderboardByType (GetStageLeaderboardByTypeRequest) returns (GetStageLeaderboardByTypeResponse);
+    rpc getCollegeLeaderboardByType (GetCollegeLeaderboardByTypeRequest) returns (GetCollegeLeaderboardByTypeResponse);
+
+    rpc getLeagueUserWithIdCard(GetLeagueUserWithIdCardRequest) returns (GetLeagueUserWithIdCardResponse);
+    rpc sendCplSms(SendCplSmsRequest) returns (SendCplSmsResponse);
+    rpc getCollegeById(GetCollegeByIdRequest) returns (GetCollegeByIdResponse);
+    rpc getLeaderboardStoriesMeta(GetLeaderboardStoriesMetaRequest) returns (GetLeaderboardStoriesMetaResponse);
+
+    rpc getAllTicketTournaments(GetAllTicketTournamentsRequest) returns (GetAllTicketTournamentsResponse);
+    rpc getTicketTournamentsByGame(GetTicketTournamentsByGameRequest) returns (GetTicketTournamentsByGameResponse);
+
+    rpc getAllPrimeExclusiveEvents(GetPrimeExclusiveEventsRequest) returns (GetPrimeExclusiveEventsResponse);
+    rpc getAllPartPayTicketGames(GetAllPartPayTicketGamesRequest) returns (GetAllPartPayTicketGamesResponse);
+    rpc processWPLRegistration(ProcessWPLRegistrationRequest) returns (ProcessWPLRegistrationResponse);
+    rpc getKnockOutRoundInfo(KnockOutRoundInfoRequest) returns (KnockOutRoundInfoResponse);
+    rpc getKOTournamentBrackets(GetBracketsRequest) returns (GetBracketsResponse);
+    rpc getPhotonApp(PhotonAppRequest) returns (PhotonAppResponse);
+    rpc getLeagueUserParticipation(LeagueUserParticipationRequest) returns (LeagueUserParticipationResponse);
+    rpc registerLeagueUserV2(RegisterLeagueUserRequestV2) returns (GetEsportsLeagueDataResponse);
+
+    // de register from tournament
+    rpc deRegisterUserForRummyTournament(DeRegisterUserForRummyTournamentRequest) returns (DeRegisterUserForRummyTournamentResponse);
+
+    rpc setOneClickPayment(SetOneClickPaymentRequest) returns (SetOneClickPaymentResponse);
+    rpc getOneClickPayment(GetOneClickPaymentRequest) returns (SetOneClickPaymentResponse);
+
+
+    rpc deleteRedisKey(DeleteRedisKeyRequest) returns (DeleteRedisKeyResponse);
+    rpc deleteBucket(DeleteBucketRequest) returns (DeleteBucketResponse);
+    rpc getUserGameBucket(GetUserGameBucketRequest) returns (GetUserGameBucketResponse);
+}
+

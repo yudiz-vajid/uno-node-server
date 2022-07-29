@@ -1,0 +1,1680 @@
+syntax = "proto3";
+
+//import "google/protobuf/any.proto";
+
+import "UserDataService.proto";
+import "CountryInfo.proto";
+
+package com.mpl.services.grpc;
+option java_multiple_files = true;
+
+message TournamentEngineServiceError {
+    enum Reason {
+        NONE = 0;
+        UNKNOWN = 1;
+        EXTERNAL_ERROR = 2;
+        INCORRECT_GUARANTEE = 3;
+        INCORRECT_CURRENCY_TYPE = 4;
+        INCORRECT_MIN_PLAYERS = 5;
+        INCORRECT_EXPECTED_MARGIN = 6;
+        INCORRECT_WINNER_PERCENTAGE = 7;
+        RANKSLABS_MISMATCH = 8;
+        INCORRECT_ENTRY_FEE = 9;
+        INCORRECT_REWARDS_SLABS = 10;
+        INCORRECT_START_TIME = 11;
+        INCORRECT_THRESHOLD_DEFINITION = 12;
+        INVALID_TOTAL_CASH = 13;
+        INVALID_TOTAL_TOKEN = 14;
+        INVALID_RANK_CASH = 15;
+        INVALID_RANK_TOKEN = 16;
+        INCORRECT_MAX_PLAYERS = 17;
+        INCORRECT_DYNAMIC_CONFIGURATION = 18;
+        INCORRECT_RESULTS_COUNT = 19;
+    }
+    Reason reason = 1;
+    int32 code = 2;
+    string message = 3;
+}
+
+message Status {
+    int32 code = 1;
+    string message = 2;
+}
+
+message RecurringProperties {
+    int32 timeGap = 1;
+    string blackoutStartTime = 2;
+    string blackoutEndTime = 3;
+    bool recreateOnFull = 4;
+}
+
+message DynamicWinning{
+    int32 playerCount =1;
+    int32 cashWinning = 2;
+    repeated double rankWinning = 3;
+    string moneyCashWinning = 4;
+    com.mpl.commons.lci.CountryInfo countryInfo = 5;
+}
+
+message RankRange {
+    int32 start = 1;
+    int32 end = 2;
+    int32 cash = 3;
+    int32 tokens = 4;
+    string extReward = 5;
+    repeated DynamicWinning dynamicWinnings = 6;
+    string moneyCash = 7;
+    com.mpl.commons.lci.CountryInfo countryInfo = 8;
+}
+
+message Rewards {
+    int32 totalCash = 1;
+    int32 totalTokens = 2;
+    repeated RankRange rankRanges = 3;
+    int32 maxRanks = 4;
+    int32 id = 5;
+    string name = 6;
+    string moneyTotalCash = 7;
+    com.mpl.commons.lci.CountryInfo countryInfo = 8;
+}
+
+message RewardsWrapper {
+    Rewards rewards = 1;
+    int32 playerCount = 2;
+}
+
+message ThresholdRange {
+    int32 threshold = 1;
+    int32 rankSlab = 2;
+    repeated int32 prizes = 3;
+    repeated string moneyPrizes = 4;
+    com.mpl.commons.lci.CountryInfo countryInfo = 5;
+}
+
+message DynamicRewards {
+    string name = 1;
+    int32 winnerPercentage = 2;
+    int32 expectedMarginPercentage = 3;
+    repeated ThresholdRange thresholdRanges = 4;
+    int32 maxRank = 5;
+}
+
+message TournamentConfig {
+    int32 id = 1;
+    string name = 2;
+    string description = 3;
+    int32 gameId = 4;
+    int32 groupId = 5;
+    string imageUrl = 6;
+    int32 minPlayers = 7;
+    int32 maxPlayers = 8;
+    string startTime = 9;
+    string endTime = 10;
+    int32 duration = 11;
+    string currency = 12;
+    int32 entryFee = 13;
+    int32 foreShadowTime = 14;
+    int32 registrationHardStop = 15;
+    int32 gamePlaysPerUser = 16;
+    bool isGuaranteed = 17;
+    bool isRecurring = 18;
+    RecurringProperties recurringProperties = 19;
+    Rewards rewards = 20;
+    bool isActive = 21;
+    string createdBy = 22;
+    string createdOn = 23;
+    string modifiedOn = 24;
+    repeated int32 linked_tournaments = 26;
+    string gameInputData = 27;
+    string style = 28;
+    string gameConfigName = 29;
+    string extraInfo = 30;
+    bool enableChat = 31;
+    int32 segmentId = 32;
+    string type = 33;
+    bool autoFinish = 34;
+    bool applyBonusLimit = 35;
+    double maxBonusPercentage = 36;
+    Rewards specialRewards = 37;
+    bool battleAgainDisabled = 38;
+    bool specialRewardsPresent = 39;
+    DynamicRewards dynamicRewards = 40;
+    string moneyEntryFee = 41;
+    com.mpl.commons.lci.CountryInfo countryInfo = 42;
+    int32 rewardConfigId = 44;
+}
+
+message UpdateLiveLobbyRequest {
+    int32 id = 1;
+    string gameInputData = 2;
+    string extraInfo = 3;
+}
+
+message AddTimeAndGameConfigRequest{
+    int32 configId = 1;
+    string startTime = 2;
+    string endTime = 3;
+    int32 gameConfigId = 4;
+}
+
+message ActivateTournamentConfig {
+    int32 id = 1;
+    bool isActive = 2;
+}
+
+message MultipleConfigIds {
+    repeated int32 id = 1;
+}
+
+message Team {
+    string code = 1;
+    int32 gameId = 2;
+    int32 tournamentId = 3;
+    int32 teamHighScore = 4;
+    int32 teamRank = 5;
+    int32 teamCash = 6;
+    int32 teamToken = 7;
+    int32 creatorId = 8;
+    repeated TeamPlayer players = 9;
+    int32 pendingInvitationCount = 10;
+    string moneyTeamCash = 11;
+    com.mpl.commons.lci.CountryInfo countryInfo = 12;
+}
+
+message TeamPlayer {
+    int32 playerId = 1;
+    int32 userId = 2;
+    int32 highScore = 3;
+    int32 cash = 4;
+    int32 token = 5;
+    int32 tournamentId = 6;
+    string teamCode = 7;
+    BasicTeamPlayerProfile userProfile = 8;
+    string moneyCash = 9;
+    com.mpl.commons.lci.CountryInfo countryInfo = 10;
+}
+
+message BasicTeamPlayerProfile {
+    uint32 userId = 1;
+    string name = 2;
+    string avatar = 3;
+    bool isPro = 4;
+    string tier = 5;
+    int32 videoCount = 6;
+}
+
+message Tournament {
+    int32 id = 1;
+    string name = 2;
+    string description = 3;
+    int32 gameId = 4;
+    int32 groupId = 5;
+    string imageUrl = 6;
+    int32 minPlayers = 7;
+    int32 maxPlayers = 8;
+    string startTime = 9;
+    string endTime = 10;
+    int32 duration = 11;
+    string currency = 12;
+    int32 entryFee = 13;
+    string registrationStartTime = 14;
+    string registrationHardStop = 15;
+    int32 gamePlaysPerUser = 16;
+    bool isGuaranteed = 17;
+    int32 registeredPlayerCount = 18;
+    int32 totalPrize = 19;
+    double winningPercent = 20;
+    bool isActive = 21;
+    string createdBy = 22;
+    string createdOn = 23;
+    string modifiedOn = 24;
+    Rewards rewards = 25;
+    string gameInputData = 26;
+    repeated int32 registeredPlayers = 27;
+    string style = 28;
+    string gameConfigName = 29;
+    string gameName = 30;
+    string extraInfo = 31;
+    bool enableChat = 32;
+    int32 segmentId = 33;
+    string gameIcon = 34;
+    bool isFinishable = 35;
+    string type = 36;
+    bool applyBonusLimit = 37;
+    double bonusLimit = 38;
+    int32 configId = 39;
+    int32 livesRequired = 40;
+    repeated TopRank topRanks = 41;
+    DynamicRewards dynamicRewards = 42;
+    repeated Team topTeamRanks = 43;
+    string tournamentCode = 44;
+    string status = 45;
+    string moneyEntryFee = 46;
+    com.mpl.commons.lci.CountryInfo countryInfo = 47;
+}
+
+message TournamentId {
+    int32 id = 1;
+}
+
+message TournamentGroupId {
+    int32 id = 1;
+}
+
+message TournamentGroup {
+    int32 id = 1;
+    string name = 2;
+    string description = 3;
+    string title = 4;
+    repeated TournamentId tournamentids = 5;
+    repeated TournamentGroupId tournamentGroups = 6;
+    int32 gameId = 7;
+}
+
+message AllTournamentGroups {
+    repeated TournamentGroup groups = 1;
+}
+
+message AllTournaments {
+    repeated TournamentGroup groups = 1;
+    repeated TournamentConfig tournaments = 2;
+}
+
+message AllTournamentConfigs {
+    repeated TournamentConfig tournaments = 2;
+}
+
+message Id {
+    int32 id = 1;
+}
+
+message IdList {
+    repeated int32 ids = 1;
+}
+
+message ActiveTournamentsDataResponse {
+    repeated int32 ids = 1;
+    repeated Tournament tournaments = 2;
+}
+
+message EmptyParams {
+
+}
+
+message Assets {
+    string thumb = 1;
+    string preview = 2;
+    repeated string images = 3;
+    string previewVideo = 4;
+}
+
+message PlatformData {
+    string version = 2;
+    string downloadUrl = 3;
+    Assets assets = 4;
+}
+
+enum GameType {
+    COMBINED = 0;
+    NORMAL = 1;
+    BATTLE_V1 = 2;
+    EXAM = 3;
+    QUIZ = 4;
+    POOL_RUMMY = 5;
+    POINTS_RUMMY = 6;
+    DEALS_RUMMY =7;
+    POOL_RUMMY_LEADERBOARD = 8;
+    POINTS_RUMMY_LEADERBOARD = 9;
+    DEALS_RUMMY_LEADERBOARD = 10;
+    TOURNAMENT = 11;
+    BATTLE = 12;
+    AUCTIONS = 13;
+    FANTASY = 14;
+    PUBG = 15;
+    GAME_LEADERBOARD = 16;
+    CALL_BREAK = 17;
+    TAMBOLA = 18;
+    RUMMY_TOURNAMENT= 19;
+    ESPORTS_LEAGUE = 20;
+}
+
+
+message GameInfo {
+    int32 id = 1;
+    string name = 2;
+    map<string, PlatformData> platforms = 3;
+    bool isNew = 4;
+    bool random = 5;
+    int32 order = 6;
+    bool active = 7;
+    bool tournamentSupported = 8;
+    bool battleSupported = 9;
+    string extra_info = 10;
+    bool iosSupported = 11;
+    bool androidSupported = 12;
+    string icons = 13;
+    bool leaderboardSupported = 14;
+    string description = 15;
+    int32 totalWinners = 16;
+    int32 totalCash = 17;
+    string gameType = 18;
+    string gameInfo = 19;
+    string countryCode = 20;
+    string moneyTotalCash = 21;
+    com.mpl.commons.lci.CountryInfo countryInfo = 22;
+}
+
+message AllGames {
+    repeated GameInfo gameInfo = 1;
+}
+
+message RankList {
+    int32 rank = 1;
+    string name = 2;
+    int32 score = 3;
+}
+
+message ActiveTournaments {
+    int32 gameId = 1;
+}
+
+message UserTournamentRegistration {
+    int32 tournamentId = 1;
+    string userid = 2;
+}
+
+message RegistrationResponse {
+    string message = 1;
+    int32 transactionId = 2;
+
+}
+
+message GroupOrder {
+    string type = 1;
+    int32 id = 2;
+    string name = 3;
+    string description = 4;
+    string data = 5;
+}
+
+message MainGroupOrder {
+    int32 gameId = 1;
+    repeated GroupOrder groupOrder = 2;
+}
+
+message SectionOrder {
+    int32 gameId = 1;
+    string country_code = 2;
+    repeated int32 order = 3;
+}
+
+message SingleSection {
+    int32 gameId = 1;
+    string country_code = 2;
+    repeated GroupOrder order = 3;
+    bool active = 4;
+    string title = 5;
+    string subtitle = 6;
+    repeated string infoData = 7;
+    string type = 8;
+    int32 limit = 9;
+    string extra_info = 10;
+}
+
+message GameAndGroupIds {
+    int32 gameId = 1;
+    int32 groupId = 2;
+    int32 start = 3;
+    int32 count = 4;
+    GameType gameType = 5;
+}
+
+
+message Rule {
+    int32 id = 1;
+    string name = 2;
+    string currencyType = 3;
+    int32 currencyAmount = 4;
+    int32 limit = 5;
+    int32 periodInHours = 6;
+    bool active = 7;
+    string style = 8;
+    int32 gameId = 9;
+    GameType gameType = 10;
+    string countryCode = 11;
+    string moneyCurrencyAmount = 12;
+    com.mpl.commons.lci.CountryInfo countryInfo = 13;
+}
+
+message GetRulesRequest {
+}
+
+message GetRulesResponse {
+    repeated Rule rules = 1;
+}
+
+message SponsorModel {
+    int32 id = 1;
+    string name = 2;
+    string description = 3;
+    string specialText = 4;
+    string assetUrl = 5;
+    bool active = 6;
+}
+
+message GetSponsorsRequest {
+
+}
+
+message GetSponosorsResponse {
+    repeated SponsorModel sponsors = 1;
+}
+
+message SegmentUserWon {
+    int32 userWonMinHours = 1;
+    int32 userWonMaxHours = 2;
+}
+
+message SegmentUserTiers {
+    string minTier = 1;
+    string maxTier = 2;
+}
+
+message SegmentZone {
+    int32 zoneId = 1;
+    string zoneName = 2;
+    repeated string states = 3;
+}
+
+message SegmentParams {
+    enum GameType{
+        COMBINED = 0;
+        TOURNAMENT =1;
+        BATTLE = 2;
+    }
+    enum CurrencyType{
+        BOTH =0;
+        CASH =1;
+        TOKEN = 2;
+    }
+    int32 min = 1;
+    int32 max = 2;
+    GameType gameTpe=3;
+    CurrencyType currencyType= 4;
+}
+
+message Segment {
+    enum Type {
+        USER_WON_SEGMENT = 0;
+        USER_TIER_SEGMENT = 1;
+        USER_LOCATION_SEGMENT = 2;
+        USER_LOST_SEGMENT = 3;
+        USER_GAME_WINS = 4;
+        USER_GAME_ENTRY_FEE = 5;
+        USER_GAME_CASH_WON = 6;
+        USER_GAME_NET_CASH_WON = 7;
+        USER_GAME_ATTEMPTS = 8;
+        USER_GAME_NET_CASH_POSITIVE_WIN = 9;
+        USER_GAME_HIGHSCORE = 10;
+        USER_GAME_RATING = 11;
+    }
+    int32 id = 1;
+    string name = 2;
+    Type segmentType = 3;
+    bool active = 4;
+    SegmentUserWon userWonSegment = 5;
+    SegmentUserTiers userTierSegment = 6;
+    SegmentZone userZoneSegment = 7;
+    SegmentUserWon userLostSegment = 8;
+    SegmentParams segmentParams = 9;
+    string countryCode = 10;
+}
+
+message SegmentList {
+    repeated Segment segments = 1;
+}
+
+message GetSegmentsRequest {
+
+}
+
+message CancelTournamentRequest {
+    int32 id = 1;
+    string reason = 2;
+    string data = 3;
+}
+
+message CancelTournamentResponse {
+    bool status = 1;
+}
+
+message GenericResponse {
+    bool status = 1;
+}
+
+message TournamentIdListRequest {
+    repeated int32 tournamentId = 1;
+}
+
+message FinishableTournamentRequest {
+    string requestId = 1;
+    bool isEnded = 2;
+    string style = 3;
+    int32 start = 4;
+    int32 count = 5;
+}
+
+message FinishTournamentResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+
+message FinishableTournamentResponse {
+    repeated Tournament tournaments = 1;
+    bool success = 2;
+    string message = 3;
+    int32 totalCount = 4;
+
+}
+
+message UpdateVideoRequest {
+    enum RequestType {
+        UPDATE = 0;
+        DELETE = 1;
+    }
+    int32 id = 1;
+    RequestType request = 2;
+    string videoId = 3;
+
+}
+
+message UpdateVideoResponse {
+    Tournament tournment = 1;
+    bool success = 2;
+    string message = 3;
+}
+
+message DeactivateConfigRequest {
+    int32 id = 1;
+    string deactiveTime = 2;
+}
+
+message DeactivateConfigResponse {
+    int32 configId = 1;
+    bool success = 2;
+    string errorMessage = 3;
+
+}
+
+message UpdateGameOrderRequest {
+    GameType gameType = 1;
+    repeated int32 gameIds = 2;
+    string countryCode = 3;
+}
+
+message UpdateGameOrderResponse {
+    repeated GameInfo games = 1;
+    bool success = 2;
+    GameType gameType = 3;
+}
+
+message GetGameOrderRequest {
+    GameType gameType = 1;
+    string countryCode = 2;
+}
+
+message GetGameOrderResponse {
+    GameType gameType = 1;
+    repeated GameInfo games = 2;
+}
+
+message GetStylesRequest {
+
+}
+
+message StyleInfo {
+    int32 id = 1;
+    string name = 2;
+    string extra_info = 3;
+    bool canOverrideImage = 4;
+}
+
+message GetStylesResponse {
+    repeated StyleInfo styles = 1;
+}
+
+message LobbyDetails {
+    int32 id = 1;
+    string name = 2;
+    string description = 3;
+    int32 configId = 4;
+    string startTime = 5;
+    string activeEndTime = 6;
+    string endTime = 7;
+    int32 gameId = 8;
+    string gameConfig = 9;
+    string currencyType = 10;
+    int32 entryFee = 11;
+    string rewards = 12;
+    string lobbyStatus = 13;
+    bool active = 14;
+    string extraInfo = 15;
+    string createdOn = 16;
+    string modifiedOn = 17;
+    int32 registeredUsers = 18;
+    int32 activeUsers = 19;
+    string chatChannel = 20;
+    int32 minPlayers = 22;
+    int32 maxPlayers = 23;
+    bool userRegistered = 24;
+    string gameConfigName = 25;
+    string gameName = 26;
+    string style = 27;
+    Rewards specialRewards = 28;
+    bool battlePlayAgainDisabled = 29;
+    string imageUrl = 30;
+    bool applyBonusLimit = 31;
+    double bonusLimit = 32;
+    repeated TopRank topRanks = 33;
+    string gameIcon = 34;
+    UpsellOffer upsellOffer = 35;
+    string moneyEntryFee = 36;
+    com.mpl.commons.lci.CountryInfo countryInfo = 37;
+    int32 liveUsers = 38;
+}
+
+message TopRank {
+    int32 userId = 1;
+    string name = 2;
+    int32 rank = 3;
+    int32 score = 4;
+    string avatar = 5;
+    string tier = 6;
+    bool isPro = 7;
+    string location = 8;
+    string acr = 9;
+    string state = 10;
+    uint64 lastOnline = 11;
+    com.mpl.services.userdata.grpc.BasicProfile profile = 12;
+}
+
+message GetAllGamesRequest{
+    bool combined = 1;
+    string countryCode = 2;
+}
+
+message ValidatePooledRewardsDistributionRequest {
+    int32 entryFee = 1;
+    int32 minPlayers = 2;
+    int32 maxPlayers = 3;
+    DynamicRewards dynamicRewards = 4;
+    string moneyEntryFee = 5;
+    com.mpl.commons.lci.CountryInfo countryInfo = 6;
+}
+
+message ValidatePooledRewardsDistributionResponse {
+    bool valid = 1;
+    TournamentEngineServiceError error = 2;
+}
+
+message UpdateFeaturedTournamentOrderRequest{
+    string requestId = 1;
+    repeated int32 configOrder = 2;
+}
+
+message UpdateFeaturedTournamentOrderResponse{
+    string requestId = 1;
+    bool success = 2;
+    repeated TournamentConfig configs = 3;
+}
+
+message GetLatestFeaturedConfigOrderRequest {
+}
+
+message GetLatestFeaturedConfigOrderResponse{
+    repeated TournamentConfig configs = 1;
+}
+
+message GetActiveFeaturedConfigsRequest{
+}
+
+message GetActiveFeaturedConfigsResponse{
+    repeated TournamentConfig configs = 1;
+}
+
+message GetRegisteredPerTournamentRequest{
+    repeated int32 tournamentIds = 1;
+}
+
+message TournamentRegisteredUsers{
+    string requestId = 1;
+    repeated int32 users = 2;
+    bool count = 3;
+    bool userList = 4;
+}
+
+message GetRegisteredPerTournamentResponse{
+    string requestId = 1;
+    map<int32,int32> tournamentRegistrationsCount = 2;
+    map<int32,TournamentRegisteredUsers> registeredUsers = 3;
+}
+
+message TournamentVerificationMarkingResponse{
+    bool status = 1;
+}
+
+message FinishLobbyResponse{
+    bool status = 1;
+}
+
+message UpdateTournamentRequest {
+    Tournament tournament = 1;
+}
+
+message UpdateTournamentResponse {
+    Tournament tournament = 1;
+}
+
+message LobbyUpdateRequest {
+    LobbyDetails lobby = 1;
+}
+
+message LobbyUpdateResponse {
+    LobbyDetails lobby = 1;
+}
+
+message GetGameConfigRequest{
+    int32 gameId = 1;
+}
+
+message GetGameConfigResponse{
+    TournamentEngineServiceError error = 1;
+    string gameConfig = 2;
+    GameInfo gameInfo =3;
+}
+
+message GetAllGameConfigsResponse{
+    map<string,string> gameConfigs = 1;
+    GameInfo gameInfo = 2;
+}
+
+message AddGameConfigRequest{
+    int32 gameId = 1;
+    string name = 2;
+    string config = 3;
+}
+
+message UpdateRoomDetailsRequest{
+    int32 tournamentId= 1;
+    string roomId = 2;
+    string roomPassword = 3;
+    string creatorAccountId=4;
+}
+
+message UpdateRoomDetailsResponse{
+    bool status = 1;
+}
+
+message UpdateTournamentInfoRequest {
+  int32 tournamentId = 1;
+  string extraInfo = 2;
+  bool overwrite = 3;
+}
+
+message UserTournamentInfoRequest {
+  int32 userId = 1;
+  int32 tournamentId = 2;
+}
+
+message UserTournamentInfoResponse {
+  string username = 1;
+  string gameUserId = 2;
+  string extraInfo = 3;
+}
+
+message GameTournamentResponse {
+    Tournament tournament = 1;
+    repeated string usernames = 2;
+}
+
+message GameTournamentsResponse {
+    repeated GameTournamentResponse tournaments = 1;
+}
+
+message RegisteredUsersResponse {
+    repeated string gameUserIds = 1;
+}
+
+message DynamicUpsellOffer {
+    int32 id = 1;
+    string name = 2;
+    string description = 3;
+    string startTime = 4;
+    string endTime = 5;
+    string dayOfTheWeek = 6;
+    string repeat = 7;
+    int32 noOfRepeats = 8;
+    int32 gameId = 9;
+    repeated string segments = 10;
+    int32 entryFeeStart = 11;
+    int32 entryFeeEnd = 12;
+    string currencyType = 13;
+    string rewards = 14;
+    bool active = 15;
+    bool offerAgain = 16;
+    int32 offerAgainFactor = 17;
+    int32 coolDownPeriod = 18;
+    string extraInfo = 19;
+    string createdOn = 20;
+    string modifiedOn = 21;
+    string countryCode = 22;
+    string moneyEntryFeeStart = 23;
+    string moneyEntryFeeEnd = 24;
+    com.mpl.commons.lci.CountryInfo countryInfo = 25;
+}
+
+message UpsellSegment {
+    string name = 1;
+    int32 entryFeeStart = 2;
+    int32 entryFeeEnd = 3;
+    string moneyEntryFeeStart = 4;
+    string moneyEntryFeeEnd = 5;
+    com.mpl.commons.lci.CountryInfo countryInfo = 6;
+}
+
+message GameUpsellSegment {
+    int32 gameId = 1;
+    repeated UpsellSegment segments = 2;
+}
+
+message UpsellReward {
+    string gamesText = 1;
+    string rewardText = 2 ;
+    bool claimed = 3;
+}
+
+message UpsellOffer {
+    string header = 1;
+    string offerText = 2;
+    string endTime = 3;
+    string badgeText = 4;
+    repeated UpsellReward rewards = 5;
+    string progressText = 6;
+    bool visible = 7;
+    string imageUrl = 8;
+    string extraInfo = 9;
+    int32 entryFee = 10;
+    string moneyEntryFee = 11;
+    com.mpl.commons.lci.CountryInfo countryInfo = 12;
+}
+
+
+message UpsellOffers {
+    string longOfferName = 1;
+    string shortOfferName = 2;
+    string offerText = 3;
+    string endTime = 4;
+    string imageUrl = 5;
+    bool visible = 6;
+    repeated UpsellOffer offers = 7;
+    string extraInfo = 8;
+}
+
+message DynamicUpsellConfig {
+   repeated GameInfo enabledGames = 1;
+   repeated GameUpsellSegment gameUpsellSegments = 2;
+}
+
+message DynamicUpsellConfigRequest {
+    string country = 1;
+}
+
+message GetDynamicUpsellOfferByGameRequest {
+    int32 gameId = 1;
+    string countryCode = 2;
+}
+
+message GetDynamicUpsellOfferByGameResponse {
+    repeated DynamicUpsellOffer offers = 1;
+}
+
+message ParticipatedGamesResponse{
+    repeated int32 gameId = 1;
+}
+message TournamentYaBattleDetails{
+    string id = 1;
+    int32 userId = 2;
+    string type = 3;
+}
+message TournamentYaBattleDetailsRequest{
+    repeated TournamentYaBattleDetails tournamentYaBattleDetailsRequest= 1;
+}
+message TournamentAndBattleInfo{
+    repeated PlayerInfo playerInfo = 1;
+    int32 entryFee = 2;
+    string startDateTime = 3;
+    string id = 4;
+    int32 userId = 5;
+    string errorMessage = 6;
+    string moneyEntryFee = 7;
+    com.mpl.commons.lci.CountryInfo countryInfo = 8;
+}
+message TournamentYaBattleDetailsResponse{
+    repeated TournamentAndBattleInfo tournamentAndBattleDetails = 1;
+}
+message PlayerInfo{
+    int32 userId=1;
+    string userJson=2;
+}
+
+message UpsellOfferName{
+    int32 id = 1;
+    int32 gameId  = 2;
+    string gameName = 3;
+    string shortOfferText = 4;
+    string longOfferText = 5;
+    string countryCode = 6;
+}
+
+message AllUpsellOfferNames{
+    repeated UpsellOfferName upsellOfferNames = 1;
+}
+
+message AllUpsellOfferNamesRequest {
+    string countryCode = 1;
+}
+
+message HeaderItem {
+    int32 count = 1;
+    string name = 2;
+}
+
+message StageTournament {
+    int32 gameId = 1;
+    int32 tournamentId = 2;
+}
+
+message EsportsLeague {
+    string name = 1;
+    string bgImageUrl = 2;
+    string header = 3;
+    string subHeader = 4;
+    repeated HeaderItem items = 5;
+    int32 entryFee = 6;
+    string registrationStartTime = 7;
+    string registrationEndTime = 8;
+    repeated int32 supportedGameIds = 9;
+    string extraInfo = 10;
+    int32 id =  11;
+    int32 leagueGameId =  12;
+    string moneyEntryFee = 13;
+    com.mpl.commons.lci.CountryInfo countryInfo = 14;
+}
+
+message Organization {
+    int32 id = 1;
+    string name = 2;
+}
+
+message EsportsLeagueStage{
+    string name = 1;
+    int32 leagueId = 2;
+    int32 parentStageId = 3;
+    string topImageUrl = 4;
+    string bgImageUrl = 5;
+    string colorCode = 6;
+    string startTime = 7;
+    string endTime = 8;
+    repeated StageTournament tournaments = 9;
+    string extraInfo = 10;
+    string stageType = 11;
+    int32 orgId = 12;
+    int32 leagueGameId = 13;
+    bool active = 14;
+    int32 id =  15;
+}
+
+
+message GetAllEsportsLeaguesRequest {
+
+}
+
+message GetAllEsportsLeaguesResponse{
+    repeated EsportsLeague epsortsLeague = 1;
+}
+
+
+message GetAllEsportsLeagueStagesRequest{
+}
+
+message GetAllEsportsLeagueStagesResponse{
+    repeated EsportsLeagueStage leagueStage = 1;
+}
+
+message GetEsportsStagesByLeagueRequest{
+    int32 leagueId = 1;
+}
+
+message GetEsportsStagesByLeagueResponse{
+    repeated EsportsLeagueStage leagueStage = 1;
+    repeated Organization orgs = 2;
+}
+
+message GameInformationByReferenceRequest {
+    int32 userId = 1;
+    string referenceId = 2;
+}
+
+message GameInformationByReferenceResponse {
+    int32 lobbyId = 1;
+    int32 tournamentId = 2;
+    string name = 3;
+    string startTime = 4;
+    string endTime = 5;
+    int32 gameId = 6;
+    int32 entryFee = 7;
+    string extraInfo = 8;
+    string moneyEntryFee = 9;
+    com.mpl.commons.lci.CountryInfo countryInfo = 10;
+}
+
+message GetUserKOTournamentHistoryListRequest {
+    int32 userId = 1;
+    int32 start = 2;
+    int32 count = 3;
+    int32 tournamentId = 4;
+}
+
+message GetUserKOTournamentHistoryListResponse {
+    repeated KOTournamentHistory history = 1;
+    int32 totalCount =2;
+}
+
+message KOTournamentHistory {
+    int32 tournamentId = 1;
+    string tournamentName = 2;
+    string status = 3;
+    string startTime = 4;
+    string endTime = 5;
+    int32 entryFee = 6;
+    string moneyEntryFee = 7;
+    com.mpl.commons.lci.CountryInfo countryInfo = 8;
+}
+
+message GetKOTournamentRoundHistoryRequest {
+    int32 userId = 1;
+    int32 tournamentId = 2;
+}
+
+message GetKOTournamentRoundHistoryResponse {
+    repeated KnockoutRoundHistory roundHistory = 1;
+}
+
+message KnockoutRoundHistory {
+    int32 roundId = 1;
+    string roundName = 2;
+    string state = 3;
+    string matchId = 4;
+    string startTime = 5;
+    string endTime = 6;
+    string lastJoinTime = 7;
+    KnockoutUserData user = 8;
+    repeated KnockoutUserData opponents = 9;
+}
+
+message KnockoutUserData {
+    string userId = 1;
+    string game_data = 2;
+    int32 rank = 3;
+    int32 score = 4;
+    string reason = 5;
+    bool won = 7;
+    KOreward reward = 8;
+    int32 seed = 9;
+}
+
+message GetCPLTournamentHistoryRequest {
+    int32 userId = 1;
+    int32 gameId = 2;
+}
+
+message GetCPLTournamentHistoryResponse {
+    repeated CPLTournamentHistory history = 1;
+}
+
+message CPLTournamentHistory {
+    int32 tournamentId = 1;
+    string tournamentName = 2;
+    string status = 3;
+    string startTime = 4;
+    string endTime = 5;
+    int32 entryFee = 6;
+    string level = 7;
+    string moneyEntryFee = 8;
+    com.mpl.commons.lci.CountryInfo countryInfo = 9;
+}
+
+message GetCPLHistoryForUserRequest {
+    int32 userId = 1;
+}
+
+message GetCPLHistoryForUserResponse {
+    repeated int32 gameIds = 1;
+    int32 leagueId = 2;
+    int32 leagueGameId = 3;
+    string leagueName = 4;
+    string leagueState = 5;
+    string registrationStartTime = 6;
+    string registrationEndTime = 7;
+    int32 collegeId = 8;
+    string collegeName = 9;
+    string collegeCity = 10;
+    string zone = 11;
+    string mobileNumber = 12;
+    string emailId = 13;
+    string authenticationType = 14;
+    string verificationInfo = 15;
+}
+
+message KOreward {
+    int32 cash = 1;
+    int32 tokens = 2;
+    string extReward = 3;
+    string moneyCash = 4;
+    com.mpl.commons.lci.CountryInfo countryInfo = 5;
+}
+
+message GetKoPlayerListByTournamentRequest {
+    int32 tournamentId = 1;
+}
+message GamesLiveCountResponse{
+    map <int32, CountryListMessage> liveGames = 1;
+}
+
+message CountryListMessage {
+    repeated string countries = 1;
+
+}
+
+message RoundProfile {
+    int32 id = 1;
+    string name = 2;
+    string startTime = 3;
+    string endTime = 4;
+    string state = 5;
+    repeated  com.mpl.services.userdata.grpc.BasicProfile players = 6;
+}
+
+message GetKoPlayerListByTournamentResponse {
+    repeated RoundProfile rounds = 1;
+}
+
+message SendKoUserNotificationRequest{
+    repeated int32 userIds = 1;
+    string message = 2;
+}
+
+message SendKoUserNotificationResponse {
+    bool isSuccess = 1;
+}
+
+message RemoveKoUserFromTournamentRequest{
+    int32 tournamentId = 1;
+    int32 userId  = 2;
+    string disqualifyReason = 3;
+}
+
+message RemoveKoUserFromTournamentResponse {
+    bool isSuccess = 1;
+}
+
+message PauseKoTournamentRequest {
+    int32 tournamentId = 1;
+    int32 roundId = 2;
+    bool resume = 3;
+}
+
+message PauseKoTournamentResponse {
+    bool isSuccess = 1;
+}
+
+message GetKoBattleDetailsRequest {
+    int32 tournamentId = 1;
+}
+
+message KoBattleData {
+    string battleId = 1;
+    repeated KnockoutUserData players = 2;
+}
+
+message KoRoundMatches {
+    int32 id = 1;
+    string name = 2;
+    string startTime = 3;
+    string endTime = 4;
+    string state = 5;
+    repeated KoBattleData battles = 6;
+}
+
+message GetKoBattleDetailsResponse {
+    repeated KoRoundMatches roundMatches = 1;
+}
+
+message ChangeKoMatchWinnerRequest {
+    string matchId = 1;
+}
+
+message ChangeKoMatchWinnerResponse{
+    bool isSuccess = 1;
+}
+
+message DeclareLiveBattleWinnerRequest {
+    string matchId = 1;
+    int32 winnerUserId = 2;
+    int32 loserUserId = 3;
+    int32 winnerScore = 4;
+    int32 loserScore = 5;
+}
+
+message DeclareLiveBattleWinnerResponse {
+    bool isSuccess = 1;
+}
+
+message ReleaseWinningForKoTournamentRequest {
+    int32 tournamentId = 1;
+    repeated int32 fraudUserIds = 2;
+}
+
+message ReleaseWinningForKoTournamentResponse {
+    bool isSuccess = 1;
+    string errorMessage = 2;
+}
+
+message GetBroadcastKnockoutTournamentsRequest{
+    int32 gameId = 1;
+    string startTime = 2;
+    string endTime = 3;
+}
+
+message KoRound {
+    int32 id = 1;
+    string name = 2;
+    string startTime = 3;
+    string endTime = 4;
+    string state = 5;
+    uint32 players = 6;
+    uint32 matches = 7;
+    uint32 byes = 8;
+    uint32 prize = 9;
+    uint32 secondPrize = 10;
+    int32 parallelMatches = 11;
+    repeated ExpectedBattle  expectedBattles = 12;
+    int32 lobbyId = 13;
+}
+
+message ExpectedBattle {
+    string battleId = 1;
+    string startTime = 2;
+    string endTime = 3;
+}
+
+message BroadcastTournament {
+    Tournament tournament  = 1;
+    repeated KoRound rounds = 2;
+}
+
+message GetBroadcastKnockoutTournamentsResponse{
+    repeated BroadcastTournament tournaments = 1;
+}
+
+message RoundUser{
+    int32 userId = 1;
+    int32 seeding = 2;
+}
+
+message ReplaceUsersInKoRoundRequest {
+    int32 tournamentId = 1;
+    int32 roundId = 2;
+    repeated RoundUser roundUsers = 3;
+}
+
+message ReplaceUsersInKoRoundResponse {
+    bool isSuccess = 1;
+    string errorMessage = 2;
+}
+
+message AllSupportedCountries {
+    repeated string countryCode = 1;
+}
+
+message KoPlayerData {
+    com.mpl.services.userdata.grpc.BasicProfile profile = 1;
+    KnockoutUserData player = 2;
+}
+
+message KoPlayerBattle {
+    string battleId = 1;
+    repeated KoPlayerData players = 2;
+}
+
+message SearchBattleRequest {
+    string type = 1;
+    int32 tournamentId = 2;
+    int32 roundId = 3;
+    repeated int32 userId = 4;
+    repeated string matchId = 5;
+}
+
+message SearchBattleResponse {
+    bool isSuccess = 1;
+    string msg = 2;
+    repeated KoPlayerBattle battles = 3;
+}
+
+message RemoveLeaderBoardPlayerRequest {
+    int32 leagueId = 1;
+    int32 userId = 2;
+}
+
+message RemoveLeaderBoardPlayerResponse {
+    bool isSuccess = 1;
+    string errorMessage = 2;
+}
+
+message TagKnockoutMatchesForBroadcastRequest{
+    enum TagType {
+        ROUND = 0;
+        BATTLE = 1;
+    }
+    int32 tournamentId = 1;
+    int32 roundId = 2;
+    TagType tagType = 3;
+    repeated string battleIds = 4;
+    string broadcastId = 5;
+}
+
+
+message TagKnockoutMatchesForBroadcastResponse{
+    bool isSuccess = 1;
+    string errorMessage = 2;
+}
+
+message NotifyBroadcastDirectRequest{
+    int32 tournamentId = 1;
+    int32 roundId = 2;
+}
+
+message NotifyBroadcastDirectResponse{
+
+}
+
+message TagKoRoundBroadcastRequest {
+    int32 tournamentId = 1;
+    int32 roundId = 2;
+}
+message TagKOBattleWithBroadcastRequest {
+    int32 tournamentId = 1;
+    int32 roundId = 2;
+    repeated string battleIds = 3;
+    string broadcastId = 4;
+}
+message TagKoBroadcastResponse {
+    bool isSuccess = 1;
+    string errorMessage = 2;
+}
+
+
+message GameConfig {
+    int32 id = 1;
+    int32 gameId = 2;
+    string name = 3;
+    string gameConfig = 4;
+    bool isActive = 5;
+}
+
+message RewardConfig {
+    enum Type {
+        DEFAULT = 0;
+        DYNAMIC = 1;
+        SPECIAL = 2;
+    }
+    int32 id = 1;
+    string name = 2;
+    string description = 3;
+    Type type = 4;
+    bool isActive = 5;
+    Rewards rewards = 6;
+    Rewards specialRewards = 7;
+    DynamicRewards dynamicRewards = 8;
+    string countryCode = 9;
+}
+
+message GetGameConfigByIdOrNameRequest {
+    enum Type {
+        ID = 0;
+        NAME = 1;
+    }
+    int32 id = 1;
+    int32 gameId = 2;
+    string name = 3;
+    Type type = 4;
+}
+
+message GetRewardConfigRequest {
+    enum Type {
+        ID = 0;
+        NAME = 1;
+    }
+    int32 id = 1;
+    string name = 2;
+    Type type = 3;
+}
+
+message ActivateGameConfigRequest {
+    int32 gameId = 1;
+    int32 id = 2;
+    bool isActive = 3;
+}
+
+message GameConfigResponse {
+    bool isSuccess = 1;
+    string errorMsg = 2;
+    repeated GameConfig gameConfig = 3;
+}
+
+message GameId {
+    int32 gameId = 1;
+}
+
+
+message Template {
+    int32 id = 1;
+    int32 gameId = 2;
+    string name = 3;
+    repeated int32 configIds = 4;
+    bool isActive = 5;
+}
+
+message GetTemplateByIdOrNameRequest {
+    enum Type {
+        ID = 0;
+        NAME = 1;
+    }
+    int32 id = 1;
+    int32 gameId = 2;
+    string name = 3;
+    Type type = 4;
+}
+
+message ActivateTemplate {
+    int32 gameId = 1;
+    int32 id = 2;
+    bool isActive = 3;
+}
+
+message TemplateResponse {
+    bool isSuccess = 1;
+    string errorMsg = 2;
+    repeated Template templates = 3;
+}
+
+message ActivateRewardConfigRequest {
+    int32 id = 1;
+    bool isActive = 2;
+}
+
+message RewardConfigResponse {
+    bool isSuccess = 1;
+    string errorMsg = 2;
+    repeated RewardConfig rewardConfig = 3;
+}
+
+
+service TorunamentConsoleService {
+    rpc createTournamentGroup (TournamentGroup) returns (TournamentGroupId);
+    rpc createTournamentConfig (TournamentConfig) returns (TournamentConfig);
+    rpc createTournamentConfigNew (TournamentConfig) returns (TournamentConfig);
+    rpc getTournamentConfig (Id) returns (TournamentConfig);
+    rpc getTournamentConfigNew (Id) returns (TournamentConfig);
+    rpc getTournament (Id) returns (Tournament);
+    rpc getAllTournamentConfigs (EmptyParams) returns (AllTournamentConfigs);
+    rpc getTournamentConfigByIdOrName (GetRewardConfigRequest) returns (AllTournamentConfigs);
+    rpc getAllTournamentConfigsByGame (GameId) returns (AllTournamentConfigs);
+    rpc getTournamentConfigsByMultipleId (MultipleConfigIds) returns (AllTournamentConfigs);
+    rpc getAllLiveTournaments (GameId) returns (AllTournamentConfigs);
+    rpc getHistoryTournaments (GameId) returns (AllTournamentConfigs);
+    rpc activateTournamentConfig(ActivateTournamentConfig) returns (TournamentConfig);
+    rpc activateTournamentConfigNew(ActivateTournamentConfig) returns (TournamentConfig);
+    rpc addTimeAndGameConfig(AddTimeAndGameConfigRequest) returns (TournamentConfig);
+    rpc updateLiveLobby(UpdateLiveLobbyRequest) returns (TournamentConfig);
+    rpc getAllTournamentGroups (EmptyParams) returns (AllTournamentGroups);
+    rpc getActiveGameTournaments (EmptyParams) returns (ActiveTournamentsDataResponse);
+    rpc getAllGames (EmptyParams) returns (AllGames);
+    rpc getAllGamesV2 (GetAllGamesRequest) returns (AllGames);
+    rpc registerUser (UserTournamentRegistration) returns (Id);
+    rpc updateMainGroup (MainGroupOrder) returns (Id);
+    rpc getMainGroupOrder (Id) returns (MainGroupOrder);
+    rpc getConfigsByGame (GameAndGroupIds) returns (AllTournamentConfigs);
+    rpc getGroupsByGame (Id) returns (AllTournamentGroups);
+    rpc updateGroup (TournamentGroup) returns (TournamentGroup);
+    rpc getGroupById (Id) returns (TournamentGroup);
+    rpc updateConfig (TournamentConfig) returns (TournamentConfig);
+    rpc updateTournamentConfigNew (TournamentConfig) returns (TournamentConfig);
+    rpc addGame (GameInfo) returns (GameInfo);
+    rpc updateGame (GameInfo) returns (GameInfo);
+    rpc getRules (GetRulesRequest) returns (GetRulesResponse);
+    rpc createRule (Rule) returns (Rule);
+    rpc updateRule (Rule) returns (Rule);
+    rpc getSponsorModels (GetSponsorsRequest) returns (GetSponosorsResponse);
+    rpc getActiveSponsors (GetSponsorsRequest) returns (GetSponosorsResponse);
+    rpc createSponsor (SponsorModel) returns (SponsorModel);
+    rpc updateSponsor (SponsorModel) returns (SponsorModel);
+    rpc getActiveSegments (GetSegmentsRequest) returns (SegmentList);
+    rpc getAllSegments (GetSegmentsRequest) returns (SegmentList);
+    rpc createSegment (Segment) returns (Segment);
+    rpc updateSegment (Segment) returns (Segment);
+    rpc cancelTournament (Id) returns (CancelTournamentResponse);
+    rpc cancelTournamentWithInfo (CancelTournamentRequest) returns (CancelTournamentResponse);
+    rpc finishTournament (Id) returns (FinishTournamentResponse);
+    rpc finishTournamentDirect (Id) returns (FinishTournamentResponse);
+    rpc markTournamentForVerification(Id) returns(TournamentVerificationMarkingResponse);
+    rpc finishableTournaments (FinishableTournamentRequest) returns (FinishableTournamentResponse);
+    rpc updateVideoId (UpdateVideoRequest) returns (UpdateVideoResponse);
+    rpc deactivateConfig (DeactivateConfigRequest) returns (DeactivateConfigResponse);
+    rpc updateGameOrder (UpdateGameOrderRequest) returns (UpdateGameOrderResponse);
+    rpc getGameOrder (GetGameOrderRequest) returns (GetGameOrderResponse);
+    rpc getStyles (GetStylesRequest) returns (GetStylesResponse);
+    rpc validatePooledRewardsDistribution (ValidatePooledRewardsDistributionRequest) returns (ValidatePooledRewardsDistributionResponse);
+    rpc updateFeaturedConfigOrder (UpdateFeaturedTournamentOrderRequest) returns (UpdateFeaturedTournamentOrderResponse);
+    rpc getLatestFeaturedConfigOrder (GetLatestFeaturedConfigOrderRequest) returns (GetLatestFeaturedConfigOrderResponse);
+    rpc getActiveFeaturedConfigs (GetActiveFeaturedConfigsRequest) returns (GetActiveFeaturedConfigsResponse);
+    rpc getTournamentRegisteredUsers (GetRegisteredPerTournamentRequest) returns (GetRegisteredPerTournamentResponse);
+    rpc updateLBAndNeigh(Id) returns (GenericResponse);
+    rpc finishLobby(Id) returns(FinishLobbyResponse);
+    rpc updateTournamentDetails (UpdateTournamentRequest) returns (UpdateTournamentResponse);
+    rpc updateLobbyDetails (LobbyUpdateRequest) returns (LobbyUpdateResponse);
+    rpc deleteS3Buckets (TournamentIdListRequest) returns (EmptyParams);
+    rpc uploadLeaderboardToS3 (TournamentIdListRequest) returns (EmptyParams);
+    rpc getGameConfig(GetGameConfigRequest) returns(GetGameConfigResponse);
+    rpc updateRoomDetails(UpdateRoomDetailsRequest) returns(UpdateRoomDetailsResponse);
+    rpc updateTournamentInfo(UpdateTournamentInfoRequest) returns (Tournament);
+    rpc getUserTournamentInfo(UserTournamentInfoRequest) returns (UserTournamentInfoResponse);
+    rpc getTournamentsByGame (Id) returns (GameTournamentsResponse);
+    rpc getRegisteredUsers (Id) returns (RegisteredUsersResponse);
+    rpc getUserKOTournamentHistoryList(GetUserKOTournamentHistoryListRequest) returns (GetUserKOTournamentHistoryListResponse);
+    rpc getKOTournamentRoundHistory(GetKOTournamentRoundHistoryRequest) returns (GetKOTournamentRoundHistoryResponse);
+    rpc getCPLHistoryForUser(GetCPLHistoryForUserRequest) returns (GetCPLHistoryForUserResponse);
+    rpc getCPLTournamentHistoryList(GetCPLTournamentHistoryRequest) returns (GetCPLTournamentHistoryResponse);
+    // dynamic upsell offers
+    rpc getDynamicUpsellConfig(DynamicUpsellConfigRequest) returns (DynamicUpsellConfig);
+    rpc getDynamicUpsellOfferByGame(GetDynamicUpsellOfferByGameRequest) returns (GetDynamicUpsellOfferByGameResponse);
+    rpc createOrUpdateDynamicUpsellOffer(DynamicUpsellOffer) returns (DynamicUpsellOffer);
+    rpc getAllUpsellOfferNames(AllUpsellOfferNamesRequest) returns (AllUpsellOfferNames);
+    rpc createOrUpdateUpsellOfferName(UpsellOfferName) returns (UpsellOfferName);
+    rpc getAllSupportedCountries(EmptyParams) returns (AllSupportedCountries);
+
+
+    rpc getAllGameConfigs (GetGameConfigRequest) returns (GetAllGameConfigsResponse);
+    rpc addGameConfig(AddGameConfigRequest) returns(GetGameConfigResponse);
+    rpc getUserParticipatedGames(Id) returns(ParticipatedGamesResponse);
+
+    rpc createOrUpdateEsportsLeague(EsportsLeague) returns (EsportsLeague);
+    rpc createOrUpdateLeagueStage(EsportsLeagueStage) returns (EsportsLeagueStage);
+    rpc getAllEsportsLeagues(GetAllEsportsLeaguesRequest) returns (GetAllEsportsLeaguesResponse);
+    rpc getAllEsportsLeagueStages(GetAllEsportsLeagueStagesRequest) returns (GetAllEsportsLeagueStagesResponse);
+    rpc getEsportsStagesByLeague(GetEsportsStagesByLeagueRequest) returns (GetEsportsStagesByLeagueResponse);
+    //dashboard request
+    rpc getTournamentYaBattleDetails(TournamentYaBattleDetailsRequest) returns(TournamentYaBattleDetailsResponse);
+    rpc getGamesLiveCount(EmptyParams) returns (GamesLiveCountResponse);
+
+
+    // live Ko dashboard rpc start
+    rpc getKoPlayerListByTournament(GetKoPlayerListByTournamentRequest) returns (GetKoPlayerListByTournamentResponse);
+    rpc sendKoUserNotification(SendKoUserNotificationRequest) returns (SendKoUserNotificationResponse);
+    rpc removeKoUserFromTournament(RemoveKoUserFromTournamentRequest) returns (RemoveKoUserFromTournamentResponse);
+    rpc pauseKoTournament(PauseKoTournamentRequest) returns (PauseKoTournamentResponse);
+    rpc getKoBattleDetails(GetKoBattleDetailsRequest) returns (GetKoBattleDetailsResponse);
+    rpc changeKoMatchWinner(ChangeKoMatchWinnerRequest) returns (ChangeKoMatchWinnerResponse);
+    rpc declareLiveBattleWinner(DeclareLiveBattleWinnerRequest) returns (DeclareLiveBattleWinnerResponse);
+    rpc releaseWinningForKoTournament(ReleaseWinningForKoTournamentRequest) returns (ReleaseWinningForKoTournamentResponse);
+    rpc replaceUsersInKoRound(ReplaceUsersInKoRoundRequest) returns (ReplaceUsersInKoRoundResponse);
+    rpc searchBattleInKnockout(SearchBattleRequest) returns (SearchBattleResponse);
+    // live Ko dashboard rpc end
+
+
+    //broadcast rpcs
+    rpc getBroadcastKnockoutTournaments(GetBroadcastKnockoutTournamentsRequest) returns (GetBroadcastKnockoutTournamentsResponse) ;
+    rpc tagKnockoutMatchesForBroadcast(TagKnockoutMatchesForBroadcastRequest) returns (TagKnockoutMatchesForBroadcastResponse) ;
+    rpc notifyBroadcastDirect(NotifyBroadcastDirectRequest) returns (NotifyBroadcastDirectResponse) ;
+    rpc tagKoRoundBroadcast (TagKoRoundBroadcastRequest) returns (TagKoBroadcastResponse);
+    rpc tagKOBattleWithBroadcast (TagKOBattleWithBroadcastRequest) returns (TagKoBroadcastResponse);
+
+    rpc getGameInformationByReferenceId(GameInformationByReferenceRequest) returns (GameInformationByReferenceResponse);
+
+    rpc removePlayerFromLeaderBoard(RemoveLeaderBoardPlayerRequest) returns(RemoveLeaderBoardPlayerResponse);
+
+    // Game Config
+    rpc createGameConfig(GameConfig) returns (GameConfigResponse);
+    rpc getGameConfigByIdOrName(GetGameConfigByIdOrNameRequest) returns (GameConfigResponse);
+    rpc updateGameConfig(GameConfig) returns (GameConfigResponse);
+    rpc activateGameConfig(ActivateGameConfigRequest) returns (GameConfigResponse);
+    rpc getAllGameConfigsNew(GameId) returns (GameConfigResponse);
+
+    // Template Manager
+    rpc createTemplate(Template) returns (TemplateResponse);
+    rpc getTemplateByIdOrName(GetTemplateByIdOrNameRequest) returns (TemplateResponse);
+    rpc updateTemplate(Template) returns (TemplateResponse);
+    rpc activateTemplate(ActivateTemplate) returns (TemplateResponse);
+    rpc getAllTemplates(GameId) returns (TemplateResponse);
+    rpc fetchAllConfigInATemplate(Id) returns (AllTournamentConfigs);
+
+    // Reward Config
+    rpc createRewardConfig(RewardConfig) returns (RewardConfigResponse);
+    rpc getRewardConfig(GetRewardConfigRequest) returns (RewardConfigResponse);
+    rpc getAllRewardConfig(EmptyParams) returns (RewardConfigResponse);
+    rpc updateRewardConfig(RewardConfig) returns (RewardConfigResponse);
+    rpc activateRewardConfig(ActivateRewardConfigRequest) returns (RewardConfigResponse);
+    rpc deleteRewardConfig(Id) returns (RewardConfigResponse);
+
+}

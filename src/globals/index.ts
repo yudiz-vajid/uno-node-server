@@ -8,6 +8,7 @@ import helper from './lib/helper';
 import logger from './lib/logs';
 import _emitter from './lib/emitter';
 import builder from './lib/messages';
+import PathFinder from 'lib-pathfinder-node';
 
 declare global {
   var _: typeof helper;
@@ -17,6 +18,7 @@ declare global {
   var redis: RedisClient; // it will be initialized on  redis.initialize()
   var io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>; // it will be initialized on  socket.initialize()
   var app: Express;
+  var PF: typeof PathFinder;
 }
 
 global._ = helper;
@@ -24,5 +26,6 @@ global.log = logger;
 global.emitter = _emitter;
 global.messages = builder;
 global.redis = new RedisClient();
+global.PF = PathFinder;
 
 export {};

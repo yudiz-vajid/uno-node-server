@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package com.mpl.services.userdata.grpc;
+
+option java_multiple_files = true;
+
+
+message BasicProfile {
+    uint32 id = 1;
+    string mobileNumber = 2;
+    string displayName = 3;
+    string avatarId = 4;
+    string avatarUrl = 5;
+    bool isPro = 6;
+    string tier = 7;
+    string acr = 8;
+    string verifyStatus = 9;
+    State state = 10;
+    uint64 lastOnline = 11;
+    string ls = 12;
+    string highlight = 13;
+    string userName = 14;
+    bool isUserNameClaimed = 15;
+    string profileName = 16;
+    string countryCode = 17;
+    bool ownProfile = 18;
+    bool isPrime =19;
+}
+
+enum State {
+    ONLINE = 0;
+    OFFLINE = 1;
+    IN_GAME = 2;
+}
+
+// API Models //
+message GetBasicProfileRequest {
+    string requestId = 1;
+    uint64 userId = 2;
+}
+message GetBasicProfileResponse {
+    BasicProfile profile = 1;
+}
+
+// Service Declarations //
+service UserDataService {
+    rpc getBasicProfile (GetBasicProfileRequest) returns (GetBasicProfileResponse);
+
+}
