@@ -197,6 +197,7 @@ class Service {
             log.verbose('getGameState called...');
             const nRemainingGraceTime = yield oTable.getTTL('assignGraceTimerExpired', iUserTurn);
             const ttl = nRemainingGraceTime || (yield oTable.getTTL('assignTurnTimerExpired', iUserTurn));
+            const nRemainingMasterTime = yield oTable.getTTL('masterTimerExpired');
             const aPlayer = oTable.toJSON().aPlayer.map((p) => ({
                 iPlayerId: p.iPlayerId,
                 sPlayerName: p.sPlayerName,
@@ -204,10 +205,14 @@ class Service {
                 nSeat: p.nSeat,
                 nHandCardCount: p.aHand.length,
                 eState: p.eState,
+                nMissedTurn: p.nMissedTurn,
             }));
             const oData = {
                 oTable: Object.assign(Object.assign({}, oTable), { aPlayer, aDrawPile: [] }),
-                myHand: this.aHand,
+                aHand: this.aHand,
+                nDrawNormal: this.nDrawNormal,
+                nScore: yield this.handCardCounts(this.aHand),
+                nRemainingMasterTime,
                 oTurnInfo: {
                     iUserTurn,
                     ttl,

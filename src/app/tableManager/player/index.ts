@@ -56,18 +56,21 @@ class Player extends Service {
       if (oCardToDiscard.nLabel === 10) {
         iSkipPlayer = await this.assignSkipCard(oTable);
         usedCard = 'nUsedActionCard';
+        aPromises.push(this.update({ nSkipUsed: this.nSkipUsed + 1 }));
       }
       if (oCardToDiscard.nLabel === 11) {
         oTable.toJSON().bTurnClockwise = !oTable.toJSON().bTurnClockwise;
         oTable.toJSON().bIsReverseNow = true;
         bIsReverseCard = await oTable.handleReverseCard();
         usedCard = 'nUsedActionCard';
+        aPromises.push(this.update({ nReverseUsed: this.nReverseUsed + 1 }));
       }
       if (oCardToDiscard.nLabel === 12) {
         // Find next player for stacking
         const iNextPlayerId = await oTable.getNextPlayer(this.nSeat);
         aPromises.push(oTable.update({ iDrawPenltyPlayerId: iNextPlayerId?.iPlayerId }));
         usedCard = 'nUsedActionCard';
+        aPromises.push(this.update({ nDraw2Used: this.nDraw2Used + 1 }));
       }
       aPromises.push(
         oTable.update({
@@ -79,6 +82,8 @@ class Player extends Service {
       // TODO : handle stacking for card.nLabel 14 (wild draw 4 card)
       const iNextPlayerId = await oTable.getNextPlayer(this.nSeat);
       usedCard = 'nUsedSpecialCard';
+      if (oCardToDiscard.nLabel === 13) aPromises.push(this.update({ nWildUsed: this.nWildUsed + 1 }));
+      else aPromises.push(this.update({ nDraw4Used: this.nDraw4Used + 1 }));
       // aPromises.push(oTable.update({  nDrawCount: oCardToDiscard.nLabel === 13 ? 1 : 4,iDrawPenltyPlayerId: iNextPlayerId?.iPlayerId }));
       aPromises.push(
         oTable.update({
@@ -135,8 +140,6 @@ class Player extends Service {
       this.passTurn(oTable);
     }
     return true;
-
-    // TODO : handle multiple clicks
   }
 
   /**

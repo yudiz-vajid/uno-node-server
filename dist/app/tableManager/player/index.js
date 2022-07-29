@@ -45,17 +45,20 @@ class Player extends service_1.default {
                 if (oCardToDiscard.nLabel === 10) {
                     iSkipPlayer = yield this.assignSkipCard(oTable);
                     usedCard = 'nUsedActionCard';
+                    aPromises.push(this.update({ nSkipUsed: this.nSkipUsed + 1 }));
                 }
                 if (oCardToDiscard.nLabel === 11) {
                     oTable.toJSON().bTurnClockwise = !oTable.toJSON().bTurnClockwise;
                     oTable.toJSON().bIsReverseNow = true;
                     bIsReverseCard = yield oTable.handleReverseCard();
                     usedCard = 'nUsedActionCard';
+                    aPromises.push(this.update({ nReverseUsed: this.nReverseUsed + 1 }));
                 }
                 if (oCardToDiscard.nLabel === 12) {
                     const iNextPlayerId = yield oTable.getNextPlayer(this.nSeat);
                     aPromises.push(oTable.update({ iDrawPenltyPlayerId: iNextPlayerId === null || iNextPlayerId === void 0 ? void 0 : iNextPlayerId.iPlayerId }));
                     usedCard = 'nUsedActionCard';
+                    aPromises.push(this.update({ nDraw2Used: this.nDraw2Used + 1 }));
                 }
                 aPromises.push(oTable.update({
                     eNextCardColor: oCardToDiscard.eColor,
@@ -65,6 +68,10 @@ class Player extends service_1.default {
             else {
                 const iNextPlayerId = yield oTable.getNextPlayer(this.nSeat);
                 usedCard = 'nUsedSpecialCard';
+                if (oCardToDiscard.nLabel === 13)
+                    aPromises.push(this.update({ nWildUsed: this.nWildUsed + 1 }));
+                else
+                    aPromises.push(this.update({ nDraw4Used: this.nDraw4Used + 1 }));
                 aPromises.push(oTable.update({
                     nDrawCount: oCardToDiscard.nLabel === 13 ? 1 : 4 + (oTable.toJSON().nDrawCount === 1 ? 0 : oTable.toJSON().nDrawCount),
                     iDrawPenltyPlayerId: oCardToDiscard.nLabel === 13 ? '' : iNextPlayerId === null || iNextPlayerId === void 0 ? void 0 : iNextPlayerId.iPlayerId,
