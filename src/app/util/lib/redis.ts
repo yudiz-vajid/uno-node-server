@@ -36,10 +36,13 @@ class RedisClient {
 
     this.gameplayOptions = {
       url: `redis://${process.env.GAMEPLAY_REDIS_HOST}:${process.env.GAMEPLAY_REDIS_PORT}`,
-      username: process.env.GAMEPLAY_REDIS_PASSWORD,
+      username: process.env.GAMEPLAY_REDIS_USERNAME,
       password: process.env.GAMEPLAY_REDIS_PASSWORD,
       legacyMode: false,
     };
+    // console.log(`pubSubOptions: ${JSON.stringify(this.pubSubOptions)}`);
+    // console.log(`schedularOptions: ${JSON.stringify(this.schedularOptions)}`);
+    // console.log(`gameplayOptions: ${JSON.stringify(this.gameplayOptions)}`);
   }
 
   async initialize() {
