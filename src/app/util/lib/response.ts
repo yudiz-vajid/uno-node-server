@@ -1,4 +1,4 @@
-const response = {
+const response = Object.freeze({
   SUCCESS: { code: 1, message: 'success' },
   SERVER_ERROR: { code: 2, message: 'server error' },
   CLIENT_PARAM_ERROR(msg: string) {
@@ -20,6 +20,6 @@ const response = {
   CARD_COLOR_REQUIRED: { code: 16, message: 'card color required when discarding wild card' },
   INVALID_NEXT_CARD_COLOR: { code: 17, message: 'invalid next card color' },
   TIME_OUT: { code: 17, message: 'time out' },
-};
+});
 
 export default response;

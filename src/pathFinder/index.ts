@@ -11,6 +11,25 @@ const loadOpts = {
   oneofs: true,
 };
 
+async function setUpEnvs() {
+  log.info('fetching ZKConfig ...');
+  const ZKConfig = getConfig();
+
+  // TODO : verify
+  process.env.PUBSUB_REDIS_HOST = ZKConfig.pubsub.redis.host ?? 'redis-14966.c264.ap-south-1-1.ec2.cloud.redislabs.com';
+  process.env.PUBSUB_REDIS_PORT = ZKConfig.pubsub.redis.host ?? '14966';
+  process.env.PUBSUB_REDIS_PASSWORD = ZKConfig.pubsub.redis.password ?? 'YYF9EYtDplvfU1RB8icxtGTYooswpTyr';
+  process.env.PUBSUB_REDIS_USERNAME = ZKConfig.pubsub.redis.username ?? 'default';
+
+  process.env.GAMEPLAY_REDIS_HOST = ZKConfig.gameplay.redis.host ?? 'redis-14966.c264.ap-south-1-1.ec2.cloud.redislabs.com';
+  process.env.GAMEPLAY_REDIS_PORT = ZKConfig.gameplay.redis.host ?? '14966';
+  process.env.GAMEPLAY_REDIS_PASSWORD = ZKConfig.gameplay.redis.password ?? 'YYF9EYtDplvfU1RB8icxtGTYooswpTyr';
+  process.env.GAMEPLAY_REDIS_USERNAME = ZKConfig.gameplay.redis.username ?? 'default';
+
+  log.info('fetched ZKConfig.');
+  log.info(`ZKConfig = ${JSON.stringify(ZKConfig)}\n`);
+}
+
 async function startGrpcServer() {
   try {
     const server = new PFServer('service-draw4', 50100);
@@ -33,10 +52,7 @@ export async function initializePathFinder() {
     log.info('gRPC initialize seq completed. ');
     */
 
-    log.info('fetching ZKConfig ...');
-    const ZKConfig = getConfig();
-    log.info('fetched ZKConfig.');
-    log.info(`ZKConfig = ${JSON.stringify(ZKConfig)}\n`);
+    setUpEnvs();
 
     log.info('gRPC server start seq initiated...');
     await startGrpcServer();

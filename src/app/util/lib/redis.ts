@@ -5,7 +5,9 @@ import { createAdapter } from '@socket.io/redis-adapter';
 import { createClient, RedisClientType, RedisClientOptions } from 'redis';
 
 class RedisClient {
-  public options: RedisClientOptions;
+  public pubSubOptions: RedisClientOptions;
+
+  public gameplayOptions: RedisClientOptions;
 
   public client!: RedisClientType;
 
@@ -14,19 +16,25 @@ class RedisClient {
   public subscriber!: RedisClientType;
 
   constructor() {
-    this.options = {
-      url: process.env.REDIS_URL,
-      username: process.env.REDIS_USERNAME,
-      password: process.env.REDIS_PASSWORD,
+    this.pubSubOptions = {
+      url: `redis://${process.env.PUBSUB_REDIS_HOST}:${process.env.PUBSUB_REDIS_PORT}`,
+      username: process.env.PUBSUB_REDIS_USERNAME,
+      password: process.env.PUBSUB_REDIS_PASSWORD,
+      legacyMode: false,
+    };
+
+    this.gameplayOptions = {
+      url: `redis://${process.env.GAMEPLAY_REDIS_HOST}:${process.env.GAMEPLAY_REDIS_PORT}`,
+      password: process.env.GAMEPLAY_REDIS_PASSWORD,
       legacyMode: false,
     };
   }
 
   async initialize() {
     try {
-      (this.client as unknown) = createClient(this.options);
-      (this.publisher as unknown) = createClient(this.options);
-      (this.subscriber as unknown) = createClient(this.options);
+      (this.client as unknown) = createClient(this.gameplayOptions);
+      (this.publisher as unknown) = createClient(this.pubSubOptions);
+      (this.subscriber as unknown) = createClient(this.pubSubOptions);
 
       await Promise.all([this.client.connect(), this.publisher.connect(), this.subscriber.connect()]);
 
