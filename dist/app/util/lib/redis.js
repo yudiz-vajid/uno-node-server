@@ -19,11 +19,21 @@ class RedisClient {
             password: process.env.PUBSUB_REDIS_PASSWORD,
             legacyMode: false,
         };
+        this.schedularOptions = {
+            url: `redis://${process.env.SCHEDULAR_REDIS_HOST}:${process.env.SCHEDULAR_REDIS_PORT}`,
+            username: process.env.SCHEDULAR_REDIS_USERNAME,
+            password: process.env.SCHEDULAR_REDIS_PASSWORD,
+            legacyMode: false,
+        };
         this.gameplayOptions = {
             url: `redis://${process.env.GAMEPLAY_REDIS_HOST}:${process.env.GAMEPLAY_REDIS_PORT}`,
+            username: process.env.GAMEPLAY_REDIS_USERNAME,
             password: process.env.GAMEPLAY_REDIS_PASSWORD,
             legacyMode: false,
         };
+        console.log(`pubSubOptions: ${JSON.stringify(this.pubSubOptions)}`);
+        console.log(`schedularOptions: ${JSON.stringify(this.schedularOptions)}`);
+        console.log(`gameplayOptions: ${JSON.stringify(this.gameplayOptions)}`);
     }
     initialize() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -31,6 +41,7 @@ class RedisClient {
                 this.client = (0, redis_1.createClient)(this.gameplayOptions);
                 this.publisher = (0, redis_1.createClient)(this.pubSubOptions);
                 this.subscriber = (0, redis_1.createClient)(this.pubSubOptions);
+                this.sch = (0, redis_1.createClient)(this.schedularOptions);
                 yield Promise.all([this.client.connect(), this.publisher.connect(), this.subscriber.connect()]);
                 yield this.client.CONFIG_SET('notify-keyspace-events', 'Ex');
                 yield this.setupConfig.apply(this);

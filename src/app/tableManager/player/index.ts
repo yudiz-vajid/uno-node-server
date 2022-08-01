@@ -159,8 +159,10 @@ class Player extends Service {
    */
   public async drawCard(oData: Record<string, never>, oTable: Table, callback: ICallback) {
     log.verbose(`${_.now()} event: drawCard, player: ${this.iPlayerId}`);
-
+    const aPromise: any = [];
     if (!oTable.toJSON().aDrawPile.length) await oTable.reshuffleClosedDeck();
+    const alreadyHavePlayableCard = await this.getPlayableCardIds(await oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
+    if (alreadyHavePlayableCard.length) aPromise.pus(this.update({ nOptionalDraw: this.nOptionalDraw + 1 }));
     if (oTable.toJSON().iDrawPenltyPlayerId === this.iPlayerId) {
       callback({ oData: {}, status: response.SUCCESS });
       await this.assignDrawPenalty(oTable);
@@ -209,7 +211,7 @@ class Player extends Service {
     oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [], nCardCount: 1, nHandCardCount: this.aHand.length + 1, eReason: 'normalDraw' }, [this.iPlayerId]);
     if (!isPlayableCard) await oTable.update({ iPlayerTurn: '' });
     await _.delay(300); // draw card animation
-    const aPromise: any = [];
+
     await Promise.all([
       ...aPromise,
       oTable.updateDrawPile(),
@@ -291,7 +293,7 @@ class Player extends Service {
     const playableCards = await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
     if (eligibleUno && playableCards.length) {
       // oTable.emit('resUnoDeclare', { iPlayerId: this.iPlayerId},[this.iPlayerId]);
-      await this.update({ bUnoDeclared: true });
+      await this.update({ bUnoDeclared: true, nUnoPressed: this.nUnoPressed });
       callback({ oData: {}, status: response.SUCCESS });
     } else {
       callback({ oData: {}, status: response.WRONG_UNO });

@@ -40,9 +40,9 @@ class RedisClient {
       password: process.env.GAMEPLAY_REDIS_PASSWORD,
       legacyMode: false,
     };
-    console.log(`pubSubOptions: ${JSON.stringify(this.pubSubOptions)}`);
-    console.log(`schedularOptions: ${JSON.stringify(this.schedularOptions)}`);
-    console.log(`gameplayOptions: ${JSON.stringify(this.gameplayOptions)}`);
+    // console.log(`pubSubOptions: ${JSON.stringify(this.pubSubOptions)}`);
+    // console.log(`schedularOptions: ${JSON.stringify(this.schedularOptions)}`);
+    // console.log(`gameplayOptions: ${JSON.stringify(this.gameplayOptions)}`);
   }
 
   async initialize() {

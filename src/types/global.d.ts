@@ -74,6 +74,12 @@ export declare interface IPlayer {
   nDraw2Used: number;
   nDraw4Used: number;
   nWildUsed: number;
+  nUnoPressed: number;
+  nUnoMissed: number;
+  nSkipped: number;
+  nDrawn2: number;
+  nDrawn4: number;
+  nOptionalDraw: number;
   nReconnectionAttempt: number;
   bSpecialMeterFull: boolean;
   bUnoDeclared: boolean;

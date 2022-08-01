@@ -34,6 +34,12 @@ class Service {
         this.nDraw2Used = oData.nDraw2Used;
         this.nDraw4Used = oData.nDraw4Used;
         this.nWildUsed = oData.nWildUsed;
+        this.nUnoPressed = oData.nUnoPressed;
+        this.nUnoMissed = oData.nUnoMissed;
+        this.nSkipped = oData.nSkipped;
+        this.nDrawn2 = oData.nDrawn2;
+        this.nDrawn4 = oData.nDrawn4;
+        this.nOptionalDraw = oData.nOptionalDraw;
         this.bSpecialMeterFull = oData.bSpecialMeterFull;
         this.bUnoDeclared = oData.bUnoDeclared;
         this.bNextTurnSkip = oData.bNextTurnSkip;
@@ -103,6 +109,22 @@ class Service {
                             break;
                         case 'nDrawnSpecialCard':
                             this.nDrawnSpecialCard = v;
+                            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v));
+                            break;
+                        case 'nUnoPressed':
+                            this.nUnoPressed = v;
+                            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v));
+                            break;
+                        case 'nUnoMissed':
+                            this.nUnoMissed = v;
+                            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v));
+                            break;
+                        case 'nSkipped':
+                            this.nSkipped = v;
+                            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v));
+                            break;
+                        case 'nOptionalDraw':
+                            this.nOptionalDraw = v;
                             aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v));
                             break;
                         case 'bSpecialMeterFull':
@@ -278,7 +300,10 @@ class Service {
                 this.bSpecialMeterFull = this.nDrawNormal === nSpecialMeterFillCount;
                 aCard.push(...oCard);
             }
-            yield Promise.all([oTable.updateDrawPile(), this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard] })]);
+            yield Promise.all([
+                oTable.updateDrawPile(),
+                this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard], nUnoMissed: this.nUnoMissed + 1 }),
+            ]);
             this.emit('resDrawCard', {
                 iPlayerId: this.iPlayerId,
                 aCard,
@@ -316,7 +341,7 @@ class Service {
             const oNextPlayer = yield oTable.getNextPlayer(this.nSeat);
             if (!oNextPlayer)
                 return (_b = (log.error('No playing player found...') && null)) !== null && _b !== void 0 ? _b : false;
-            yield oNextPlayer.update({ bNextTurnSkip: true });
+            yield oNextPlayer.update({ bNextTurnSkip: true, nSkipped: oNextPlayer.toJSON().nSkipped + 1 });
             return oNextPlayer.iPlayerId;
         });
     }
@@ -340,7 +365,16 @@ class Service {
                 aCard.push(...oCard);
             }
             yield oTable.updateDrawPile();
-            yield this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard], bUnoDeclared: false });
+            const nLastCard = yield oTable.getDiscardPileTopCard();
+            const assignPenalty = nLastCard.nLabel === 12 ? 'nDrawn2' : 'nDrawn4';
+            const assignPenaltyCount = assignPenalty === 'nDrawn2' ? this.nDrawn2 + 1 : this.nDrawn4 + 1;
+            yield this.update({
+                nDrawNormal: this.nDrawNormal,
+                bSpecialMeterFull: this.bSpecialMeterFull,
+                [assignPenalty]: assignPenaltyCount,
+                aHand: [...this.aHand, ...aCard],
+                bUnoDeclared: false,
+            });
             yield oTable.update({ iDrawPenltyPlayerId: '', nDrawCount: 0 });
             this.emit('resDrawCard', {
                 iPlayerId: this.iPlayerId,
@@ -508,6 +542,12 @@ class Service {
             nDraw2Used: this.nDraw2Used,
             nDraw4Used: this.nDraw4Used,
             nWildUsed: this.nWildUsed,
+            nUnoPressed: this.nUnoPressed,
+            nUnoMissed: this.nUnoMissed,
+            nSkipped: this.nSkipped,
+            nDrawn2: this.nDrawn2,
+            nDrawn4: this.nDrawn4,
+            nOptionalDraw: this.nOptionalDraw,
             bSpecialMeterFull: this.bSpecialMeterFull,
             bSkipSpecialMeterProcess: this.bSkipSpecialMeterProcess,
             aHand: this.aHand,

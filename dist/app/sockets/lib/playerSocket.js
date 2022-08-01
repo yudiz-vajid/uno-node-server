@@ -68,6 +68,12 @@ class PlayerSocket {
                         nDraw2Used: 0,
                         nDraw4Used: 0,
                         nWildUsed: 0,
+                        nUnoPressed: 0,
+                        nUnoMissed: 0,
+                        nSkipped: 0,
+                        nDrawn2: 0,
+                        nDrawn4: 0,
+                        nOptionalDraw: 0,
                         bSpecialMeterFull: false,
                         bNextTurnSkip: false,
                         bUnoDeclared: false,
@@ -102,7 +108,7 @@ class PlayerSocket {
     }
     reqPing(body, _ack) {
         if (typeof _ack === 'function')
-            _ack('pong');
+            _ack({ sTaskName: 'resPong' });
         log.verbose(`${_.now()} client: '${this.iPlayerId}' => ping`);
     }
     disconnect(reason) {

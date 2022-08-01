@@ -22,6 +22,7 @@ const pathFinder_1 = require("./pathFinder");
 process.env.UV_THREADPOOL_SIZE = `${(0, os_1.cpus)().length}`;
 (() => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        log.verbose(process.env.NODE_ENV);
         if (process.env.NODE_ENV !== 'dev')
             yield (0, pathFinder_1.initializePathFinder)();
         yield Promise.all([server_1.default.initialize(), redis.initialize()]);

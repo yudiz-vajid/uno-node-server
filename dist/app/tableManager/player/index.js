@@ -130,8 +130,12 @@ class Player extends service_1.default {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
             log.verbose(`${_.now()} event: drawCard, player: ${this.iPlayerId}`);
+            const aPromise = [];
             if (!oTable.toJSON().aDrawPile.length)
                 yield oTable.reshuffleClosedDeck();
+            const alreadyHavePlayableCard = yield this.getPlayableCardIds(yield oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
+            if (alreadyHavePlayableCard.length)
+                aPromise.pus(this.update({ nOptionalDraw: this.nOptionalDraw + 1 }));
             if (oTable.toJSON().iDrawPenltyPlayerId === this.iPlayerId) {
                 callback({ oData: {}, status: util_1.response.SUCCESS });
                 yield this.assignDrawPenalty(oTable);
@@ -176,7 +180,6 @@ class Player extends service_1.default {
             if (!isPlayableCard)
                 yield oTable.update({ iPlayerTurn: '' });
             yield _.delay(300);
-            const aPromise = [];
             yield Promise.all([
                 ...aPromise,
                 oTable.updateDrawPile(),
@@ -248,7 +251,7 @@ class Player extends service_1.default {
             const eligibleUno = this.aHand.length === 2;
             const playableCards = yield this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
             if (eligibleUno && playableCards.length) {
-                yield this.update({ bUnoDeclared: true });
+                yield this.update({ bUnoDeclared: true, nUnoPressed: this.nUnoPressed });
                 callback({ oData: {}, status: util_1.response.SUCCESS });
             }
             else {

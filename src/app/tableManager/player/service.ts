@@ -65,6 +65,18 @@ class Service {
 
   protected nWildUsed: IPlayer['nWildUsed'];
 
+  protected nUnoPressed: IPlayer['nUnoPressed'];
+
+  protected nUnoMissed: IPlayer['nUnoMissed'];
+
+  protected nSkipped: IPlayer['nSkipped'];
+
+  protected nDrawn2: IPlayer['nDrawn2'];
+
+  protected nDrawn4: IPlayer['nDrawn4'];
+
+  protected nOptionalDraw: IPlayer['nOptionalDraw'];
+
   constructor(oData: IPlayer) {
     this.iPlayerId = oData.iPlayerId;
     this.iBattleId = oData.iBattleId;
@@ -89,6 +101,12 @@ class Service {
     this.nDraw2Used = oData.nDraw2Used;
     this.nDraw4Used = oData.nDraw4Used;
     this.nWildUsed = oData.nWildUsed;
+    this.nUnoPressed = oData.nUnoPressed;
+    this.nUnoMissed = oData.nUnoMissed;
+    this.nSkipped = oData.nSkipped;
+    this.nDrawn2 = oData.nDrawn2;
+    this.nDrawn4 = oData.nDrawn4;
+    this.nOptionalDraw = oData.nOptionalDraw;
     this.bSpecialMeterFull = oData.bSpecialMeterFull;
     this.bUnoDeclared = oData.bUnoDeclared;
     this.bNextTurnSkip = oData.bNextTurnSkip;
@@ -119,6 +137,10 @@ class Service {
     | 'nDraw2Used' 
     | 'nDraw4Used' 
     | 'nReverseUsed' 
+    | 'nUnoPressed' 
+    | 'nUnoMissed' 
+    | 'nSkipped' 
+    | 'nOptionalDraw' 
     | 'bSpecialMeterFull'
     | 'bNextTurnSkip' 
     | 'bUnoDeclared'
@@ -184,6 +206,22 @@ class Service {
             break;
           case 'nDrawnSpecialCard':
             this.nDrawnSpecialCard = v as IPlayer['nDrawnSpecialCard'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'nUnoPressed':
+            this.nUnoPressed = v as IPlayer['nUnoPressed'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'nUnoMissed':
+            this.nUnoMissed = v as IPlayer['nUnoMissed'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'nSkipped':
+            this.nSkipped = v as IPlayer['nSkipped'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'nOptionalDraw':
+            this.nOptionalDraw = v as IPlayer['nOptionalDraw'];
             aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
             break;
           case 'bSpecialMeterFull':
@@ -366,7 +404,10 @@ class Service {
       this.bSpecialMeterFull = this.nDrawNormal === nSpecialMeterFillCount;
       aCard.push(...oCard);
     }
-    await Promise.all([oTable.updateDrawPile(), this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard] })]);
+    await Promise.all([
+      oTable.updateDrawPile(),
+      this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard], nUnoMissed: this.nUnoMissed + 1 }),
+    ]);
     this.emit('resDrawCard', {
       iPlayerId: this.iPlayerId,
       aCard,
@@ -403,7 +444,7 @@ class Service {
     if (!aPlayingPlayer.length) return (log.error('no playing participant') && null) ?? false; // TODO: declare result
     const oNextPlayer = await oTable.getNextPlayer(this.nSeat);
     if (!oNextPlayer) return (log.error('No playing player found...') && null) ?? false;
-    await oNextPlayer.update({ bNextTurnSkip: true });
+    await oNextPlayer.update({ bNextTurnSkip: true, nSkipped: oNextPlayer.toJSON().nSkipped + 1 });
     return oNextPlayer.iPlayerId;
   }
 
@@ -432,7 +473,17 @@ class Service {
       aCard.push(...oCard);
     }
     await oTable.updateDrawPile();
-    await this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard], bUnoDeclared: false });
+    const nLastCard = await oTable.getDiscardPileTopCard();
+    const assignPenalty = nLastCard.nLabel === 12 ? 'nDrawn2' : 'nDrawn4';
+    const assignPenaltyCount = assignPenalty === 'nDrawn2' ? this.nDrawn2 + 1 : this.nDrawn4 + 1;
+
+    await this.update({
+      nDrawNormal: this.nDrawNormal,
+      bSpecialMeterFull: this.bSpecialMeterFull,
+      [assignPenalty]: assignPenaltyCount,
+      aHand: [...this.aHand, ...aCard],
+      bUnoDeclared: false,
+    });
     await oTable.update({ iDrawPenltyPlayerId: '', nDrawCount: 0 });
     // await _.delay(300*aCard.length)
     this.emit('resDrawCard', {
@@ -599,6 +650,12 @@ class Service {
       nDraw2Used: this.nDraw2Used,
       nDraw4Used: this.nDraw4Used,
       nWildUsed: this.nWildUsed,
+      nUnoPressed: this.nUnoPressed,
+      nUnoMissed: this.nUnoMissed,
+      nSkipped: this.nSkipped,
+      nDrawn2: this.nDrawn2,
+      nDrawn4: this.nDrawn4,
+      nOptionalDraw: this.nOptionalDraw,
 
       bSpecialMeterFull: this.bSpecialMeterFull,
       bSkipSpecialMeterProcess: this.bSkipSpecialMeterProcess,
