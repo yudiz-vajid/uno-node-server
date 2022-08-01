@@ -1,6 +1,7 @@
+/* eslint-disable no-unused-vars */
+import PathFinder from 'lib-pathfinder-node';
 import { getConfig } from './zk';
 import { isZkConfigUse } from '../modules';
-import PathFinder from 'lib-pathfinder-node';
 
 const grpcClientMap: any = {};
 

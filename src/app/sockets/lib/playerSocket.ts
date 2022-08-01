@@ -104,7 +104,8 @@ class PlayerSocket {
   }
 
   private reqPing(body: any, _ack?: ICallback) {
-    if (typeof _ack === 'function') _ack('pong');
+    // if (typeof _ack === 'function') _ack('pong');
+    if (typeof _ack === 'function') _ack({ sTaskName: 'resPong' });
     log.verbose(`${_.now()} client: '${this.iPlayerId}' => ping`);
   }
 

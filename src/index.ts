@@ -5,6 +5,7 @@ import './globals';
 import server from './server';
 import socket from './app/sockets';
 import { initializePathFinder } from './pathFinder';
+
 process.env.UV_THREADPOOL_SIZE = `${cpus().length}`;
 
 (async () => {

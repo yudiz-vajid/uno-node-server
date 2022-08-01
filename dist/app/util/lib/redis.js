@@ -13,19 +13,24 @@ const redis_adapter_1 = require("@socket.io/redis-adapter");
 const redis_1 = require("redis");
 class RedisClient {
     constructor() {
-        this.options = {
-            url: process.env.REDIS_URL,
-            username: process.env.REDIS_USERNAME,
-            password: process.env.REDIS_PASSWORD,
+        this.pubSubOptions = {
+            url: `redis://${process.env.PUBSUB_REDIS_HOST}:${process.env.PUBSUB_REDIS_PORT}`,
+            username: process.env.PUBSUB_REDIS_USERNAME,
+            password: process.env.PUBSUB_REDIS_PASSWORD,
+            legacyMode: false,
+        };
+        this.gameplayOptions = {
+            url: `redis://${process.env.GAMEPLAY_REDIS_HOST}:${process.env.GAMEPLAY_REDIS_PORT}`,
+            password: process.env.GAMEPLAY_REDIS_PASSWORD,
             legacyMode: false,
         };
     }
     initialize() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                this.client = (0, redis_1.createClient)(this.options);
-                this.publisher = (0, redis_1.createClient)(this.options);
-                this.subscriber = (0, redis_1.createClient)(this.options);
+                this.client = (0, redis_1.createClient)(this.gameplayOptions);
+                this.publisher = (0, redis_1.createClient)(this.pubSubOptions);
+                this.subscriber = (0, redis_1.createClient)(this.pubSubOptions);
                 yield Promise.all([this.client.connect(), this.publisher.connect(), this.subscriber.connect()]);
                 yield this.client.CONFIG_SET('notify-keyspace-events', 'Ex');
                 yield this.setupConfig.apply(this);

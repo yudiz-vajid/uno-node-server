@@ -1,3 +1,7 @@
+/* eslint-disable no-param-reassign */
+/* eslint-disable prefer-destructuring */
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable no-unused-vars */
 import os from 'os';
 import * as shell from 'shelljs';
 import { readFile } from 'fs/promises';
@@ -135,6 +139,7 @@ function stopPm2(reason: string, key?: string) {
 }
 
 // verify json config with service name and cluster type extracted from hostname
+// eslint-disable-next-line consistent-return
 async function verifyConfig(serverConfigData: any) {
   try {
     let serverConfig: any = null;
@@ -240,8 +245,8 @@ async function init() {
       // const paths = await Promise.all([doesPathExists(serverConfigPath), doesPathExists(productConfigPath), doesPathExists(messageConfigPath)]).catch(reject);
 
       let serverConfigData: any = null;
-      let productConfigData: any = null;
-      let messageConfigData: any = null;
+      const productConfigData: any = null;
+      const messageConfigData: any = null;
 
       if (paths[0]) {
         /* retrieve data from node */

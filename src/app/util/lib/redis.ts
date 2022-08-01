@@ -7,6 +7,8 @@ import { createClient, RedisClientType, RedisClientOptions } from 'redis';
 class RedisClient {
   public pubSubOptions: RedisClientOptions;
 
+  public schedularOptions: RedisClientOptions;
+
   public gameplayOptions: RedisClientOptions;
 
   public client!: RedisClientType;
@@ -14,6 +16,8 @@ class RedisClient {
   public publisher!: RedisClientType;
 
   public subscriber!: RedisClientType;
+
+  public sch!: RedisClientType;
 
   constructor() {
     this.pubSubOptions = {
@@ -23,8 +27,16 @@ class RedisClient {
       legacyMode: false,
     };
 
+    this.schedularOptions = {
+      url: `redis://${process.env.SCHEDULAR_REDIS_HOST}:${process.env.SCHEDULAR_REDIS_PORT}`,
+      username: process.env.SCHEDULAR_REDIS_USERNAME,
+      password: process.env.SCHEDULAR_REDIS_PASSWORD,
+      legacyMode: false,
+    };
+
     this.gameplayOptions = {
       url: `redis://${process.env.GAMEPLAY_REDIS_HOST}:${process.env.GAMEPLAY_REDIS_PORT}`,
+      username: process.env.GAMEPLAY_REDIS_PASSWORD,
       password: process.env.GAMEPLAY_REDIS_PASSWORD,
       legacyMode: false,
     };
@@ -35,6 +47,7 @@ class RedisClient {
       (this.client as unknown) = createClient(this.gameplayOptions);
       (this.publisher as unknown) = createClient(this.pubSubOptions);
       (this.subscriber as unknown) = createClient(this.pubSubOptions);
+      (this.sch as unknown) = createClient(this.schedularOptions);
 
       await Promise.all([this.client.connect(), this.publisher.connect(), this.subscriber.connect()]);
 
