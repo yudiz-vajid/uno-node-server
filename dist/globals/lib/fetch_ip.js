@@ -10,10 +10,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const os_1 = require("os");
 const util_1 = require("util");
 const child_process_1 = require("child_process");
 const execPromisified = (0, util_1.promisify)(child_process_1.exec);
 function exec(command) {
+    var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const { stdout, stderr } = yield execPromisified(command);
@@ -27,8 +29,16 @@ function exec(command) {
             }
         }
         catch (error) {
-            console.error(`error: \n${error.message}`);
-            return undefined;
+            const MAC = (_b = (_a = Object.values((0, os_1.networkInterfaces)()).flat()) === null || _a === void 0 ? void 0 : _a.find(_interface => (_interface === null || _interface === void 0 ? void 0 : _interface.mac) !== '00:00:00:00:00:00')) === null || _b === void 0 ? void 0 : _b.mac;
+            if (!MAC) {
+                console.error(`error: \n${error.message}`);
+                log.error(`${_.now()} unable to fetch ip/MAC.`);
+                log.info(`${_.now()} terminating process!!!!!!!.`);
+                process.exit(1);
+                return undefined;
+            }
+            process.env.HOST = MAC;
+            return MAC;
         }
     });
 }

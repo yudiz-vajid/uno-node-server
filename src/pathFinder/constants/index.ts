@@ -3,7 +3,7 @@ import ZOOKEEPER from './zookeeper';
 import CONFIG from './config';
 
 const exportObject = Object.freeze({
-  SERVICE_NAME: 'service-uno',
+  SERVICE_NAME: 'service-draw4',
   GENERAL_CLUSTER: 'general',
   PM2_ERRORS: {
     KEY_NOT_FOUND: 'KEY_NOT_FOUND',
@@ -23,21 +23,7 @@ const exportObject = Object.freeze({
   PRODUCTION: 'production',
   MESSAGES,
   ZOOKEEPER,
-  GAME_TYPE: 'callbreak',
-  CALLBREAK: 'CB',
-  EMPTY: '',
-  CB: 'CB',
-  INSTRUMENTATION_EVENTS: {
-    USER_PLAYED_GAME: 'User Played Game',
-    USER_GAME_REJOINED: 'User Game Rejoined',
-    USER_TABLE_EXITED: 'User Table Exited',
-    USER_TABLE_JOINED: 'User Table Joined',
-    USER_GAME_STATUS_CHANGED: 'User Game Status Changed',
-    USER_CARD_RESHUFFLED: 'User Card Reshuffled',
-    USER_PLAYED_CB: 'User Played CB',
-    USER_INVALID_CARD_THROWN: 'User Invalid Card Thrown',
-  },
-  CONFIG,
+  ...CONFIG,
 });
 
 export = exportObject;

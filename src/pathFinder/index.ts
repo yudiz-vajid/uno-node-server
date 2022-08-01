@@ -13,7 +13,7 @@ const loadOpts = {
 
 async function startGrpcServer() {
   try {
-    const server = new PFServer('service-uno', 50100);
+    const server = new PFServer('service-draw4', 50100);
     await server.start();
   } catch (err: any) {
     log.error(`${_.now()} we have error on addServiceAndStartGrpcServer(), ${err.message}`);
@@ -22,14 +22,16 @@ async function startGrpcServer() {
 
 export async function initializePathFinder() {
   try {
-    PathFinder.initialize({ appName: 'service-uno', protosToLoad: protos, loadOpts, promisify: true });
+    PathFinder.initialize({ appName: 'service-draw4', protosToLoad: protos, loadOpts, promisify: true });
 
     const _zk = await init();
     log.info('PathFinder initialize seq completed.');
 
+    /*
     log.info('gRPC initialize seq started ... ');
     await grpc.init();
     log.info('gRPC initialize seq completed. ');
+    */
 
     log.info('fetching ZKConfig ...');
     const ZKConfig = getConfig();
@@ -46,7 +48,7 @@ export async function initializePathFinder() {
     const resAuth = await authClient.authenticate().sendMessage({ requestId: '1', authToken: 'admin' });
     console.log('res authenticate ', resAuth);
 
-    // /* LOBBY-SERVICE */
+    /* LOBBY-SERVICE */
     const lobbyClient = await PathFinder.getInstance().getClient({ serviceName: 'service-tournament-1v1', serviceNameInProto: 'LobbyService' });
     console.log('req authenticate');
     const res = await lobbyClient.getLobbyById().sendMessage({ requestId: 'ccaedda7-60b1-4af8-af68-f7eec170ac78', id: 6186650, userId: 1 });
@@ -54,7 +56,8 @@ export async function initializePathFinder() {
 
     return true;
   } catch (err: any) {
-    log.error(`${_.now()} we have error, ${err.message}`);
-    return false;
+    log.error(`${_.now()} initializePathFinder Failed, ${err.message}`);
+    log.info('terminating process ...');
+    process.exit(1);
   }
 }

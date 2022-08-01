@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-
+import { networkInterfaces } from 'os';
 import { promisify } from 'util';
 import { exec as _exec } from 'child_process';
 
@@ -18,8 +18,16 @@ async function exec(command: string): Promise<string | undefined> {
       return stdout;
     }
   } catch (error: any) {
-    console.error(`error: \n${error.message}`);
-    return undefined;
+    const MAC = Object.values(networkInterfaces()).flat()?.find(_interface => _interface?.mac !== '00:00:00:00:00:00')?.mac;
+    if (!MAC) {
+      console.error(`error: \n${error.message}`);
+      log.error(`${_.now()} unable to fetch ip/MAC.`);
+      log.info(`${_.now()} terminating process!!!!!!!.`);
+      process.exit(1);
+      return undefined;
+    }
+    process.env.HOST = MAC;
+    return MAC;
   }
 }
 exec('dig +short myip.opendns.com @resolver1.opendns.com');
