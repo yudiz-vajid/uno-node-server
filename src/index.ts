@@ -10,6 +10,7 @@ process.env.UV_THREADPOOL_SIZE = `${cpus().length}`;
 
 (async () => {
   try {
+    log.verbose(process.env.NODE_ENV);
     if (process.env.NODE_ENV !== 'dev') await initializePathFinder();
     await Promise.all([server.initialize(), redis.initialize()]);
     await socket.initialize(server.httpServer);
