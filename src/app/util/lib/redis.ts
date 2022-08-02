@@ -54,7 +54,10 @@ class RedisClient {
 
       await Promise.all([this.client.connect(), this.publisher.connect(), this.subscriber.connect()]);
 
-      await this.client.CONFIG_SET('notify-keyspace-events', 'Ex');
+      try {
+        await this.client.CONFIG_SET('notify-keyspace-events', 'Ex'); // TODO : switch  client => sch
+      } catch (err) {}
+
       await this.setupConfig.apply(this);
 
       this.client.on('error', log.error);
