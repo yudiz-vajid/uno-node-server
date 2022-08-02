@@ -229,7 +229,8 @@ class Service {
     initializeGameTimer() {
         return __awaiter(this, void 0, void 0, function* () {
             const rpcTable = yield rpc_1.default.createBattle(Number(this.iLobbyId), this.iBattleId, this.aPlayerId.map(p => Number(p)));
-            if (!rpcTable || rpcTable.error)
+            log.verbose(`rpcTable in initializeGameTimer ${rpcTable}`);
+            if (!rpcTable || rpcTable.error || !rpcTable.success)
                 return false;
             const nBeginCountdownCounter = this.oSettings.nGameInitializeTime;
             this.emit('resGameInitializeTimer', { ttl: nBeginCountdownCounter, timestamp: Date.now() });

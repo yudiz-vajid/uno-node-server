@@ -271,7 +271,8 @@ class Service {
       this.iBattleId,
       this.aPlayerId.map(p => Number(p))
     );
-    if (!rpcTable || rpcTable.error) return false; // TODO: socket disconnect
+    log.verbose(`rpcTable in initializeGameTimer ${rpcTable}`);
+    if (!rpcTable || rpcTable.error || !rpcTable.success) return false; // TODO: socket disconnect
     // const nBeginCountdown = this.aPlayerId.length === this.oSettings.nTotalPlayerCount ? this.oSettings.nGameInitializeTime / 2 : this.oSettings.nGameInitializeTime;
     const nBeginCountdownCounter = this.oSettings.nGameInitializeTime;
     this.emit('resGameInitializeTimer', { ttl: nBeginCountdownCounter, timestamp: Date.now() });

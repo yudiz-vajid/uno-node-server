@@ -109,11 +109,12 @@ class TableManager {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const oLobbyDataRes = yield rpc_1.default.getLobbyById(Number(oData.iLobbyId), Number(oData.iPlayerId));
+                log.verbose(`gRPC oLobbyDataRes on create table :: ${oLobbyDataRes}`);
                 if (!oLobbyDataRes)
                     throw new Error('Lobby data not found');
                 if (oLobbyDataRes.error)
                     throw new Error('Error on rpc call getLobbyById');
-                const { gameConfig } = oLobbyDataRes;
+                const gameConfig = _.parse(oLobbyDataRes === null || oLobbyDataRes === void 0 ? void 0 : oLobbyDataRes.gameConfig);
                 const oTableWithParticipant = {
                     iBattleId: oData.iBattleId,
                     iLobbyId: oData.iLobbyId,
