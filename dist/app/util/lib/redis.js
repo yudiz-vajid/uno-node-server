@@ -31,9 +31,6 @@ class RedisClient {
             password: process.env.GAMEPLAY_REDIS_PASSWORD,
             legacyMode: false,
         };
-        console.log(`pubSubOptions: ${JSON.stringify(this.pubSubOptions)}`);
-        console.log(`schedularOptions: ${JSON.stringify(this.schedularOptions)}`);
-        console.log(`gameplayOptions: ${JSON.stringify(this.gameplayOptions)}`);
     }
     initialize() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -43,7 +40,11 @@ class RedisClient {
                 this.subscriber = (0, redis_1.createClient)(this.pubSubOptions);
                 this.sch = (0, redis_1.createClient)(this.schedularOptions);
                 yield Promise.all([this.client.connect(), this.publisher.connect(), this.subscriber.connect()]);
-                yield this.client.CONFIG_SET('notify-keyspace-events', 'Ex');
+                try {
+                    yield this.sch.CONFIG_SET('notify-keyspace-events', 'Ex');
+                }
+                catch (err) {
+                }
                 yield this.setupConfig.apply(this);
                 this.client.on('error', log.error);
             }

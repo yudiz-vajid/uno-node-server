@@ -3,9 +3,12 @@
 import type Table from '.';
 import type Player from '../player';
 import { ICard, ITable, ITableWithPlayer, RedisJSON } from '../../../types/global';
+import rpc from '../../../pathFinder/service/rpc';
 
 class Service {
   protected readonly iBattleId: ITableWithPlayer['iBattleId'];
+
+  protected readonly iLobbyId: ITableWithPlayer['iLobbyId'];
 
   protected iPlayerTurn: ITableWithPlayer['iPlayerTurn'];
 
@@ -41,6 +44,7 @@ class Service {
 
   constructor(oData: ITable & { aPlayer?: Player[] }) {
     this.iBattleId = oData.iBattleId;
+    this.iLobbyId = oData.iLobbyId;
     this.iPlayerTurn = oData.iPlayerTurn;
     this.iSkippedPLayer = oData.iSkippedPLayer;
     this.iDrawPenltyPlayerId = oData.iDrawPenltyPlayerId;
@@ -259,7 +263,15 @@ class Service {
     }
   }
 
+  // eslint-disable-next-line consistent-return
   public async initializeGameTimer() {
+    // Create battle for rpc.
+    const rpcTable = await rpc.createBattle(
+      Number(this.iLobbyId),
+      this.iBattleId,
+      this.aPlayerId.map(p => Number(p))
+    );
+    if (!rpcTable || rpcTable.error) return false; // TODO: socket disconnect
     // const nBeginCountdown = this.aPlayerId.length === this.oSettings.nTotalPlayerCount ? this.oSettings.nGameInitializeTime / 2 : this.oSettings.nGameInitializeTime;
     const nBeginCountdownCounter = this.oSettings.nGameInitializeTime;
     this.emit('resGameInitializeTimer', { ttl: nBeginCountdownCounter, timestamp: Date.now() });
@@ -301,8 +313,8 @@ class Service {
     keys.push(...tbl_keys);
     log.verbose('Table removed');
     if (keys.length) await redis.client.del(keys);
-    const schedularKey = await redis.client.KEYS(`sch:${this.iBattleId}:`);
-    if (schedularKey.length) await redis.client.del(schedularKey);
+    const schedularKey = await redis.sch.KEYS(`sch:${this.iBattleId}:`);
+    if (schedularKey.length) await redis.sch.del(schedularKey);
     return true;
   }
 
@@ -325,7 +337,7 @@ class Service {
     try {
       if (!sTaskName) return false;
       if (!nTimeMS) return false;
-      await redis.client.pSetEx(_.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId), nTimeMS, sTaskName);
+      await redis.sch.pSetEx(_.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId), nTimeMS, sTaskName);
       return true;
     } catch (err: any) {
       log.error(`table.setSchedular() failed.${{ reason: err.message, stack: err.stack }}`);
@@ -336,10 +348,10 @@ class Service {
   public async deleteScheduler(sTaskName = '', iPlayerId = '*') {
     try {
       const sKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
-      const schedularKeys = await redis.client.keys(sKey); // TODO : non efficient, use scan instead
+      const schedularKeys = await redis.sch.keys(sKey); // TODO : non efficient, use scan instead
       if (!schedularKeys.length) throw new Error(`schedular doesn't exists`);
 
-      const deletionCount = await redis.client.del(schedularKeys);
+      const deletionCount = await redis.sch.del(schedularKeys);
       if (!deletionCount) throw new Error(`can't delete key: ${schedularKeys}`);
 
       log.silly(`deleted scheduled keys: ${schedularKeys}`);
@@ -358,15 +370,15 @@ class Service {
   public async getTTL(sTaskName = '', iPlayerId = '*') {
     try {
       const sKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
-      const schedularKeys = await redis.client.keys(sKey); // TODO : non efficient, use scan instead
+      const schedularKeys = await redis.sch.keys(sKey); // TODO : non efficient, use scan instead
       if (!schedularKeys.length) return null; // - throw new Error(`schedular doesn't exists`);
 
       if (schedularKeys.length > 1) {
         log.warn(`multiple schedular keys found for ${sKey}, keys: ${schedularKeys}`);
-        await redis.client.del(schedularKeys.slice(1));
+        await redis.sch.del(schedularKeys.slice(1));
       }
 
-      const nTTL = await redis.client.pTTL(schedularKeys[0]); // - in ms
+      const nTTL = await redis.sch.pTTL(schedularKeys[0]); // - in ms
       if (nTTL < 0) return null; // - -1-> key not exist, -2 -> key exist but without expiry
 
       return nTTL;
@@ -389,6 +401,7 @@ class Service {
   public toJSON() {
     return {
       iBattleId: this.iBattleId,
+      iLobbyId: this.iLobbyId,
       iPlayerTurn: this.iPlayerTurn,
       iSkippedPLayer: this.iSkippedPLayer,
       iDrawPenltyPlayerId: this.iDrawPenltyPlayerId,

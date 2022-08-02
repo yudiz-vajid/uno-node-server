@@ -17,8 +17,6 @@ class Service {
 
   public nScore: IPlayer['nScore'];
 
-  protected nUnoTime: IPlayer['nUnoTime'];
-
   protected nGraceTime: IPlayer['nGraceTime'];
 
   protected nMissedTurn: IPlayer['nMissedTurn'];
@@ -85,7 +83,6 @@ class Service {
     this.sStartingHand = oData.sStartingHand;
     this.nSeat = oData.nSeat;
     this.nScore = oData.nScore;
-    this.nUnoTime = oData.nUnoTime;
     this.nGraceTime = oData.nGraceTime;
     this.nMissedTurn = oData.nMissedTurn;
     this.nDrawNormal = oData.nDrawNormal;
@@ -121,7 +118,6 @@ class Service {
       'sSocketId' 
     | 'sStartingHand' 
     | 'nScore' 
-    | 'nUnoTime' 
     | 'nGraceTime' 
     | 'nMissedTurn' 
     | 'nDrawNormal' 
@@ -162,10 +158,6 @@ class Service {
             break;
           case 'nScore':
             this.nScore = v as IPlayer['nScore'];
-            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
-            break;
-          case 'nUnoTime':
-            this.nUnoTime = v as IPlayer['nUnoTime'];
             aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
             break;
           case 'nGraceTime':
@@ -510,10 +502,10 @@ class Service {
       if(oTable.toJSON().oSettings.bStackingDrawCards && oTable.toJSON().iDrawPenltyPlayerId===this.iPlayerId){
         aStackingCardId = await this.getStackingCardIds(oTable.getDiscardPileTopCard());  
         if(!aStackingCardId?.length)await this.assignDrawPenalty(oTable)
-        if(!aStackingCardId?.length && oTable.toJSON().oSettings.bSkipTurnOnDrawTwoOrFourCard)return this.skipPlayer(oTable);
+        if(!aStackingCardId?.length && oTable.toJSON().oSettings.bDisallowPlayOnDrawCardPenalty)return this.skipPlayer(oTable);
       }else if(oTable.toJSON().iDrawPenltyPlayerId===this.iPlayerId){
         await this.assignDrawPenalty(oTable) // Assign penalty card to user
-        if(oTable.toJSON().oSettings.bSkipTurnOnDrawTwoOrFourCard)return this.skipPlayer(oTable);
+        if(oTable.toJSON().oSettings.bDisallowPlayOnDrawCardPenalty)return this.skipPlayer(oTable);
       }
     }
     if (this.bNextTurnSkip) return this.skipPlayer(oTable);
@@ -603,7 +595,7 @@ class Service {
     }
     const { aPlayer } = oTable.toJSON();
 
-    const aPlayingPlayer = aPlayer.filter(p => p.eState === 'playing');
+    const aPlayingPlayer = aPlayer.filter(p => p.eState !== 'left');
     if (!aPlayingPlayer.length) return (log.error('no playing participant') && null) ?? false; // TODO: declare result
     let oNextPlayer;
     if (aPlayingPlayer.length === 2 && oTable.toJSON().aDiscardPile[oTable.toJSON().aDiscardPile.length - 1].nLabel === 11 && oTable.toJSON().bIsReverseNow) {
@@ -633,7 +625,6 @@ class Service {
       sStartingHand: this.sStartingHand,
       nSeat: this.nSeat,
       nScore: this.nScore,
-      nUnoTime: this.nUnoTime,
       nGraceTime: this.nGraceTime,
       nMissedTurn: this.nMissedTurn,
       // Instrumentation params

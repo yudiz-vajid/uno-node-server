@@ -18,7 +18,6 @@ class Service {
         this.sStartingHand = oData.sStartingHand;
         this.nSeat = oData.nSeat;
         this.nScore = oData.nScore;
-        this.nUnoTime = oData.nUnoTime;
         this.nGraceTime = oData.nGraceTime;
         this.nMissedTurn = oData.nMissedTurn;
         this.nDrawNormal = oData.nDrawNormal;
@@ -65,10 +64,6 @@ class Service {
                             break;
                         case 'nScore':
                             this.nScore = v;
-                            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v));
-                            break;
-                        case 'nUnoTime':
-                            this.nUnoTime = v;
                             aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v));
                             break;
                         case 'nGraceTime':
@@ -400,12 +395,12 @@ class Service {
                     aStackingCardId = yield this.getStackingCardIds(oTable.getDiscardPileTopCard());
                     if (!(aStackingCardId === null || aStackingCardId === void 0 ? void 0 : aStackingCardId.length))
                         yield this.assignDrawPenalty(oTable);
-                    if (!(aStackingCardId === null || aStackingCardId === void 0 ? void 0 : aStackingCardId.length) && oTable.toJSON().oSettings.bSkipTurnOnDrawTwoOrFourCard)
+                    if (!(aStackingCardId === null || aStackingCardId === void 0 ? void 0 : aStackingCardId.length) && oTable.toJSON().oSettings.bDisallowPlayOnDrawCardPenalty)
                         return this.skipPlayer(oTable);
                 }
                 else if (oTable.toJSON().iDrawPenltyPlayerId === this.iPlayerId) {
                     yield this.assignDrawPenalty(oTable);
-                    if (oTable.toJSON().oSettings.bSkipTurnOnDrawTwoOrFourCard)
+                    if (oTable.toJSON().oSettings.bDisallowPlayOnDrawCardPenalty)
                         return this.skipPlayer(oTable);
                 }
             }
@@ -491,7 +486,7 @@ class Service {
                 return oTable.gameOver(winner, 'playerWin');
             }
             const { aPlayer } = oTable.toJSON();
-            const aPlayingPlayer = aPlayer.filter(p => p.eState === 'playing');
+            const aPlayingPlayer = aPlayer.filter(p => p.eState !== 'left');
             if (!aPlayingPlayer.length)
                 return (_a = (log.error('no playing participant') && null)) !== null && _a !== void 0 ? _a : false;
             let oNextPlayer;
@@ -526,7 +521,6 @@ class Service {
             sStartingHand: this.sStartingHand,
             nSeat: this.nSeat,
             nScore: this.nScore,
-            nUnoTime: this.nUnoTime,
             nGraceTime: this.nGraceTime,
             nMissedTurn: this.nMissedTurn,
             nStartHandSum: this.nStartHandSum,

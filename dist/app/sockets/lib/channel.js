@@ -38,7 +38,7 @@ class Channel {
                         emitter.emit('channelEvent', { sTaskName: 'setWildCardColor', iBattleId: this.iBattleId, iPlayerId: (_d = this.iPlayerId) !== null && _d !== void 0 ? _d : '', oData }, ack);
                         break;
                     case 'reqUno':
-                        emitter.emit('channelEvent', { sTaskName: 'decalreUno', iBattleId: this.iBattleId, iPlayerId: (_e = this.iPlayerId) !== null && _e !== void 0 ? _e : '', oData }, ack);
+                        emitter.emit('channelEvent', { sTaskName: 'declareUno', iBattleId: this.iBattleId, iPlayerId: (_e = this.iPlayerId) !== null && _e !== void 0 ? _e : '', oData }, ack);
                         break;
                     case 'reqLeave':
                         emitter.emit('channelEvent', { sTaskName: 'leaveMatch', iBattleId: this.iBattleId, iPlayerId: (_f = this.iPlayerId) !== null && _f !== void 0 ? _f : '', oData }, ack);

@@ -1,7 +1,9 @@
-import { ICallback, ICard, IPlayer, ITable, RedisJSON } from '../../types/global';
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import { ICallback, ICard, IPlayer, ISettings, ITable, RedisJSON } from '../../types/global';
 import { Deck, response } from '../util';
 import Player from './player';
 import Table from './table';
+import rpc from '../../pathFinder/service/rpc';
 
 class TableManager {
   constructor() {
@@ -104,10 +106,40 @@ class TableManager {
     }
   }
 
-  public static async createTable(oData: { iBattleId: ITable['iBattleId']; oSettings: ITable['oSettings'] }) {
+  /*
+  gameConfig: {
+      nTurnTime: 30,
+      aCardScore: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 20, 20, 20, 50, 50],
+      nGraceTime: 30,
+      nFastTimerAt: 30,
+      nTotalGameTime: false,
+      nTotalPlayerCount: 2,
+      bStackingDrawCards: true,
+      nGameInitializeTime: 5,
+      nTotalSkipTurnCount: 3,
+      nWildCardColorTimer: 5,
+      bMustCollectOnMissTurn: true,
+      nSpecialMeterFillCount: 2,
+      nStartingActionCardCount: 0,
+      nStartingNormalCardCount: 4,
+      nStartingSpecialCardCount: 3,
+      bDisallowPlayOnDrawCardPenalty: true,
+      GameId: 1002056,
+      LobbyId: 6207703,
+      MaxBonusPercentage: 0.0,
+  },
+*/
+  public static async createTable(oData: { iBattleId: ITable['iBattleId']; oSettings: ITable['oSettings']; iPlayerId: IPlayer['iPlayerId']; iLobbyId: string }) {
     try {
+      const oLobbyDataRes = await rpc.getLobbyById(Number(oData.iLobbyId), Number(oData.iPlayerId));
+      if (!oLobbyDataRes) throw new Error('Lobby data not found');
+      if (oLobbyDataRes.error) throw new Error('Error on rpc call getLobbyById');
+
+      const { gameConfig } = oLobbyDataRes;
+
       const oTableWithParticipant: ITable = {
         iBattleId: oData.iBattleId,
+        iLobbyId: oData.iLobbyId,
         iPlayerTurn: '',
         iSkippedPLayer: '',
         iDrawPenltyPlayerId: '',
@@ -120,7 +152,8 @@ class TableManager {
         bIsReverseNow: false,
         eNextCardColor: '',
         nDrawCount: 0,
-        oSettings: oData.oSettings,
+        // @ts-ignore
+        oSettings: gameConfig as ISettings, // oData.oSettings,
         dCreatedAt: new Date(),
         oWinningCard: {},
       };

@@ -19,11 +19,16 @@ var __rest = (this && this.__rest) || function (s, e) {
         }
     return t;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const rpc_1 = __importDefault(require("../../../pathFinder/service/rpc"));
 class Service {
     constructor(oData) {
         var _a;
         this.iBattleId = oData.iBattleId;
+        this.iLobbyId = oData.iLobbyId;
         this.iPlayerTurn = oData.iPlayerTurn;
         this.iSkippedPLayer = oData.iSkippedPLayer;
         this.iDrawPenltyPlayerId = oData.iDrawPenltyPlayerId;
@@ -223,6 +228,9 @@ class Service {
     }
     initializeGameTimer() {
         return __awaiter(this, void 0, void 0, function* () {
+            const rpcTable = yield rpc_1.default.createBattle(Number(this.iLobbyId), this.iBattleId, this.aPlayerId.map(p => Number(p)));
+            if (!rpcTable || rpcTable.error)
+                return false;
             const nBeginCountdownCounter = this.oSettings.nGameInitializeTime;
             this.emit('resGameInitializeTimer', { ttl: nBeginCountdownCounter, timestamp: Date.now() });
             this.setSchedular('gameInitializeTimerExpired', '', nBeginCountdownCounter);
@@ -261,9 +269,9 @@ class Service {
             log.verbose('Table removed');
             if (keys.length)
                 yield redis.client.del(keys);
-            const schedularKey = yield redis.client.KEYS(`sch:${this.iBattleId}:`);
+            const schedularKey = yield redis.sch.KEYS(`sch:${this.iBattleId}:`);
             if (schedularKey.length)
-                yield redis.client.del(schedularKey);
+                yield redis.sch.del(schedularKey);
             return true;
         });
     }
@@ -292,7 +300,7 @@ class Service {
                     return false;
                 if (!nTimeMS)
                     return false;
-                yield redis.client.pSetEx(_.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId), nTimeMS, sTaskName);
+                yield redis.sch.pSetEx(_.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId), nTimeMS, sTaskName);
                 return true;
             }
             catch (err) {
@@ -305,10 +313,10 @@ class Service {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const sKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
-                const schedularKeys = yield redis.client.keys(sKey);
+                const schedularKeys = yield redis.sch.keys(sKey);
                 if (!schedularKeys.length)
                     throw new Error(`schedular doesn't exists`);
-                const deletionCount = yield redis.client.del(schedularKeys);
+                const deletionCount = yield redis.sch.del(schedularKeys);
                 if (!deletionCount)
                     throw new Error(`can't delete key: ${schedularKeys}`);
                 log.silly(`deleted scheduled keys: ${schedularKeys}`);
@@ -330,14 +338,14 @@ class Service {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const sKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
-                const schedularKeys = yield redis.client.keys(sKey);
+                const schedularKeys = yield redis.sch.keys(sKey);
                 if (!schedularKeys.length)
                     return null;
                 if (schedularKeys.length > 1) {
                     log.warn(`multiple schedular keys found for ${sKey}, keys: ${schedularKeys}`);
-                    yield redis.client.del(schedularKeys.slice(1));
+                    yield redis.sch.del(schedularKeys.slice(1));
                 }
-                const nTTL = yield redis.client.pTTL(schedularKeys[0]);
+                const nTTL = yield redis.sch.pTTL(schedularKeys[0]);
                 if (nTTL < 0)
                     return null;
                 return nTTL;
@@ -363,6 +371,7 @@ class Service {
     toJSON() {
         return {
             iBattleId: this.iBattleId,
+            iLobbyId: this.iLobbyId,
             iPlayerTurn: this.iPlayerTurn,
             iSkippedPLayer: this.iSkippedPLayer,
             iDrawPenltyPlayerId: this.iDrawPenltyPlayerId,

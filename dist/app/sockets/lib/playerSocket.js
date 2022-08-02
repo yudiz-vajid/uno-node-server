@@ -20,6 +20,7 @@ class PlayerSocket {
         this.socket = socket;
         this.iPlayerId = socket.data.iPlayerId;
         this.iBattleId = socket.data.iBattleId;
+        this.iLobbyId = socket.data.iLobbyId;
         this.sPlayerName = socket.data.sPlayerName;
         this.sAuthToken = socket.data.sAuthToken;
         this.oSetting = socket.data.oSettings;
@@ -40,7 +41,7 @@ class PlayerSocket {
             try {
                 let oTable = yield tableManager_1.default.getTable(this.iBattleId);
                 if (!oTable)
-                    oTable = yield tableManager_1.default.createTable({ iBattleId: this.iBattleId, oSettings: this.oSetting });
+                    oTable = yield tableManager_1.default.createTable({ iBattleId: this.iBattleId, oSettings: this.oSetting, iPlayerId: this.iPlayerId, iLobbyId: this.iLobbyId });
                 if (!oTable)
                     throw new Error('Table not created');
                 let oPlayer = oTable.getPlayer(this.iPlayerId);
@@ -52,7 +53,6 @@ class PlayerSocket {
                         sSocketId: this.socket.id,
                         nSeat: oTable.toJSON().aPlayer.length,
                         nScore: 0,
-                        nUnoTime: oTable.toJSON().oSettings.nUnoTime,
                         nGraceTime: oTable.toJSON().oSettings.nGraceTime,
                         nMissedTurn: 0,
                         nDrawNormal: 0,

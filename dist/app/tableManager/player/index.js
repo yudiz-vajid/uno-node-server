@@ -139,7 +139,7 @@ class Player extends service_1.default {
             if (oTable.toJSON().iDrawPenltyPlayerId === this.iPlayerId) {
                 callback({ oData: {}, status: util_1.response.SUCCESS });
                 yield this.assignDrawPenalty(oTable);
-                if (oTable.toJSON().oSettings.bSkipTurnOnDrawTwoOrFourCard) {
+                if (oTable.toJSON().oSettings.bDisallowPlayOnDrawCardPenalty) {
                     this.passTurn(oTable);
                 }
                 else {
@@ -244,10 +244,10 @@ class Player extends service_1.default {
             return true;
         });
     }
-    decalreUno(oData, oTable, callback) {
+    declareUno(oData, oTable, callback) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
-            log.verbose(`${_.now()} event: decalreUno, player: ${this.iPlayerId}`);
+            log.verbose(`${_.now()} event: declareUno, player: ${this.iPlayerId}`);
             const eligibleUno = this.aHand.length === 2;
             const playableCards = yield this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
             if (eligibleUno && playableCards.length) {

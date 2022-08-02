@@ -167,7 +167,7 @@ class Player extends Service {
       callback({ oData: {}, status: response.SUCCESS });
       await this.assignDrawPenalty(oTable);
 
-      if (oTable.toJSON().oSettings.bSkipTurnOnDrawTwoOrFourCard) {
+      if (oTable.toJSON().oSettings.bDisallowPlayOnDrawCardPenalty) {
         this.passTurn(oTable);
       } else {
         // TODO :- Need to send turn event again to current user.

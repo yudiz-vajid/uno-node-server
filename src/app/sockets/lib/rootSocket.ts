@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable no-param-reassign */
 import type { Socket } from 'socket.io';
 import PlayerSocket from './playerSocket';
 import { verifyAuthHeader, verifySettings } from '../../validator';
 import { ICallback } from '../../../types/global';
+import rpc from '../../../pathFinder/service/rpc';
 
 class RootSocket {
   async initialize() {
@@ -22,6 +24,7 @@ class RootSocket {
       // prettier-ignore
       const { error: authError, info: authInfo, value: authValue } = await verifyAuthHeader({
         i_battle_id: socket.handshake.auth.i_battle_id ?? <unknown>socket.handshake.headers.i_battle_id,
+        i_lobby_id: socket.handshake.auth.i_lobby_id ?? <unknown>socket.handshake.headers.i_lobby_id,
         i_player_id: socket.handshake.auth.i_player_id ?? <unknown>socket.handshake.headers.i_player_id,
         s_auth_token: socket.handshake.auth.s_auth_token ?? <unknown>socket.handshake.headers.s_auth_token,
       });
@@ -30,16 +33,21 @@ class RootSocket {
       const { error: settingsError, info: settingsInfo, value: settingsValue } = await verifySettings(socket.handshake.query);
       if (settingsError || !settingsValue) throw new Error(settingsInfo);
 
-      const { iBattleId, iPlayerId, sPlayerName, sAuthToken } = authValue;
+      const { iBattleId, iPlayerId, sPlayerName, sAuthToken, iLobbyId } = authValue;
 
-      const bIsValid = true; // TODO : validate playerId, battleId, authToken via grpc service
-      if (!bIsValid) throw new Error('player validation failed');
-
-      socket.data.iPlayerId = iPlayerId;
       socket.data.iBattleId = iBattleId;
+      socket.data.iLobbyId = iLobbyId;
+      socket.data.iPlayerId = iPlayerId;
       socket.data.sPlayerName = sPlayerName;
       socket.data.sAuthToken = sAuthToken;
-      socket.data.oSettings = settingsValue; // TODO: remove to be fetch from grpc service
+      socket.data.oSettings = settingsValue;
+      let bIsValid = false;
+      if (process.env.NODE_ENV !== 'dev') {
+        const authResult = await rpc.authenticate(sAuthToken);
+        if (!authResult || authResult.error || !authResult.isAuthentic) bIsValid = true;
+        socket.data.iPlayerId = authResult?.userId;
+      } else bIsValid = true;
+      if (!bIsValid) throw new Error('player validation failed');
       next();
       return true;
     } catch (err: any) {

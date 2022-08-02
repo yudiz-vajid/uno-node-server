@@ -33,7 +33,13 @@ function isValidRequest(data) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const _result = yield Schema.validateAsync(data, options);
-            const result = { iPlayerId: _result.i_player_id, sPlayerName: _result.s_player_name, sAuthToken: _result.s_auth_token, iBattleId: _result.i_battle_id };
+            const result = {
+                iPlayerId: _result.i_player_id,
+                sPlayerName: _result.s_player_name,
+                sAuthToken: _result.s_auth_token,
+                iBattleId: _result.i_battle_id,
+                iLobbyId: _result.i_lobby_id,
+            };
             return { error: false, info: '', value: result };
         }
         catch (err) {

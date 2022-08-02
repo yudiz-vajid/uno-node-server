@@ -35,9 +35,8 @@ const options = {
 };
 const Schema = joi_1.default.object().keys({
     bMustCollectOnMissTurn: joi_1.default.boolean().optional().default(true),
-    bSkipTurnOnDrawTwoOrFourCard: joi_1.default.boolean().optional().default(true),
+    bDisallowPlayOnDrawCardPenalty: joi_1.default.boolean().optional().default(true),
     bStackingDrawCards: joi_1.default.boolean().optional().default(true),
-    bVisualEffectOnUnoButton: joi_1.default.boolean().optional().default(true),
     nTotalGameTime: joi_1.default.number()
         .optional()
         .default(180 * 60 * 1000),
@@ -47,7 +46,6 @@ const Schema = joi_1.default.object().keys({
     nStartingActionCardCount: joi_1.default.number().optional().default(2),
     nStartingSpecialCardCount: joi_1.default.number().optional().default(3),
     nTotalPlayerCount: joi_1.default.number().optional().default(2),
-    nUnoTime: joi_1.default.number().optional().default(10000),
     nSpecialMeterFillCount: joi_1.default.number().optional().default(2),
     nGameInitializeTime: joi_1.default.number().optional().default(5000),
     nTotalSkipTurnCount: joi_1.default.number().optional().default(3),

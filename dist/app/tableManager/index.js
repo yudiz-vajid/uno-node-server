@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const util_1 = require("../util");
 const player_1 = __importDefault(require("./player"));
 const table_1 = __importDefault(require("./table"));
+const rpc_1 = __importDefault(require("../../pathFinder/service/rpc"));
 class TableManager {
     constructor() {
         emitter.on('sch', this.onScheduledEvents.bind(this));
@@ -45,7 +46,7 @@ class TableManager {
             if (!oTable)
                 return false;
             const oPlayer = oTable.getPlayer(iPlayerId);
-            if (['assignTurnTimerExpired', 'assignGraceTimerExpired', 'drawCard', 'discardCard', 'decalreUno'].includes(sTaskName)) {
+            if (['assignTurnTimerExpired', 'assignGraceTimerExpired', 'drawCard', 'discardCard', 'declareUno'].includes(sTaskName)) {
                 if (!oPlayer) {
                     callback({ oData: {}, status: util_1.response.PLAYER_NOT_FOUND });
                     return (_a = (log.warn(`${_.now()} oPlayer not found in table. { iBattleId : ${iBattleId}, iPlayerId : ${iPlayerId} }`) && null)) !== null && _a !== void 0 ? _a : false;
@@ -90,8 +91,8 @@ class TableManager {
                 case 'setWildCardColor':
                     oPlayer === null || oPlayer === void 0 ? void 0 : oPlayer.setWildCardColor(oData, oTable, callback);
                     return true;
-                case 'decalreUno':
-                    oPlayer === null || oPlayer === void 0 ? void 0 : oPlayer.decalreUno(oData, oTable, callback);
+                case 'declareUno':
+                    oPlayer === null || oPlayer === void 0 ? void 0 : oPlayer.declareUno(oData, oTable, callback);
                     return true;
                 case 'leaveMatch':
                     oPlayer === null || oPlayer === void 0 ? void 0 : oPlayer.leaveMatch(oData, oTable, callback);
@@ -107,8 +108,15 @@ class TableManager {
     static createTable(oData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                const oLobbyDataRes = yield rpc_1.default.getLobbyById(Number(oData.iLobbyId), Number(oData.iPlayerId));
+                if (!oLobbyDataRes)
+                    throw new Error('Lobby data not found');
+                if (oLobbyDataRes.error)
+                    throw new Error('Error on rpc call getLobbyById');
+                const { gameConfig } = oLobbyDataRes;
                 const oTableWithParticipant = {
                     iBattleId: oData.iBattleId,
+                    iLobbyId: oData.iLobbyId,
                     iPlayerTurn: '',
                     iSkippedPLayer: '',
                     iDrawPenltyPlayerId: '',
@@ -121,7 +129,7 @@ class TableManager {
                     bIsReverseNow: false,
                     eNextCardColor: '',
                     nDrawCount: 0,
-                    oSettings: oData.oSettings,
+                    oSettings: gameConfig,
                     dCreatedAt: new Date(),
                     oWinningCard: {},
                 };
