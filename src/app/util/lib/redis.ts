@@ -28,9 +28,9 @@ class RedisClient {
     };
 
     this.schedularOptions = {
-      url: `redis://${process.env.SCHEDULAR_REDIS_HOST}:${process.env.SCHEDULAR_REDIS_PORT}`,
-      username: process.env.SCHEDULAR_REDIS_USERNAME,
-      password: process.env.SCHEDULAR_REDIS_PASSWORD,
+      url: `redis://${process.env.SCHEDULER_REDIS_HOST}:${process.env.SCHEDULER_REDIS_PORT}`,
+      username: process.env.SCHEDULER_REDIS_USERNAME,
+      password: process.env.SCHEDULER_REDIS_PASSWORD,
       legacyMode: false,
     };
 
