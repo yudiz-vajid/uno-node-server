@@ -36,7 +36,7 @@ async function setUpEnvs() {
 
 async function startGrpcServer() {
   try {
-    const server = new PFServer('service-draw4', 50100);
+    const server = new PFServer('service-uno', 50100);
     await server.start();
   } catch (err: any) {
     log.error(`${_.now()} we have error on addServiceAndStartGrpcServer(), ${err.message}`);
@@ -45,7 +45,7 @@ async function startGrpcServer() {
 
 export async function initializePathFinder() {
   try {
-    PathFinder.initialize({ appName: 'service-draw4', protosToLoad: protos, loadOpts, promisify: true });
+    PathFinder.initialize({ appName: 'service-uno', protosToLoad: protos, loadOpts, promisify: true });
 
     const _zk = await init();
     log.info('PathFinder initialize seq completed.');
