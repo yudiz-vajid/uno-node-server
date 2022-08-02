@@ -984,84 +984,84 @@ message UpdateLeaderBoardForRummyTournamentResponse{
 
 
 service LobbyService {
-    // rpc getLobbies (GetLobbiesRequest) returns (GetLobbiesResponse);
-    // rpc kickoutUserFromLobby(KickoutUserFromLobbyRequest) returns (KickoutUserFromLobbyResponse);
-    // rpc joinLobby (JoinLobbyRequest) returns (JoinLobbyResponse);
-    // rpc createOrUpdateBattle (BattleRegistrationRequest) returns (BattleRegistrationResponse);
-    // rpc updateBattleScore (UpdateBattleScoreRequest) returns (UpdateBattleScoreResponse);
-    // rpc getBattleDetails (GetBattleRequest) returns (GetBattleResponse);
-    // rpc finishBattle (GetBattleRequest) returns (GetBattleResponse);
+    rpc getLobbies (GetLobbiesRequest) returns (GetLobbiesResponse);
+    rpc kickoutUserFromLobby(KickoutUserFromLobbyRequest) returns (KickoutUserFromLobbyResponse);
+    rpc joinLobby (JoinLobbyRequest) returns (JoinLobbyResponse);
+    rpc createOrUpdateBattle (BattleRegistrationRequest) returns (BattleRegistrationResponse);
+    rpc updateBattleScore (UpdateBattleScoreRequest) returns (UpdateBattleScoreResponse);
+    rpc getBattleDetails (GetBattleRequest) returns (GetBattleResponse);
+    rpc finishBattle (GetBattleRequest) returns (GetBattleResponse);
     rpc createBattle (CreateBattleRequest) returns (CreateBattleResponse);
     rpc getLobbyById (GetLobbyRequest) returns (GetLobbyDetailsResponse);
-    // rpc getLeaderboard (GetLeaderboardRequest) returns (GetLeaderboardResponse);
-    // rpc getHistory (GetHistoryRequest) returns (GetHistoryResponse);
-    // rpc cancelBattle (CancelBattleRequest) returns (CancelBattleResponse);
-    // rpc getPlayerStats (GetPlayerStatsRequest) returns (GetPlayerStatsResponse);
-    // rpc getPlayerLobbyHistory (GetPlayerLobbyHistoryRequest) returns (GetPlayerLobbyHistoryResponse);
-    // rpc generateUserMatchFoundEvent (UserMatchFoundRequest) returns (UserMatchFoundResponse);
-    // rpc finishUnfinishedBattles (FinishUnfinishedBattlesRequest) returns (FinishUnfinishedBattlesResponse);
-    // rpc finishUnfinishedBattlesTimeBased (FinishUnfinishedBattlesRequest) returns (FinishUnfinishedBattlesResponse);
-    // rpc getAllLobbies(GetAllLobbiesRequest) returns(GetLobbiesResponse);
-    // rpc getAllGameLobbies(GetAllGameLobbiesRequest) returns(GetLobbiesResponse);
-    // rpc getGames (GetGamesRequest) returns (GetGamesResponse);
-    // rpc getLobbyConfigs (GetLobbyConfigsRequest) returns (GetLobbyConfigsResponse);
-    // rpc getLobbyConfigById (GetLobbyRequest) returns (LobbyConfig);
-    // rpc createLobbyConfig (LobbyConfig) returns (LobbyConfig);
-    // rpc updateLobbyConfig (LobbyConfig) returns (LobbyConfig);
-    // rpc updateLobbyDetails (LobbyDetails) returns (LobbyDetails);
-    // rpc sendTableUserRegistered (TableUserRegistered) returns (EventSentStatus);
-    // rpc sendTableUserPlayedGame (TableUserPlayedGame) returns (EventSentStatus);
-    // rpc sendTableUserWon (TableUserWon) returns (EventSentStatus);
-    // rpc sendTableGiftPurchased (TableGiftPurchased) returns (EventSentStatus);
-    // rpc sendRummyEvent(EventData) returns (EventSentStatus);
-    // rpc getBattleGameData(GetBattleDataRequest) returns (GetBattleDataResponse);
-    // rpc publishEvents (PublishEventRequest) returns (EmptyParams);
-    // rpc getBattleByUser (Id) returns (BattleIdResponse);
-    // rpc getPlayersInBattle(GetPlayersInBattleRequest) returns (GetPlayersInBattleResponse);
-    // rpc finishAmbigousBattle (FinishAmbigousBattleRequest) returns (FinishAmbigousBattleResponse);
-    // rpc finishSession (SessionFinishRequest) returns (GetBattleResponse);
+    rpc getLeaderboard (GetLeaderboardRequest) returns (GetLeaderboardResponse);
+    rpc getHistory (GetHistoryRequest) returns (GetHistoryResponse);
+    rpc cancelBattle (CancelBattleRequest) returns (CancelBattleResponse);
+    rpc getPlayerStats (GetPlayerStatsRequest) returns (GetPlayerStatsResponse);
+    rpc getPlayerLobbyHistory (GetPlayerLobbyHistoryRequest) returns (GetPlayerLobbyHistoryResponse);
+    rpc generateUserMatchFoundEvent (UserMatchFoundRequest) returns (UserMatchFoundResponse);
+    rpc finishUnfinishedBattles (FinishUnfinishedBattlesRequest) returns (FinishUnfinishedBattlesResponse);
+    rpc finishUnfinishedBattlesTimeBased (FinishUnfinishedBattlesRequest) returns (FinishUnfinishedBattlesResponse);
+    rpc getAllLobbies(GetAllLobbiesRequest) returns(GetLobbiesResponse);
+    rpc getAllGameLobbies(GetAllGameLobbiesRequest) returns(GetLobbiesResponse);
+    rpc getGames (GetGamesRequest) returns (GetGamesResponse);
+    rpc getLobbyConfigs (GetLobbyConfigsRequest) returns (GetLobbyConfigsResponse);
+    rpc getLobbyConfigById (GetLobbyRequest) returns (LobbyConfig);
+    rpc createLobbyConfig (LobbyConfig) returns (LobbyConfig);
+    rpc updateLobbyConfig (LobbyConfig) returns (LobbyConfig);
+    rpc updateLobbyDetails (LobbyDetails) returns (LobbyDetails);
+    rpc sendTableUserRegistered (TableUserRegistered) returns (EventSentStatus);
+    rpc sendTableUserPlayedGame (TableUserPlayedGame) returns (EventSentStatus);
+    rpc sendTableUserWon (TableUserWon) returns (EventSentStatus);
+    rpc sendTableGiftPurchased (TableGiftPurchased) returns (EventSentStatus);
+    rpc sendRummyEvent(EventData) returns (EventSentStatus);
+    rpc getBattleGameData(GetBattleDataRequest) returns (GetBattleDataResponse);
+    rpc publishEvents (PublishEventRequest) returns (EmptyParams);
+    rpc getBattleByUser (Id) returns (BattleIdResponse);
+    rpc getPlayersInBattle(GetPlayersInBattleRequest) returns (GetPlayersInBattleResponse);
+    rpc finishAmbigousBattle (FinishAmbigousBattleRequest) returns (FinishAmbigousBattleResponse);
+    rpc finishSession (SessionFinishRequest) returns (GetBattleResponse);
 
-    // rpc getKnockOutMatchData(GetKnockOutMatchDataRequest) returns (GetKnockOutMatchDataResponse);
-    // rpc updateKnockOutPlayerScore(UpdateKnockOutPlayerScoreRequest) returns (UpdateKnockOutPlayerScoreResponse) ;
-    // rpc finishMatch(FinishMatchRequest) returns (FinishMatchResponse);
-    // rpc finishTimeoutMatch(FinishTimeoutMatchRequest) returns (FinishTimeoutMatchResponse);
-
-
-    // rpc restoreUserInLobby(RestoreUserInLobbyRequest) returns (RestoreUserInLobbyResponse);
-
-    // rpc getUserBalance(GetUserBalanceRequest)  returns(GetUserBalanceResponse);
-    // rpc authenticate (AuthenticationRequest) returns (AuthenticationResponse);
+    rpc getKnockOutMatchData(GetKnockOutMatchDataRequest) returns (GetKnockOutMatchDataResponse);
+    rpc updateKnockOutPlayerScore(UpdateKnockOutPlayerScoreRequest) returns (UpdateKnockOutPlayerScoreResponse) ;
+    rpc finishMatch(FinishMatchRequest) returns (FinishMatchResponse);
+    rpc finishTimeoutMatch(FinishTimeoutMatchRequest) returns (FinishTimeoutMatchResponse);
 
 
-    // rpc get1vNKnockOutMatchData(Get1vNKnockOutMatchDataRequest) returns (Get1vNKnockOutMatchDataResponse);
-    // rpc finish1vNTimeoutMatch(Finish1vNTimeoutMatchRequest) returns (Finish1vNTimeoutMatchResponse);
+    rpc restoreUserInLobby(RestoreUserInLobbyRequest) returns (RestoreUserInLobbyResponse);
+
+    rpc getUserBalance(GetUserBalanceRequest)  returns(GetUserBalanceResponse);
+    rpc authenticate (AuthenticationRequest) returns (AuthenticationResponse);
+
+
+    rpc get1vNKnockOutMatchData(Get1vNKnockOutMatchDataRequest) returns (Get1vNKnockOutMatchDataResponse);
+    rpc finish1vNTimeoutMatch(Finish1vNTimeoutMatchRequest) returns (Finish1vNTimeoutMatchResponse);
     rpc finishBattleWithScores(FinishBattleScoreRequest) returns(GetBattleResponse);
-    // rpc rejoinBattle(RejoinBattleRequest) returns(RejoinBattleResponse);
-    // rpc getActiveBattles (GetActiveBattlesRequest) returns (GetActiveBattleResponse);
-    // rpc removeUserFromLobbyLeaderboard(RemoveUserFromLobbyLeaderboardRequest) returns(RemoveUserFromLobbyLeaderboardResponse);
-    // rpc updateKnockoutRHServer(UpdateKnockoutRHServerRequest) returns (UpdateKnockoutRHServerResponse);
-    // rpc poolRummyManualSplit(PoolRummyManualSplitRequest) returns (PoolRummyManualSplitResponse);
+    rpc rejoinBattle(RejoinBattleRequest) returns(RejoinBattleResponse);
+    rpc getActiveBattles (GetActiveBattlesRequest) returns (GetActiveBattleResponse);
+    rpc removeUserFromLobbyLeaderboard(RemoveUserFromLobbyLeaderboardRequest) returns(RemoveUserFromLobbyLeaderboardResponse);
+    rpc updateKnockoutRHServer(UpdateKnockoutRHServerRequest) returns (UpdateKnockoutRHServerResponse);
+    rpc poolRummyManualSplit(PoolRummyManualSplitRequest) returns (PoolRummyManualSplitResponse);
 
-    // // Async format 1v1 battle support
-    // rpc createBattleAsync(CreateBattleAsyncRequest) returns (CreateBattleAsyncResponse);
-    // rpc getPendingBattles(GetPendingBattlesRequest) returns (GetPendingBattlesResponse);
-    // rpc finishBattleAsync(FinishBattleAsyncRequest) returns (FinishBattleAsyncResponse);
+    // Async format 1v1 battle support
+    rpc createBattleAsync(CreateBattleAsyncRequest) returns (CreateBattleAsyncResponse);
+    rpc getPendingBattles(GetPendingBattlesRequest) returns (GetPendingBattlesResponse);
+    rpc finishBattleAsync(FinishBattleAsyncRequest) returns (FinishBattleAsyncResponse);
 
-    // // Exposing Next Lobby Suggestion Logic
-    // rpc getNextLobbySuggestion(NextLobbySuggestionRequest) returns (NextLobbySuggestionResponse);
-    // // Exposing Next Lobby Suggestion Logic
-    // rpc processSegmentationLogic(ProcessSegmentationLogicRequest) returns (ProcessSegmentationLogicResponse);
-    // // Exposing Skill Updater Task
-    // rpc processSkillUpdaterTaskLogic(ProcessSkillUpdaterTaskLogicRequest) returns (ProcessSkillUpdaterTaskLogicResponse);
-    // rpc refundBattle(RefundBattleRequest) returns (RefundBattleResponse);
-    // // ML algo
-    // rpc getGuardingChurnAlgoStats(GetGuardingChurnAlgoStatsRequest) returns (GetGuardingChurnAlgoStatsResponse);
+    // Exposing Next Lobby Suggestion Logic
+    rpc getNextLobbySuggestion(NextLobbySuggestionRequest) returns (NextLobbySuggestionResponse);
+    // Exposing Next Lobby Suggestion Logic
+    rpc processSegmentationLogic(ProcessSegmentationLogicRequest) returns (ProcessSegmentationLogicResponse);
+    // Exposing Skill Updater Task
+    rpc processSkillUpdaterTaskLogic(ProcessSkillUpdaterTaskLogicRequest) returns (ProcessSkillUpdaterTaskLogicResponse);
+    rpc refundBattle(RefundBattleRequest) returns (RefundBattleResponse);
+    // ML algo
+    rpc getGuardingChurnAlgoStats(GetGuardingChurnAlgoStatsRequest) returns (GetGuardingChurnAlgoStatsResponse);
 
-    // //test lobby
-    // rpc testLobby(TestLobbyRequest) returns (TestLobbyResponse);
+    //test lobby
+    rpc testLobby(TestLobbyRequest) returns (TestLobbyResponse);
 
-    // //SFS instrumentation
-    // rpc generateUserDisconnectedEvent (UserDisconnectedRequest) returns (UserDisconnectedResponse);
+    //SFS instrumentation
+    rpc generateUserDisconnectedEvent (UserDisconnectedRequest) returns (UserDisconnectedResponse);
 
-    // rpc updateLeaderBoardForRummyTournament(UpdateLeaderBoardForRummyTournamentRequest) returns (UpdateLeaderBoardForRummyTournamentResponse);
+    rpc updateLeaderBoardForRummyTournament(UpdateLeaderBoardForRummyTournamentRequest) returns (UpdateLeaderBoardForRummyTournamentResponse);
 }
