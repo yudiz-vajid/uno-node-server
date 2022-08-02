@@ -36,6 +36,7 @@ async function setUpEnvs() {
 
   log.info('fetched ZKConfig.');
   log.info(`ZKConfig = ${JSON.stringify(ZKConfig)}\n`);
+  log.info(`process.env = ${JSON.stringify(process.env)}\n`);
 }
 
 async function startGrpcServer() {
