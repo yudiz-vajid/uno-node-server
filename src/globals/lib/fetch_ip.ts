@@ -21,8 +21,8 @@ async function exec(command: string): Promise<string | undefined> {
     const MAC = Object.values(networkInterfaces()).flat()?.find(_interface => _interface?.mac !== '00:00:00:00:00:00')?.mac;
     if (!MAC) {
       console.error(`error: \n${error.message}`);
-      log.error(`${_.now()} unable to fetch ip/MAC.`);
-      log.info(`${_.now()} terminating process!!!!!!!.`);
+      console.error(`${_.now()} unable to fetch ip/MAC.`);
+      console.info(`${_.now()} terminating process!!!!!!!.`);
       process.exit(1);
       return undefined;
     }

@@ -4,11 +4,12 @@ import { Server } from 'socket.io';
 import type { Express } from 'express';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import PathFinder from 'lib-pathfinder-node';
-import { RedisClient } from '../app/util';
-import helper from './lib/helper';
+import './globals/lib/fetch_ip';
 import logger from './lib/logs';
-import _emitter from './lib/emitter';
+import helper from './lib/helper';
 import builder from './lib/messages';
+import _emitter from './lib/emitter';
+import type { RedisClient } from '../app/util';
 
 declare global {
   var _: typeof helper;
@@ -25,7 +26,6 @@ global._ = helper;
 global.log = logger;
 global.emitter = _emitter;
 global.messages = builder;
-global.redis = new RedisClient();
 global.PF = PathFinder;
 
 export {};
