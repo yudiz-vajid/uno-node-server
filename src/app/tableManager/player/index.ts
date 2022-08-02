@@ -287,8 +287,8 @@ class Player extends Service {
     return true;
   }
 
-  public async decalreUno(oData: any, oTable: Table, callback: ICallback) {
-    log.verbose(`${_.now()} event: decalreUno, player: ${this.iPlayerId}`);
+  public async declareUno(oData: any, oTable: Table, callback: ICallback) {
+    log.verbose(`${_.now()} event: declareUno, player: ${this.iPlayerId}`);
     const eligibleUno = this.aHand.length === 2;
     const playableCards = await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
     if (eligibleUno && playableCards.length) {

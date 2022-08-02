@@ -37,7 +37,7 @@ class Channel {
           break;
 
         case 'reqUno':
-          emitter.emit('channelEvent', { sTaskName: 'decalreUno', iBattleId: this.iBattleId, iPlayerId: this.iPlayerId ?? '', oData }, ack);
+          emitter.emit('channelEvent', { sTaskName: 'declareUno', iBattleId: this.iBattleId, iPlayerId: this.iPlayerId ?? '', oData }, ack);
           break;
 
         case 'reqLeave':

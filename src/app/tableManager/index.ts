@@ -31,7 +31,7 @@ class TableManager {
 
     const oPlayer = oTable.getPlayer(iPlayerId);
 
-    if (['assignTurnTimerExpired', 'assignGraceTimerExpired', 'drawCard', 'discardCard', 'decalreUno'].includes(sTaskName)) {
+    if (['assignTurnTimerExpired', 'assignGraceTimerExpired', 'drawCard', 'discardCard', 'declareUno'].includes(sTaskName)) {
       if (!oPlayer) {
         callback({ oData: {}, status: response.PLAYER_NOT_FOUND });
         return (log.warn(`${_.now()} oPlayer not found in table. { iBattleId : ${iBattleId}, iPlayerId : ${iPlayerId} }`) && null) ?? false;
@@ -87,8 +87,8 @@ class TableManager {
         oPlayer?.setWildCardColor(oData, oTable, callback);
         return true;
 
-      case 'decalreUno':
-        oPlayer?.decalreUno(oData, oTable, callback);
+      case 'declareUno':
+        oPlayer?.declareUno(oData, oTable, callback);
         return true;
 
       case 'leaveMatch':
