@@ -21,7 +21,7 @@ class RootSocket {
   private async authenticate(socket: Socket, next: ICallback): Promise<boolean> {
     // - executes once for each client during connection
     try {
-      log.info('1. connection request recieved');
+      log.debug('1. connection request recieved');
       // prettier-ignore
       const { error: authError, info: authInfo, value: authValue } = await verifyAuthHeader({
         i_battle_id: socket.handshake.auth.i_battle_id ?? <unknown>socket.handshake.headers.i_battle_id,
