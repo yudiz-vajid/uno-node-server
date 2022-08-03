@@ -72,10 +72,10 @@ export async function initializePathFinder() {
     log.info('gRPC server start seq completed.');
 
     // /* AUTH-SERVICE */
-    // const authClient = await PathFinder.getInstance().getClient({ serviceName: 'service-auth', serviceNameInProto: 'AuthService' });
-    // console.log('req authenticate');
-    // const resAuth = await authClient.authenticate().sendMessage({ requestId: '1', authToken: 'admin' });
-    // console.log('res authenticate ', resAuth);
+    const authClient = await PathFinder.getInstance().getClient({ serviceName: 'service-auth', serviceNameInProto: 'AuthService' });
+    console.log('req authenticate');
+    const resAuth = await authClient.authenticate().sendMessage({ requestId: '1', authToken: 'admin' });
+    console.log('res authenticate ', resAuth);
 
     // /* LOBBY-SERVICE */
     // const lobbyClient = await PathFinder.getInstance().getClient({ serviceName: 'service-tournament-1v1', serviceNameInProto: 'LobbyService' });
