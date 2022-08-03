@@ -1,11 +1,7 @@
 const protos = [
-  // {
-  //   path: `${__dirname}/lib/AuthService.proto`,
-  //   name: 'service-auth',
-  // },
   {
-    path: `${__dirname}/lib/UnoService.proto`,
-    name: 'service-uno',
+    path: `${__dirname}/lib/AuthService.proto`,
+    name: 'service-auth',
   },
   // {
   //   path: `${__dirname}/lib/LobbyService.proto`,
