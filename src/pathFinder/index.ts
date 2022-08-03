@@ -5,7 +5,6 @@
 import PathFinder, { PFServer } from 'lib-pathfinder-node';
 import protos from './protos';
 import { init, getConfig } from './connection/zk';
-import { RedisClient } from '../app/util';
 // import grpc, { getGrpcClient } from './connection/grpc';
 
 const loadOpts = {
@@ -38,8 +37,6 @@ async function setUpEnvs() {
   log.info('fetched ZKConfig.');
   log.info(`ZKConfig = ${JSON.stringify(ZKConfig)}\n`);
   log.info(`process.env = ${JSON.stringify(process.env)}\n`);
-
-  global.redis = new RedisClient();
 }
 
 async function startGrpcServer() {

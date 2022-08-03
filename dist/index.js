@@ -18,12 +18,14 @@ require("./globals");
 const server_1 = __importDefault(require("./server"));
 const sockets_1 = __importDefault(require("./app/sockets"));
 const pathFinder_1 = require("./pathFinder");
+const util_1 = require("./app/util");
 process.env.UV_THREADPOOL_SIZE = `${(0, os_1.cpus)().length}`;
 (() => __awaiter(void 0, void 0, void 0, function* () {
     try {
         log.verbose(process.env.NODE_ENV);
         if (process.env.NODE_ENV !== 'dev')
             yield (0, pathFinder_1.initializePathFinder)();
+        global.redis = new util_1.RedisClient();
         yield Promise.all([server_1.default.initialize(), redis.initialize()]);
         yield sockets_1.default.initialize(server_1.default.httpServer);
         log.info(':-)');
