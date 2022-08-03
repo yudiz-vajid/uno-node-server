@@ -19,7 +19,7 @@ class RedisClient {
 
   public sch!: RedisClientType;
 
-  public schScubs!: RedisClientType;
+  public schSubs!: RedisClientType;
 
   constructor() {
     this.pubSubOptions = {
@@ -53,9 +53,9 @@ class RedisClient {
       (this.publisher as unknown) = createClient(this.pubSubOptions);
       (this.subscriber as unknown) = createClient(this.pubSubOptions);
       (this.sch as unknown) = createClient(this.schedularOptions);
-      (this.schScubs as unknown) = createClient(this.schedularOptions);
+      (this.schSubs as unknown) = createClient(this.schedularOptions);
 
-      await Promise.all([this.client.connect(), this.publisher.connect(), this.subscriber.connect(), this.sch.connect(), this.schScubs.connect()]);
+      await Promise.all([this.client.connect(), this.publisher.connect(), this.subscriber.connect(), this.sch.connect(), this.schSubs.connect()]);
       try {
         await this.sch.CONFIG_SET('notify-keyspace-events', 'Ex'); // TODO : switch  client => sch
       } catch (err) {
@@ -67,7 +67,7 @@ class RedisClient {
       this.publisher.on('error', log.error);
       this.subscriber.on('error', log.error);
       this.sch.on('error', log.error);
-      this.schScubs.on('error', log.error);
+      this.schSubs.on('error', log.error);
     } catch (error) {
       log.error(error);
     }
@@ -75,7 +75,7 @@ class RedisClient {
 
   private async setupConfig() {
     // await this.subscriber.subscribe(['__keyevent@0__:expired', 'redisEvent'], this.onMessage, false);
-    await this.schScubs.subscribe(['__keyevent@0__:expired', 'redisEvent'], this.onMessage, false);
+    await this.schSubs.subscribe(['__keyevent@0__:expired', 'redisEvent'], this.onMessage, false);
     log.info('Redis initialized ⚡');
   }
 
@@ -86,6 +86,7 @@ class RedisClient {
   public async onMessage(message: any, channel: string) {
     let _channel;
     let _message;
+    console.log(`onMessage: keySpaceEvent!!!!!!!!!!!!!: ${message} ${channel}`);
 
     if (channel === '__keyevent@0__:expired') {
       const [sType, iBattleId, sTaskName, iPlayerId, sHostIp] = message.split(':'); // 'sch:fqr6dlI_2Gg2TcH3_YTfj:assignBot::127.0.0.1' // `sch:${iBattleId}:${sTaskName}:${iPlayerId}:${host}`
