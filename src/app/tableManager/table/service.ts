@@ -339,9 +339,12 @@ class Service {
     try {
       if (!sTaskName) return false;
       if (!nTimeMS) return false;
+      console.log(sTaskName, this.iBattleId, iPlayerId, nTimeMS, sTaskName);
       await redis.sch.pSetEx(_.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId), nTimeMS, sTaskName);
       return true;
     } catch (err: any) {
+      console.log('err.message :: ', _.stringify(err.message));
+      console.log('err :: ', _.stringify(err));
       log.error(`table.setSchedular() failed.${{ reason: err.message, stack: err.stack }}`);
       return false;
     }
