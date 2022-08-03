@@ -71,6 +71,7 @@ class RedisClient {
 
   private async setupConfig() {
     await this.subscriber.subscribe(['__keyevent@0__:expired', 'redisEvent'], this.onMessage, false);
+    await this.sch.subscribe(['__keyevent@0__:expired', 'redisEvent'], this.onMessage, false);
     log.info('Redis initialized ⚡');
   }
 
