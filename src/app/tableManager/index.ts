@@ -137,7 +137,7 @@ class TableManager {
       if (oLobbyDataRes.error) throw new Error('Error on rpc call getLobbyById');
 
       const gameConfig = _.parse(oLobbyDataRes?.gameConfig);
-
+      log.verbose(`gameConfig after parsing :: ${gameConfig}`);
       const oTableWithParticipant: ITable = {
         iBattleId: oData.iBattleId,
         iLobbyId: oData.iLobbyId,
