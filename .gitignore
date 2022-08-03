@@ -1,7 +1,7 @@
 .history
 .resources
-node_modules
 .env
 .DS_Store
-dist
 service-uno.log
+dist
+node_modules
