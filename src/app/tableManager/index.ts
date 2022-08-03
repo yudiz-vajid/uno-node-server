@@ -131,16 +131,16 @@ class TableManager {
 */
   public static async createTable(oData: { iBattleId: ITable['iBattleId']; oSettings: ITable['oSettings']; iPlayerId: IPlayer['iPlayerId']; iLobbyId: string }) {
     try {
+      log.debug(`7.1. table creation started => createTable()`);
+      log.debug(`createTable() payload: ${_.stringify(oData)}`);
       const oLobbyDataRes = await rpc.getLobbyById(Number(oData.iLobbyId), Number(oData.iPlayerId));
-      log.debug(`gRPC oLobbyDataRes on create table :: ${oLobbyDataRes}`);
-      if (!oLobbyDataRes) throw new Error('Lobby data not found');
-      if (oLobbyDataRes.error) throw new Error('Error on rpc call getLobbyById');
-
       const oLobby = _.parse(oLobbyDataRes);
-      log.verbose('oLobby ::');
-      log.verbose(_.stringify(oLobby));
+      if (!oLobby) throw new Error('Lobby data not found');
+      if (oLobby.error) throw new Error('Error on rpc call getLobbyById');
+
+      log.debug(`oLobby :: ${_.stringify(oLobby)}`);
       const gameConfig = _.parse(oLobby?.lobbyDetails?.gameConfig);
-      log.verbose(`gameConfig :: ${_.stringify(gameConfig)}`);
+      log.debug(`7.2. gameConfig :: ${_.stringify(gameConfig)}`);
       // log.verbose(`gameConfig after parsing :: ${gameConfig}`);
       const oTableWithParticipant: ITable = {
         iBattleId: oData.iBattleId,
@@ -162,6 +162,7 @@ class TableManager {
         dCreatedAt: new Date(),
         oWinningCard: {},
       };
+      log.debug(`7.3. table creation started => createTable()`);
       const sRedisSetResponse = await redis.client.json.SET(_.getTableKey(oTableWithParticipant.iBattleId), '.', oTableWithParticipant as unknown as RedisJSON);
       if (!sRedisSetResponse) return null;
       return new Table(oTableWithParticipant);

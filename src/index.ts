@@ -12,6 +12,7 @@ process.env.UV_THREADPOOL_SIZE = `${cpus().length}`;
   try {
     await Promise.all([getIp(), initializePathFinder()]);
     global.redis = new RedisClient();
+    await Promise.all([redis.client.flushAll(), redis.sch.flushAll()]); // TODO: remove
     await Promise.all([server.initialize(), redis.initialize()]);
     await socket.initialize(server.httpServer);
     log.info(':-)');

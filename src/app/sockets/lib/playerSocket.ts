@@ -48,6 +48,7 @@ class PlayerSocket {
   private async joinTable(body: unknown, _ack: ICallback) {
     if (typeof _ack !== 'function') return false;
     try {
+      log.debug(`6. joinTable started: pid -> ${this.iPlayerId}`);
       let oTable = await TableManager.getTable(this.iBattleId);
       if (!oTable) oTable = await TableManager.createTable({ iBattleId: this.iBattleId, oSettings: this.oSetting, iPlayerId: this.iPlayerId, iLobbyId: this.iLobbyId });
       if (!oTable) throw new Error('Table not created');
