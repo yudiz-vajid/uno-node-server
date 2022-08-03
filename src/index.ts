@@ -18,6 +18,7 @@ process.env.UV_THREADPOOL_SIZE = `${cpus().length}`;
   } catch (err: any) {
     log.info(':-(');
     log.error(`reason: ${err.message}, stack: ${err.stack}`);
+    process.exit(1);
   }
 })();
 

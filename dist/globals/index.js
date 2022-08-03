@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const lib_pathfinder_node_1 = __importDefault(require("lib-pathfinder-node"));
-require("./lib/fetch_ip");
 const logs_1 = __importDefault(require("./lib/logs"));
 const helper_1 = __importDefault(require("./lib/helper"));
 const messages_1 = __importDefault(require("./lib/messages"));

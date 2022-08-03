@@ -21,9 +21,7 @@ const util_1 = require("./app/util");
 process.env.UV_THREADPOOL_SIZE = `${(0, os_1.cpus)().length}`;
 (() => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        log.verbose(process.env.NODE_ENV);
-        if (process.env.NODE_ENV !== 'dev')
-            yield (0, pathFinder_1.initializePathFinder)();
+        yield Promise.all([(0, util_1.getIp)(), (0, pathFinder_1.initializePathFinder)()]);
         global.redis = new util_1.RedisClient();
         yield Promise.all([server_1.default.initialize(), redis.initialize()]);
         yield sockets_1.default.initialize(server_1.default.httpServer);
@@ -32,6 +30,7 @@ process.env.UV_THREADPOOL_SIZE = `${(0, os_1.cpus)().length}`;
     catch (err) {
         log.info(':-(');
         log.error(`reason: ${err.message}, stack: ${err.stack}`);
+        process.exit(1);
     }
 }))();
 process.once('uncaughtException', (ex) => {
