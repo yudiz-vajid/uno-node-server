@@ -1,0 +1,295 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+enum State {
+    ONLINE = 0;
+    OFFLINE = 1;
+    IN_GAME = 2;
+}
+
+enum PlayerType{
+    STARTER = 0;
+    CHALLENGER = 1;
+}
+
+message Currency{
+    string currencyId = 1;
+    string currencyName = 2;
+    string symbol = 3;
+}
+
+message CountryInfo {
+    string countryCode = 1;
+    string countryName = 2;
+    Currency currency = 3;
+    string timeZone = 4;
+}
+
+message MoneyDTO{
+    string amount = 1;
+    string currencyId = 2;
+}
+
+message DynamicWinning{
+    int32 playerCount =1;
+    MoneyDTO cashWinning = 2;
+    repeated double rankWinning = 3;
+}
+
+message RankRange {
+    int32 start = 1;
+    int32 end = 2;
+    MoneyDTO cash = 3;
+    int32 tokens = 4;
+    string extReward = 5;
+    repeated DynamicWinning dynamicWinnings = 6;
+}
+
+message Rewards {
+    MoneyDTO totalCash = 1;
+    int32 totalTokens = 2;
+    repeated RankRange rankRanges = 3;
+    int32 maxRanks = 4;
+    int32 id = 5;
+    string name = 6;
+}
+
+
+
+message BasicProfile {
+    uint32 id = 1;
+    string mobileNumber = 2;
+    string displayName = 3;
+    string avatarId = 4;
+    string avatarUrl = 5;
+    bool isPro = 6;
+    string tier = 7;
+    string acr = 8;
+    string verifyStatus = 9;
+    State state = 10;
+    uint64 lastOnline = 11;
+    string ls = 12;
+    string highlight = 13;
+    string userName = 14;
+    bool isUserNameClaimed = 15;
+    string profileName = 16;
+    string countryCode = 17;
+    bool ownProfile = 18;
+    bool isPrime =19;
+}
+
+message TopRank {
+    int32 userId = 1;
+    string name = 2;
+    int32 rank = 3;
+    int32 score = 4;
+    string avatar = 5;
+    string tier = 6;
+    bool isPro = 7;
+    string location = 8;
+    string acr = 9;
+    string state = 10;
+    uint64 lastOnline = 11;
+    BasicProfile profile = 12;
+}
+
+message UpsellReward {
+    string gamesText = 1;
+    string rewardText = 2 ;
+    bool claimed = 3;
+}
+
+message UpsellOffer {
+    string header = 1;
+    string offerText = 2;
+    string endTime = 3;
+    string badgeText = 4;
+    repeated UpsellReward rewards = 5;
+    string progressText = 6;
+    bool visible = 7;
+    string imageUrl = 8;
+    string extraInfo = 9;
+    int32 entryFee = 10;
+}
+
+message LobbyDetails {
+    int32 id = 1;
+    string name = 2;
+    string description = 3;
+    int32 configId = 4;
+    string startTime = 5;
+    string activeEndTime = 6;
+    string endTime = 7;
+    int32 gameId = 8;
+    string gameConfig = 9;
+    string currencyType = 10;
+    MoneyDTO entryFee = 11;
+    string rewards = 12;
+    string lobbyStatus = 13;
+    bool active = 14;
+    string extraInfo = 15;
+    string createdOn = 16;
+    string modifiedOn = 17;
+    int32 registeredUsers = 18;
+    int32 activeUsers = 19;
+    string chatChannel = 20;
+    int32 minPlayers = 22;
+    int32 maxPlayers = 23;
+    bool userRegistered = 24;
+    string gameConfigName = 25;
+    string gameName = 26;
+    string style = 27;
+    Rewards specialRewards = 28;
+    bool battlePlayAgainDisabled = 29;
+    string imageUrl = 30;
+    bool applyBonusLimit = 31;
+    MoneyDTO bonusLimit = 32;
+    repeated TopRank topRanks = 33;
+    string gameIcon = 34;
+    UpsellOffer upsellOffer = 35;
+}
+
+message LobbyServiceError {
+    enum Reason {
+        NONE = 0;
+        UNKNOWN = 1;
+        BAD_REQUEST = 2;
+        INTERNAL_ERROR = 3;
+        EXTERNAL_ERROR = 4;
+        INSUFFICIENT_FUNDS = 5;
+        LOBBY_ENDED = 6;
+        VIOLATED_THE_FRAUD_RULES =7;
+        UNAUTHORIZED = 8;
+        GAME_WISE_USER_BLOCKED = 9;
+        DUPLICATE = 10;
+        APP_LEVEL_USER_BLOCKED = 11;
+        MIN_VERSION_UPDATE = 12;
+        COLLUSION_DETECTED = 13;
+        FORMAT_NOT_SUPPORTED =14;
+        KO_DEVICE_ID_CHECK = 15;
+        SEGMENT_BLOCKED_USER = 16;
+        USER_EXITED_RUMMY_TOURNAMENT = 17;
+        KO_GAMEPLAY_ERROR = 18;
+    }
+    Reason reason = 1;
+    string message = 2;
+    repeated int32 segmentBlockedUsers = 3;
+}
+
+message LobbyPlayerData {
+    string battleId = 1;
+    int32 userId = 2;
+    int32 score = 3;
+    string scoreData = 4;
+    string status = 5;
+    bool matched = 6;
+    int32 rank = 7;
+    int32 cashWinnings = 8;
+    int32 tokenWinnings = 9;
+    bool canPlayAgain = 10;
+    bool followingOpponent = 11;
+    double cashWinningsDecimal = 12;
+    string nextLobbySuggestedConfig = 13;
+    LobbyDetails nextSuggestedLobby = 14;
+    double decimalScore = 15;
+    string extraInfo = 16;
+    int32 entryFee =17;
+    string entryCurrency =18;
+    string rewards = 19;
+    bool isTicketUsed = 20;
+    double ticketContribution = 21;
+    string moneyEntryFee= 22;
+    CountryInfo countryInfo = 23;
+    bool hasBalance = 24;
+    bool segmentedUser = 25;
+    bool userBlocked = 26;
+}
+
+
+message AuthServiceError {
+    enum Reason {
+        NONE                       = 0;
+        UNKNOWN                    = 1;
+        BAD_REQUEST                = 2;
+        INTERNAL_ERROR             = 3;
+        INVALID_USER_ID            = 4;
+    }
+    Reason reason  = 1;
+    string message = 2;
+}
+
+message AuthenticationRequest {
+    string requestId = 1;
+    string authToken = 2; // recieved form unity
+}
+message AuthenticationResponse {
+    AuthServiceError error = 1;
+    bool isAuthentic       = 2;
+    uint32 userId          = 3;
+    string mobileNumber    = 4;
+    string countryCode     = 5;
+}
+
+
+message GetLobbyRequest {
+    string requestId = 1;
+    int32 id = 2;     // unknown, where to get this ?
+    int32 userId = 3;
+}
+message GetLobbyDetailsResponse {
+    string requestId = 1;
+    LobbyServiceError error = 2;
+    LobbyDetails lobbyDetails = 3;
+}
+
+message UpdateBattleScoreRequest {
+    string requestId = 1;
+    string battleId = 2;
+    int32 userId = 3;
+    int32 score = 4;
+    string scoreData = 5; // what value is expected here ?
+    bool isFirstScore = 6; // will it be always true, as we only send the score once the will finish ?
+    string partnerKey = 7; // what value is expected here ?
+    double decimalScore = 8; // what value is expected here ?
+    bool forceSubmit = 9; // should it always be true ?
+    string stateChangelog = 10; // what value is expected here ?
+}
+message UpdateBattleScoreResponse {
+    string requestId = 1;
+    LobbyServiceError error = 2;
+    bool success = 3;
+    bool matched = 4;
+    bool resultsDeclared = 5;
+    bool winner = 6;
+    int32 amount = 7;
+    string currencyType = 8;
+    int32 rank = 9;
+    LobbyPlayerData playerData = 10;
+    PlayerType playerType = 11; // ! not defined in proto file   LobbyService.proto
+    string moneyAmount = 12;
+    CountryInfo countryInfo = 13;
+    bool allScoredSubmitted = 14;
+}
+
+message GetBattleRequest {
+    string requestId = 1;
+    string battleId = 2;
+    bool isOldBattle = 3; // what value is expected here ?
+    bool useWriter = 4; // what value is expected here ?
+}
+// message GetBattleResponse {
+//     string requestId = 1;
+//     LobbyServiceError error = 2;
+//     repeated LobbyPlayerData playersData = 3;
+//     string battleStatus = 4;
+//     bool battlePlayAgainDisabled = 5 ;
+//     RummyInfo rummyInfo = 6;
+// }
+
+service UnoService {
+    rpc authenticate(AuthenticationRequest) returns(AuthenticationResponse);
+    rpc getLobbyById (GetLobbyRequest) returns (GetLobbyDetailsResponse);
+    rpc updateBattleScore (UpdateBattleScoreRequest) returns (UpdateBattleScoreResponse);
+    // rpc finishBattle (GetBattleRequest) returns (GetBattleResponse);
+}
