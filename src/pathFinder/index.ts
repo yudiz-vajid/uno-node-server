@@ -21,7 +21,7 @@ async function setUpEnvs() {
 
   process.env.NODE_ENV = 'qa';
   process.env.PORT = '3000';
-  process.env.LOG_LEVEL = 'verbose';
+  process.env.LOG_LEVEL = 'silly';
 
   process.env.PUBSUB_REDIS_HOST = ZKConfig.PUBSUB_REDIS_HOST ?? 'redis-14966.c264.ap-south-1-1.ec2.cloud.redislabs.com';
   process.env.PUBSUB_REDIS_PORT = ZKConfig.PUBSUB_REDIS_PORT ?? '14966';
