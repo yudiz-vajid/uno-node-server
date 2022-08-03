@@ -157,7 +157,7 @@ class TableManager {
         iSkippedPLayer: '',
         iDrawPenltyPlayerId: '',
         aPlayerId: [],
-        aDrawPile: new Deck(oData.oSettings.aCardScore).getDeck(),
+        aDrawPile: new Deck(updatedGameConfig.aCardScore).getDeck(),
         aDiscardPile: [],
         bToSkip: false,
         eState: 'waiting',

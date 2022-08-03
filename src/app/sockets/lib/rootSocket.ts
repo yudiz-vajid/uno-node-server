@@ -46,7 +46,7 @@ class RootSocket {
       socket.data.iPlayerId = iPlayerId;
       socket.data.sPlayerName = sPlayerName;
       socket.data.sAuthToken = sAuthToken;
-      // socket.data.oSettings = settingsValue;
+      socket.data.oSettings = settingsValue;
       let bIsValid = false;
       log.debug('4.1. Authenticating player');
       // if (process.env.NODE_ENV !== 'dev') {
