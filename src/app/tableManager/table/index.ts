@@ -93,7 +93,7 @@ class Table extends Service {
   }
 
   public async getNextPlayer(nPreviousSeat: number) {
-    const aPlayingPlayer = this.aPlayer.filter(p => p.toJSON().eState === 'playing');
+    const aPlayingPlayer = this.aPlayer.filter(p => p.toJSON().eState !== 'left');
     if (!aPlayingPlayer.length) return (log.error(`No players have eState 'playing'`) && null) ?? null;
 
     let oPlayer: Player | undefined;
