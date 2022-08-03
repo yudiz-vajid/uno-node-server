@@ -38,6 +38,7 @@ class RootSocket {
       log.debug('3. payload verified');
 
       const { iBattleId, iPlayerId, sPlayerName, sAuthToken, iLobbyId } = authValue;
+      console.log('authValue :: ', authValue);
 
       socket.data.iBattleId = iBattleId;
       socket.data.iLobbyId = iLobbyId;
