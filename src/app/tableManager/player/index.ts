@@ -162,7 +162,7 @@ class Player extends Service {
     const aPromise: any = [];
     if (!oTable.toJSON().aDrawPile.length) await oTable.reshuffleClosedDeck();
     const alreadyHavePlayableCard = await this.getPlayableCardIds(await oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
-    if (alreadyHavePlayableCard.length) aPromise.pus(this.update({ nOptionalDraw: this.nOptionalDraw + 1 }));
+    if (alreadyHavePlayableCard.length) aPromise.push(this.update({ nOptionalDraw: this.nOptionalDraw + 1 }));
     if (oTable.toJSON().iDrawPenltyPlayerId === this.iPlayerId) {
       callback({ oData: {}, status: response.SUCCESS });
       await this.assignDrawPenalty(oTable);
