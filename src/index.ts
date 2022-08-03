@@ -13,7 +13,7 @@ process.env.UV_THREADPOOL_SIZE = `${cpus().length}`;
     await Promise.all([getIp(), initializePathFinder()]);
     global.redis = new RedisClient();
     await Promise.all([server.initialize(), redis.initialize()]);
-    await Promise.all([redis.client.flushAll(), redis.sch.flushAll()]); // TODO: remove
+    // await Promise.all([redis.client.flushAll(), redis.sch.flushAll()]); // TODO: remove
     await socket.initialize(server.httpServer);
     log.info(':-)');
   } catch (err: any) {
