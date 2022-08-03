@@ -21,6 +21,7 @@ async function setUpEnvs() {
   process.env.LOG_LEVEL ??= 'silly';
 
   log.info('fetching ZKConfig ...');
+  if (process.env.NODE_ENV !== 'dev') await init();
   const ZKConfig: Record<string, string> | null = process.env.NODE_ENV !== 'dev' ? getConfig() : null;
 
   process.env.PUBSUB_REDIS_HOST = ZKConfig?.PUBSUB_REDIS_HOST ?? 'redis-14966.c264.ap-south-1-1.ec2.cloud.redislabs.com';
@@ -58,7 +59,6 @@ export async function initializePathFinder() {
     if (process.env.NODE_ENV === 'dev') return true;
 
     PathFinder.initialize({ appName: 'service-uno', protosToLoad: protos, loadOpts, promisify: true });
-    await init();
     log.info('PathFinder initialize seq completed.');
 
     /*
