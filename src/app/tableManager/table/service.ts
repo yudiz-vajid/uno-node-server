@@ -271,7 +271,7 @@ class Service {
       this.iBattleId,
       this.aPlayerId.map(p => Number(p))
     );
-    log.verbose(`rpcTable in initializeGameTimer ${rpcTable}`);
+    log.verbose(`rpcTable in initializeGameTimer ${_.stringify(rpcTable)}`);
     if (!rpcTable || rpcTable.error || !rpcTable.success) return false; // TODO: socket disconnect
     // const nBeginCountdown = this.aPlayerId.length === this.oSettings.nTotalPlayerCount ? this.oSettings.nGameInitializeTime / 2 : this.oSettings.nGameInitializeTime;
     const nBeginCountdownCounter = this.oSettings.nGameInitializeTime;
