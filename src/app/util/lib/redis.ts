@@ -30,9 +30,14 @@ class RedisClient {
     };
 
     this.schedularOptions = {
-      url: `redis://${process.env.SCHEDULER_REDIS_HOST}:${process.env.SCHEDULER_REDIS_PORT}`,
-      username: process.env.SCHEDULER_REDIS_USERNAME,
-      password: process.env.SCHEDULER_REDIS_PASSWORD,
+      // url: `redis://${process.env.SCHEDULER_REDIS_HOST}:${process.env.SCHEDULER_REDIS_PORT}`,
+      // username: process.env.SCHEDULER_REDIS_USERNAME,
+      // password: process.env.SCHEDULER_REDIS_PASSWORD,
+
+      url: `redis://redis-14966.c264.ap-south-1-1.ec2.cloud.redislabs.com:14966`,
+      username: 'default',
+      password: 'YYF9EYtDplvfU1RB8icxtGTYooswpTyr',
+
       legacyMode: false,
     };
 
