@@ -21,17 +21,21 @@ class RootSocket {
   private async authenticate(socket: Socket, next: ICallback): Promise<boolean> {
     // - executes once for each client during connection
     try {
+      log.debug('1. connection request recieved');
       // prettier-ignore
       const { error: authError, info: authInfo, value: authValue } = await verifyAuthHeader({
         i_battle_id: socket.handshake.auth.i_battle_id ?? <unknown>socket.handshake.headers.i_battle_id,
         i_lobby_id: socket.handshake.auth.i_lobby_id ?? <unknown>socket.handshake.headers.i_lobby_id,
         i_player_id: socket.handshake.auth.i_player_id ?? <unknown>socket.handshake.headers.i_player_id,
         s_auth_token: socket.handshake.auth.s_auth_token ?? <unknown>socket.handshake.headers.s_auth_token,
+        //
       });
       if (authError || !authValue) throw new Error(authInfo);
 
+      log.debug('2. verifying payload');
       const { error: settingsError, info: settingsInfo, value: settingsValue } = await verifySettings(socket.handshake.query);
       if (settingsError || !settingsValue) throw new Error(settingsInfo);
+      log.debug('3. payload verified');
 
       const { iBattleId, iPlayerId, sPlayerName, sAuthToken, iLobbyId } = authValue;
 
@@ -42,6 +46,7 @@ class RootSocket {
       socket.data.sAuthToken = sAuthToken;
       socket.data.oSettings = settingsValue;
       let bIsValid = false;
+      log.debug('4. Authenticating player');
       if (process.env.NODE_ENV !== 'dev') {
         const authResult = await rpc.authenticate(sAuthToken);
         log.verbose(`gRPC auth res:: ${authResult}`);
@@ -49,11 +54,12 @@ class RootSocket {
         socket.data.iPlayerId = authResult?.userId;
       } else bIsValid = true;
       if (!bIsValid) throw new Error('player validation failed');
+      log.debug('4. player authenticated'); //
       next();
       return true;
     } catch (err: any) {
       next(err.message);
-      log.silly(`authenticate failed : ${err.message}`);
+      log.debug(`!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\nauthenticate failed : ${err.message}`);
       socket.disconnect();
       return false;
     }
