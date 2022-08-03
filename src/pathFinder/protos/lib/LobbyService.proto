@@ -2,9 +2,9 @@ syntax = "proto3";
 
 package com.mpl.services.grpc;
 option java_multiple_files = true;
-import "GamePlayService.proto";
+// import "GamePlayService.proto";
 import "TournamentConsoleService.proto";
-import "UserDataService.proto";
+// import "UserDataService.proto";
 import "CountryInfo.proto";
 
 message LobbyServiceError {
