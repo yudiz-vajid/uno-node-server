@@ -19,6 +19,8 @@ class RedisClient {
 
   public sch!: RedisClientType;
 
+  public schScubs!: RedisClientType;
+
   constructor() {
     this.pubSubOptions = {
       url: `redis://${process.env.PUBSUB_REDIS_HOST}:${process.env.PUBSUB_REDIS_PORT}`,
@@ -51,8 +53,9 @@ class RedisClient {
       (this.publisher as unknown) = createClient(this.pubSubOptions);
       (this.subscriber as unknown) = createClient(this.pubSubOptions);
       (this.sch as unknown) = createClient(this.schedularOptions);
+      (this.schScubs as unknown) = createClient(this.schedularOptions);
 
-      await Promise.all([this.client.connect(), this.publisher.connect(), this.subscriber.connect(), this.sch.connect()]);
+      await Promise.all([this.client.connect(), this.publisher.connect(), this.subscriber.connect(), this.sch.connect(), this.schScubs.connect()]);
       try {
         await this.sch.CONFIG_SET('notify-keyspace-events', 'Ex'); // TODO : switch  client => sch
       } catch (err) {
@@ -64,6 +67,7 @@ class RedisClient {
       this.publisher.on('error', log.error);
       this.subscriber.on('error', log.error);
       this.sch.on('error', log.error);
+      this.schScubs.on('error', log.error);
     } catch (error) {
       log.error(error);
     }
@@ -71,7 +75,7 @@ class RedisClient {
 
   private async setupConfig() {
     // await this.subscriber.subscribe(['__keyevent@0__:expired', 'redisEvent'], this.onMessage, false);
-    await this.sch.subscribe(['__keyevent@0__:expired', 'redisEvent'], this.onMessage, false);
+    await this.schScubs.subscribe(['__keyevent@0__:expired', 'redisEvent'], this.onMessage, false);
     log.info('Redis initialized ⚡');
   }
 
