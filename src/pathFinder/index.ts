@@ -19,6 +19,10 @@ async function setUpEnvs() {
   log.info('fetching ZKConfig ...');
   const ZKConfig = getConfig();
 
+  process.env.NODE_ENV = 'qa';
+  process.env.PORT = '3000';
+  process.env.LOG_LEVEL = 'verbose';
+
   process.env.PUBSUB_REDIS_HOST = ZKConfig.PUBSUB_REDIS_HOST ?? 'redis-14966.c264.ap-south-1-1.ec2.cloud.redislabs.com';
   process.env.PUBSUB_REDIS_PORT = ZKConfig.PUBSUB_REDIS_PORT ?? '14966';
   process.env.PUBSUB_REDIS_PASSWORD = ZKConfig.PUBSUB_REDIS_PASSWORD ?? 'YYF9EYtDplvfU1RB8icxtGTYooswpTyr';
