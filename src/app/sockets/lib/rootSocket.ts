@@ -52,7 +52,7 @@ class RootSocket {
         const authResult = await rpc.authenticate(sAuthToken);
         log.verbose(`4.2. gRPC auth res:: ${_.stringify(authResult)}`);
         if (!authResult || authResult.error || !authResult.isAuthentic) bIsValid = true;
-        socket.data.iPlayerId = authResult?.userId;
+        // socket.data.iPlayerId = authResult?.userId;
       } else bIsValid = true;
       if (!bIsValid) throw new Error('player validation failed');
       log.debug('5. player authenticated'); //
