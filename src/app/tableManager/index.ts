@@ -132,7 +132,7 @@ class TableManager {
   public static async createTable(oData: { iBattleId: ITable['iBattleId']; oSettings: ITable['oSettings']; iPlayerId: IPlayer['iPlayerId']; iLobbyId: string }) {
     try {
       const oLobbyDataRes = await rpc.getLobbyById(Number(oData.iLobbyId), Number(oData.iPlayerId));
-      log.verbose(`gRPC oLobbyDataRes on create table :: ${oLobbyDataRes}`);
+      log.debug(`gRPC oLobbyDataRes on create table :: ${oLobbyDataRes}`);
       if (!oLobbyDataRes) throw new Error('Lobby data not found');
       if (oLobbyDataRes.error) throw new Error('Error on rpc call getLobbyById');
 

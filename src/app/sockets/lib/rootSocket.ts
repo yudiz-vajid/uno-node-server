@@ -46,10 +46,10 @@ class RootSocket {
       socket.data.sAuthToken = sAuthToken;
       socket.data.oSettings = settingsValue;
       let bIsValid = false;
-      log.debug('4. Authenticating player');
+      log.debug('4.1 Authenticating player');
       if (process.env.NODE_ENV !== 'dev') {
         const authResult = await rpc.authenticate(sAuthToken);
-        log.verbose(`gRPC auth res:: ${authResult}`);
+        log.verbose(`4.2 gRPC auth res:: ${authResult}`);
         if (!authResult || authResult.error || !authResult.isAuthentic) bIsValid = true;
         socket.data.iPlayerId = authResult?.userId;
       } else bIsValid = true;
