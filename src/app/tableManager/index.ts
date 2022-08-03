@@ -162,7 +162,7 @@ class TableManager {
         dCreatedAt: new Date(),
         oWinningCard: {},
       };
-      log.debug(`7.3. table creation started => createTable()`);
+      log.debug(`7.3. table creation finished`);
       const sRedisSetResponse = await redis.client.json.SET(_.getTableKey(oTableWithParticipant.iBattleId), '.', oTableWithParticipant as unknown as RedisJSON);
       if (!sRedisSetResponse) return null;
       return new Table(oTableWithParticipant);
