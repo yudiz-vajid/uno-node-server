@@ -4,14 +4,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const lib_pathfinder_node_1 = __importDefault(require("lib-pathfinder-node"));
-const util_1 = require("../app/util");
-const helper_1 = __importDefault(require("./lib/helper"));
+require("./lib/fetch_ip");
 const logs_1 = __importDefault(require("./lib/logs"));
-const emitter_1 = __importDefault(require("./lib/emitter"));
+const helper_1 = __importDefault(require("./lib/helper"));
 const messages_1 = __importDefault(require("./lib/messages"));
+const emitter_1 = __importDefault(require("./lib/emitter"));
 global._ = helper_1.default;
 global.log = logs_1.default;
 global.emitter = emitter_1.default;
 global.messages = messages_1.default;
-global.redis = new util_1.RedisClient();
 global.PF = lib_pathfinder_node_1.default;

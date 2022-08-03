@@ -18,8 +18,8 @@ const tableManager_1 = __importDefault(require("../tableManager"));
 class SocketIO {
     constructor() {
         this.options = {
-            pingInterval: 400000,
-            pingTimeout: 400000,
+            pingInterval: 10000,
+            pingTimeout: 8000,
             maxHttpBufferSize: 1e8,
             allowUpgrades: true,
             perMessageDeflate: false,
@@ -28,7 +28,7 @@ class SocketIO {
             transports: ['websocket'],
             path: '/socket.io/',
             connectTimeout: 45000,
-            allowEIO3: false,
+            allowEIO3: true,
             parser: require('socket.io-parser'),
             cors: {
                 origin: '*:*',

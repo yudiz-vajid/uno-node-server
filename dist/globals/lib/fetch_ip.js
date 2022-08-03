@@ -32,8 +32,8 @@ function exec(command) {
             const MAC = (_b = (_a = Object.values((0, os_1.networkInterfaces)()).flat()) === null || _a === void 0 ? void 0 : _a.find(_interface => (_interface === null || _interface === void 0 ? void 0 : _interface.mac) !== '00:00:00:00:00:00')) === null || _b === void 0 ? void 0 : _b.mac;
             if (!MAC) {
                 console.error(`error: \n${error.message}`);
-                log.error(`${_.now()} unable to fetch ip/MAC.`);
-                log.info(`${_.now()} terminating process!!!!!!!.`);
+                console.error(`${_.now()} unable to fetch ip/MAC.`);
+                console.info(`${_.now()} terminating process!!!!!!!.`);
                 process.exit(1);
                 return undefined;
             }

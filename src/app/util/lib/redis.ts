@@ -64,8 +64,6 @@ class RedisClient {
       this.publisher.on('error', log.error);
       this.subscriber.on('error', log.error);
       this.sch.on('error', log.error);
-
-      global.redis = new RedisClient();
     } catch (error) {
       log.error(error);
     }

@@ -20,9 +20,9 @@ class RedisClient {
             legacyMode: false,
         };
         this.schedularOptions = {
-            url: `redis://${process.env.SCHEDULAR_REDIS_HOST}:${process.env.SCHEDULAR_REDIS_PORT}`,
-            username: process.env.SCHEDULAR_REDIS_USERNAME,
-            password: process.env.SCHEDULAR_REDIS_PASSWORD,
+            url: `redis://${process.env.SCHEDULER_REDIS_HOST}:${process.env.SCHEDULER_REDIS_PORT}`,
+            username: process.env.SCHEDULER_REDIS_USERNAME,
+            password: process.env.SCHEDULER_REDIS_PASSWORD,
             legacyMode: false,
         };
         this.gameplayOptions = {
@@ -31,6 +31,9 @@ class RedisClient {
             password: process.env.GAMEPLAY_REDIS_PASSWORD,
             legacyMode: false,
         };
+        console.log(`pubSubOptions: ${JSON.stringify(this.pubSubOptions)}`);
+        console.log(`schedularOptions: ${JSON.stringify(this.schedularOptions)}`);
+        console.log(`gameplayOptions: ${JSON.stringify(this.gameplayOptions)}`);
     }
     initialize() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -47,6 +50,9 @@ class RedisClient {
                 }
                 yield this.setupConfig.apply(this);
                 this.client.on('error', log.error);
+                this.publisher.on('error', log.error);
+                this.subscriber.on('error', log.error);
+                this.sch.on('error', log.error);
             }
             catch (error) {
                 log.error(error);
