@@ -6,16 +6,14 @@ import socket from './app/sockets';
 import { initializePathFinder } from './pathFinder';
 import { RedisClient, getIp } from './app/util';
 
-
 process.env.UV_THREADPOOL_SIZE = `${cpus().length}`;
 
 (async () => {
   try {
-    await initializePathFinder();
+    await Promise.all([getIp(), initializePathFinder()]);
     global.redis = new RedisClient();
     await Promise.all([server.initialize(), redis.initialize()]);
     await socket.initialize(server.httpServer);
-    await getIp()
     log.info(':-)');
   } catch (err: any) {
     log.info(':-(');
