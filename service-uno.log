@@ -1,4 +1,0 @@
-service-uno 2022-08-03T01:48:56.605Z [info]:: Loading Protos synchronously.
-service-uno 2022-08-03T01:48:56.626Z [info]:: SYNC: All Protos loaded successfully for usage.
-service-uno 2022-08-03T01:48:58.426Z [info]:: Executing ShutdownHook. Listeners: , 1
-service-uno 2022-08-03T01:48:58.428Z [info]:: Good bye!!!
