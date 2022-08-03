@@ -140,6 +140,14 @@ class TableManager {
 
       log.debug(`oLobby :: ${_.stringify(oLobby)}`);
       const gameConfig = _.parse(oLobby?.lobbyDetails?.gameConfig);
+      const updatedGameConfig = {
+        ...gameConfig,
+        nGraceTime: gameConfig.nGraceTime * 1000,
+        nTurnTime: gameConfig.nTurnTime * 1000,
+        nFastTimerAt: gameConfig.nFastTimerAt * 1000,
+        nGameInitializeTime: gameConfig.nGameInitializeTime * 1000,
+        nWildCardColorTimer: gameConfig.nWildCardColorTimer * 1000,
+      };
       log.debug(`7.2. gameConfig :: ${_.stringify(gameConfig)}`);
       // log.verbose(`gameConfig after parsing :: ${gameConfig}`);
       const oTableWithParticipant: ITable = {
@@ -158,7 +166,7 @@ class TableManager {
         eNextCardColor: '',
         nDrawCount: 0,
         // @ts-ignore
-        oSettings: gameConfig as ISettings, // oData.oSettings,
+        oSettings: updatedGameConfig as ISettings, // oData.oSettings,
         dCreatedAt: new Date(),
         oWinningCard: {},
       };
