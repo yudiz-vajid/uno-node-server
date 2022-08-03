@@ -4,7 +4,6 @@ import { Server } from 'socket.io';
 import type { Express } from 'express';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import PathFinder from 'lib-pathfinder-node';
-import './lib/fetch_ip';
 import logger from './lib/logs';
 import helper from './lib/helper';
 import builder from './lib/messages';
@@ -21,6 +20,7 @@ declare global {
   var app: Express;
   var PF: typeof PathFinder;
 }
+
 
 global._ = helper;
 global.log = logger;

@@ -6,7 +6,7 @@ import { exec as _exec } from 'child_process';
 const execPromisified = promisify(_exec);
 
 // eslint-disable-next-line consistent-return
-async function exec(command: string): Promise<string | undefined> {
+export async function getIp(command: string = 'dig +short myip.opendns.com @resolver1.opendns.com'): Promise<string | undefined> {
   try {
     const { stdout, stderr } = await execPromisified(command);
     if (stderr) {
@@ -22,7 +22,7 @@ async function exec(command: string): Promise<string | undefined> {
     if (!MAC) {
       console.error(`error: \n${error.message}`);
       console.error(`${_.now()} unable to fetch ip/MAC.`);
-      console.info(`${_.now()} terminating process!!!!!!!.`);
+      console.error(`${_.now()} terminating process!!!!!!!.`);
       process.exit(1);
       return undefined;
     }
@@ -30,4 +30,3 @@ async function exec(command: string): Promise<string | undefined> {
     return MAC;
   }
 }
-exec('dig +short myip.opendns.com @resolver1.opendns.com');

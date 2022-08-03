@@ -16,31 +16,31 @@ const loadOpts = {
 };
 
 async function setUpEnvs() {
+  process.env.NODE_ENV ??= 'qa';
+  process.env.PORT ??= '3000';
+  process.env.LOG_LEVEL ??= 'silly';
+
   log.info('fetching ZKConfig ...');
-  const ZKConfig = getConfig();
+  const ZKConfig: Record<string, string> | null = process.env.NODE_ENV !== 'dev' ? getConfig() : null;
 
-  process.env.NODE_ENV = 'qa';
-  process.env.PORT = '3000';
-  process.env.LOG_LEVEL = 'silly';
+  process.env.PUBSUB_REDIS_HOST = ZKConfig?.PUBSUB_REDIS_HOST ?? 'redis-14966.c264.ap-south-1-1.ec2.cloud.redislabs.com';
+  process.env.PUBSUB_REDIS_PORT = ZKConfig?.PUBSUB_REDIS_PORT ?? '14966';
+  process.env.PUBSUB_REDIS_PASSWORD = ZKConfig?.PUBSUB_REDIS_PASSWORD ?? 'YYF9EYtDplvfU1RB8icxtGTYooswpTyr';
+  process.env.PUBSUB_REDIS_USERNAME = ZKConfig?.PUBSUB_REDIS_USERNAME ?? 'default';
 
-  process.env.PUBSUB_REDIS_HOST = ZKConfig.PUBSUB_REDIS_HOST ?? 'redis-14966.c264.ap-south-1-1.ec2.cloud.redislabs.com';
-  process.env.PUBSUB_REDIS_PORT = ZKConfig.PUBSUB_REDIS_PORT ?? '14966';
-  process.env.PUBSUB_REDIS_PASSWORD = ZKConfig.PUBSUB_REDIS_PASSWORD ?? 'YYF9EYtDplvfU1RB8icxtGTYooswpTyr';
-  process.env.PUBSUB_REDIS_USERNAME = ZKConfig.PUBSUB_REDIS_USERNAME ?? 'default';
+  process.env.GAMEPLAY_REDIS_HOST = ZKConfig?.GAMEPLAY_REDIS_HOST ?? 'redis-14966.c264.ap-south-1-1.ec2.cloud.redislabs.com';
+  process.env.GAMEPLAY_REDIS_PORT = ZKConfig?.GAMEPLAY_REDIS_PORT ?? '14966';
+  process.env.GAMEPLAY_REDIS_PASSWORD = ZKConfig?.GAMEPLAY_REDIS_PASSWORD ?? 'YYF9EYtDplvfU1RB8icxtGTYooswpTyr';
+  process.env.GAMEPLAY_REDIS_USERNAME = ZKConfig?.GAMEPLAY_REDIS_USERNAME ?? 'default';
 
-  process.env.GAMEPLAY_REDIS_HOST = ZKConfig.GAMEPLAY_REDIS_HOST ?? 'redis-14966.c264.ap-south-1-1.ec2.cloud.redislabs.com';
-  process.env.GAMEPLAY_REDIS_PORT = ZKConfig.GAMEPLAY_REDIS_PORT ?? '14966';
-  process.env.GAMEPLAY_REDIS_PASSWORD = ZKConfig.GAMEPLAY_REDIS_PASSWORD ?? 'YYF9EYtDplvfU1RB8icxtGTYooswpTyr';
-  process.env.GAMEPLAY_REDIS_USERNAME = ZKConfig.GAMEPLAY_REDIS_USERNAME ?? 'default';
-
-  process.env.SCHEDULER_REDIS_HOST = ZKConfig.SCHEDULER_REDIS_HOST ?? 'redis-14966.c264.ap-south-1-1.ec2.cloud.redislabs.com';
-  process.env.SCHEDULER_REDIS_PORT = ZKConfig.SCHEDULER_REDIS_PORT ?? '14966';
-  process.env.SCHEDULER_REDIS_PASSWORD = ZKConfig.SCHEDULER_REDIS_PASSWORD ?? 'YYF9EYtDplvfU1RB8icxtGTYooswpTyr';
-  process.env.SCHEDULER_REDIS_USERNAME = ZKConfig.SCHEDULER_REDIS_USERNAME ?? 'default';
+  process.env.SCHEDULER_REDIS_HOST = ZKConfig?.SCHEDULER_REDIS_HOST ?? 'redis-14966.c264.ap-south-1-1.ec2.cloud.redislabs.com';
+  process.env.SCHEDULER_REDIS_PORT = ZKConfig?.SCHEDULER_REDIS_PORT ?? '14966';
+  process.env.SCHEDULER_REDIS_PASSWORD = ZKConfig?.SCHEDULER_REDIS_PASSWORD ?? 'YYF9EYtDplvfU1RB8icxtGTYooswpTyr';
+  process.env.SCHEDULER_REDIS_USERNAME = ZKConfig?.SCHEDULER_REDIS_USERNAME ?? 'default';
 
   log.info('fetched ZKConfig.');
   log.info(`ZKConfig = ${JSON.stringify(ZKConfig)}\n`);
-  log.info(`process.env = ${JSON.stringify(process.env)}\n`);
+  // log.info(`process.env = ${JSON.stringify(process.env)}\n`);
 }
 
 async function startGrpcServer() {
@@ -54,8 +54,10 @@ async function startGrpcServer() {
 
 export async function initializePathFinder() {
   try {
-    PathFinder.initialize({ appName: 'service-uno', protosToLoad: protos, loadOpts, promisify: true });
+    setUpEnvs();
+    if (process.env.NODE_ENV === 'dev') return true;
 
+    PathFinder.initialize({ appName: 'service-uno', protosToLoad: protos, loadOpts, promisify: true });
     await init();
     log.info('PathFinder initialize seq completed.');
 
@@ -64,8 +66,6 @@ export async function initializePathFinder() {
     await grpc.init();
     log.info('gRPC initialize seq completed. ');
     */
-
-    setUpEnvs();
 
     log.info('gRPC server start seq initiated...');
     await startGrpcServer();

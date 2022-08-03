@@ -1,20 +1,21 @@
 import { cpus } from 'os';
-// import 'dotenv/config';
+import 'dotenv/config';
 import './globals';
 import server from './server';
 import socket from './app/sockets';
 import { initializePathFinder } from './pathFinder';
-import { RedisClient } from './app/util';
+import { RedisClient, getIp } from './app/util';
+
 
 process.env.UV_THREADPOOL_SIZE = `${cpus().length}`;
 
 (async () => {
   try {
-    log.verbose(process.env.NODE_ENV);
-    if (process.env.NODE_ENV !== 'dev') await initializePathFinder();
+    await initializePathFinder();
     global.redis = new RedisClient();
     await Promise.all([server.initialize(), redis.initialize()]);
     await socket.initialize(server.httpServer);
+    await getIp()
     log.info(':-)');
   } catch (err: any) {
     log.info(':-(');
