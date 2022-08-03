@@ -72,7 +72,7 @@ export async function initializePathFinder() {
     log.info('gRPC server start seq completed.');
 
     // /* AUTH-SERVICE */
-    const authClient = await PathFinder.getInstance().getClient({ serviceName: 'service-auth', serviceNameInProto: 'AuthService' });
+    const authClient = await PathFinder.getInstance().getClient({ serviceName: 'service-uno', serviceNameInProto: 'UnoService' });
     console.log('req authenticate');
     const resAuth = await authClient.authenticate().sendMessage({ requestId: '1', authToken: 'admin' });
     console.log('res authenticate ', resAuth);
