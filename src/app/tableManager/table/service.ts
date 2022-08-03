@@ -267,13 +267,13 @@ class Service {
   // eslint-disable-next-line consistent-return
   public async initializeGameTimer() {
     // Create battle for rpc.
-    // const rpcTable = await rpc.createBattle(
-    //   Number(this.iLobbyId),
-    //   this.iBattleId,
-    //   this.aPlayerId.map(p => Number(p))
-    // );
-    // log.verbose(`rpcTable in initializeGameTimer ${_.stringify(rpcTable)}`);
-    // if (!rpcTable || rpcTable.error || !rpcTable.success) return false; // TODO: socket disconnect
+    const rpcTable = await rpc.createBattle(
+      Number(this.iLobbyId),
+      this.iBattleId,
+      this.aPlayerId.map(p => Number(p))
+    );
+    log.verbose(`rpcTable in initializeGameTimer ${_.stringify(rpcTable)}`);
+    if (!rpcTable || rpcTable.error || !rpcTable.success) return false; // TODO: socket disconnect
     // // const nBeginCountdown = this.aPlayerId.length === this.oSettings.nTotalPlayerCount ? this.oSettings.nGameInitializeTime / 2 : this.oSettings.nGameInitializeTime;
     const nBeginCountdownCounter = this.oSettings.nGameInitializeTime;
     this.emit('resGameInitializeTimer', { ttl: nBeginCountdownCounter, timestamp: Date.now() });
