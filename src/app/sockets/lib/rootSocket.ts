@@ -4,6 +4,7 @@ import type { Socket } from 'socket.io';
 import PlayerSocket from './playerSocket';
 import { verifyAuthHeader, verifySettings } from '../../validator';
 import { ICallback } from '../../../types/global';
+// eslint-disable-next-line no-unused-vars
 import rpc from '../../../pathFinder/service/rpc';
 
 class RootSocket {
@@ -48,13 +49,14 @@ class RootSocket {
       socket.data.oSettings = settingsValue;
       let bIsValid = false;
       log.debug('4.1. Authenticating player');
-      if (process.env.NODE_ENV !== 'dev') {
-        const authResult = await rpc.authenticate(sAuthToken);
-        log.verbose(`4.2. gRPC auth res:: ${_.stringify(authResult)}`);
-        if (!authResult || authResult.error || !authResult.isAuthentic) bIsValid = false;
-        else bIsValid = true;
-        // socket.data.iPlayerId = authResult?.userId; // TODO: verify always getting playerId : 0
-      } else bIsValid = true;
+      // if (process.env.NODE_ENV !== 'dev') {
+      //   const authResult = await rpc.authenticate(sAuthToken);
+      //   log.verbose(`4.2. gRPC auth res:: ${_.stringify(authResult)}`);
+      //   if (!authResult || authResult.error || !authResult.isAuthentic) bIsValid = false;
+      //   else bIsValid = true;
+      //   // socket.data.iPlayerId = authResult?.userId; // TODO: verify always getting playerId : 0
+      // } else
+      bIsValid = true;
       if (!bIsValid) throw new Error('player validation failed');
       log.debug('5. player authenticated'); //
       next();
