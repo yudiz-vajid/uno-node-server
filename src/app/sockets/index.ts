@@ -12,8 +12,8 @@ class SocketIO {
 
   constructor() {
     this.options = {
-      pingInterval: 400000, // - default 25000
-      pingTimeout: 400000, // - default 20000
+      pingInterval: 10000, // - default 25000
+      pingTimeout: 8000, // - default 20000
       maxHttpBufferSize: 1e8, // - default 1e8 -> 1 MB
       allowUpgrades: true,
       perMessageDeflate: false,
@@ -22,7 +22,7 @@ class SocketIO {
       transports: ['websocket'],
       path: '/socket.io/',
       connectTimeout: 45000, // - ms to wait before rejecting handshake
-      allowEIO3: false,
+      allowEIO3: true,
       parser: require('socket.io-parser'),
       cors: {
         origin: '*:*',

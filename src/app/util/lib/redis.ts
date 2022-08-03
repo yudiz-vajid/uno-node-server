@@ -53,7 +53,6 @@ class RedisClient {
       (this.sch as unknown) = createClient(this.schedularOptions);
 
       await Promise.all([this.client.connect(), this.publisher.connect(), this.subscriber.connect()]);
-
       try {
         await this.sch.CONFIG_SET('notify-keyspace-events', 'Ex'); // TODO : switch  client => sch
       } catch (err) {
@@ -61,8 +60,12 @@ class RedisClient {
       }
 
       await this.setupConfig.apply(this);
-
       this.client.on('error', log.error);
+      this.publisher.on('error', log.error);
+      this.subscriber.on('error', log.error);
+      this.sch.on('error', log.error);
+
+      global.redis = new RedisClient();
     } catch (error) {
       log.error(error);
     }
