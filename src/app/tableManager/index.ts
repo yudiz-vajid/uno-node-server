@@ -139,7 +139,7 @@ class TableManager {
       const oLobby = _.parse(oLobbyDataRes);
       log.verbose('oLobby ::');
       log.verbose(_.stringify(oLobby));
-      const gameConfig = oLobby?.gameConfig;
+      const gameConfig = _.parse(oLobby?.gameConfig);
       log.verbose(`gameConfig :: ${_.stringify(gameConfig)}`);
       // log.verbose(`gameConfig after parsing :: ${gameConfig}`);
       const oTableWithParticipant: ITable = {
