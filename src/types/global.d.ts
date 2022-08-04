@@ -92,6 +92,7 @@ export declare interface IPlayer {
 export declare interface ITable {
   iBattleId: string;
   iLobbyId: string;
+  iGameId: string;
   iPlayerTurn: string;
   iSkippedPLayer: string;
   iDrawPenltyPlayerId: string;

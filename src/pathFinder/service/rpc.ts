@@ -52,7 +52,11 @@ async function createBattle(lobbyId: number, battleId: string, userIds: Array<nu
 async function finishBattleWithScores(gameId: string, score: Array<IUpdateBattleScoreRequest>, requestId: string = nanoid()) {
   try {
     const lobbyClient = await PF.getInstance().getClient({ serviceName: 'service-tournament-1v1', serviceNameInProto: 'LobbyService' });
-    console.log('req finishBattleWithScores');
+    score.forEach((s: any) => {
+      // eslint-disable-next-line no-param-reassign
+      s.requestId = requestId;
+    });
+    console.log('req finishBattleWithScores', score, gameId);
     const res = await lobbyClient.finishBattleWithScores().sendMessage({ requestId, gameId, score }); // lobbyId battleId from unity
     console.log('res finishBattleWithScores ', _.stringify(res));
     return res;

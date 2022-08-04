@@ -142,6 +142,7 @@ class TableManager {
       const gameConfig = _.parse(oLobby?.lobbyDetails?.gameConfig);
       const updatedGameConfig = {
         ...gameConfig,
+        iGameId: oLobby.lobbyDetails.gameId ?? '',
         nGraceTime: gameConfig.nGraceTime * 1000,
         nTurnTime: gameConfig.nTurnTime * 1000,
         nFastTimerAt: gameConfig.nFastTimerAt * 1000,
@@ -153,6 +154,7 @@ class TableManager {
       // log.verbose(`gameConfig after parsing :: ${gameConfig}`);
       const oTableWithParticipant: ITable = {
         iBattleId: oData.iBattleId,
+        iGameId: updatedGameConfig.iGameId,
         iLobbyId: oData.iLobbyId,
         iPlayerTurn: '',
         iSkippedPLayer: '',

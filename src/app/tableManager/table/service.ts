@@ -25,6 +25,8 @@ class Service {
 
   protected bToSkip: ITableWithPlayer['bToSkip'];
 
+  protected iGameId: ITableWithPlayer['iGameId'];
+
   protected eState: ITableWithPlayer['eState'];
 
   protected bTurnClockwise: ITableWithPlayer['bTurnClockwise'];
@@ -45,6 +47,7 @@ class Service {
 
   constructor(oData: ITable & { aPlayer?: Player[] }) {
     this.iBattleId = oData.iBattleId;
+    this.iGameId = oData.iGameId;
     this.iLobbyId = oData.iLobbyId;
     this.iPlayerTurn = oData.iPlayerTurn;
     this.iSkippedPLayer = oData.iSkippedPLayer;
@@ -309,7 +312,27 @@ class Service {
       .map((p, i) => {
         return { aHand: p.aHand, nScore: p.nScore, iPlayerId: p.iPlayerId, nRank: i };
       });
+    // let userData =
+    // {
+    //   requestId?: string;
+    //   battleId: string; // from unity
+    //   userId: string;
+    //   score: number;
+    //   scoreData: string; // str
+    // }
+    const scoreArray = [];
+    for (let index = 0; index < aPlayer.length; index += 1) {
+      scoreArray.push({
+        battleId: this.iBattleId,
+        userId: aPlayer[index].iPlayerId,
+        score: aPlayer[index].nScore,
+        scoreData: '',
+      });
+    }
+    const rpcTableScore = await rpc.finishBattleWithScores(this.iGameId, scoreArray);
+    log.verbose(`rpcTableScore response --> ${_.stringify(rpcTableScore)}`);
     this.emit('resGameOver', { aPlayer: sortedPlayer, oWinner: oPlayer, eReason });
+    this.emit('resMplFinishBattle', { rpcTableScore });
     const keys = await redis.client.KEYS(`t:${this.iBattleId}:*`);
     const tbl_keys: any = await redis.client.KEYS(`t:${this.iBattleId}`);
     keys.push(...tbl_keys);
@@ -407,6 +430,7 @@ class Service {
     return {
       iBattleId: this.iBattleId,
       iLobbyId: this.iLobbyId,
+      iGameId: this.iGameId,
       iPlayerTurn: this.iPlayerTurn,
       iSkippedPLayer: this.iSkippedPLayer,
       iDrawPenltyPlayerId: this.iDrawPenltyPlayerId,
