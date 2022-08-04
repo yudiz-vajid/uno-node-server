@@ -326,7 +326,7 @@ class Service {
         battleId: this.iBattleId,
         userId: aPlayer[index].iPlayerId,
         score: aPlayer[index].nScore,
-        scoreData: '',
+        scoreData: '{}',
       });
     }
     const rpcTableScore = await rpc.finishBattleWithScores(this.iGameId, scoreArray);
