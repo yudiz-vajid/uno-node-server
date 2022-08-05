@@ -609,7 +609,7 @@ class Service {
       sGameName: oTable.sGameName,
       nEntryFee: oTable.nEntryFee,
       nScore: this.nScore,
-      bIsWon: _.isEqual(this.iPlayerId, oWinner.iPlayerId),
+      bIsWon: _.isEqual(this.iPlayerId, oWinner?.iPlayerId),
       sStartSum: this.nStartHandSum,
       sStartingHand: this.sStartingHand,
       oLastCard: oTable.oWinningCard,
