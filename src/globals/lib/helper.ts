@@ -125,6 +125,9 @@ const helper = {
     }
     return true;
   },
+  isEqual: (id1: any, id2: any) => {
+    return (id1 ? id1.toString() : id1) === (id2 ? id2.toString() : id2);
+  },
 
   pick: (obj: any, array: any) => {
     const clonedObj = helper.clone(obj);

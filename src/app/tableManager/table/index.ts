@@ -38,7 +38,7 @@ class Table extends Service {
       //
     ]);
 
-    await _.delay(500 * (1 + this.oSettings.nStartingNormalCardCount + this.oSettings.nStartingSpecialCardCount)); // TODO: (0.3 * 7cards)
+    await _.delay(this.aPlayerId.length * 250 * (1 + this.oSettings.nStartingNormalCardCount + this.oSettings.nStartingSpecialCardCount)); // TODO: (0.3 * 7cards)
     this.emit('resDiscardPileTopCard', { oDiscardPileTopCard: this.getDiscardPileTopCard() });
     this.emit('resInitMasterTimer', { ttl: this.oSettings.nTotalGameTime, timestamp: Date.now() });
     this.setSchedular('masterTimerExpired', '', this.oSettings.nTotalGameTime); // -  game lifetime second

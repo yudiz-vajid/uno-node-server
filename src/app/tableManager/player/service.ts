@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-unused-vars */
-import { ICard, IPlayer, RedisJSON } from '../../../types/global';
+import { ICard, IPlayer, ITable, RedisJSON } from '../../../types/global';
 import type Table from '../table';
 
 class Service {
@@ -607,6 +607,39 @@ class Service {
     if (!oNextPlayer) return (log.error('No playing player found...') && null) ?? false;
     oNextPlayer.takeTurn(oTable);
     return true;
+  }
+
+  public async sendGameEndData(oTable: ITable, oWinner: any) {
+    const data = {
+      iUserId: this.iPlayerId,
+      iBattleId: this.iBattleId,
+      iGameId: oTable.iGameId,
+      sGameName: '',
+      nEntryFee: 0,
+      nScore: this.nScore,
+      bIsWon: _.isEqual(this.iPlayerId, oWinner.iPlayerId),
+      sStartSum: this.nStartHandSum,
+      sStartingHand: this.sStartingHand,
+      oLastCard: oTable.oWinningCard,
+      nUsedNormalCard: this.nUsedNormalCard,
+      nUsedActionCard: this.nUsedActionCard,
+      nUsedSpecialCard: this.nUsedSpecialCard,
+      nDrawnNormalCard: this.nDrawnNormalCard,
+      nDrawnSpecialCard: this.nDrawnSpecialCard,
+      nSkipUsed: this.nSkipUsed,
+      nReverseUsed: this.nReverseUsed,
+      nDraw2Used: this.nDraw2Used,
+      nDraw4Used: this.nDraw4Used,
+      nWildUsed: this.nWildUsed,
+      nUnoPressed: this.nUnoPressed,
+      nUnoMissed: this.nUnoMissed,
+      nSkipped: this.nSkipped,
+      nDrawn2: this.nDrawn2,
+      nDrawn4: this.nDrawn4,
+      nOptionalDraw: this.nOptionalDraw,
+    };
+    console.log('resGameStats -->', data);
+    this.emit('resGameStats', { data });
   }
 
   public async wildCardColorTimer(oTable: Table) {

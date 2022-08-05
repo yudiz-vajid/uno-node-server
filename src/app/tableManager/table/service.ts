@@ -328,6 +328,8 @@ class Service {
         score: aPlayer[index].nScore,
         scoreData: '{}',
       });
+      const player = await this.getPlayer(aPlayer[index].iPlayerId);
+      await player?.sendGameEndData(this.toJSON(), oPlayer);
     }
     const rpcTableScore = await rpc.finishBattleWithScores(this.iGameId, scoreArray);
     log.verbose(`rpcTableScore response --> ${_.stringify(rpcTableScore)}`);
