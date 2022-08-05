@@ -43,11 +43,9 @@ class Player extends Service {
       callback({ oData: {}, status: response.SERVER_ERROR });
       return (log.error(`no card found for iCardId: ${oData.iCardId}`) && null) ?? false;
     }
-    // TODO :- Need to manage action cards here like skip,reverse
     callback({ oData: { nHandScore: await this.handCardCounts(this.aHand) }, status: response.SUCCESS });
     const aPromises = [];
 
-    // TODO : handle stacking for card.nLabel 12 (+2 card)
     let iSkipPlayer;
     let bIsReverseCard = false;
     let usedCard: Player['nUsedActionCard' | 'nUsedNormalCard' | 'nUsedSpecialCard'] | string;
@@ -79,7 +77,6 @@ class Player extends Service {
         })
       );
     } else {
-      // TODO : handle stacking for card.nLabel 14 (wild draw 4 card)
       const iNextPlayerId = await oTable.getNextPlayer(this.nSeat);
       usedCard = 'nUsedSpecialCard';
       if (oCardToDiscard.nLabel === 13) aPromises.push(this.update({ nWildUsed: this.nWildUsed + 1 }));
@@ -170,7 +167,6 @@ class Player extends Service {
       if (oTable.toJSON().oSettings.bDisallowPlayOnDrawCardPenalty) {
         this.passTurn(oTable);
       } else {
-        // TODO :- Need to send turn event again to current user.
         const aPlayableCardId = await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
         const remainingTurnTimer: any = await oTable.getTTL('assignTurnTimerExpired', this.iPlayerId);
         this.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: remainingTurnTimer - 500, timestamp: Date.now(), aPlayableCards: aPlayableCardId });
@@ -235,9 +231,6 @@ class Player extends Service {
       this.passTurn(oTable);
     }
     return true;
-    // TODO : reqKeepPlay for playable drawnCard
-    // TODO : pass turn
-    // TODO : handle multiple clicks
   }
 
   public async keepCard(oData: Record<string, never>, oTable: Table, callback: ICallback) {

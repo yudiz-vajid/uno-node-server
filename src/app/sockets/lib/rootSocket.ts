@@ -54,7 +54,6 @@ class RootSocket {
         log.verbose(`4.2. gRPC auth res:: ${_.stringify(authResult)}`);
         if (!authResult || authResult.error || !authResult.isAuthentic) bIsValid = false;
         else bIsValid = true;
-        // socket.data.iPlayerId = authResult?.userId; // TODO: verify always getting playerId : 0
       } else bIsValid = true;
       if (!bIsValid) throw new Error('player validation failed');
       log.debug('5. player authenticated'); //

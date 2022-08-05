@@ -256,7 +256,6 @@ class Service {
     }
   }
 
-  // TODO: reconnection
   public async reconnect(sSocketId: string, oTable: Table) {
     const stateMapper = { waiting: 'waiting', initialized: 'waiting', running: 'playing', finished: 'left' };
     await this.update({ sSocketId, eState: stateMapper[oTable.toJSON().eState] as IPlayer['eState'] });
@@ -295,7 +294,7 @@ class Service {
   public async getPlayableCardIds(oDiscardPileTopCard: any, eNextCardColor?: Table['eNextCardColor']) {
     if (!oDiscardPileTopCard || oDiscardPileTopCard === undefined) return this.aHand;
     if (oDiscardPileTopCard.nLabel === 12)
-      return this.aHand.filter(card => card.nLabel > 12 || card.nLabel === 12 || oDiscardPileTopCard.eColor === card.eColor).map(card => card.iCardId); // TODO check color as well
+      return this.aHand.filter(card => card.nLabel > 12 || card.nLabel === 12 || oDiscardPileTopCard.eColor === card.eColor).map(card => card.iCardId);
     if (oDiscardPileTopCard.nLabel === 14)
       return this.aHand.filter(card => card.nLabel > 12 || card.nLabel === 14 || oDiscardPileTopCard.eColor === card.eColor).map(card => card.iCardId);
     if (oDiscardPileTopCard.nLabel === 13) return this.aHand.filter(card => card.nLabel > 12 || card.eColor === oDiscardPileTopCard.eColor).map(card => card.iCardId);
@@ -433,7 +432,7 @@ class Service {
     if (oTable.toJSON().eState !== 'running') return log.error('table is not in running state.');
     const { aPlayer } = oTable.toJSON();
     const aPlayingPlayer = aPlayer.filter(p => p.eState === 'playing');
-    if (!aPlayingPlayer.length) return (log.error('no playing participant') && null) ?? false; // TODO: declare result
+    if (!aPlayingPlayer.length) return (log.error('no playing participant') && null) ?? false;
     const oNextPlayer = await oTable.getNextPlayer(this.nSeat);
     if (!oNextPlayer) return (log.error('No playing player found...') && null) ?? false;
     await oNextPlayer.update({ bNextTurnSkip: true, nSkipped: oNextPlayer.toJSON().nSkipped + 1 });
@@ -551,19 +550,12 @@ class Service {
     else if (aPlayableCardId.length && oTable.toJSON().oSettings.bMustCollectOnMissTurn) this.autoPickCard(oTable);
 
     oTable.emit('resTurnMissed', { iPlayerId: this.iPlayerId, nMissedTurn: this.nMissedTurn });
-    /**
-     * TODO : kick process for player if missed turn is more than 3 times.
-     */
     // eslint-disable-next-line no-return-await
     if (this.nMissedTurn >= oTable.toJSON().oSettings.nTotalSkipTurnCount) return await this.leftPlayer(oTable, 'missTurnLimit');
     return this.passTurn(oTable);
   }
 
   public async assignWildCardColorTimerExpired(oTable: Table) {
-    /**
-     * TODO : set wild card random color
-     * Pass turn
-     */
     const randomColor: any = _.randomizeArray(['red', 'green', 'blue', 'yellow']);
     const updatedDiscardPile = [...oTable.toJSON().aDiscardPile];
     // eslint-disable-next-line prefer-destructuring
@@ -596,7 +588,7 @@ class Service {
     const { aPlayer } = oTable.toJSON();
 
     const aPlayingPlayer = aPlayer.filter(p => p.eState !== 'left');
-    if (!aPlayingPlayer.length) return (log.error('no playing participant') && null) ?? false; // TODO: declare result
+    if (!aPlayingPlayer.length) return (log.error('no playing participant') && null) ?? false;
     let oNextPlayer;
     if (aPlayingPlayer.length === 2 && oTable.toJSON().aDiscardPile[oTable.toJSON().aDiscardPile.length - 1].nLabel === 11 && oTable.toJSON().bIsReverseNow) {
       oNextPlayer = await oTable.getPlayer(this.iPlayerId);

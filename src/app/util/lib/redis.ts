@@ -61,7 +61,7 @@ class RedisClient {
 
       await Promise.all([this.client.connect(), this.publisher.connect(), this.subscriber.connect(), this.sch.connect(), this.schSubs.connect()]);
       try {
-        const kspRes = await this.sch.CONFIG_SET('notify-keyspace-events', 'Ex'); // TODO : switch  client => sch
+        const kspRes = await this.sch.CONFIG_SET('notify-keyspace-events', 'Ex');
         log.info(`ksp: ${kspRes}`);
       } catch (err: any) {
         log.info(`key space error: ${err.message}`);

@@ -243,7 +243,6 @@ class Service {
   }
 
   public async reshuffleClosedDeck() {
-    // TODO :- Need to reshuffle open deck into closed deck.
     this.aDrawPile = this.aDrawPile.length
       ? [...this.aDrawPile, ...this.aDiscardPile.splice(0, this.aDiscardPile.length - 1)]
       : this.aDiscardPile.splice(0, this.aDiscardPile.length - 1);
@@ -268,7 +267,6 @@ class Service {
     rest.eState = bInitializeTable ? 'initialized' : rest.eState;
     this.emit('resTableState', { table: rest, aPlayer: aParticipant });
     if (ePreviousState === 'waiting' && rest.eState === 'initialized') {
-      // this.deleteScheduler('refundOnLongWait'); // TODO :- Add refunc process
       this.initializeGameTimer();
     }
   }
@@ -282,12 +280,12 @@ class Service {
       this.aPlayerId.map(p => Number(p))
     );
     log.verbose(`rpcTable in initializeGameTimer ${_.stringify(rpcTable)}`);
-    if (!rpcTable || rpcTable.error || !rpcTable.success) return false; // TODO: socket disconnect
+    if (!rpcTable || rpcTable.error || !rpcTable.success) return false;
     // // const nBeginCountdown = this.aPlayerId.length === this.oSettings.nTotalPlayerCount ? this.oSettings.nGameInitializeTime / 2 : this.oSettings.nGameInitializeTime;
     const nBeginCountdownCounter = this.oSettings.nGameInitializeTime;
     this.emit('resGameInitializeTimer', { ttl: nBeginCountdownCounter, timestamp: Date.now() });
     // throw new Error(`schedular doesn't exists`);
-    this.setSchedular('gameInitializeTimerExpired', '', nBeginCountdownCounter); // -  TODO :- reduce 2 sec if required
+    this.setSchedular('gameInitializeTimerExpired', '', nBeginCountdownCounter);
   }
 
   public async addPlayer(oPlayer: Player) {
@@ -305,7 +303,6 @@ class Service {
   }
 
   public async gameOver(oPlayer: Player, eReason: any) {
-    // TODO :- Need to update players state.
     await this.update({ eState: 'finished' });
     // const aPlayer = this.toJSON().aPlayer.filter(p => p.eState !== 'left');
     const { aPlayer } = this.toJSON();
@@ -385,7 +382,7 @@ class Service {
   public async deleteScheduler(sTaskName = '', iPlayerId = '*') {
     try {
       const sKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
-      const schedularKeys = await redis.sch.keys(sKey); // TODO : non efficient, use scan instead
+      const schedularKeys = await redis.sch.keys(sKey);
       if (!schedularKeys.length) throw new Error(`schedular doesn't exists`);
 
       const deletionCount = await redis.sch.del(schedularKeys);
@@ -407,7 +404,7 @@ class Service {
   public async getTTL(sTaskName = '', iPlayerId = '*') {
     try {
       const sKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
-      const schedularKeys = await redis.sch.keys(sKey); // TODO : non efficient, use scan instead
+      const schedularKeys = await redis.sch.keys(sKey);
       if (!schedularKeys.length) return null; // - throw new Error(`schedular doesn't exists`);
 
       if (schedularKeys.length > 1) {

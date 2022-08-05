@@ -148,7 +148,7 @@ class TableManager {
         nFastTimerAt: gameConfig.nFastTimerAt * 1000,
         nGameInitializeTime: gameConfig.nGameInitializeTime * 1000,
         nWildCardColorTimer: gameConfig.nWildCardColorTimer * 1000,
-        nTotalGameTime: 300000, // TODO: remove this hardcoded value
+        nTotalGameTime: gameConfig.nTotalGameTime * 1000,
       };
       log.debug(`7.2. gameConfig :: ${_.stringify(gameConfig)}`);
       // log.verbose(`gameConfig after parsing :: ${gameConfig}`);

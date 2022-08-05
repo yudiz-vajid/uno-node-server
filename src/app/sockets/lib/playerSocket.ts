@@ -15,7 +15,7 @@ class PlayerSocket {
 
   private sAuthToken: string;
 
-  private oSetting: ISettings; // TODO : remove since need to be fetched from gRPC service
+  private oSetting: ISettings; // We are fetching from rpc.
 
   private iLobbyId: string;
 
@@ -128,7 +128,6 @@ class PlayerSocket {
 
       await player.update({ eState: 'disconnected' });
       table?.emit('playerDisconnected', { iPlayerId: this.iPlayerId });
-      // TODO : remove table and player if no participant is left
     } catch (err: any) {
       log.debug(`${_.now()} client: '${this.iPlayerId}' disconnect event failed. reason: ${err.message}`);
     }
