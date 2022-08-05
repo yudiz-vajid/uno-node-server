@@ -41,6 +41,10 @@ class Service {
 
   protected oSettings: ITableWithPlayer['oSettings'];
 
+  protected sGameName: ITableWithPlayer['sGameName'];
+
+  protected nEntryFee: ITableWithPlayer['nEntryFee'];
+
   protected aPlayer: Player[];
 
   protected oWinningCard: ITableWithPlayer['oWinningCard'];
@@ -64,6 +68,8 @@ class Service {
     this.dCreatedAt = oData.dCreatedAt;
     this.oSettings = oData.oSettings;
     this.oWinningCard = oData.oWinningCard;
+    this.sGameName = oData.sGameName;
+    this.nEntryFee = oData.nEntryFee;
     this.aPlayer = oData.aPlayer ?? [];
   }
 
@@ -448,6 +454,8 @@ class Service {
       dCreatedAt: this.dCreatedAt,
       oSettings: this.oSettings,
       oWinningCard: this.oWinningCard,
+      sGameName: this.sGameName,
+      nEntryFee: this.nEntryFee,
       aPlayer: this.aPlayer, //  WARNING : don't save using toJSON() as it contain non-existed field 'aPlayer'
     };
   }

@@ -614,8 +614,8 @@ class Service {
       iUserId: this.iPlayerId,
       iBattleId: this.iBattleId,
       iGameId: oTable.iGameId,
-      sGameName: '',
-      nEntryFee: 0,
+      sGameName: oTable.sGameName,
+      nEntryFee: oTable.nEntryFee,
       nScore: this.nScore,
       bIsWon: _.isEqual(this.iPlayerId, oWinner.iPlayerId),
       sStartSum: this.nStartHandSum,
@@ -638,8 +638,8 @@ class Service {
       nDrawn4: this.nDrawn4,
       nOptionalDraw: this.nOptionalDraw,
     };
-    console.log('resGameStats -->', data);
-    this.emit('resGameStats', { data });
+    console.log('resGameStatistics -->', data);
+    this.emit('resGameStatistics', { data });
   }
 
   public async wildCardColorTimer(oTable: Table) {

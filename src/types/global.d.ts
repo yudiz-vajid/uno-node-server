@@ -104,6 +104,8 @@ export declare interface ITable {
   bIsReverseNow: boolean;
   eState: 'waiting' | 'initialized' | 'running' | 'finished';
   eNextCardColor: Omit<ICard['eColor'], 'black'>;
+  sGameName: string;
+  nEntryFee: number;
   nDrawCount: number;
   oSettings: ISettings;
   oWinningCard: object;

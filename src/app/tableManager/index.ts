@@ -168,6 +168,8 @@ class TableManager {
         bIsReverseNow: false,
         eNextCardColor: '',
         nDrawCount: 0,
+        sGameName: oLobby.lobbyDetails.name ?? '',
+        nEntryFee: oLobby.lobbyDetails.entryFee ?? 0,
         // @ts-ignore
         oSettings: updatedGameConfig as ISettings, // oData.oSettings,
         dCreatedAt: new Date(),
