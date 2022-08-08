@@ -316,14 +316,6 @@ class Service {
       .map((p, i) => {
         return { aHand: p.aHand, nScore: p.nScore, iPlayerId: p.iPlayerId, nRank: i };
       });
-    // let userData =
-    // {
-    //   requestId?: string;
-    //   battleId: string; // from unity
-    //   userId: string;
-    //   score: number;
-    //   scoreData: string; // str
-    // }
     const scoreArray = [];
     for (let index = 0; index < aPlayer.length; index += 1) {
       scoreArray.push({
@@ -338,7 +330,15 @@ class Service {
     const rpcTableScore = await rpc.finishBattleWithScores(this.iGameId, scoreArray);
     log.verbose(`rpcTableScore response --> ${_.stringify(rpcTableScore)}`);
     this.emit('resGameOver', { aPlayer: sortedPlayer, oWinner: oPlayer, eReason });
-    this.emit('resMplFinishBattle', { rpcTableScore });
+    if (rpcTableScore && rpcTableScore.playersData.length) {
+      for (let index = 0; index < rpcTableScore.playersData.length; index += 1) {
+        rpcTableScore[index].didPlayerLose = false;
+        rpcTableScore[index].playerWinPercentage = '';
+        rpcTableScore[index].playerWinCount = '';
+      }
+    }
+    const oMplFinishBattleData = { ...rpcTableScore, nextLobbyConfig: '', isCashReward: true, extReward: '' };
+    this.emit('resMplFinishBattle', { oMplFinishBattleData });
     const keys = await redis.client.KEYS(`t:${this.iBattleId}:*`);
     const tbl_keys: any = await redis.client.KEYS(`t:${this.iBattleId}`);
     keys.push(...tbl_keys);
