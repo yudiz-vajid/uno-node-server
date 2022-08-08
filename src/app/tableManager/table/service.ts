@@ -335,9 +335,18 @@ class Service {
         rpcTableScore[index].didPlayerLose = false;
         rpcTableScore[index].playerWinPercentage = '';
         rpcTableScore[index].playerWinCount = '';
+        rpcTableScore[index].nextLobbyConfig = '';
+        rpcTableScore[index].isCashReward = '';
+        rpcTableScore[index].extReward = '';
       }
     }
-    const oMplFinishBattleData = { ...rpcTableScore, nextLobbyConfig: '', isCashReward: true, extReward: '' };
+    const oMplFinishBattleData = {
+      payload: {
+        players: rpcTableScore.playersData,
+        battleAgainDisabled: '',
+        battleStatus: rpcTableScore.battleStatus,
+      },
+    };
     this.emit('resMplFinishBattle', { oMplFinishBattleData });
     const keys = await redis.client.KEYS(`t:${this.iBattleId}:*`);
     const tbl_keys: any = await redis.client.KEYS(`t:${this.iBattleId}`);
