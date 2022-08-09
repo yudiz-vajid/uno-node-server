@@ -336,7 +336,7 @@ class Service {
         rpcTableScore.playersData[index].playerWinPercentage = '';
         rpcTableScore.playersData[index].playerWinCount = '';
         rpcTableScore.playersData[index].nextLobbyConfig = '';
-        rpcTableScore.playersData[index].isCashReward = '';
+        rpcTableScore.playersData[index].isCashReward = true;
         rpcTableScore.playersData[index].extReward = '';
       }
     }
