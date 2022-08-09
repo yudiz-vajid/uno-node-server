@@ -332,12 +332,12 @@ class Service {
     this.emit('resGameOver', { aPlayer: sortedPlayer, oWinner: oPlayer, eReason });
     if (rpcTableScore && rpcTableScore.playersData.length) {
       for (let index = 0; index < rpcTableScore.playersData.length; index += 1) {
-        rpcTableScore[index].didPlayerLose = false;
-        rpcTableScore[index].playerWinPercentage = '';
-        rpcTableScore[index].playerWinCount = '';
-        rpcTableScore[index].nextLobbyConfig = '';
-        rpcTableScore[index].isCashReward = '';
-        rpcTableScore[index].extReward = '';
+        rpcTableScore.playersData[index].didPlayerLose = false;
+        rpcTableScore.playersData[index].playerWinPercentage = '';
+        rpcTableScore.playersData[index].playerWinCount = '';
+        rpcTableScore.playersData[index].nextLobbyConfig = '';
+        rpcTableScore.playersData[index].isCashReward = '';
+        rpcTableScore.playersData[index].extReward = '';
       }
     }
     const oMplFinishBattleData = {
