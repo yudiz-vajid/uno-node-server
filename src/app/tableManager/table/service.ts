@@ -343,7 +343,7 @@ class Service {
     const MPLSdkBattleFinishInfo = {
       payload: {
         players: rpcTableScore.playersData,
-        battleAgainDisabled: '',
+        battleAgainDisabled: false,
         battleStatus: rpcTableScore.battleStatus,
       },
     };
