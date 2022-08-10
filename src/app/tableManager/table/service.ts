@@ -340,14 +340,12 @@ class Service {
         rpcTableScore.playersData[index].extReward = '';
       }
     }
-    const MPLSdkBattleFinishInfo = {
-      payload: {
-        players: rpcTableScore.playersData,
-        battleAgainDisabled: false,
-        battleStatus: rpcTableScore.battleStatus,
-      },
+    const payload = {
+      players: rpcTableScore.playersData,
+      battleAgainDisabled: false,
+      battleStatus: rpcTableScore.battleStatus,
     };
-    this.emit('resMplFinishBattle', { MPLSdkBattleFinishInfo });
+    this.emit('resMplFinishBattle', { payload });
     const keys = await redis.client.KEYS(`t:${this.iBattleId}:*`);
     const tbl_keys: any = await redis.client.KEYS(`t:${this.iBattleId}`);
     keys.push(...tbl_keys);
