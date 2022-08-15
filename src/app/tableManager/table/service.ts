@@ -243,11 +243,16 @@ class Service {
   }
 
   public async reshuffleClosedDeck() {
+    console.log('reshuffleClosedDeck called -->');
     this.aDrawPile = this.aDrawPile.length
       ? [...this.aDrawPile, ...this.aDiscardPile.splice(0, this.aDiscardPile.length - 1)]
       : this.aDiscardPile.splice(0, this.aDiscardPile.length - 1);
+    console.log('this.aDrawPile --> ', this.aDrawPile);
     for (let i = 0; i < this.aDrawPile.length; i += 1) {
-      if (this.aDrawPile[i].nLabel > 12) this.aDrawPile[i].eColor = 'black';
+      if (this.aDrawPile[i].nLabel > 12) {
+        console.log('black card occurs --> ', this.aDrawPile[i].nLabel);
+        this.aDrawPile[i].eColor = 'black';
+      }
     }
     await this.update({ aDiscardPile: this.aDiscardPile, aDrawPile: this.aDrawPile });
     this.emit('resShuffleDeck', {});
