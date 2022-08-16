@@ -266,11 +266,9 @@ class Player extends Service {
     const nRemainingTime = await oTable.getTTL('assignWildCardColorTimerExpired', this.iPlayerId); // - in ms
     console.log('nRemainingTime -----> ', nRemainingTime);
 
-    if (!nRemainingTime || nRemainingTime === null) {
-      callback({ oData: {}, status: response.SUCCESS });
-    } else {
-      aPromises.push(oTable.deleteScheduler(`assignWildCardColorTimerExpired`, this.iPlayerId));
-    }
+    if (!nRemainingTime || nRemainingTime === null) return callback({ oData: {}, status: response.SUCCESS });
+
+    aPromises.push(oTable.deleteScheduler(`assignWildCardColorTimerExpired`, this.iPlayerId));
 
     const updatedDiscardPile = [...oTable.toJSON().aDiscardPile];
     updatedDiscardPile[updatedDiscardPile.length - 1].eColor = oData.eColor;
