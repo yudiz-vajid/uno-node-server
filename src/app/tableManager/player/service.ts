@@ -562,6 +562,7 @@ class Service {
     updatedDiscardPile[updatedDiscardPile.length - 1].eColor = randomColor[0];
     await oTable.update({ aDiscardPile: updatedDiscardPile });
     oTable.emit('resWildCardColor', { iPlayerId: this.iPlayerId, eColor: randomColor[0] });
+    await oTable.deleteScheduler(`assignWildCardColorTimerExpired`, this.iPlayerId); // added
     return this.passTurn(oTable);
   }
 
