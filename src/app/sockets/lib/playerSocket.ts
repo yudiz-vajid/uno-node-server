@@ -19,11 +19,14 @@ class PlayerSocket {
 
   private iLobbyId: string;
 
+  private isReconnect: boolean;
+
   constructor(socket: Socket) {
     this.socket = socket; // - socket = {id: <socketId>, ...other}
     this.iPlayerId = socket.data.iPlayerId;
     this.iBattleId = socket.data.iBattleId;
     this.iLobbyId = socket.data.iLobbyId;
+    this.isReconnect = socket.data.isReconnect;
     this.sPlayerName = socket.data.sPlayerName;
     this.sAuthToken = socket.data.sAuthToken;
     this.oSetting = socket.data.oSettings;
@@ -50,6 +53,8 @@ class PlayerSocket {
     try {
       log.debug(`6. joinTable started: pid -> ${this.iPlayerId}`);
       let oTable = await TableManager.getTable(this.iBattleId);
+      console.log('this.isReconnect --> ', this.isReconnect);
+      if (!oTable && this.isReconnect) return _ack({ oData: {}, status: response.TABLE_NOT_FOUND });
       if (!oTable) oTable = await TableManager.createTable({ iBattleId: this.iBattleId, oSettings: this.oSetting, iPlayerId: this.iPlayerId, iLobbyId: this.iLobbyId });
       if (!oTable) throw new Error('Table not created');
       let oPlayer = oTable.getPlayer(this.iPlayerId);

@@ -29,6 +29,7 @@ class RootSocket {
         i_lobby_id: socket.handshake.auth.i_lobby_id ?? <unknown>socket.handshake.headers.i_lobby_id,
         i_player_id: socket.handshake.auth.i_player_id ?? <unknown>socket.handshake.headers.i_player_id,
         s_auth_token: socket.handshake.auth.s_auth_token ?? <unknown>socket.handshake.headers.s_auth_token,
+        isReconnect: socket.handshake.auth.isReconnect ?? <unknown>socket.handshake.headers.isReconnect,
         //
       });
       if (authError || !authValue) throw new Error(authInfo);
@@ -38,10 +39,11 @@ class RootSocket {
       if (settingsError || !settingsValue) throw new Error(settingsInfo);
       log.debug('3. payload verified');
 
-      const { iBattleId, iPlayerId, sPlayerName, sAuthToken, iLobbyId } = authValue;
+      const { iBattleId, iPlayerId, sPlayerName, sAuthToken, iLobbyId, isReconnect } = authValue;
       console.log('authValue :: ', authValue);
 
       socket.data.iBattleId = iBattleId;
+      socket.data.isReconnect = isReconnect;
       socket.data.iLobbyId = iLobbyId;
       socket.data.iPlayerId = iPlayerId;
       socket.data.sPlayerName = sPlayerName;
