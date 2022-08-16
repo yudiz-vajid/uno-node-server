@@ -24,7 +24,7 @@ const Schema = Joi.object().keys({
   s_player_name: Joi.string().min(1).max(500).optional().default(''),
   s_auth_token: Joi.string().min(1).max(500).required(),
   i_battle_id: Joi.string().min(1).max(500).required(),
-  isReconnect: Joi.string().min(1).max(500).required().default(false),
+  isReconnect: Joi.boolean().required().default(false),
 });
 
 async function isValidRequest(data: any) {
