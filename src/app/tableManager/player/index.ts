@@ -177,7 +177,9 @@ class Player extends Service {
       }
       return true;
     }
+    console.log('drawPile before --> ', oTable.toJSON().aDrawPile.length);
     const aCard: any = this.bSpecialMeterFull ? await oTable.drawCard('special', 1) : await oTable.drawCard('normal', 1);
+    console.log('drawPile after --> ', oTable.toJSON().aDrawPile.length);
 
     if (!aCard || aCard === undefined) {
       callback({ oData: {}, status: response.SERVER_ERROR });

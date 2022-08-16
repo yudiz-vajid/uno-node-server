@@ -56,9 +56,9 @@ async function finishBattleWithScores(gameId: string, score: Array<IUpdateBattle
       // eslint-disable-next-line no-param-reassign
       s.requestId = requestId;
     });
-    console.log('req finishBattleWithScores', score, gameId);
+    // console.log('req finishBattleWithScores', score, gameId);
     const res = await lobbyClient.finishBattleWithScores().sendMessage({ requestId, gameId, score }); // lobbyId battleId from unity
-    console.log('res finishBattleWithScores ', _.stringify(res));
+    // console.log('res finishBattleWithScores ', _.stringify(res));
     return res;
   } catch (err: any) {
     log.error(`err finishBattleWithScores ${err}`);

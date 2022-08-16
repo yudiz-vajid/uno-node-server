@@ -631,7 +631,6 @@ class Service {
       nDrawn4: this.nDrawn4,
       nOptionalDraw: this.nOptionalDraw,
     };
-    console.log('resGameStatistics -->', data);
     this.emit('resGameStatistics', { data });
   }
 

@@ -232,6 +232,7 @@ class Service {
       default:
         return (log.error(`drawCard called with invalid eCardType: ${eCardType}`) && null) ?? null;
     }
+    await this.updateDrawPile(this.aDrawPile);
     const player = await this.getPlayer(this.iPlayerTurn);
     const drawnCardCount: any = eCardType === 'normal' ? player?.toJSON().nDrawnNormalCard : player?.toJSON().nDrawnSpecialCard;
     await player?.update({ bSkipSpecialMeterProcess: skipSpecialMeter, [drawnCardType]: drawnCardCount + 1 });
