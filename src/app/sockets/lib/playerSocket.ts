@@ -147,6 +147,7 @@ class PlayerSocket {
       socket: this.socket,
       iPlayerId: this.iPlayerId,
       iBattleId: this.iBattleId,
+      isReconnect: this.isReconnect,
       sAuthToken: this.sAuthToken,
       oSetting: this.oSetting,
     };
