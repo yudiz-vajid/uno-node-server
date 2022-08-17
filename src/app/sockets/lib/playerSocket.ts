@@ -66,7 +66,7 @@ class PlayerSocket {
           sSocketId: this.socket.id,
           nSeat: oTable.toJSON().aPlayer.length,
           nScore: 0,
-          nGraceTime: 0, // oTable.toJSON().oSettings.nGraceTime,
+          nGraceTime: oTable.toJSON().oSettings.nGraceTime,
           nMissedTurn: 0,
           nDrawNormal: 0,
           nReconnectionAttempt: 0,

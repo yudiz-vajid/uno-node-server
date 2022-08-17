@@ -519,7 +519,7 @@ class Service {
 
   // prettier-ignore
   public async assignTurnTimerExpired(oTable: Table) {
-    // log.verbose('assignTurnTimerExpired called...');
+    log.verbose('assignTurnTimerExpired called...',this.nGraceTime);
     if (this.nGraceTime < 3) return this.assignGraceTimerExpired(oTable); // Nothing changed in table so no need to save it. // ? why
     // const aPlayableCardId = await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
     // this.emit('resTurnTimer', { bIsGraceTimer: true, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nGraceTime, timestamp: Date.now(), aPlayableCards: aPlayableCardId });
