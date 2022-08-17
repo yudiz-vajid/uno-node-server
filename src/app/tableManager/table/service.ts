@@ -301,7 +301,9 @@ class Service {
     if (!oUpdateTable) return false;
     this.aPlayer.push(oPlayer);
 
-    if (this.aPlayerId.length === this.oSettings.nTotalPlayerCount) {
+    // if (this.aPlayerId.length === this.oSettings.nTotalPlayerCount) {
+    console.log('this.oSettings :: ', this.oSettings);
+    if (this.aPlayerId.length === this.oSettings.nTablePlayer) {
       this.initializeGame();
     }
 

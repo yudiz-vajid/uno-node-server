@@ -17,6 +17,7 @@ interface IHeader {
   iBattleId: string;
   isReconnect: boolean;
   iLobbyId: string;
+  nTablePlayer: number;
 }
 
 const Schema = Joi.object().keys({
@@ -25,6 +26,7 @@ const Schema = Joi.object().keys({
   s_auth_token: Joi.string().min(1).max(500).required(),
   i_battle_id: Joi.string().min(1).max(500).required(),
   isReconnect: Joi.boolean().required().default(false),
+  nTablePlayer: Joi.number().required().default(2),
 });
 
 async function isValidRequest(data: any) {
@@ -37,6 +39,7 @@ async function isValidRequest(data: any) {
       iBattleId: _result.i_battle_id,
       isReconnect: _result.isReconnect,
       iLobbyId: _result.i_lobby_id,
+      nTablePlayer: _result.nTablePlayer,
     };
     return { error: false, info: '', value: result };
   } catch (err: any) {

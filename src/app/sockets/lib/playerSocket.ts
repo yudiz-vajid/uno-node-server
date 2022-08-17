@@ -21,15 +21,18 @@ class PlayerSocket {
 
   private isReconnect: boolean;
 
+  private nTablePlayer: number;
+
   constructor(socket: Socket) {
     this.socket = socket; // - socket = {id: <socketId>, ...other}
     this.iPlayerId = socket.data.iPlayerId;
     this.iBattleId = socket.data.iBattleId;
     this.iLobbyId = socket.data.iLobbyId;
+    this.nTablePlayer = socket.data.nTablePlayer;
     this.isReconnect = socket.data.isReconnect;
     this.sPlayerName = socket.data.sPlayerName;
     this.sAuthToken = socket.data.sAuthToken;
-    this.oSetting = socket.data.oSettings;
+    this.oSetting = { ...socket.data.oSettings, nTablePlayer: this.nTablePlayer };
 
     this.socket.data = {}; // - clean up socket payload
     this.setEventListeners(); // - register listeners

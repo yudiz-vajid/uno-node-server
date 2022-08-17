@@ -46,6 +46,7 @@ declare interface ISettings {
   nSpecialMeterFillCount: number;
   nGameInitializeTime: number;
   nTotalSkipTurnCount: number;
+  nTablePlayer: number;
 
   aCardScore: Array<number>;
 }
