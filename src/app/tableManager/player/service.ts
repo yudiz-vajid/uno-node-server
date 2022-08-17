@@ -417,7 +417,7 @@ class Service {
    * check if given card is playable or not NOTE :- just for single card only.
    */
   public async checkPlayableCard(oDiscardPileTopCard: ICard, eNextCardColor?: Table['eNextCardColor'], oUserCard?: any) {
-    if (oDiscardPileTopCard.nLabel === 12) return oUserCard.nLabel === 12 || oUserCard.eColor === oDiscardPileTopCard.eColor;
+    if (oDiscardPileTopCard.nLabel === 12) return oUserCard.nLabel === 12 || oUserCard.nLabel === 13 || oUserCard.nLabel === 14 || oUserCard.eColor === oDiscardPileTopCard.eColor;
     if (oDiscardPileTopCard.nLabel === 14) return oUserCard.nLabel === 14 || oUserCard.eColor === oDiscardPileTopCard.eColor;
     if (oDiscardPileTopCard.nLabel === 13) return oUserCard.nLabel > 12 || oUserCard.eColor === oDiscardPileTopCard.eColor;
     return oDiscardPileTopCard.eColor === oUserCard.eColor || oDiscardPileTopCard.nLabel === oUserCard.nLabel || oUserCard.nLabel === 13 || oUserCard.nLabel === 14;
