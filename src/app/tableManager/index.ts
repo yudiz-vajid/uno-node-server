@@ -129,7 +129,13 @@ class TableManager {
       MaxBonusPercentage: 0.0,
   },
 */
-  public static async createTable(oData: { iBattleId: ITable['iBattleId']; oSettings: ITable['oSettings']; iPlayerId: IPlayer['iPlayerId']; iLobbyId: string }) {
+  public static async createTable(oData: {
+    iBattleId: ITable['iBattleId'];
+    oSettings: ITable['oSettings'];
+    iPlayerId: IPlayer['iPlayerId'];
+    iLobbyId: string;
+    nTablePlayer: number;
+  }) {
     try {
       log.debug(`7.1. table creation started => createTable()`);
       log.debug(`createTable() payload: ${_.stringify(oData)}`);
@@ -172,6 +178,7 @@ class TableManager {
         nEntryFee: oLobby.lobbyDetails.entryFee ?? 0,
         // @ts-ignore
         oSettings: updatedGameConfig as ISettings, // oData.oSettings,
+        nTablePlayer: oData.nTablePlayer ?? 2,
         dCreatedAt: new Date(),
         oWinningCard: {},
       };

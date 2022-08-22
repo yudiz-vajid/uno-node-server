@@ -49,6 +49,8 @@ class Service {
 
   protected oWinningCard: ITableWithPlayer['oWinningCard'];
 
+  protected nTablePlayer: ITableWithPlayer['nTablePlayer'];
+
   constructor(oData: ITable & { aPlayer?: Player[] }) {
     this.iBattleId = oData.iBattleId;
     this.iGameId = oData.iGameId;
@@ -65,6 +67,7 @@ class Service {
     this.bIsReverseNow = oData.bIsReverseNow;
     this.eNextCardColor = oData.eNextCardColor;
     this.nDrawCount = oData.nDrawCount;
+    this.nTablePlayer = oData.nTablePlayer;
     this.dCreatedAt = oData.dCreatedAt;
     this.oSettings = oData.oSettings;
     this.oWinningCard = oData.oWinningCard;
@@ -302,8 +305,8 @@ class Service {
     this.aPlayer.push(oPlayer);
 
     // if (this.aPlayerId.length === this.oSettings.nTotalPlayerCount) {
-    console.log('this.oSettings :: ', this.oSettings);
-    if (this.aPlayerId.length === this.oSettings.nTablePlayer) {
+    console.log('this.nTablePlayer :: ', this.nTablePlayer);
+    if (this.aPlayerId.length === this.nTablePlayer) {
       this.initializeGame();
     }
 
@@ -468,6 +471,7 @@ class Service {
       oSettings: this.oSettings,
       oWinningCard: this.oWinningCard,
       sGameName: this.sGameName,
+      nTablePlayer: this.nTablePlayer,
       nEntryFee: this.nEntryFee,
       aPlayer: this.aPlayer, //  WARNING : don't save using toJSON() as it contain non-existed field 'aPlayer'
     };

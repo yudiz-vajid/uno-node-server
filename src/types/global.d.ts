@@ -109,6 +109,7 @@ export declare interface ITable {
   nEntryFee: number;
   nDrawCount: number;
   oSettings: ISettings;
+  nTablePlayer: number;
   oWinningCard: object;
   dCreatedAt: Date;
 }

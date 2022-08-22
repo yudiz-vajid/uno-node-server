@@ -28,11 +28,11 @@ class PlayerSocket {
     this.iPlayerId = socket.data.iPlayerId;
     this.iBattleId = socket.data.iBattleId;
     this.iLobbyId = socket.data.iLobbyId;
-    this.nTablePlayer = socket.data.nTablePlayer;
     this.isReconnect = socket.data.isReconnect;
     this.sPlayerName = socket.data.sPlayerName;
     this.sAuthToken = socket.data.sAuthToken;
-    this.oSetting = { ...socket.data.oSettings, nTablePlayer: this.nTablePlayer };
+    this.nTablePlayer = socket.data.nTablePlayer;
+    this.oSetting = socket.data.oSettings;
 
     this.socket.data = {}; // - clean up socket payload
     this.setEventListeners(); // - register listeners
@@ -58,7 +58,14 @@ class PlayerSocket {
       let oTable = await TableManager.getTable(this.iBattleId);
       console.log('this.isReconnect --> ', this.isReconnect);
       if (!oTable && this.isReconnect) return _ack({ oData: {}, status: response.TABLE_NOT_FOUND });
-      if (!oTable) oTable = await TableManager.createTable({ iBattleId: this.iBattleId, oSettings: this.oSetting, iPlayerId: this.iPlayerId, iLobbyId: this.iLobbyId });
+      if (!oTable)
+        oTable = await TableManager.createTable({
+          iBattleId: this.iBattleId,
+          oSettings: this.oSetting,
+          iPlayerId: this.iPlayerId,
+          iLobbyId: this.iLobbyId,
+          nTablePlayer: this.nTablePlayer,
+        });
       if (!oTable) throw new Error('Table not created');
       let oPlayer = oTable.getPlayer(this.iPlayerId);
       if (!oPlayer) {
