@@ -39,7 +39,7 @@ class RootSocket {
       if (settingsError || !settingsValue) throw new Error(settingsInfo);
       log.debug('3. payload verified');
 
-      const { iBattleId, iPlayerId, sPlayerName, sAuthToken, iLobbyId, isReconnect } = authValue;
+      const { iBattleId, iPlayerId, sPlayerName, sAuthToken, iLobbyId, isReconnect, nTablePlayer } = authValue;
       console.log('authValue :: ', authValue);
 
       socket.data.iBattleId = iBattleId;
@@ -48,6 +48,7 @@ class RootSocket {
       socket.data.iPlayerId = iPlayerId;
       socket.data.sPlayerName = sPlayerName;
       socket.data.sAuthToken = sAuthToken;
+      socket.data.nTablePlayer = nTablePlayer;
       socket.data.oSettings = settingsValue;
       let bIsValid = false;
       log.debug('4.1. Authenticating player');
