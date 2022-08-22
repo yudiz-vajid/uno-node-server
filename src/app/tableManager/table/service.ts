@@ -272,7 +272,7 @@ class Service {
 
     const ePreviousState = rest.eState;
     // eslint-disable-next-line eqeqeq
-    const bInitializeTable = aPlayerId.length == rest.oSettings.nTotalPlayerCount && rest.eState === 'waiting';
+    const bInitializeTable = aPlayerId.length === rest.nTablePlayer && rest.eState === 'waiting';
     rest.eState = bInitializeTable ? 'initialized' : rest.eState;
     this.emit('resTableState', { table: rest, aPlayer: aParticipant });
     if (ePreviousState === 'waiting' && rest.eState === 'initialized') {
@@ -307,8 +307,7 @@ class Service {
     // if (this.aPlayerId.length === this.oSettings.nTotalPlayerCount) {
     console.log('this.aPlayerId.length :: ', this.aPlayerId.length, typeof this.aPlayerId.length);
     console.log('this.nTablePlayer :: ', this.nTablePlayer, typeof this.nTablePlayer);
-    // eslint-disable-next-line eqeqeq
-    if (this.aPlayerId.length == this.nTablePlayer) {
+    if (this.aPlayerId.length === this.nTablePlayer) {
       this.initializeGame();
     }
 
