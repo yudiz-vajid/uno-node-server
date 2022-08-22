@@ -141,7 +141,7 @@ class PlayerSocket {
       const player = await table?.getPlayer(this.iPlayerId);
       if (!player) return;
 
-      await player.update({ eState: 'disconnected' });
+      if (player.eState !== 'left') await player.update({ eState: 'disconnected' });
       table?.emit('playerDisconnected', { iPlayerId: this.iPlayerId });
     } catch (err: any) {
       log.debug(`${_.now()} client: '${this.iPlayerId}' disconnect event failed. reason: ${err.message}`);
