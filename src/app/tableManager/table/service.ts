@@ -251,10 +251,8 @@ class Service {
     this.aDrawPile = this.aDrawPile.length
       ? [...this.aDrawPile, ...this.aDiscardPile.splice(0, this.aDiscardPile.length - 1)]
       : this.aDiscardPile.splice(0, this.aDiscardPile.length - 1);
-    console.log('this.aDrawPile --> ', this.aDrawPile);
     for (let i = 0; i < this.aDrawPile.length; i += 1) {
       if (this.aDrawPile[i].nLabel > 12) {
-        console.log('black card occurs --> ', this.aDrawPile[i].nLabel);
         this.aDrawPile[i].eColor = 'black';
       }
     }
@@ -305,8 +303,6 @@ class Service {
     this.aPlayer.push(oPlayer);
 
     // if (this.aPlayerId.length === this.oSettings.nTotalPlayerCount) {
-    console.log('this.aPlayerId.length :: ', this.aPlayerId.length, typeof this.aPlayerId.length);
-    console.log('this.nTablePlayer :: ', this.nTablePlayer, typeof this.nTablePlayer);
     if (this.aPlayerId.length === this.nTablePlayer) {
       this.initializeGame();
     }

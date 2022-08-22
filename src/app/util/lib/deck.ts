@@ -63,12 +63,10 @@ class Deck {
         else aWildCard.push({ iCardId: `wr${i}${String.fromCharCode(97 + j)}`, eColor: 'black', nLabel: i as ICard['nLabel'], nScore: this.aScore[i] }); // - x4
       } // - x4
     }
-    console.log('aWildCard ---> ', aWildCard);
     return aWildCard; // - x8 => 4 -> wild, 4 -> wildDrawFour
   }
 
   private generateDeck() {
-    console.log('this.aDeck :: ', this.aDeck.length);
     this.aDeck = [...this.generateRedCards(), ...this.generateGreenCards(), ...this.generateYellowCards(), ...this.generateBlueCards(), ...this.generateBlackCards()]; // - x108
     _.randomizeArray(this.aDeck); // - x108
   }

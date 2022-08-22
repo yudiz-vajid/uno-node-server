@@ -177,9 +177,7 @@ class Player extends Service {
       }
       return true;
     }
-    console.log('drawPile before --> ', oTable.toJSON().aDrawPile.length);
     const aCard: any = this.bSpecialMeterFull ? await oTable.drawCard('special', 1) : await oTable.drawCard('normal', 1);
-    console.log('drawPile after --> ', oTable.toJSON().aDrawPile.length);
 
     if (!aCard || aCard === undefined) {
       callback({ oData: {}, status: response.SERVER_ERROR });
@@ -266,7 +264,6 @@ class Player extends Service {
     const aPromises = [];
 
     const nRemainingTime = await oTable.getTTL('assignWildCardColorTimerExpired', this.iPlayerId); // - in ms
-    console.log('nRemainingTime -----> ', nRemainingTime);
 
     if (!nRemainingTime || nRemainingTime === null) return callback({ oData: {}, status: response.SUCCESS });
 
