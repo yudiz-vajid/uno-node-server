@@ -305,8 +305,10 @@ class Service {
     this.aPlayer.push(oPlayer);
 
     // if (this.aPlayerId.length === this.oSettings.nTotalPlayerCount) {
-    console.log('this.nTablePlayer :: ', this.nTablePlayer);
-    if (this.aPlayerId.length === this.nTablePlayer) {
+    console.log('this.aPlayerId.length :: ', this.aPlayerId.length, typeof this.aPlayerId.length);
+    console.log('this.nTablePlayer :: ', this.nTablePlayer, typeof this.nTablePlayer);
+    // eslint-disable-next-line eqeqeq
+    if (this.aPlayerId.length == this.nTablePlayer) {
       this.initializeGame();
     }
 
