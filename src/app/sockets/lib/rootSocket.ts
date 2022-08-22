@@ -30,7 +30,7 @@ class RootSocket {
         i_player_id: socket.handshake.auth.i_player_id ?? <unknown>socket.handshake.headers.i_player_id,
         s_auth_token: socket.handshake.auth.s_auth_token ?? <unknown>socket.handshake.headers.s_auth_token,
         isReconnect: socket.handshake.auth.isReconnect ?? <unknown>socket.handshake.headers.isReconnect,
-        //
+        nTablePlayer: socket.handshake.auth.nTablePlayer ?? <unknown>socket.handshake.headers.nTablePlayer,
       });
       if (authError || !authValue) throw new Error(authInfo);
 
