@@ -336,6 +336,13 @@ class Service {
         score: aPlayer[index].nScore,
         scoreData: '{}',
       });
+      const data = {
+        battleId: this.iBattleId,
+        userId: aPlayer[index].iPlayerId,
+        score: aPlayer[index].nScore,
+        scoreData: '{}',
+      };
+      log.verbose(`data --> ${data}`);
       const player = await this.getPlayer(aPlayer[index].iPlayerId);
       await player?.sendGameEndData(this.toJSON(), oPlayer);
     }
