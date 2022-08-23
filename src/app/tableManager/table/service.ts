@@ -51,6 +51,8 @@ class Service {
 
   protected nTablePlayer: ITableWithPlayer['nTablePlayer'];
 
+  // protected nMinTablePlayer: ITableWithPlayer['nMinTablePlayer'];
+
   constructor(oData: ITable & { aPlayer?: Player[] }) {
     this.iBattleId = oData.iBattleId;
     this.iGameId = oData.iGameId;
@@ -68,6 +70,7 @@ class Service {
     this.eNextCardColor = oData.eNextCardColor;
     this.nDrawCount = oData.nDrawCount;
     this.nTablePlayer = oData.nTablePlayer;
+    // this.nMinTablePlayer = oData.nMinTablePlayer;
     this.dCreatedAt = oData.dCreatedAt;
     this.oSettings = oData.oSettings;
     this.oWinningCard = oData.oWinningCard;
@@ -301,9 +304,10 @@ class Service {
     const oUpdateTable = await this.update({ aPlayerId: tablePlayerId });
     if (!oUpdateTable) return false;
     this.aPlayer.push(oPlayer);
-
+    // if (this.aPlayer.length === 1) this.setSchedular('matchMakingExpired', '', this.oSettings.nMatchMakingTime);
     // if (this.aPlayerId.length === this.oSettings.nTotalPlayerCount) {
     if (this.aPlayerId.length === this.nTablePlayer) {
+      // this.deleteScheduler('matchMakingExpired', '');
       this.initializeGame();
     }
 
@@ -335,6 +339,8 @@ class Service {
       const player = await this.getPlayer(aPlayer[index].iPlayerId);
       await player?.sendGameEndData(this.toJSON(), oPlayer);
     }
+    log.verbose(`this.iGameId :: ${this.iGameId}`);
+    log.verbose(`scoreArray :: ${scoreArray}`);
     const rpcTableScore = await rpc.finishBattleWithScores(this.iGameId, scoreArray);
     log.verbose(`rpcTableScore response --> ${_.stringify(rpcTableScore)}`);
     this.emit('resGameOver', { aPlayer: sortedPlayer, oWinner: oPlayer, eReason });
@@ -368,6 +374,19 @@ class Service {
     this.aDrawPile = aDrawPile ?? this.aDrawPile;
     await this.update({ aDrawPile: this.aDrawPile });
   }
+
+  // public async refundOnLongWait() {
+  //   // Need to send emit to connected players and remove table.
+  //   const { aPlayer } = this.toJSON();
+  //   await aPlayer.map(player => player.emit('resRefundOnLongWait', {}));
+  //   const keys = await redis.client.KEYS(`t:${this.iBattleId}:*`);
+  //   const tbl_keys: any = await redis.client.KEYS(`t:${this.iBattleId}`);
+  //   keys.push(...tbl_keys);
+  //   log.verbose('Table removed on refundOnLongWait');
+  //   if (keys.length) await redis.client.del(keys);
+  //   const schedularKey = await redis.sch.KEYS(`sch:${this.iBattleId}:`);
+  //   if (schedularKey.length) await redis.sch.del(schedularKey);
+  // }
 
   public async updateDiscardPile(aDiscardPile?: Table['aDiscardPile']) {
     this.aDiscardPile = aDiscardPile ?? this.aDiscardPile;
@@ -469,6 +488,7 @@ class Service {
       oWinningCard: this.oWinningCard,
       sGameName: this.sGameName,
       nTablePlayer: this.nTablePlayer,
+      // nMinTablePlayer: this.nMinTablePlayer,
       nEntryFee: this.nEntryFee,
       aPlayer: this.aPlayer, //  WARNING : don't save using toJSON() as it contain non-existed field 'aPlayer'
     };
