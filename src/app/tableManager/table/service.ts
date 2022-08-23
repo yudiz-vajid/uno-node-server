@@ -342,7 +342,7 @@ class Service {
         score: aPlayer[index].nScore,
         scoreData: '{}',
       };
-      log.verbose(`data --> ${data}`);
+      log.verbose(`data --> ${_.stringify(data)}`);
       const player = await this.getPlayer(aPlayer[index].iPlayerId);
       await player?.sendGameEndData(this.toJSON(), oPlayer);
     }
