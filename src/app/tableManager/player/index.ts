@@ -25,8 +25,7 @@ class Player extends Service {
    * pass turn to next player.
    */
   public async discardCard(oData: { iCardId: string; eColor?: Omit<ICard['eColor'], 'black'> }, oTable: Table, callback: ICallback) {
-    log.verbose(`event: discardCard, player: ${this.iPlayerId}, iCardId: ${oData.iCardId}`);
-
+    log.debug(`${_.now()} event: discardCard, player: ${this.iPlayerId}, tableID: ${this.iBattleId}, iCardId: ${oData.iCardId}`);
     let nCardToDiscardIndex = this.aHand.findIndex(card => card.iCardId === oData.iCardId); // - return index if found else -1
 
     if (nCardToDiscardIndex === -1) {
@@ -155,7 +154,7 @@ class Player extends Service {
    * emit event 'resDrawCard' to Table with { iPlayerId, nCardCount } as payload.
    */
   public async drawCard(oData: Record<string, never>, oTable: Table, callback: ICallback) {
-    log.verbose(`${_.now()} event: drawCard, player: ${this.iPlayerId}`);
+    log.debug(`${_.now()} event: drawCard, player: ${this.iPlayerId}, tableID: ${this.iBattleId}`);
     const aPromise: any = [];
     if (!oTable.toJSON().aDrawPile.length) await oTable.reshuffleClosedDeck();
     const alreadyHavePlayableCard = await this.getPlayableCardIds(await oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
@@ -178,7 +177,7 @@ class Player extends Service {
       return true;
     }
     const aCard: any = this.bSpecialMeterFull ? await oTable.drawCard('special', 1) : await oTable.drawCard('normal', 1);
-
+    log.debug(` drawn card is --> ${aCard} `);
     if (!aCard || aCard === undefined) {
       callback({ oData: {}, status: response.SERVER_ERROR });
       return (log.error(`${_.now()} no card found for iCardId: ${oData.iCardId}`) && null) ?? false;
@@ -234,7 +233,7 @@ class Player extends Service {
   }
 
   public async keepCard(oData: Record<string, never>, oTable: Table, callback: ICallback) {
-    log.verbose(`${_.now()} event: keepCard, player: ${this.iPlayerId}`);
+    log.debug(`${_.now()} event: drawCard, player: ${this.iPlayerId}, tableID: ${this.iBattleId}`);
     const aPromises = [];
 
     const nRemainingGraceTime = await oTable.getTTL('assignGraceTimerExpired', this.iPlayerId); // - in ms
@@ -260,7 +259,7 @@ class Player extends Service {
   }
 
   public async setWildCardColor(oData: any, oTable: Table, callback: ICallback) {
-    log.verbose(`${_.now()} event: setWildCardColor, player: ${this.iPlayerId}`);
+    log.debug(`${_.now()} event: setWildCardColor, player: ${this.iPlayerId}, tableID: ${this.iBattleId}`);
     const aPromises = [];
 
     const nRemainingTime = await oTable.getTTL('assignWildCardColorTimerExpired', this.iPlayerId); // - in ms
@@ -280,7 +279,7 @@ class Player extends Service {
   }
 
   public async declareUno(oData: any, oTable: Table, callback: ICallback) {
-    log.verbose(`${_.now()} event: declareUno, player: ${this.iPlayerId}`);
+    log.debug(`${_.now()} event: declareUno, player: ${this.iPlayerId}, tableID: ${this.iBattleId}`);
     const eligibleUno = this.aHand.length === 2;
     const playableCards = await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
     if (eligibleUno && playableCards.length && oTable.toJSON().iPlayerTurn === this.iPlayerId) {
@@ -295,7 +294,7 @@ class Player extends Service {
   }
 
   public async leaveMatch(oData: any, oTable: Table, callback: ICallback) {
-    log.verbose(`${_.now()} event: leaveMatch, player: ${this.iPlayerId}`);
+    log.debug(`${_.now()} event: leaveMatch, player: ${this.iPlayerId}, tableID: ${this.iBattleId}`);
     await this.update({ eState: 'left' });
     callback({ oData: {}, status: response.SUCCESS });
     oTable.emit('resPlayerLeft', { iPlayerId: this.iPlayerId });
