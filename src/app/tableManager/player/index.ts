@@ -168,10 +168,26 @@ class Player extends Service {
       } else {
         const aPlayableCardId = await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
         const remainingTurnTimer: any = await oTable.getTTL('assignTurnTimerExpired', this.iPlayerId);
-        this.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: remainingTurnTimer - 500, timestamp: Date.now(), aPlayableCards: aPlayableCardId });
-        oTable.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: remainingTurnTimer - 500, timestamp: Date.now(), aPlayableCards: [] }, [
-          this.iPlayerId,
-        ]);
+        this.emit('resTurnTimer', {
+          bIsGraceTimer: false,
+          iPlayerId: this.iPlayerId,
+          ttl: remainingTurnTimer - 500,
+          timestamp: Date.now(),
+          aPlayableCards: aPlayableCardId,
+          bDrawPileEmpty: oTable.toJSON().aDrawPile.length === 0,
+        });
+        oTable.emit(
+          'resTurnTimer',
+          {
+            bIsGraceTimer: false,
+            iPlayerId: this.iPlayerId,
+            ttl: remainingTurnTimer - 500,
+            timestamp: Date.now(),
+            aPlayableCards: [],
+            bDrawPileEmpty: oTable.toJSON().aDrawPile.length === 0,
+          },
+          [this.iPlayerId]
+        );
         // this.takeTurn(oTable) // No need to call take turn because player has already a valid turn at this stage.
       }
       return true;

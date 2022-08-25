@@ -494,6 +494,7 @@ class Service {
 
   // prettier-ignore
   public async takeTurn(oTable: Table) {
+    log.debug(`take turn called for ${this.iPlayerId}`)
     await _.delay(600)
     await oTable.update({ iPlayerTurn: this.iPlayerId });
     let aStackingCardId:any=[]
@@ -511,15 +512,15 @@ class Service {
     const aPlayableCardId =aStackingCardId.length ? aStackingCardId : await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
     log.debug(`${_.now()} discard pile top card:: ${oTable.getDiscardPileTopCard().iCardId}`);
     log.debug(`${_.now()} playable cards for player ${this.iPlayerId}:: ${aPlayableCardId}`);
-    this.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nTurnTime-500, timestamp: Date.now(), aPlayableCards: aPlayableCardId });
-    oTable.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nTurnTime-500, timestamp: Date.now(), aPlayableCards: [] }, [this.iPlayerId]);
+    this.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nTurnTime-500, timestamp: Date.now(), aPlayableCards: aPlayableCardId, bDrawPileEmpty:oTable.toJSON().aDrawPile.length===0 });
+    oTable.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nTurnTime-500, timestamp: Date.now(), aPlayableCards: [],bDrawPileEmpty:oTable.toJSON().aDrawPile.length===0 }, [this.iPlayerId]);
     oTable.setSchedular('assignTurnTimerExpired', this.iPlayerId, oTable.toJSON().oSettings.nTurnTime);
     return true
   }
 
   // prettier-ignore
   public async assignTurnTimerExpired(oTable: Table) {
-    log.verbose('assignTurnTimerExpired called...',this.nGraceTime);
+    log.debug(`${_.now()} event: assign Turn-Timer Expired, tableID: ${this.iBattleId},playerId${this.iPlayerId},remaining grace timer: ${this.nGraceTime}`);
     if (this.nGraceTime < 3) return this.assignGraceTimerExpired(oTable); // Nothing changed in table so no need to save it. // ? why
     // const aPlayableCardId = await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
     // this.emit('resTurnTimer', { bIsGraceTimer: true, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nGraceTime, timestamp: Date.now(), aPlayableCards: aPlayableCardId });
@@ -534,14 +535,14 @@ class Service {
     // end stacking 
 
     const aPlayableCardId =aStackingCardId.length ? aStackingCardId : await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
-    this.emit('resTurnTimer', { bIsGraceTimer: true, iPlayerId: this.iPlayerId, ttl: this.nGraceTime-500, timestamp: Date.now(), aPlayableCards: aPlayableCardId });
-    oTable.emit('resTurnTimer', { bIsGraceTimer: true, iPlayerId: this.iPlayerId, ttl: this.nGraceTime-500, timestamp: Date.now(), aPlayableCards: []  }, [this.iPlayerId]);
+    this.emit('resTurnTimer', { bIsGraceTimer: true, iPlayerId: this.iPlayerId, ttl: this.nGraceTime-500, timestamp: Date.now(), aPlayableCards: aPlayableCardId,bDrawPileEmpty: oTable.toJSON().aDrawPile.length === 0, });
+    oTable.emit('resTurnTimer', { bIsGraceTimer: true, iPlayerId: this.iPlayerId, ttl: this.nGraceTime-500, timestamp: Date.now(), aPlayableCards: [],bDrawPileEmpty: oTable.toJSON().aDrawPile.length === 0,  }, [this.iPlayerId]);
     oTable.setSchedular('assignGraceTimerExpired', this.iPlayerId, this.toJSON().nGraceTime);
     return true;
   }
 
   public async assignGraceTimerExpired(oTable: Table) {
-    // log.verbose('assignGraceTimerExpired called...');
+    log.debug(`${_.now()} event: assign Grace-Timer Expired, tableID: ${this.iBattleId},playerId${this.iPlayerId}`);
     await this.update({ nMissedTurn: this.nMissedTurn + 1, nGraceTime: 0 });
     const aPlayableCardId = await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
     if (oTable.toJSON().iDrawPenltyPlayerId === this.iPlayerId && (!aPlayableCardId.length || (aPlayableCardId.length && oTable.toJSON().oSettings.bMustCollectOnMissTurn))) {
@@ -556,6 +557,7 @@ class Service {
   }
 
   public async assignWildCardColorTimerExpired(oTable: Table) {
+    log.debug(`${_.now()} event: WildCard Color Timer Expired, tableID: ${this.iBattleId},playerId${this.iPlayerId}`);
     const randomColor: any = _.randomizeArray(['red', 'green', 'blue', 'yellow']);
     const updatedDiscardPile = [...oTable.toJSON().aDiscardPile];
     // eslint-disable-next-line prefer-destructuring
@@ -576,6 +578,7 @@ class Service {
   }
 
   public async passTurn(oTable: Table) {
+    log.debug('turn pass to next player');
     if (oTable.toJSON().eState !== 'running') return log.error('table is not in running state.');
     if (!this.aHand.length) {
       if (oTable.toJSON().iDrawPenltyPlayerId) {
