@@ -238,6 +238,7 @@ class Service {
       default:
         return (log.error(`drawCard called with invalid eCardType: ${eCardType}`) && null) ?? null;
     }
+    if (!aCards.length) return [];
     await this.updateDrawPile(this.aDrawPile);
     const player = await this.getPlayer(this.iPlayerTurn);
     const drawnCardCount: any = eCardType === 'normal' ? player?.toJSON().nDrawnNormalCard : player?.toJSON().nDrawnSpecialCard;
@@ -289,7 +290,7 @@ class Service {
       this.iBattleId,
       this.aPlayerId.map(p => Number(p))
     );
-    log.verbose(`rpcTable in initializeGameTimer ${_.stringify(rpcTable)}`);
+    log.debug(`rpcTable in initializeGameTimer ${_.stringify(rpcTable)}`);
     if (!rpcTable || rpcTable.error || !rpcTable.success) return false;
     // // const nBeginCountdown = this.aPlayerId.length === this.oSettings.nTotalPlayerCount ? this.oSettings.nGameInitializeTime / 2 : this.oSettings.nGameInitializeTime;
     const nBeginCountdownCounter = this.oSettings.nGameInitializeTime;
@@ -336,13 +337,6 @@ class Service {
         score: aPlayer[index].nScore,
         scoreData: '{}',
       });
-      const data = {
-        battleId: this.iBattleId,
-        userId: aPlayer[index].iPlayerId,
-        score: aPlayer[index].nScore,
-        scoreData: '{}',
-      };
-      log.verbose(`data --> ${_.stringify(data)}`);
       const player = await this.getPlayer(aPlayer[index].iPlayerId);
       await player?.sendGameEndData(this.toJSON(), oPlayer);
     }
