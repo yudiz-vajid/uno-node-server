@@ -194,7 +194,7 @@ class Player extends Service {
     }
     const aCard: any = this.bSpecialMeterFull ? await oTable.drawCard('special', 1) : await oTable.drawCard('normal', 1);
     log.debug(` drawn card is --> ${aCard} `);
-    if (!aCard || aCard === undefined) {
+    if (!aCard || !aCard.length || aCard === undefined) {
       callback({ oData: {}, status: response.SERVER_ERROR });
       return (log.error(`${_.now()} no card found for iCardId: ${oData.iCardId}`) && null) ?? false;
     }
