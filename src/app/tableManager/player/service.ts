@@ -453,6 +453,7 @@ class Service {
 
   async assignDrawPenalty(oTable: Table) {
     // add penalty card to user along wih spcial meter
+    // TODO:- Check drawpile has card or not if not than handle case and penalty should be remove.
     const aCard: any = [];
     const { nSpecialMeterFillCount } = oTable.toJSON().oSettings;
     for (let i = 0; i < oTable.toJSON().nDrawCount; i += 1) {
@@ -607,32 +608,33 @@ class Service {
 
   public async sendGameEndData(oTable: ITable, oWinner: any) {
     const data = {
-      iUserId: this.iPlayerId,
-      iBattleId: this.iBattleId,
-      iGameId: oTable.iGameId,
-      sGameName: oTable.sGameName,
-      nEntryFee: oTable.nEntryFee,
-      nScore: this.nScore,
-      bIsWon: _.isEqual(this.iPlayerId, oWinner?.iPlayerId),
-      sStartSum: this.nStartHandSum,
-      sStartingHand: this.sStartingHand,
-      oLastCard: oTable.oWinningCard,
-      nUsedNormalCard: this.nUsedNormalCard,
-      nUsedActionCard: this.nUsedActionCard,
-      nUsedSpecialCard: this.nUsedSpecialCard,
-      nDrawnNormalCard: this.nDrawnNormalCard,
-      nDrawnSpecialCard: this.nDrawnSpecialCard,
-      nSkipUsed: this.nSkipUsed,
-      nReverseUsed: this.nReverseUsed,
-      nDraw2Used: this.nDraw2Used,
-      nDraw4Used: this.nDraw4Used,
-      nWildUsed: this.nWildUsed,
-      nUnoPressed: this.nUnoPressed,
-      nUnoMissed: this.nUnoMissed,
-      nSkipped: this.nSkipped,
-      nDrawn2: this.nDrawn2,
-      nDrawn4: this.nDrawn4,
-      nOptionalDraw: this.nOptionalDraw,
+      User_ID: this.iPlayerId,
+      Battle_ID: this.iBattleId,
+      Game_ID: oTable.iGameId,
+      Game_name: oTable.sGameName,
+      Tournament_ID: '',
+      Entry_Fee: oTable.nEntryFee,
+      Score: this.nScore,
+      Is_Won: _.isEqual(this.iPlayerId, oWinner?.iPlayerId),
+      Start_Sum: this.nStartHandSum,
+      Start_hand: this.sStartingHand,
+      Game_Winning_Card: oTable.oWinningCard,
+      Total_Normal_Cards: this.nUsedNormalCard,
+      Total_Action_Cards: this.nUsedActionCard,
+      Total_Wild_Cards: this.nUsedSpecialCard,
+      Normal_Drawn: this.nDrawnNormalCard,
+      Special_Drawn: this.nDrawnSpecialCard,
+      Used_Skip: this.nSkipUsed,
+      Used_Reverse: this.nReverseUsed,
+      Used_Draw2: this.nDraw2Used,
+      Used_Draw4: this.nDraw4Used,
+      Used_Wildcard: this.nWildUsed,
+      Tapped_Uno: this.nUnoPressed,
+      Missed_Uno: this.nUnoMissed,
+      Times_Skipped: this.nSkipped,
+      Times_Draw2: this.nDrawn2,
+      Times_Draw4: this.nDrawn4,
+      Draw_Choice: this.nOptionalDraw,
     };
     log.verbose(`GameStatistics --> ${data}`);
     this.emit('resGameStatistics', { data });
