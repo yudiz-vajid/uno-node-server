@@ -634,6 +634,7 @@ class Service {
       nDrawn4: this.nDrawn4,
       nOptionalDraw: this.nOptionalDraw,
     };
+    log.verbose(`GameStatistics --> ${data}`);
     this.emit('resGameStatistics', { data });
   }
 
