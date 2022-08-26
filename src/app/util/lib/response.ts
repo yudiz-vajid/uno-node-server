@@ -1,6 +1,7 @@
 const response = Object.freeze({
   SUCCESS: { code: 1, message: 'success' },
   SERVER_ERROR: { code: 2, message: 'server error' },
+  DECK_EMPTY: { code: 2, message: 'drawpile has no more cards' },
   CLIENT_PARAM_ERROR(msg: string) {
     return { code: 3, message: msg };
   },
