@@ -216,7 +216,7 @@ class Player extends Service {
       nDrawNormal: this.nDrawNormal,
       nSpecialMeterFillCount,
       bIsPlayable: isPlayableCard,
-      nHandScore: await this.handCardCounts(),
+      nHandScore: await this.handCardCounts([...this.aHand, ...aCard]),
       eReason: 'normalDraw',
     });
     oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [], nCardCount: 1, nHandCardCount: this.aHand.length + 1, eReason: 'normalDraw' }, [this.iPlayerId]);
