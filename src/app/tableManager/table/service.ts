@@ -1,3 +1,4 @@
+/* eslint-disable no-loop-func */
 /* eslint-disable camelcase */
 /* eslint-disable no-await-in-loop */
 import type Table from '.';
@@ -362,10 +363,16 @@ class Service {
         scoreData: '{}',
       };
       log.verbose(`data --> ${_.stringify(data)}`);
+      sortedPlayer.filter(p => {
+        // eslint-disable-next-line no-param-reassign
+        if (p.iPlayerId === aPlayer[index].iPlayerId) p.nRank = rank;
+        return p;
+      });
       const player = await this.getPlayer(aPlayer[index].iPlayerId);
       await player?.sendGameEndData(this.toJSON(), oPlayer);
     }
     log.verbose(`this.iGameId :: ${this.iGameId}`);
+    log.verbose(`sortedPlayer :: ${_.stringify(sortedPlayer)}`);
     log.verbose(`scoreArray :: ${scoreArray}`);
     const rpcTableScore = await rpc.finishBattleWithScores(this.iGameId, scoreArray);
     log.verbose(`rpcTableScore response --> ${_.stringify(rpcTableScore)}`);
