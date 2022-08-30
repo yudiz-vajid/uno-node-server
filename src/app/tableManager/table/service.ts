@@ -345,6 +345,7 @@ class Service {
 
     let rank = 1;
     for (let index = 0; index < aPlayer.length; index += 1) {
+      log.verbose(`aPlayer --> ${aPlayer[index]}`);
       if (index > 0 && aPlayer[index].nScore > aPlayer[index - 1].nScore) {
         // eslint-disable-next-line no-plusplus
         rank++;
@@ -356,13 +357,13 @@ class Service {
         score: rank,
         scoreData: '{}',
       });
-      // const data = {
-      //   battleId: this.iBattleId,
-      //   userId: aPlayer[index].iPlayerId,
-      //   score: rank,
-      //   scoreData: '{}',
-      // };
-      // log.verbose(`data --> ${_.stringify(data)}`);
+      const data = {
+        battleId: this.iBattleId,
+        userId: aPlayer[index].iPlayerId,
+        score: rank,
+        scoreData: '{}',
+      };
+      log.verbose(`data --> ${_.stringify(data)}`);
       sortedPlayer.filter(p => {
         // eslint-disable-next-line no-param-reassign
         if (p.iPlayerId === aPlayer[index].iPlayerId) p.nRank = rank;
