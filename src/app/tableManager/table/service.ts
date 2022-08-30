@@ -346,7 +346,7 @@ class Service {
     let rank = 1;
     for (let index = 0; index < aPlayer.length; index += 1) {
       log.verbose(`aPlayer --> ${_.stringify(aPlayer[index])}`);
-      if (index > 0 && aPlayer[index].nScore > aPlayer[index - 1].nScore) {
+      if (index > 0 && aPlayer[index].nScore !== aPlayer[index - 1].nScore) {
         // eslint-disable-next-line no-plusplus
         rank++;
       }
