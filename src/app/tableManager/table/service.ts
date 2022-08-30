@@ -333,20 +333,31 @@ class Service {
         return { aHand: p.aHand, nScore: p.nScore, iPlayerId: p.iPlayerId, nRank: i };
       });
     const scoreArray = [];
+    aPlayer.sort((a, b) => a.nScore - b.nScore);
+    aPlayer.sort((a, b) => {
+      const x = a.eState.toLowerCase();
+      const y = b.eState.toLowerCase();
+      if (x > y) return -1;
+      if (x < y) return 1;
+      return 0;
+    });
+
+    let rank = 1;
     for (let index = 0; index < aPlayer.length; index += 1) {
+      if (index > 0 && aPlayer[index].nScore < aPlayer[index - 1].nScore) rank += 1;
       scoreArray.push({
         battleId: this.iBattleId,
         userId: aPlayer[index].iPlayerId,
-        score: aPlayer[index].nScore,
+        score: rank,
         scoreData: '{}',
       });
-      // const data = {
-      //   battleId: this.iBattleId,
-      //   userId: aPlayer[index].iPlayerId,
-      //   score: aPlayer[index].nScore,
-      //   scoreData: '{}',
-      // };
-      // log.verbose(`data --> ${_.stringify(data)}`);
+      const data = {
+        battleId: this.iBattleId,
+        userId: aPlayer[index].iPlayerId,
+        score: rank,
+        scoreData: '{}',
+      };
+      log.verbose(`data --> ${_.stringify(data)}`);
       const player = await this.getPlayer(aPlayer[index].iPlayerId);
       await player?.sendGameEndData(this.toJSON(), oPlayer);
     }

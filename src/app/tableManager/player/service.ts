@@ -396,16 +396,28 @@ class Service {
   public async assignUnoMissPenalty(oTable: Table) {
     log.verbose(`${_.now()} event: autoPickCard, player: ${this.iPlayerId}`);
     const aCard: any = [];
+    const aCardIds: any = [];
     const { nSpecialMeterFillCount } = oTable.toJSON().oSettings;
     for (let i = 0; i < 2; i += 1) {
       const oCard: any = this.bSpecialMeterFull ? await oTable.drawCard('special', 1) : await oTable.drawCard('normal', 1);
       this.nDrawNormal = this.nDrawNormal === nSpecialMeterFillCount ? 0 : this.nDrawNormal + 1;
       this.bSpecialMeterFull = this.nDrawNormal === nSpecialMeterFillCount;
       aCard.push(...oCard);
+      aCardIds.push(oCard.ICard);
     }
+    const { aTurnData } = this;
+    aTurnData.push({
+      iUserId: this.iPlayerId,
+      sAction: 'unoMissedPenalty',
+      aCardPlayed: [...aCardIds],
+      nScore: await this.handCardCounts([...this.aHand, ...aCard]),
+      sTimeTake: '0',
+      nCardsRemaining: [...this.aHand, ...aCard].length,
+      bLastOne: false,
+    });
     await Promise.all([
       oTable.updateDrawPile(),
-      this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard], nUnoMissed: this.nUnoMissed + 1 }),
+      this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard], nUnoMissed: this.nUnoMissed + 1, aTurnData }),
     ]);
     this.emit('resDrawCard', {
       iPlayerId: this.iPlayerId,

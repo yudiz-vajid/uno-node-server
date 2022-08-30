@@ -106,7 +106,18 @@ class Player extends Service {
     let usedCardCount = this.nUsedNormalCard;
     if (usedCard === 'nUsedActionCard') usedCardCount = this.nUsedActionCard;
     else if (usedCard === 'nUsedSpecialCard') usedCardCount = this.nUsedSpecialCard;
-    aPromises.push(this.update({ aHand: this.aHand, nGraceTime: this.nGraceTime, [usedCard]: usedCardCount + 1 }));
+    // add turn data here.
+    const { aTurnData } = this;
+    aTurnData.push({
+      iUserId: this.iPlayerId,
+      sAction: 'discardCard',
+      aCardPlayed: [oData.iCardId],
+      nScore: await this.handCardCounts(this.aHand),
+      sTimeTake: '0',
+      nCardsRemaining: this.aHand.length,
+      bLastOne: false,
+    });
+    aPromises.push(this.update({ aHand: this.aHand, nGraceTime: this.nGraceTime, [usedCard]: usedCardCount + 1, aTurnData }));
     await Promise.all(aPromises);
 
     if (this.aHand.length === 1 && this.bUnoDeclared) oTable.emit('resUnoDeclare', { iPlayerId: this.iPlayerId });
