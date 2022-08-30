@@ -344,7 +344,7 @@ class Service {
 
     let rank = 1;
     for (let index = 0; index < aPlayer.length; index += 1) {
-      log.verbose(`index: ${index},aPlayer[index].nScore: ${aPlayer[index].nScore}, aPlayer[index - 1].nScore: ${aPlayer[index - 1].nScore}`);
+      if (index > 0) log.verbose(`index: ${index},aPlayer[index].nScore: ${aPlayer[index].nScore}, aPlayer[index - 1].nScore: ${aPlayer[index - 1].nScore}`);
       if (index > 0 && aPlayer[index].nScore < aPlayer[index - 1].nScore) {
         log.verbose('score will update');
         log.verbose(`rank before ${rank}`);
