@@ -336,8 +336,8 @@ class Service {
     const scoreArray = [];
     aPlayer.sort((a, b) => a.nScore - b.nScore);
     aPlayer.sort((a, b) => {
-      const x = a.eState.toLowerCase();
-      const y = b.eState.toLowerCase();
+      const x = a.eState === 'left' ? a.eState.toLowerCase() : 'playing';
+      const y = b.eState === 'left' ? b.eState.toLowerCase() : 'playing';
       if (x > y) return -1;
       if (x < y) return 1;
       return 0;
