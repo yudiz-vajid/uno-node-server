@@ -242,7 +242,17 @@ class Player extends Service {
         // this.nGraceTime = 0;
         aPromises.push(oTable.deleteScheduler(`assignTurnTimerExpired`, this.iPlayerId));
       }
-      await Promise.all([...aPromises, this.update({ nGraceTime: this.nGraceTime, bUnoDeclared: false }), oTable.update({ iDrawPenltyPlayerId: '' })]);
+      const { aTurnData } = this;
+      aTurnData.push({
+        iUserId: this.iPlayerId,
+        sAction: 'drawCard',
+        aCardPlayed: [aCard[0].iCardId],
+        nScore: await this.handCardCounts(),
+        sTimeTake: '0',
+        nCardsRemaining: this.aHand.length,
+        bLastOne: false,
+      });
+      await Promise.all([...aPromises, this.update({ nGraceTime: this.nGraceTime, bUnoDeclared: false, aTurnData }), oTable.update({ iDrawPenltyPlayerId: '' })]);
       this.passTurn(oTable);
     }
     return true;

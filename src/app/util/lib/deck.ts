@@ -69,9 +69,6 @@ class Deck {
   private generateDeck() {
     this.aDeck = [...this.generateRedCards(), ...this.generateGreenCards(), ...this.generateYellowCards(), ...this.generateBlueCards(), ...this.generateBlackCards()]; // - x108
     // eslint-disable-next-line no-restricted-syntax
-    for (const card of this.aDeck) {
-      console.log('card --> ', card);
-    }
     _.randomizeArray(this.aDeck); // - x108
   }
 

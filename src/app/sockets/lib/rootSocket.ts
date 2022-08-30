@@ -31,6 +31,7 @@ class RootSocket {
         s_auth_token: socket.handshake.auth.s_auth_token ?? <unknown>socket.handshake.headers.s_auth_token,
         isReconnect: socket.handshake.auth.isReconnect ?? <unknown>socket.handshake.headers.isReconnect,
         nTablePlayer: socket.handshake.auth.nTablePlayer ?? <unknown>socket.handshake.headers.nTablePlayer,
+        nMinTablePlayer: socket.handshake.auth.nMinTablePlayer ?? <unknown>socket.handshake.headers.nMinTablePlayer,
       });
       if (authError || !authValue) throw new Error(authInfo);
 
@@ -39,8 +40,7 @@ class RootSocket {
       if (settingsError || !settingsValue) throw new Error(settingsInfo);
       log.debug('3. payload verified');
 
-      const { iBattleId, iPlayerId, sPlayerName, sAuthToken, iLobbyId, isReconnect, nTablePlayer } = authValue;
-      console.log('authValue :: ', authValue);
+      const { iBattleId, iPlayerId, sPlayerName, sAuthToken, iLobbyId, isReconnect, nTablePlayer, nMinTablePlayer } = authValue;
 
       socket.data.iBattleId = iBattleId;
       socket.data.isReconnect = isReconnect;
@@ -49,6 +49,7 @@ class RootSocket {
       socket.data.sPlayerName = sPlayerName;
       socket.data.sAuthToken = sAuthToken;
       socket.data.nTablePlayer = nTablePlayer;
+      socket.data.nMinTablePlayer = nMinTablePlayer;
       socket.data.oSettings = settingsValue;
       let bIsValid = false;
       log.debug('4.1. Authenticating player');

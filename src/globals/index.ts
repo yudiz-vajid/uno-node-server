@@ -21,7 +21,6 @@ declare global {
   var PF: typeof PathFinder;
 }
 
-
 global._ = helper;
 global.log = logger;
 global.emitter = _emitter;

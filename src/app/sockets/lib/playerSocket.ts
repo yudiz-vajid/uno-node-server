@@ -23,6 +23,8 @@ class PlayerSocket {
 
   private nTablePlayer: number;
 
+  private nMinTablePlayer: number;
+
   constructor(socket: Socket) {
     this.socket = socket; // - socket = {id: <socketId>, ...other}
     this.iPlayerId = socket.data.iPlayerId;
@@ -32,6 +34,7 @@ class PlayerSocket {
     this.sPlayerName = socket.data.sPlayerName;
     this.sAuthToken = socket.data.sAuthToken;
     this.nTablePlayer = socket.data.nTablePlayer;
+    this.nMinTablePlayer = socket.data.nMinTablePlayer;
     this.oSetting = socket.data.oSettings;
 
     this.socket.data = {}; // - clean up socket payload
@@ -65,6 +68,7 @@ class PlayerSocket {
           iPlayerId: this.iPlayerId,
           iLobbyId: this.iLobbyId,
           nTablePlayer: this.nTablePlayer,
+          nMinTablePlayer: this.nMinTablePlayer,
         });
       if (!oTable) throw new Error('Table not created');
       let oPlayer = oTable.getPlayer(this.iPlayerId);
@@ -102,6 +106,7 @@ class PlayerSocket {
           bUnoDeclared: false,
           bSkipSpecialMeterProcess: false,
           aHand: [],
+          aTurnData: [],
           eState: 'waiting',
           dCreatedAt: new Date(),
           sStartingHand: '',

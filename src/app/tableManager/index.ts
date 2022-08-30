@@ -77,6 +77,10 @@ class TableManager {
         oPlayer?.assignWildCardColorTimerExpired(oTable);
         return true;
 
+      case 'matchMakingExpired':
+        oTable?.matchMakingExpired();
+        return true;
+
       case 'drawCard':
         oPlayer?.drawCard({}, oTable, callback);
         return true;
@@ -135,9 +139,9 @@ class TableManager {
     iPlayerId: IPlayer['iPlayerId'];
     iLobbyId: string;
     nTablePlayer: number;
+    nMinTablePlayer: number;
   }) {
     try {
-      log.debug(`7.1. table creation started => createTable()`);
       log.debug(`createTable() payload: ${_.stringify(oData)}`);
       const oLobbyDataRes = await rpc.getLobbyById(Number(oData.iLobbyId), Number(oData.iPlayerId));
       const oLobby = _.parse(oLobbyDataRes);
@@ -155,9 +159,9 @@ class TableManager {
         nGameInitializeTime: gameConfig.nGameInitializeTime * 1000,
         nWildCardColorTimer: gameConfig.nWildCardColorTimer * 1000,
         nTotalGameTime: gameConfig.nTotalGameTime * 1000,
+        nMatchMakingTime: gameConfig.nMatchMakingTime * 1000 ?? 30000,
       };
       log.debug(`7.2. gameConfig :: ${_.stringify(gameConfig)}`);
-      // log.verbose(`gameConfig after parsing :: ${gameConfig}`);
       const oTableWithParticipant: ITable = {
         iBattleId: oData.iBattleId,
         iGameId: updatedGameConfig.iGameId,
@@ -179,7 +183,9 @@ class TableManager {
         // @ts-ignore
         oSettings: updatedGameConfig as ISettings, // oData.oSettings,
         nTablePlayer: oData.nTablePlayer ?? 2,
+        nMinTablePlayer: oData.nMinTablePlayer ?? 2,
         dCreatedAt: new Date(),
+        oLobbyData: oLobbyDataRes || {},
         oWinningCard: {},
       };
       log.debug(`7.3. table creation finished`);

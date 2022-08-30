@@ -51,7 +51,9 @@ class Service {
 
   protected nTablePlayer: ITableWithPlayer['nTablePlayer'];
 
-  // protected nMinTablePlayer: ITableWithPlayer['nMinTablePlayer'];
+  protected nMinTablePlayer: ITableWithPlayer['nMinTablePlayer'];
+
+  protected oLobbyData: ITableWithPlayer['oLobbyData'];
 
   constructor(oData: ITable & { aPlayer?: Player[] }) {
     this.iBattleId = oData.iBattleId;
@@ -70,10 +72,11 @@ class Service {
     this.eNextCardColor = oData.eNextCardColor;
     this.nDrawCount = oData.nDrawCount;
     this.nTablePlayer = oData.nTablePlayer;
-    // this.nMinTablePlayer = oData.nMinTablePlayer;
+    this.nMinTablePlayer = oData.nMinTablePlayer;
     this.dCreatedAt = oData.dCreatedAt;
     this.oSettings = oData.oSettings;
     this.oWinningCard = oData.oWinningCard;
+    this.oLobbyData = oData.oLobbyData;
     this.sGameName = oData.sGameName;
     this.nEntryFee = oData.nEntryFee;
     this.aPlayer = oData.aPlayer ?? [];
@@ -238,8 +241,8 @@ class Service {
       default:
         return (log.error(`drawCard called with invalid eCardType: ${eCardType}`) && null) ?? null;
     }
-    if (!aCards.length) return [];
     await this.updateDrawPile(this.aDrawPile);
+    if (!aCards.length) return [];
     const player = await this.getPlayer(this.iPlayerTurn);
     const drawnCardCount: any = eCardType === 'normal' ? player?.toJSON().nDrawnNormalCard : player?.toJSON().nDrawnSpecialCard;
     await player?.update({ bSkipSpecialMeterProcess: skipSpecialMeter, [drawnCardType]: drawnCardCount + 1 });
@@ -337,6 +340,13 @@ class Service {
         score: aPlayer[index].nScore,
         scoreData: '{}',
       });
+      // const data = {
+      //   battleId: this.iBattleId,
+      //   userId: aPlayer[index].iPlayerId,
+      //   score: aPlayer[index].nScore,
+      //   scoreData: '{}',
+      // };
+      // log.verbose(`data --> ${_.stringify(data)}`);
       const player = await this.getPlayer(aPlayer[index].iPlayerId);
       await player?.sendGameEndData(this.toJSON(), oPlayer);
     }
@@ -376,18 +386,18 @@ class Service {
     await this.update({ aDrawPile: this.aDrawPile });
   }
 
-  // public async refundOnLongWait() {
-  //   // Need to send emit to connected players and remove table.
-  //   const { aPlayer } = this.toJSON();
-  //   await aPlayer.map(player => player.emit('resRefundOnLongWait', {}));
-  //   const keys = await redis.client.KEYS(`t:${this.iBattleId}:*`);
-  //   const tbl_keys: any = await redis.client.KEYS(`t:${this.iBattleId}`);
-  //   keys.push(...tbl_keys);
-  //   log.verbose('Table removed on refundOnLongWait');
-  //   if (keys.length) await redis.client.del(keys);
-  //   const schedularKey = await redis.sch.KEYS(`sch:${this.iBattleId}:`);
-  //   if (schedularKey.length) await redis.sch.del(schedularKey);
-  // }
+  public async refundOnLongWait() {
+    // Need to send emit to connected players and remove table.
+    const { aPlayer } = this.toJSON();
+    await aPlayer.map(player => player.emit('resRefundOnLongWait', {}));
+    const keys = await redis.client.KEYS(`t:${this.iBattleId}:*`);
+    const tbl_keys: any = await redis.client.KEYS(`t:${this.iBattleId}`);
+    keys.push(...tbl_keys);
+    log.verbose('Table removed on refundOnLongWait');
+    if (keys.length) await redis.client.del(keys);
+    const schedularKey = await redis.sch.KEYS(`sch:${this.iBattleId}:`);
+    if (schedularKey.length) await redis.sch.del(schedularKey);
+  }
 
   public async updateDiscardPile(aDiscardPile?: Table['aDiscardPile']) {
     this.aDiscardPile = aDiscardPile ?? this.aDiscardPile;
@@ -489,8 +499,9 @@ class Service {
       oWinningCard: this.oWinningCard,
       sGameName: this.sGameName,
       nTablePlayer: this.nTablePlayer,
-      // nMinTablePlayer: this.nMinTablePlayer,
+      nMinTablePlayer: this.nMinTablePlayer,
       nEntryFee: this.nEntryFee,
+      oLobbyData: this.oLobbyData,
       aPlayer: this.aPlayer, //  WARNING : don't save using toJSON() as it contain non-existed field 'aPlayer'
     };
   }

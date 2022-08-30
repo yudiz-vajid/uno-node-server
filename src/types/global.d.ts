@@ -28,6 +28,15 @@ export declare interface ICard {
   // bDrawTwoCard?: boolean; // play on same color or label
   // bDrawFourCard?: boolean; // only for black(wild) card
 }
+export declare interface ITurnData {
+  iUserId: string;
+  sAction: string;
+  aCardPlayed: Array;
+  nScore: number;
+  sTimeTake: string;
+  nCardsRemaining: number;
+  bLastOne: boolean;
+}
 
 declare interface ISettings {
   bDisallowPlayOnDrawCardPenalty: boolean;
@@ -47,7 +56,7 @@ declare interface ISettings {
   nGameInitializeTime: number;
   nTotalSkipTurnCount: number;
   nTablePlayer: number;
-
+  nMatchMakingTime: number;
   aCardScore: Array<number>;
 }
 
@@ -86,6 +95,7 @@ export declare interface IPlayer {
   bNextTurnSkip: boolean;
   bSkipSpecialMeterProcess: boolean;
   aHand: ICard[];
+  aTurnData: ITurnData[];
   eState: 'waiting' | 'disconnected' | 'playing' | 'left' | 'declared';
   dCreatedAt: Date;
 }
@@ -110,7 +120,9 @@ export declare interface ITable {
   nDrawCount: number;
   oSettings: ISettings;
   nTablePlayer: number;
+  nMinTablePlayer: number;
   oWinningCard: object;
+  oLobbyData: object;
   dCreatedAt: Date;
 }
 

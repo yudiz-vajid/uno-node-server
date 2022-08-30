@@ -6,7 +6,7 @@ import type Player from '../player';
 class Table extends Service {
   public async distributeCard() {
     // eslint-disable-next-line prefer-const
-    log.verbose('distributeCard');
+    log.debug(`${_.now()} event: distributeCard, tableID: ${this.iBattleId}`);
     let { nStartingActionCardCount } = this.oSettings;
     const { nStartingNormalCardCount, nStartingSpecialCardCount } = this.oSettings;
     nStartingActionCardCount = nStartingActionCardCount || _.getRandomNumber(2, 3);
@@ -16,7 +16,6 @@ class Table extends Service {
     if (this.aDrawPile.length <= this.aPlayer.length * nInitialCardsPerUser) return (log.error(`Not enough cards in the draw pile to distribute to all players`) && null) ?? false;
 
     this.aPlayer.forEach(async player => {
-      log.verbose(`length(drawPile): ${this.aDrawPile.length} `);
       const aNormalCard = await this.drawCard('normal', nStartingNormalCardCount); // 1-9
       if (!aNormalCard) return (log.error(`Could not draw normal cards for player ${player.toJSON().iPlayerId}`) && null) ?? false;
       const aActionCard = await this.drawCard('action', nStartingActionCardCount); // 10-12
@@ -49,7 +48,7 @@ class Table extends Service {
 
   // eslint-disable-next-line class-methods-use-this
   public async masterTimerExpired() {
-    log.verbose('masterTimerExpired, game should end now');
+    log.debug(`${_.now()} event: master Timer Expired, tableID: ${this.iBattleId}`);
     this.emit('resMasterTimerExpired', {});
     const aPlayingPlayer = this.aPlayer.filter(p => p.toJSON().eState === 'playing');
     for (const player of aPlayingPlayer) {
@@ -65,8 +64,15 @@ class Table extends Service {
     return true;
   }
 
+  public async matchMakingExpired() {
+    log.debug(`${_.now()} event: server match Making Expired, tableID: ${this.iBattleId}`);
+    if (this.aPlayerId.length < this.nMinTablePlayer) return this.refundOnLongWait();
+    log.verbose('Game start with MinTablePlayer');
+    return this.initializeGame();
+  }
+
   public async masterTimerWillExpire() {
-    log.verbose('masterTimerWillExpire, game should fast now');
+    log.debug(`${_.now()} event: master Timer Will Expire, tableID: ${this.iBattleId}`);
     this.emit('resMasterTimerWillExpire', {});
     const updatedSettings = { ...this.oSettings, nTurnTime: this.oSettings.nTurnTime / 2 };
     await this.update({ oSettings: updatedSettings });
@@ -74,7 +80,7 @@ class Table extends Service {
   }
 
   public async gameInitializeTimerExpired() {
-    log.verbose('gameInitializeTimerExpired, game should start now');
+    log.debug(`${_.now()} event: game Initialize Timer Expired, tableID: ${this.iBattleId}`);
     this.emit('resGameInitializeTimerExpired', {});
     this.setSchedular('distributeCard', '', 100);
     return true;
@@ -94,7 +100,6 @@ class Table extends Service {
 
   public async getNextPlayer(nPreviousSeat: number) {
     const aPlayingPlayer = this.aPlayer.filter(p => p.eState !== 'left');
-    console.log('aPlayingPlayer in getNextPlayer :: ', aPlayingPlayer);
     if (!aPlayingPlayer.length) return (log.error(`No players have eState 'playing'`) && null) ?? null;
 
     let oPlayer: Player | undefined;

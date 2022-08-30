@@ -75,6 +75,8 @@ class Service {
 
   protected nOptionalDraw: IPlayer['nOptionalDraw'];
 
+  protected aTurnData: IPlayer['aTurnData'];
+
   constructor(oData: IPlayer) {
     this.iPlayerId = oData.iPlayerId;
     this.iBattleId = oData.iBattleId;
@@ -109,6 +111,7 @@ class Service {
     this.bNextTurnSkip = oData.bNextTurnSkip;
     this.bSkipSpecialMeterProcess = oData.bSkipSpecialMeterProcess;
     this.aHand = oData.aHand;
+    this.aTurnData = oData.aTurnData;
     this.eState = oData.eState;
     this.dCreatedAt = oData.dCreatedAt;
   }
@@ -142,6 +145,7 @@ class Service {
     | 'bUnoDeclared'
     | 'bSkipSpecialMeterProcess' 
     | 'aHand' 
+    | 'aTurnData' 
     | 'eState'>>) {
     try {
       const aPromise: Array<Promise<unknown>> = [];
@@ -234,6 +238,10 @@ class Service {
             break;
           case 'aHand':
             this.aHand = v as IPlayer['aHand'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'aTurnData':
+            this.aTurnData = v as IPlayer['aTurnData'];
             aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
             break;
           case 'eState':
@@ -455,6 +463,7 @@ class Service {
     // add penalty card to user along wih spcial meter
     // TODO:- Check drawpile has card or not if not than handle case and penalty should be remove.
     const aCard: any = [];
+    const aCardIds: any = [];
     const { nSpecialMeterFillCount } = oTable.toJSON().oSettings;
     for (let i = 0; i < oTable.toJSON().nDrawCount; i += 1) {
       const oCard: any = this.bSpecialMeterFull ? await oTable.drawCard('special', 1) : await oTable.drawCard('normal', 1);
@@ -463,6 +472,7 @@ class Service {
         this.bSpecialMeterFull = this.nDrawNormal === nSpecialMeterFillCount;
       }
       aCard.push(...oCard);
+      aCardIds.push(oCard.iCardId);
     }
     await oTable.updateDrawPile();
     const nLastCard = await oTable.getDiscardPileTopCard();
@@ -488,6 +498,17 @@ class Service {
       nHandScore: await this.handCardCounts(),
       eReason: 'drawCardPenalty',
     });
+    const { aTurnData } = this;
+    aTurnData.push({
+      iUserId: this.iPlayerId,
+      sAction: 'penalty',
+      aCardPlayed: aCardIds,
+      nScore: await this.handCardCounts(),
+      sTimeTake: '0',
+      nCardsRemaining: this.aHand.length,
+      bLastOne: false,
+    });
+    await this.update({ aTurnData });
     oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [], nCardCount: aCard.length, nHandCardCount: this.aHand.length, eReason: 'drawCardPenalty' }, [this.iPlayerId]);
     await _.delay(300 * aCard.length); // draw card animation.
     // this.passTurn(oTable);
@@ -682,6 +703,7 @@ class Service {
       bSpecialMeterFull: this.bSpecialMeterFull,
       bSkipSpecialMeterProcess: this.bSkipSpecialMeterProcess,
       aHand: this.aHand,
+      aTurnData: this.aTurnData,
       eState: this.eState,
       dCreatedAt: this.dCreatedAt,
     };
