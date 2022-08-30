@@ -344,7 +344,14 @@ class Service {
 
     let rank = 1;
     for (let index = 0; index < aPlayer.length; index += 1) {
-      if (index > 0 && aPlayer[index].nScore < aPlayer[index - 1].nScore) rank += 1;
+      if (index > 0 && aPlayer[index].nScore < aPlayer[index - 1].nScore) {
+        log.verbose('score will update');
+        log.verbose(`rank before ${rank}`);
+        // eslint-disable-next-line no-plusplus
+        rank++;
+        log.verbose(`updated rank ${rank}`);
+      }
+
       scoreArray.push({
         battleId: this.iBattleId,
         userId: aPlayer[index].iPlayerId,
