@@ -356,13 +356,13 @@ class Service {
         score: rank,
         scoreData: '{}',
       });
-      const data = {
-        battleId: this.iBattleId,
-        userId: aPlayer[index].iPlayerId,
-        score: rank,
-        scoreData: '{}',
-      };
-      log.verbose(`data --> ${_.stringify(data)}`);
+      // const data = {
+      //   battleId: this.iBattleId,
+      //   userId: aPlayer[index].iPlayerId,
+      //   score: rank,
+      //   scoreData: '{}',
+      // };
+      // log.verbose(`data --> ${_.stringify(data)}`);
       sortedPlayer.filter(p => {
         // eslint-disable-next-line no-param-reassign
         if (p.iPlayerId === aPlayer[index].iPlayerId) p.nRank = rank;
@@ -371,11 +371,7 @@ class Service {
       const player = await this.getPlayer(aPlayer[index].iPlayerId);
       await player?.sendGameEndData(this.toJSON(), oPlayer);
     }
-    log.verbose(`this.iGameId :: ${this.iGameId}`);
-    log.verbose(`sortedPlayer :: ${_.stringify(sortedPlayer)}`);
-    log.verbose(`scoreArray :: ${scoreArray}`);
     const rpcTableScore = await rpc.finishBattleWithScores(this.iGameId, scoreArray);
-    log.verbose(`rpcTableScore response --> ${_.stringify(rpcTableScore)}`);
     this.emit('resGameOver', { aPlayer: sortedPlayer, oWinner: oPlayer, eReason });
     if (rpcTableScore && rpcTableScore.playersData.length) {
       for (let index = 0; index < rpcTableScore.playersData.length; index += 1) {
