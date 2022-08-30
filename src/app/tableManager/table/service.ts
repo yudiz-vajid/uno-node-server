@@ -363,7 +363,6 @@ class Service {
     }
     log.verbose(`this.iGameId :: ${this.iGameId}`);
     log.verbose(`scoreArray :: ${scoreArray}`);
-    log.verbose(`scoreArray :: ${_.stringify(scoreArray)}`);
     const rpcTableScore = await rpc.finishBattleWithScores(this.iGameId, scoreArray);
     log.verbose(`rpcTableScore response --> ${_.stringify(rpcTableScore)}`);
     this.emit('resGameOver', { aPlayer: sortedPlayer, oWinner: oPlayer, eReason });
