@@ -374,7 +374,7 @@ class Service {
     }
     const rpcTableScore = await rpc.finishBattleWithScores(this.iGameId, scoreArray);
     this.emit('resGameOver', { aPlayer: sortedPlayer, oWinner: oPlayer, eReason });
-    if (rpcTableScore && rpcTableScore.playersData.length) {
+    if (rpcTableScore && rpcTableScore !== null && rpcTableScore.playersData.length) {
       for (let index = 0; index < rpcTableScore.playersData.length; index += 1) {
         rpcTableScore.playersData[index].didPlayerLose = false;
         rpcTableScore.playersData[index].playerWinPercentage = '';
