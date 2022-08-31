@@ -320,7 +320,7 @@ class Player extends Service {
     const eligibleUno = this.aHand.length === 2;
     const playableCards = await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
     if (eligibleUno && playableCards.length && oTable.toJSON().iPlayerTurn === this.iPlayerId) {
-      // oTable.emit('resUnoDeclare', { iPlayerId: this.iPlayerId},[this.iPlayerId]);
+      oTable.emit('resUnoPressed', { iPlayerId: this.iPlayerId }, [this.iPlayerId]);
       await this.update({ bUnoDeclared: true, nUnoPressed: this.nUnoPressed });
       callback({ oData: {}, status: response.SUCCESS });
     } else {
