@@ -373,10 +373,21 @@ class Service {
 
     const aPromise: any = [];
     if (this.bUnoDeclared && this.aHand.length + 1 > 2) aPromise.push(this.update({ bUnoDeclared: false }));
+    const { aTurnData } = this;
+    aTurnData.push({
+      iUserId: this.iPlayerId,
+      sAction: 'autoPickCard',
+      aCardPlayed: [aCard[0].iCardId],
+      nScore: await this.handCardCounts([...this.aHand, ...aCard]),
+      sTimeTake: '0',
+      nCardsRemaining: [...this.aHand, ...aCard].length,
+      bLastOne: false,
+    });
+
     await Promise.all([
       oTable.updateDrawPile(),
       ...aPromise,
-      this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard] }),
+      this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard], aTurnData }),
     ]);
 
     this.emit('resDrawCard', {
@@ -491,12 +502,24 @@ class Service {
     const assignPenalty = nLastCard.nLabel === 12 ? 'nDrawn2' : 'nDrawn4';
     const assignPenaltyCount = assignPenalty === 'nDrawn2' ? this.nDrawn2 + 1 : this.nDrawn4 + 1;
 
+    const { aTurnData } = this;
+    aTurnData.push({
+      iUserId: this.iPlayerId,
+      sAction: 'penalty',
+      aCardPlayed: aCardIds,
+      nScore: await this.handCardCounts([...this.aHand, ...aCard]),
+      sTimeTake: '0',
+      nCardsRemaining: [...this.aHand, ...aCard].length,
+      bLastOne: false,
+    });
+
     await this.update({
       nDrawNormal: this.nDrawNormal,
       bSpecialMeterFull: this.bSpecialMeterFull,
       [assignPenalty]: assignPenaltyCount,
       aHand: [...this.aHand, ...aCard],
       bUnoDeclared: false,
+      aTurnData,
     });
     await oTable.update({ iDrawPenltyPlayerId: '', nDrawCount: 0 });
     // await _.delay(300*aCard.length)
@@ -510,17 +533,6 @@ class Service {
       nHandScore: await this.handCardCounts(),
       eReason: 'drawCardPenalty',
     });
-    const { aTurnData } = this;
-    aTurnData.push({
-      iUserId: this.iPlayerId,
-      sAction: 'penalty',
-      aCardPlayed: aCardIds,
-      nScore: await this.handCardCounts(),
-      sTimeTake: '0',
-      nCardsRemaining: this.aHand.length,
-      bLastOne: false,
-    });
-    await this.update({ aTurnData });
     oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [], nCardCount: aCard.length, nHandCardCount: this.aHand.length, eReason: 'drawCardPenalty' }, [this.iPlayerId]);
     await _.delay(300 * aCard.length); // draw card animation.
     // this.passTurn(oTable);
