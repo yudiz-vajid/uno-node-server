@@ -383,12 +383,13 @@ class Service {
 
     const aPromise: any = [];
     if (this.bUnoDeclared && this.aHand.length + 1 > 2) aPromise.push(this.update({ bUnoDeclared: false }));
+    const timeTaken = Math.abs(Math.round(new Date().getTime() - oTable.toJSON().dTurnAssignedAt.getTime()));
     this.aTurnData.push({
       Uid: this.iPlayerId,
       Action: 'autoPickCard',
       CardPlayed: [aCard[0].iCardId],
       Score: await this.handCardCounts([...this.aHand, ...aCard]),
-      TimeTaken: '0',
+      TimeTaken: timeTaken,
       CardsRemaining: [...this.aHand, ...aCard].length,
       LastOne: false,
     });
@@ -431,13 +432,13 @@ class Service {
       aCard.push(...oCard);
       aCardIds.push(oCard.ICard);
     }
-
+    const timeTaken = Math.abs(Math.round(new Date().getTime() - oTable.toJSON().dTurnAssignedAt.getTime()));
     this.aTurnData.push({
       Uid: this.iPlayerId,
       Action: 'unoMissedPenalty',
       CardPlayed: [...aCardIds],
       Score: await this.handCardCounts([...this.aHand, ...aCard]),
-      TimeTaken: '0',
+      TimeTaken: timeTaken,
       CardsRemaining: [...this.aHand, ...aCard].length,
       LastOne: false,
     });
@@ -523,12 +524,13 @@ class Service {
     const assignPenalty = nLastCard.nLabel === 12 ? 'nDrawn2' : 'nDrawn4';
     const assignPenaltyCount = assignPenalty === 'nDrawn2' ? this.nDrawn2 + 1 : this.nDrawn4 + 1;
 
+    const timeTaken = Math.abs(Math.round(new Date().getTime() - oTable.toJSON().dTurnAssignedAt.getTime()));
     this.aTurnData.push({
       Uid: this.iPlayerId,
       Action: 'darwPenalty',
       CardPlayed: aCardIds,
       Score: await this.handCardCounts([...this.aHand, ...aCard]),
-      TimeTaken: '0',
+      TimeTaken: timeTaken,
       CardsRemaining: [...this.aHand, ...aCard].length,
       LastOne: false,
     });
@@ -563,7 +565,7 @@ class Service {
   public async takeTurn(oTable: Table) {
     log.debug(`take turn called for ${this.iPlayerId}`)
     await _.delay(600)
-    await oTable.update({ iPlayerTurn: this.iPlayerId });
+    await oTable.update({ iPlayerTurn: this.iPlayerId,dTurnAssignedAt:new Date() });
     let aStackingCardId:any=[]
     if(oTable.toJSON().aDiscardPile.slice(-1)[0].nLabel===12 || oTable.toJSON().aDiscardPile.slice(-1)[0].nLabel===14){
       if(oTable.toJSON().oSettings.bStackingDrawCards && oTable.toJSON().iDrawPenltyPlayerId===this.iPlayerId){
@@ -640,7 +642,10 @@ class Service {
     await this.update({ eState: 'left' });
     oTable.emit('resPlayerLeft', { iPlayerId: this.iPlayerId });
     const aPlayingPlayer = oTable.toJSON().aPlayer.filter(p => p.eState === 'playing');
-    if (aPlayingPlayer.length <= 1) return oTable.gameOver(aPlayingPlayer[0], 'playerLeft');
+    if (aPlayingPlayer.length <= 1) {
+      await oTable.update({ sGameEndReasons: 'User Quit' });
+      return oTable.gameOver(aPlayingPlayer[0], 'playerLeft');
+    }
     return this.passTurn(oTable);
   }
 
@@ -653,7 +658,7 @@ class Service {
         if (penaltyPlayer?.eState === 'playing') await penaltyPlayer.assignDrawPenalty(oTable);
       }
       const winner: any = await oTable.getPlayer(this.iPlayerId);
-      oTable.update({ oWinningCard: oTable.getDiscardPileTopCard() });
+      await oTable.update({ oWinningCard: oTable.getDiscardPileTopCard(), sGameEndReasons: 'All Levels Completed' });
       return oTable.gameOver(winner, 'playerWin');
     }
     const { aPlayer } = oTable.toJSON();

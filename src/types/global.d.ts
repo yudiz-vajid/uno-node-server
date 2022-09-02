@@ -36,7 +36,7 @@ export declare interface ITurnData {
   Action: string;
   CardPlayed: Array;
   Score: number;
-  TimeTaken: string;
+  TimeTaken: number;
   CardsRemaining: number;
   LastOne: boolean;
 }
@@ -120,7 +120,9 @@ export declare interface ITable {
   eState: 'waiting' | 'initialized' | 'running' | 'finished';
   eNextCardColor: Omit<ICard['eColor'], 'black'>;
   sGameName: string;
+  sGameEndReasons: string;
   nEntryFee: number;
+  dTurnAssignedAt: Date;
   nDrawCount: number;
   oSettings: ISettings;
   nTablePlayer: number;

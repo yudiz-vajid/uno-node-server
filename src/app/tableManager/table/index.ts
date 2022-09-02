@@ -60,6 +60,7 @@ class Table extends Service {
       const penaltyUser = this.getPlayer(this.iDrawPenltyPlayerId);
       if (penaltyUser?.eState === 'playing') await penaltyUser.assignDrawPenalty(this);
     }
+    await this.update({ sGameEndReasons: 'Out of Time' });
     this.gameOver(sortedPlayer[0], 'masterTimerExpire');
     return true;
   }

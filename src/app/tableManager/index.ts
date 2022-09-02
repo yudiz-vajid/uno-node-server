@@ -179,7 +179,9 @@ class TableManager {
         eNextCardColor: '',
         nDrawCount: 0,
         sGameName: oLobby.lobbyDetails.name ?? '',
+        sGameEndReasons: '',
         nEntryFee: oLobby.lobbyDetails.entryFee ?? 0,
+        dTurnAssignedAt: new Date(),
         // @ts-ignore
         oSettings: updatedGameConfig as ISettings, // oData.oSettings,
         nTablePlayer: oData.nTablePlayer ?? 2,

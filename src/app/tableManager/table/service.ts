@@ -52,9 +52,13 @@ class Service {
 
   protected nTablePlayer: ITableWithPlayer['nTablePlayer'];
 
+  protected dTurnAssignedAt: ITableWithPlayer['dTurnAssignedAt'];
+
   protected nMinTablePlayer: ITableWithPlayer['nMinTablePlayer'];
 
   protected oLobbyData: ITableWithPlayer['oLobbyData'];
+
+  protected sGameEndReasons: ITableWithPlayer['sGameEndReasons'];
 
   constructor(oData: ITable & { aPlayer?: Player[] }) {
     this.iBattleId = oData.iBattleId;
@@ -79,7 +83,9 @@ class Service {
     this.oWinningCard = oData.oWinningCard;
     this.oLobbyData = oData.oLobbyData;
     this.sGameName = oData.sGameName;
+    this.sGameEndReasons = oData.sGameEndReasons;
     this.nEntryFee = oData.nEntryFee;
+    this.dTurnAssignedAt = oData.dTurnAssignedAt;
     this.aPlayer = oData.aPlayer ?? [];
   }
 
@@ -99,8 +105,10 @@ class Service {
         | 'bIsReverseNow'
         | 'eNextCardColor'
         | 'nDrawCount'
+        | 'dTurnAssignedAt'
         | 'oSettings'
         | 'oWinningCard'
+        | 'sGameEndReasons'
       >
     >
   ) {
@@ -156,6 +164,14 @@ class Service {
             break;
           case 'nDrawCount':
             this.nDrawCount = v as ITable['nDrawCount'];
+            aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'dTurnAssignedAt':
+            this.dTurnAssignedAt = v as ITable['dTurnAssignedAt'];
+            aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'sGameEndReasons':
+            this.sGameEndReasons = v as ITable['sGameEndReasons'];
             aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
             break;
           case 'oSettings':
@@ -344,6 +360,7 @@ class Service {
     });
 
     let rank = 1;
+    const nGameTime = this.oSettings.nTotalGameTime * 1000 - ((await this.getTTL('masterTimerExpired', '')) ?? 0); // - in ms;
     for (let index = 0; index < aPlayer.length; index += 1) {
       log.verbose(`aPlayer --> ${_.stringify(aPlayer[index])}`);
       if (index > 0 && aPlayer[index].nScore !== aPlayer[index - 1].nScore) rank += 1;
@@ -353,14 +370,23 @@ class Service {
         score: rank,
         scoreData: '{}',
       });
-      const data = {
-        battleId: this.iBattleId,
-        userId: aPlayer[index].iPlayerId,
-        score: rank,
-        scoreData: '{}',
+      const fraudData = {
+        LobbyConfig: this.oLobbyData,
+        NoOfPlayers: this.aPlayer.length,
+        UserCards: aPlayer[index].toJSON().aDrawnCards.filter(card => card),
+        TurnWiseData: aPlayer[index].toJSON().aTurnData,
+        GamePlayDuration: nGameTime,
+        Score: aPlayer[index].nScore,
+        GameEndReasons: this.sGameEndReasons,
       };
-      log.verbose(`data --> ${_.stringify(data)}`);
-      log.verbose(`aTurnData --> ${_.stringify(aPlayer[index].toJSON().aDrawnCards)}`);
+      log.info(`fraudData --> ${_.stringify(fraudData)}`);
+      // const data = {
+      //   battleId: this.iBattleId,
+      //   userId: aPlayer[index].iPlayerId,
+      //   score: rank,
+      //   scoreData: '{}',
+      // };
+      // log.verbose(`data --> ${_.stringify(data)}`);
       sortedPlayer.filter(p => {
         // eslint-disable-next-line no-param-reassign
         if (p.iPlayerId === aPlayer[index].iPlayerId) p.nRank = rank;
@@ -369,15 +395,8 @@ class Service {
       const player = await this.getPlayer(aPlayer[index].iPlayerId);
       await player?.sendGameEndData(this.toJSON(), oPlayer);
     }
-    // const oGamePM = {
-    //   LobbyConfig: this.oLobbyData,
-    //   NoOfPlayers: aPlayer.length,
-    //   UserCards: aUserCards,
-    //   // TurnWiseData: this.aTurnInfo,
-    //   GamePlayDuration: 0,
-    // };
     const rpcTableScore = await rpc.finishBattleWithScores(this.iGameId, scoreArray);
-    log.verbose(`rpcTableScore --> ${rpcTableScore}`);
+    log.verbose(`rpcTableScore --> ${_.stringify(rpcTableScore)}`);
     this.emit('resGameOver', { aPlayer: sortedPlayer, oWinner: oPlayer, eReason });
     if (rpcTableScore && rpcTableScore !== null && rpcTableScore.playersData.length) {
       for (let index = 0; index < rpcTableScore.playersData.length; index += 1) {
@@ -519,6 +538,7 @@ class Service {
       bTurnClockwise: this.bTurnClockwise,
       eNextCardColor: this.eNextCardColor,
       nDrawCount: this.nDrawCount,
+      dTurnAssignedAt: this.dTurnAssignedAt,
       dCreatedAt: this.dCreatedAt,
       oSettings: this.oSettings,
       oWinningCard: this.oWinningCard,
@@ -528,6 +548,7 @@ class Service {
       nEntryFee: this.nEntryFee,
       oLobbyData: this.oLobbyData,
       aPlayer: this.aPlayer, //  WARNING : don't save using toJSON() as it contain non-existed field 'aPlayer'
+      sGameEndReasons: this.sGameEndReasons,
     };
   }
 }

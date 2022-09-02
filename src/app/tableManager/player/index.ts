@@ -107,13 +107,14 @@ class Player extends Service {
     if (usedCard === 'nUsedActionCard') usedCardCount = this.nUsedActionCard;
     else if (usedCard === 'nUsedSpecialCard') usedCardCount = this.nUsedSpecialCard;
     // add turn data here.
-
+    const timeTaken = Math.abs(Math.round(new Date().getTime() - oTable.toJSON().dTurnAssignedAt.getTime()));
+    log.verbose(timeTaken);
     this.aTurnData.push({
       Uid: this.iPlayerId,
       Action: 'discardCard',
       CardPlayed: [oData.iCardId],
       Score: await this.handCardCounts(this.aHand),
-      TimeTaken: '0',
+      TimeTaken: timeTaken,
       CardsRemaining: this.aHand.length,
       LastOne: !this.aHand.length,
     });
@@ -230,13 +231,13 @@ class Player extends Service {
       nHandScore: await this.handCardCounts([...this.aHand, ...aCard]),
       eReason: 'normalDraw',
     });
-
+    const timeTaken = Math.abs(Math.round(new Date().getTime() - oTable.toJSON().dTurnAssignedAt.getTime()));
     this.aTurnData.push({
       Uid: this.iPlayerId,
       Action: 'drawCard',
       CardPlayed: [aCard[0].iCardId],
       Score: await this.handCardCounts(),
-      TimeTaken: '0',
+      TimeTaken: timeTaken,
       CardsRemaining: this.aHand.length,
       LastOne: false,
     });
@@ -341,7 +342,10 @@ class Player extends Service {
     callback({ oData: {}, status: response.SUCCESS });
     oTable.emit('resPlayerLeft', { iPlayerId: this.iPlayerId });
     const aPlayingPlayer = oTable.toJSON().aPlayer.filter(p => p.eState === 'playing');
-    if (aPlayingPlayer.length <= 1) return oTable.gameOver(aPlayingPlayer[0], 'playerLeft');
+    if (aPlayingPlayer.length <= 1) {
+      await oTable.update({ sGameEndReasons: 'User Quit' });
+      return oTable.gameOver(aPlayingPlayer[0], 'playerLeft');
+    }
     if (oTable.toJSON().iPlayerTurn === this.iPlayerId) return this.passTurn(oTable);
     return true;
   }
