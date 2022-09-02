@@ -389,7 +389,7 @@ class Service {
       Action: 'autoPickCard',
       CardPlayed: [aCard[0].iCardId],
       Score: await this.handCardCounts([...this.aHand, ...aCard]),
-      TimeTaken: timeTaken,
+      TimeTaken: timeTaken ? timeTaken / 1000 : 0,
       CardsRemaining: [...this.aHand, ...aCard].length,
       LastOne: false,
     });
@@ -438,7 +438,7 @@ class Service {
       Action: 'unoMissedPenalty',
       CardPlayed: [...aCardIds],
       Score: await this.handCardCounts([...this.aHand, ...aCard]),
-      TimeTaken: timeTaken,
+      TimeTaken: timeTaken ? timeTaken / 1000 : 0,
       CardsRemaining: [...this.aHand, ...aCard].length,
       LastOne: false,
     });
@@ -530,7 +530,7 @@ class Service {
       Action: 'darwPenalty',
       CardPlayed: aCardIds,
       Score: await this.handCardCounts([...this.aHand, ...aCard]),
-      TimeTaken: timeTaken,
+      TimeTaken: timeTaken ? timeTaken / 1000 : 0,
       CardsRemaining: [...this.aHand, ...aCard].length,
       LastOne: false,
     });

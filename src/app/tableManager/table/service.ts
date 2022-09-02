@@ -360,7 +360,7 @@ class Service {
     });
 
     let rank = 1;
-    const nGameTime = this.oSettings.nTotalGameTime * 1000 - ((await this.getTTL('masterTimerExpired', '')) ?? 0); // - in ms;
+    const nGameTime = this.oSettings.nTotalGameTime - ((await this.getTTL('masterTimerExpired', '')) ?? 0); // - in ms;
     for (let index = 0; index < aPlayer.length; index += 1) {
       log.verbose(`aPlayer --> ${_.stringify(aPlayer[index])}`);
       if (index > 0 && aPlayer[index].nScore !== aPlayer[index - 1].nScore) rank += 1;
@@ -375,7 +375,7 @@ class Service {
         NoOfPlayers: this.aPlayer.length,
         UserCards: aPlayer[index].toJSON().aDrawnCards.filter(card => card),
         TurnWiseData: aPlayer[index].toJSON().aTurnData,
-        GamePlayDuration: nGameTime,
+        GamePlayDuration: nGameTime / 1000,
         Score: aPlayer[index].nScore,
         GameEndReasons: this.sGameEndReasons,
       };

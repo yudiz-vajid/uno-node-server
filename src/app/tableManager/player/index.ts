@@ -114,7 +114,7 @@ class Player extends Service {
       Action: 'discardCard',
       CardPlayed: [oData.iCardId],
       Score: await this.handCardCounts(this.aHand),
-      TimeTaken: timeTaken,
+      TimeTaken: timeTaken ? timeTaken / 1000 : 0,
       CardsRemaining: this.aHand.length,
       LastOne: !this.aHand.length,
     });
@@ -237,7 +237,7 @@ class Player extends Service {
       Action: 'drawCard',
       CardPlayed: [aCard[0].iCardId],
       Score: await this.handCardCounts(),
-      TimeTaken: timeTaken,
+      TimeTaken: timeTaken ? timeTaken / 1000 : 0,
       CardsRemaining: this.aHand.length,
       LastOne: false,
     });
