@@ -364,12 +364,6 @@ class Service {
     for (let index = 0; index < aPlayer.length; index += 1) {
       log.verbose(`aPlayer --> ${_.stringify(aPlayer[index])}`);
       if (index > 0 && aPlayer[index].nScore !== aPlayer[index - 1].nScore) rank += 1;
-      scoreArray.push({
-        battleId: this.iBattleId,
-        userId: aPlayer[index].iPlayerId,
-        score: rank,
-        scoreData: '{}',
-      });
       const fraudData = {
         LobbyConfig: this.oLobbyData,
         NoOfPlayers: this.aPlayer.length,
@@ -379,6 +373,12 @@ class Service {
         Score: aPlayer[index].nScore,
         GameEndReasons: this.sGameEndReasons,
       };
+      scoreArray.push({
+        battleId: this.iBattleId,
+        userId: aPlayer[index].iPlayerId,
+        score: rank,
+        scoreData: _.toString(fraudData),
+      });
       log.info(`fraudData --> ${_.stringify(fraudData)}`);
       // const data = {
       //   battleId: this.iBattleId,
