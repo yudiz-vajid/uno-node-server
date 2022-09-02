@@ -377,7 +377,7 @@ class Service {
         battleId: this.iBattleId,
         userId: aPlayer[index].iPlayerId,
         score: rank,
-        scoreData: _.toString(fraudData),
+        scoreData: JSON.stringify(fraudData),
       });
       log.info(`fraudData --> ${_.stringify(fraudData)}`);
       // const data = {
