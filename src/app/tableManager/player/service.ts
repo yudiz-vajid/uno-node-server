@@ -383,7 +383,7 @@ class Service {
 
     const aPromise: any = [];
     if (this.bUnoDeclared && this.aHand.length + 1 > 2) aPromise.push(this.update({ bUnoDeclared: false }));
-    const timeTaken = Math.abs(Math.round(new Date().getTime() - oTable.toJSON().dTurnAssignedAt.getTime()));
+    const timeTaken = Math.abs(Math.round(new Date().getTime() - new Date(oTable.toJSON().dTurnAssignedAt).getTime()));
     this.aTurnData.push({
       Uid: this.iPlayerId,
       Action: 'autoPickCard',
@@ -432,7 +432,7 @@ class Service {
       aCard.push(...oCard);
       aCardIds.push(oCard.ICard);
     }
-    const timeTaken = Math.abs(Math.round(new Date().getTime() - oTable.toJSON().dTurnAssignedAt.getTime()));
+    const timeTaken = Math.abs(Math.round(new Date().getTime() - new Date(oTable.toJSON().dTurnAssignedAt).getTime()));
     this.aTurnData.push({
       Uid: this.iPlayerId,
       Action: 'unoMissedPenalty',
@@ -524,7 +524,7 @@ class Service {
     const assignPenalty = nLastCard.nLabel === 12 ? 'nDrawn2' : 'nDrawn4';
     const assignPenaltyCount = assignPenalty === 'nDrawn2' ? this.nDrawn2 + 1 : this.nDrawn4 + 1;
 
-    const timeTaken = Math.abs(Math.round(new Date().getTime() - oTable.toJSON().dTurnAssignedAt.getTime()));
+    const timeTaken = Math.abs(Math.round(new Date().getTime() - new Date(oTable.toJSON().dTurnAssignedAt).getTime()));
     this.aTurnData.push({
       Uid: this.iPlayerId,
       Action: 'darwPenalty',

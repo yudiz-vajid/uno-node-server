@@ -107,7 +107,7 @@ class Player extends Service {
     if (usedCard === 'nUsedActionCard') usedCardCount = this.nUsedActionCard;
     else if (usedCard === 'nUsedSpecialCard') usedCardCount = this.nUsedSpecialCard;
     // add turn data here.
-    const timeTaken = Math.abs(Math.round(new Date().getTime() - oTable.toJSON().dTurnAssignedAt.getTime()));
+    const timeTaken = Math.abs(Math.round(new Date().getTime() - new Date(oTable.toJSON().dTurnAssignedAt).getTime()));
     log.verbose(timeTaken);
     this.aTurnData.push({
       Uid: this.iPlayerId,
@@ -231,7 +231,7 @@ class Player extends Service {
       nHandScore: await this.handCardCounts([...this.aHand, ...aCard]),
       eReason: 'normalDraw',
     });
-    const timeTaken = Math.abs(Math.round(new Date().getTime() - oTable.toJSON().dTurnAssignedAt.getTime()));
+    const timeTaken = Math.abs(Math.round(new Date().getTime() - new Date(oTable.toJSON().dTurnAssignedAt).getTime()));
     this.aTurnData.push({
       Uid: this.iPlayerId,
       Action: 'drawCard',
