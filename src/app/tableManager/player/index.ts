@@ -107,17 +107,17 @@ class Player extends Service {
     if (usedCard === 'nUsedActionCard') usedCardCount = this.nUsedActionCard;
     else if (usedCard === 'nUsedSpecialCard') usedCardCount = this.nUsedSpecialCard;
     // add turn data here.
-    const { aTurnData } = this;
-    aTurnData.push({
-      iUserId: this.iPlayerId,
-      sAction: 'discardCard',
-      aCardPlayed: [oData.iCardId],
-      nScore: await this.handCardCounts(this.aHand),
-      sTimeTake: '0',
-      nCardsRemaining: this.aHand.length,
-      bLastOne: false,
+
+    this.aTurnData.push({
+      Uid: this.iPlayerId,
+      Action: 'discardCard',
+      CardPlayed: [oData.iCardId],
+      Score: await this.handCardCounts(this.aHand),
+      TimeTaken: '0',
+      CardsRemaining: this.aHand.length,
+      LastOne: !this.aHand.length,
     });
-    aPromises.push(this.update({ aHand: this.aHand, nGraceTime: this.nGraceTime, [usedCard]: usedCardCount + 1, aTurnData }));
+    aPromises.push(this.update({ aHand: this.aHand, nGraceTime: this.nGraceTime, [usedCard]: usedCardCount + 1, aTurnData: this.aTurnData }));
     await Promise.all(aPromises);
 
     if (this.aHand.length === 1 && this.bUnoDeclared) oTable.emit('resUnoDeclare', { iPlayerId: this.iPlayerId });
@@ -230,14 +230,30 @@ class Player extends Service {
       nHandScore: await this.handCardCounts([...this.aHand, ...aCard]),
       eReason: 'normalDraw',
     });
+
+    this.aTurnData.push({
+      Uid: this.iPlayerId,
+      Action: 'drawCard',
+      CardPlayed: [aCard[0].iCardId],
+      Score: await this.handCardCounts(),
+      TimeTaken: '0',
+      CardsRemaining: this.aHand.length,
+      LastOne: false,
+    });
     oTable.emit('resDrawCard', { iPlayerId: this.iPlayerId, aCard: [], nCardCount: 1, nHandCardCount: this.aHand.length + 1, eReason: 'normalDraw' }, [this.iPlayerId]);
     if (!isPlayableCard) await oTable.update({ iPlayerTurn: '' });
     await _.delay(300); // draw card animation
-
+    this.aDrawnCards.push(aCard[0].iCardId); // Add card to users card list.
     await Promise.all([
       ...aPromise,
       oTable.updateDrawPile(),
-      this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard] }),
+      this.update({
+        nDrawNormal: this.nDrawNormal,
+        bSpecialMeterFull: this.bSpecialMeterFull,
+        aHand: [...this.aHand, ...aCard],
+        aDrawnCards: this.aDrawnCards,
+        aTurnData: this.aTurnData,
+      }),
       //
     ]);
 
@@ -253,17 +269,7 @@ class Player extends Service {
         // this.nGraceTime = 0;
         aPromises.push(oTable.deleteScheduler(`assignTurnTimerExpired`, this.iPlayerId));
       }
-      const { aTurnData } = this;
-      aTurnData.push({
-        iUserId: this.iPlayerId,
-        sAction: 'drawCard',
-        aCardPlayed: [aCard[0].iCardId],
-        nScore: await this.handCardCounts(),
-        sTimeTake: '0',
-        nCardsRemaining: this.aHand.length,
-        bLastOne: false,
-      });
-      await Promise.all([...aPromises, this.update({ nGraceTime: this.nGraceTime, bUnoDeclared: false, aTurnData }), oTable.update({ iDrawPenltyPlayerId: '' })]);
+      await Promise.all([...aPromises, this.update({ nGraceTime: this.nGraceTime, bUnoDeclared: false }), oTable.update({ iDrawPenltyPlayerId: '' })]);
       this.passTurn(oTable);
     }
     return true;
@@ -287,7 +293,6 @@ class Player extends Service {
       aPromises.push(this.update({ bUnoDeclared: false }));
       aPromises.push(oTable.update({ iDrawPenltyPlayerId: '' }));
     }
-    /* used when user discard his card in grace time. */
     aPromises.push(this.update({ nGraceTime: this.nGraceTime }));
     await Promise.all(aPromises);
     this.passTurn(oTable);

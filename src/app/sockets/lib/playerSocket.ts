@@ -107,6 +107,7 @@ class PlayerSocket {
           bSkipSpecialMeterProcess: false,
           aHand: [],
           aTurnData: [],
+          aDrawnCards: [''],
           eState: 'waiting',
           dCreatedAt: new Date(),
           sStartingHand: '',

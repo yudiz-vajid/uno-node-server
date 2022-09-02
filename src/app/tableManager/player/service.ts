@@ -77,6 +77,8 @@ class Service {
 
   protected aTurnData: IPlayer['aTurnData'];
 
+  protected aDrawnCards: IPlayer['aDrawnCards'];
+
   constructor(oData: IPlayer) {
     this.iPlayerId = oData.iPlayerId;
     this.iBattleId = oData.iBattleId;
@@ -111,7 +113,8 @@ class Service {
     this.bNextTurnSkip = oData.bNextTurnSkip;
     this.bSkipSpecialMeterProcess = oData.bSkipSpecialMeterProcess;
     this.aHand = oData.aHand;
-    this.aTurnData = oData.aTurnData;
+    this.aTurnData = oData.aTurnData; // TODO :- Need to remomve this fron entire player service.
+    this.aDrawnCards = oData.aDrawnCards;
     this.eState = oData.eState;
     this.dCreatedAt = oData.dCreatedAt;
   }
@@ -145,6 +148,7 @@ class Service {
     | 'bUnoDeclared'
     | 'bSkipSpecialMeterProcess' 
     | 'aHand' 
+    | 'aDrawnCards' 
     | 'aTurnData' 
     | 'eState'>>) {
     try {
@@ -240,6 +244,10 @@ class Service {
             this.aHand = v as IPlayer['aHand'];
             aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
             break;
+          case 'aDrawnCards':
+            this.aDrawnCards = v as IPlayer['aDrawnCards'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
           case 'aTurnData':
             this.aTurnData = v as IPlayer['aTurnData'];
             aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
@@ -291,8 +299,10 @@ class Service {
     this.aHand.push(...aActionCard);
     this.aHand.push(...aWildCard);
     const handScore = await this.handCardCounts(this.aHand);
+    const aStartingHandArr = this.aHand.map(a => a.iCardId);
     const startingHand = this.aHand.map(c => c.iCardId).join(';');
-    await this.update({ aHand: this.aHand, eState: 'playing', nStartHandSum: handScore, sStartingHand: startingHand });
+    this.aDrawnCards.push(...aStartingHandArr);
+    await this.update({ aHand: this.aHand, eState: 'playing', nStartHandSum: handScore, sStartingHand: startingHand, aDrawnCards: this.aDrawnCards });
     this.emit('resHand', { aHand: this.aHand, nHandScore: await this.handCardCounts() });
   }
 
@@ -373,21 +383,26 @@ class Service {
 
     const aPromise: any = [];
     if (this.bUnoDeclared && this.aHand.length + 1 > 2) aPromise.push(this.update({ bUnoDeclared: false }));
-    const { aTurnData } = this;
-    aTurnData.push({
-      iUserId: this.iPlayerId,
-      sAction: 'autoPickCard',
-      aCardPlayed: [aCard[0].iCardId],
-      nScore: await this.handCardCounts([...this.aHand, ...aCard]),
-      sTimeTake: '0',
-      nCardsRemaining: [...this.aHand, ...aCard].length,
-      bLastOne: false,
+    this.aTurnData.push({
+      Uid: this.iPlayerId,
+      Action: 'autoPickCard',
+      CardPlayed: [aCard[0].iCardId],
+      Score: await this.handCardCounts([...this.aHand, ...aCard]),
+      TimeTaken: '0',
+      CardsRemaining: [...this.aHand, ...aCard].length,
+      LastOne: false,
     });
-
+    this.aDrawnCards.push(aCard[0].iCardId);
     await Promise.all([
       oTable.updateDrawPile(),
       ...aPromise,
-      this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard], aTurnData }),
+      this.update({
+        nDrawNormal: this.nDrawNormal,
+        bSpecialMeterFull: this.bSpecialMeterFull,
+        aHand: [...this.aHand, ...aCard],
+        aTurnData: this.aTurnData,
+        aDrawnCards: this.aDrawnCards,
+      }),
     ]);
 
     this.emit('resDrawCard', {
@@ -416,19 +431,25 @@ class Service {
       aCard.push(...oCard);
       aCardIds.push(oCard.ICard);
     }
-    const { aTurnData } = this;
-    aTurnData.push({
-      iUserId: this.iPlayerId,
-      sAction: 'unoMissedPenalty',
-      aCardPlayed: [...aCardIds],
-      nScore: await this.handCardCounts([...this.aHand, ...aCard]),
-      sTimeTake: '0',
-      nCardsRemaining: [...this.aHand, ...aCard].length,
-      bLastOne: false,
+
+    this.aTurnData.push({
+      Uid: this.iPlayerId,
+      Action: 'unoMissedPenalty',
+      CardPlayed: [...aCardIds],
+      Score: await this.handCardCounts([...this.aHand, ...aCard]),
+      TimeTaken: '0',
+      CardsRemaining: [...this.aHand, ...aCard].length,
+      LastOne: false,
     });
     await Promise.all([
       oTable.updateDrawPile(),
-      this.update({ nDrawNormal: this.nDrawNormal, bSpecialMeterFull: this.bSpecialMeterFull, aHand: [...this.aHand, ...aCard], nUnoMissed: this.nUnoMissed + 1, aTurnData }),
+      this.update({
+        nDrawNormal: this.nDrawNormal,
+        bSpecialMeterFull: this.bSpecialMeterFull,
+        aHand: [...this.aHand, ...aCard],
+        nUnoMissed: this.nUnoMissed + 1,
+        aTurnData: this.aTurnData,
+      }),
     ]);
     this.emit('resDrawCard', {
       iPlayerId: this.iPlayerId,
@@ -502,24 +523,24 @@ class Service {
     const assignPenalty = nLastCard.nLabel === 12 ? 'nDrawn2' : 'nDrawn4';
     const assignPenaltyCount = assignPenalty === 'nDrawn2' ? this.nDrawn2 + 1 : this.nDrawn4 + 1;
 
-    const { aTurnData } = this;
-    aTurnData.push({
-      iUserId: this.iPlayerId,
-      sAction: 'penalty',
-      aCardPlayed: aCardIds,
-      nScore: await this.handCardCounts([...this.aHand, ...aCard]),
-      sTimeTake: '0',
-      nCardsRemaining: [...this.aHand, ...aCard].length,
-      bLastOne: false,
+    this.aTurnData.push({
+      Uid: this.iPlayerId,
+      Action: 'darwPenalty',
+      CardPlayed: aCardIds,
+      Score: await this.handCardCounts([...this.aHand, ...aCard]),
+      TimeTaken: '0',
+      CardsRemaining: [...this.aHand, ...aCard].length,
+      LastOne: false,
     });
-
+    this.aDrawnCards.push(...aCardIds);
     await this.update({
       nDrawNormal: this.nDrawNormal,
       bSpecialMeterFull: this.bSpecialMeterFull,
       [assignPenalty]: assignPenaltyCount,
       aHand: [...this.aHand, ...aCard],
       bUnoDeclared: false,
-      aTurnData,
+      aDrawnCards: this.aDrawnCards,
+      aTurnData: this.aTurnData,
     });
     await oTable.update({ iDrawPenltyPlayerId: '', nDrawCount: 0 });
     // await _.delay(300*aCard.length)
@@ -727,6 +748,7 @@ class Service {
       bSpecialMeterFull: this.bSpecialMeterFull,
       bSkipSpecialMeterProcess: this.bSkipSpecialMeterProcess,
       aHand: this.aHand,
+      aDrawnCards: this.aDrawnCards,
       aTurnData: this.aTurnData,
       eState: this.eState,
       dCreatedAt: this.dCreatedAt,

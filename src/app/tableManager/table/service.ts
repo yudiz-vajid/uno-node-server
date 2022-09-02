@@ -346,11 +346,7 @@ class Service {
     let rank = 1;
     for (let index = 0; index < aPlayer.length; index += 1) {
       log.verbose(`aPlayer --> ${_.stringify(aPlayer[index])}`);
-      if (index > 0 && aPlayer[index].nScore !== aPlayer[index - 1].nScore) {
-        // eslint-disable-next-line no-plusplus
-        rank++;
-      }
-
+      if (index > 0 && aPlayer[index].nScore !== aPlayer[index - 1].nScore) rank += 1;
       scoreArray.push({
         battleId: this.iBattleId,
         userId: aPlayer[index].iPlayerId,
@@ -364,6 +360,7 @@ class Service {
         scoreData: '{}',
       };
       log.verbose(`data --> ${_.stringify(data)}`);
+      log.verbose(`aTurnData --> ${_.stringify(aPlayer[index].toJSON().aDrawnCards)}`);
       sortedPlayer.filter(p => {
         // eslint-disable-next-line no-param-reassign
         if (p.iPlayerId === aPlayer[index].iPlayerId) p.nRank = rank;
@@ -372,7 +369,15 @@ class Service {
       const player = await this.getPlayer(aPlayer[index].iPlayerId);
       await player?.sendGameEndData(this.toJSON(), oPlayer);
     }
+    // const oGamePM = {
+    //   LobbyConfig: this.oLobbyData,
+    //   NoOfPlayers: aPlayer.length,
+    //   UserCards: aUserCards,
+    //   // TurnWiseData: this.aTurnInfo,
+    //   GamePlayDuration: 0,
+    // };
     const rpcTableScore = await rpc.finishBattleWithScores(this.iGameId, scoreArray);
+    log.verbose(`rpcTableScore --> ${rpcTableScore}`);
     this.emit('resGameOver', { aPlayer: sortedPlayer, oWinner: oPlayer, eReason });
     if (rpcTableScore && rpcTableScore !== null && rpcTableScore.playersData.length) {
       for (let index = 0; index < rpcTableScore.playersData.length; index += 1) {
@@ -389,6 +394,7 @@ class Service {
       battleAgainDisabled: false,
       battleStatus: rpcTableScore.battleStatus,
     };
+    log.verbose(`payload for resMplFinishBattle --> ${_.stringify(payload)}`);
     this.emit('resMplFinishBattle', { payload });
     const keys = await redis.client.KEYS(`t:${this.iBattleId}:*`);
     const tbl_keys: any = await redis.client.KEYS(`t:${this.iBattleId}`);

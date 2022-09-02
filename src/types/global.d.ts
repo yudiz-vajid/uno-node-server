@@ -28,14 +28,17 @@ export declare interface ICard {
   // bDrawTwoCard?: boolean; // play on same color or label
   // bDrawFourCard?: boolean; // only for black(wild) card
 }
+export declare interface IDrawnCard {
+  iCardId: string;
+}
 export declare interface ITurnData {
-  iUserId: string;
-  sAction: string;
-  aCardPlayed: Array;
-  nScore: number;
-  sTimeTake: string;
-  nCardsRemaining: number;
-  bLastOne: boolean;
+  Uid: string;
+  Action: string;
+  CardPlayed: Array;
+  Score: number;
+  TimeTaken: string;
+  CardsRemaining: number;
+  LastOne: boolean;
 }
 
 declare interface ISettings {
@@ -95,6 +98,7 @@ export declare interface IPlayer {
   bNextTurnSkip: boolean;
   bSkipSpecialMeterProcess: boolean;
   aHand: ICard[];
+  aDrawnCards: [string];
   aTurnData: ITurnData[];
   eState: 'waiting' | 'disconnected' | 'playing' | 'left' | 'declared';
   dCreatedAt: Date;
