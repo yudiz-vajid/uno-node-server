@@ -66,7 +66,7 @@ class Table extends Service {
   }
 
   public async matchMakingExpired() {
-    log.debug(`${_.now()} event: server match Making Expired, tableID: ${this.iBattleId}`);
+    log.debug(`${_.now()} event: server match Making Expired, tableID: ${this.iBattleId},player count ${this.aPlayerId.length}`);
     if (this.aPlayerId.length < this.nMinTablePlayer) return this.refundOnLongWait();
     log.verbose('Game start with MinTablePlayer');
     return this.initializeGame();

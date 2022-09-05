@@ -325,10 +325,10 @@ class Service {
     const oUpdateTable = await this.update({ aPlayerId: tablePlayerId });
     if (!oUpdateTable) return false;
     this.aPlayer.push(oPlayer);
-    // if (this.aPlayer.length === 1) this.setSchedular('matchMakingExpired', '', this.oSettings.nMatchMakingTime);
+    if (this.aPlayer.length === 1) this.setSchedular('matchMakingExpired', '', this.oSettings.nMatchMakingTime);
     // if (this.aPlayerId.length === this.oSettings.nTotalPlayerCount) {
     if (this.aPlayerId.length === this.nTablePlayer) {
-      // this.deleteScheduler('matchMakingExpired', '');
+      this.deleteScheduler('matchMakingExpired', '');
       this.initializeGame();
     }
 
