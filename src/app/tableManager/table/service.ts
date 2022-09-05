@@ -375,8 +375,10 @@ class Service {
     for (let index = 0; index < aPlayer.length; index += 1) {
       // log.verbose(`aPlayer --> ${_.stringify(aPlayer[index])}`);
       if (index > 0 && aPlayer[index].nScore !== aPlayer[index - 1].nScore) rank += 1;
+      const lobbyConfig: any = this.oLobbyData;
+      const gameConfig: any = _.parse(lobbyConfig?.lobbyDetails?.gameConfig);
       const fraudData = {
-        LobbyConfig: this.oLobbyData,
+        LobbyConfig: _.parse(gameConfig),
         NoOfPlayers: this.aPlayer.length,
         UserCards: aPlayer[index].toJSON().aDrawnCards.filter(card => card),
         // TurnWiseData: aPlayer[index].toJSON().aTurnData,
