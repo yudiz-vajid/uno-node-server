@@ -159,7 +159,7 @@ class TableManager {
         nGameInitializeTime: gameConfig.nGameInitializeTime * 1000,
         nWildCardColorTimer: gameConfig.nWildCardColorTimer * 1000,
         nTotalGameTime: gameConfig.nTotalGameTime * 1000,
-        nMatchMakingTime: gameConfig.nMatchMakingTime * 1000 ?? 30000,
+        nMatchMakingTime: gameConfig.nMatchMakingTime ? gameConfig.nMatchMakingTime * 1000 : 30000,
       };
       log.debug(`7.2. gameConfig :: ${_.stringify(gameConfig)}`);
       const oTableWithParticipant: ITable = {
