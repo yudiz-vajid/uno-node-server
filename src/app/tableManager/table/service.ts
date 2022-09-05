@@ -334,6 +334,8 @@ class Service {
     if (!oUpdateTable) return false;
     this.aPlayer.push(oPlayer);
     log.verbose(`this.aPlayer.length in add player ${this.aPlayer.length}`);
+    log.verbose(`this.oSettings.nMatchMakingTime ${this.oSettings.nMatchMakingTime}`);
+    log.verbose(`this.nTablePlayer ${this.nTablePlayer}`);
     if (this.aPlayer.length === 1) this.setSchedular('matchMakingExpired', '', this.oSettings.nMatchMakingTime);
     // if (this.aPlayerId.length === this.oSettings.nTotalPlayerCount) {
     if (this.aPlayerId.length === this.nTablePlayer) {
