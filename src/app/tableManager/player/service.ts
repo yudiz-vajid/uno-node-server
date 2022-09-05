@@ -75,7 +75,7 @@ class Service {
 
   protected nOptionalDraw: IPlayer['nOptionalDraw'];
 
-  protected aTurnData: IPlayer['aTurnData'];
+  // protected aTurnData: IPlayer['aTurnData'];
 
   protected aDrawnCards: IPlayer['aDrawnCards'];
 
@@ -113,7 +113,7 @@ class Service {
     this.bNextTurnSkip = oData.bNextTurnSkip;
     this.bSkipSpecialMeterProcess = oData.bSkipSpecialMeterProcess;
     this.aHand = oData.aHand;
-    this.aTurnData = oData.aTurnData; // TODO :- Need to remomve this fron entire player service.
+    // this.aTurnData = oData.aTurnData; // TODO :- Need to remomve this fron entire player service.
     this.aDrawnCards = oData.aDrawnCards;
     this.eState = oData.eState;
     this.dCreatedAt = oData.dCreatedAt;
@@ -149,7 +149,7 @@ class Service {
     | 'bSkipSpecialMeterProcess' 
     | 'aHand' 
     | 'aDrawnCards' 
-    | 'aTurnData' 
+    // | 'aTurnData' 
     | 'eState'>>) {
     try {
       const aPromise: Array<Promise<unknown>> = [];
@@ -248,10 +248,10 @@ class Service {
             this.aDrawnCards = v as IPlayer['aDrawnCards'];
             aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
             break;
-          case 'aTurnData':
-            this.aTurnData = v as IPlayer['aTurnData'];
-            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
-            break;
+          // case 'aTurnData':
+          //   this.aTurnData = v as IPlayer['aTurnData'];
+          //   aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+          //   break;
           case 'eState':
             this.eState = v as IPlayer['eState'];
             aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
@@ -520,7 +520,7 @@ class Service {
         this.bSpecialMeterFull = this.nDrawNormal === nSpecialMeterFillCount;
       }
       aCard.push(...oCard);
-      aCardIds.push(oCard.iCardId);
+      aCardIds.push(oCard[0].iCardId);
     }
     await oTable.updateDrawPile();
     const nLastCard = await oTable.getDiscardPileTopCard();
@@ -711,7 +711,7 @@ class Service {
       Times_Draw4: this.nDrawn4,
       Draw_Choice: this.nOptionalDraw,
     };
-    log.verbose(`GameStatistics --> ${data}`);
+    // log.verbose(`GameStatistics --> ${data}`);
     this.emit('resGameStatistics', { data });
   }
 
@@ -758,7 +758,7 @@ class Service {
       bSkipSpecialMeterProcess: this.bSkipSpecialMeterProcess,
       aHand: this.aHand,
       aDrawnCards: this.aDrawnCards,
-      aTurnData: this.aTurnData,
+      // aTurnData: this.aTurnData,
       eState: this.eState,
       dCreatedAt: this.dCreatedAt,
     };

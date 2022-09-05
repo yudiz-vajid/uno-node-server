@@ -334,7 +334,7 @@ class Service {
     if (!oUpdateTable) return false;
     this.aPlayer.push(oPlayer);
     log.verbose(`this.aPlayer.length in add player ${this.aPlayer.length}`);
-    log.verbose(`this.oSettings.nMatchMakingTime ${_.stringify(this.oSettings)}`);
+    log.verbose(`this.oSettings.nMatchMakingTime ${_.stringify(this.oSettings.nMatchMakingTime)}`);
     log.verbose(`this.nTablePlayer ${this.nTablePlayer}`);
     if (this.aPlayer.length === 1) this.setSchedular('matchMakingExpired', '', this.oSettings.nMatchMakingTime);
     // if (this.aPlayerId.length === this.oSettings.nTotalPlayerCount) {
@@ -373,7 +373,7 @@ class Service {
     let rank = 1;
     const nGameTime = this.oSettings.nTotalGameTime - ((await this.getTTL('masterTimerExpired', '')) ?? 0); // - in ms;
     for (let index = 0; index < aPlayer.length; index += 1) {
-      log.verbose(`aPlayer --> ${_.stringify(aPlayer[index])}`);
+      // log.verbose(`aPlayer --> ${_.stringify(aPlayer[index])}`);
       if (index > 0 && aPlayer[index].nScore !== aPlayer[index - 1].nScore) rank += 1;
       const fraudData = {
         LobbyConfig: this.oLobbyData,
