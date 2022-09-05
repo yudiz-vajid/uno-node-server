@@ -170,6 +170,7 @@ class TableManager {
         iSkippedPLayer: '',
         iDrawPenltyPlayerId: '',
         aPlayerId: [],
+        aTurnInfo: [],
         aDrawPile: new Deck(updatedGameConfig.aCardScore).getDeck(),
         aDiscardPile: [],
         bToSkip: false,

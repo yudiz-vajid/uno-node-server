@@ -384,7 +384,8 @@ class Service {
     const aPromise: any = [];
     if (this.bUnoDeclared && this.aHand.length + 1 > 2) aPromise.push(this.update({ bUnoDeclared: false }));
     const timeTaken = Math.abs(Math.round(new Date().getTime() - new Date(oTable.toJSON().dTurnAssignedAt).getTime()));
-    this.aTurnData.push({
+
+    oTable.toJSON().aTurnInfo.push({
       Uid: this.iPlayerId,
       Action: 'autoPickCard',
       CardPlayed: [aCard[0].iCardId],
@@ -396,12 +397,13 @@ class Service {
     this.aDrawnCards.push(aCard[0].iCardId);
     await Promise.all([
       oTable.updateDrawPile(),
+      oTable.update({ aTurnInfo: oTable.toJSON().aTurnInfo }),
       ...aPromise,
       this.update({
         nDrawNormal: this.nDrawNormal,
         bSpecialMeterFull: this.bSpecialMeterFull,
         aHand: [...this.aHand, ...aCard],
-        aTurnData: this.aTurnData,
+        // aTurnData: this.aTurnData,
         aDrawnCards: this.aDrawnCards,
       }),
     ]);
@@ -433,7 +435,7 @@ class Service {
       aCardIds.push(oCard.ICard);
     }
     const timeTaken = Math.abs(Math.round(new Date().getTime() - new Date(oTable.toJSON().dTurnAssignedAt).getTime()));
-    this.aTurnData.push({
+    oTable.toJSON().aTurnInfo.push({
       Uid: this.iPlayerId,
       Action: 'unoMissedPenalty',
       CardPlayed: [...aCardIds],
@@ -444,12 +446,13 @@ class Service {
     });
     await Promise.all([
       oTable.updateDrawPile(),
+      oTable.update({ aTurnInfo: oTable.toJSON().aTurnInfo }),
       this.update({
         nDrawNormal: this.nDrawNormal,
         bSpecialMeterFull: this.bSpecialMeterFull,
         aHand: [...this.aHand, ...aCard],
         nUnoMissed: this.nUnoMissed + 1,
-        aTurnData: this.aTurnData,
+        // aTurnData: this.aTurnData,
       }),
     ]);
     this.emit('resDrawCard', {
@@ -525,7 +528,8 @@ class Service {
     const assignPenaltyCount = assignPenalty === 'nDrawn2' ? this.nDrawn2 + 1 : this.nDrawn4 + 1;
 
     const timeTaken = Math.abs(Math.round(new Date().getTime() - new Date(oTable.toJSON().dTurnAssignedAt).getTime()));
-    this.aTurnData.push({
+
+    oTable.toJSON().aTurnInfo.push({
       Uid: this.iPlayerId,
       Action: 'darwPenalty',
       CardPlayed: aCardIds,
@@ -542,9 +546,9 @@ class Service {
       aHand: [...this.aHand, ...aCard],
       bUnoDeclared: false,
       aDrawnCards: this.aDrawnCards,
-      aTurnData: this.aTurnData,
+      // aTurnData: this.aTurnData,
     });
-    await oTable.update({ iDrawPenltyPlayerId: '', nDrawCount: 0 });
+    await oTable.update({ iDrawPenltyPlayerId: '', nDrawCount: 0, aTurnInfo: oTable.toJSON().aTurnInfo });
     // await _.delay(300*aCard.length)
     this.emit('resDrawCard', {
       iPlayerId: this.iPlayerId,

@@ -3,7 +3,7 @@
 /* eslint-disable no-await-in-loop */
 import type Table from '.';
 import type Player from '../player';
-import { ICard, ITable, ITableWithPlayer, RedisJSON } from '../../../types/global';
+import { ICard, IPlayer, ITable, ITableWithPlayer, RedisJSON } from '../../../types/global';
 // eslint-disable-next-line no-unused-vars
 import rpc from '../../../pathFinder/service/rpc';
 
@@ -48,6 +48,8 @@ class Service {
 
   protected aPlayer: Player[];
 
+  protected aTurnInfo: IPlayer['aTurnData'];
+
   protected oWinningCard: ITableWithPlayer['oWinningCard'];
 
   protected nTablePlayer: ITableWithPlayer['nTablePlayer'];
@@ -87,6 +89,7 @@ class Service {
     this.nEntryFee = oData.nEntryFee;
     this.dTurnAssignedAt = oData.dTurnAssignedAt;
     this.aPlayer = oData.aPlayer ?? [];
+    this.aTurnInfo = oData.aTurnInfo ?? [];
   }
 
   public async update(
@@ -97,6 +100,7 @@ class Service {
         | 'iSkippedPLayer'
         | 'iDrawPenltyPlayerId'
         | 'aPlayerId'
+        | 'aTurnInfo'
         | 'aDrawPile'
         | 'aDiscardPile'
         | 'bToSkip'
@@ -140,6 +144,10 @@ class Service {
             break;
           case 'aDiscardPile':
             this.aDiscardPile = v as ITable['aDiscardPile'];
+            aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'aTurnInfo':
+            this.aTurnInfo = v as ITable['aTurnInfo'];
             aPromise.push(redis.client.json.SET(sTableKey, `.${k}`, v as RedisJSON));
             break;
           case 'bToSkip':
@@ -369,7 +377,8 @@ class Service {
         LobbyConfig: this.oLobbyData,
         NoOfPlayers: this.aPlayer.length,
         UserCards: aPlayer[index].toJSON().aDrawnCards.filter(card => card),
-        TurnWiseData: aPlayer[index].toJSON().aTurnData,
+        // TurnWiseData: aPlayer[index].toJSON().aTurnData,
+        TurnWiseData: this.aTurnInfo,
         GamePlayDuration: nGameTime / 1000,
         Score: aPlayer[index].nScore,
         GameEndReasons: this.sGameEndReasons,
@@ -548,6 +557,7 @@ class Service {
       nMinTablePlayer: this.nMinTablePlayer,
       nEntryFee: this.nEntryFee,
       oLobbyData: this.oLobbyData,
+      aTurnInfo: this.aTurnInfo,
       aPlayer: this.aPlayer, //  WARNING : don't save using toJSON() as it contain non-existed field 'aPlayer'
       sGameEndReasons: this.sGameEndReasons,
     };

@@ -109,7 +109,7 @@ class Player extends Service {
     // add turn data here.
     const timeTaken = Math.abs(Math.round(new Date().getTime() - new Date(oTable.toJSON().dTurnAssignedAt).getTime()));
     log.verbose(timeTaken);
-    this.aTurnData.push({
+    oTable.toJSON().aTurnInfo.push({
       Uid: this.iPlayerId,
       Action: 'discardCard',
       CardPlayed: [oData.iCardId],
@@ -118,7 +118,8 @@ class Player extends Service {
       CardsRemaining: this.aHand.length,
       LastOne: !this.aHand.length,
     });
-    aPromises.push(this.update({ aHand: this.aHand, nGraceTime: this.nGraceTime, [usedCard]: usedCardCount + 1, aTurnData: this.aTurnData }));
+    aPromises.push(this.update({ aHand: this.aHand, nGraceTime: this.nGraceTime, [usedCard]: usedCardCount + 1 }));
+    aPromises.push(oTable.update({ aTurnInfo: oTable.toJSON().aTurnInfo }));
     await Promise.all(aPromises);
 
     if (this.aHand.length === 1 && this.bUnoDeclared) oTable.emit('resUnoDeclare', { iPlayerId: this.iPlayerId });
@@ -232,7 +233,7 @@ class Player extends Service {
       eReason: 'normalDraw',
     });
     const timeTaken = Math.abs(Math.round(new Date().getTime() - new Date(oTable.toJSON().dTurnAssignedAt).getTime()));
-    this.aTurnData.push({
+    oTable.toJSON().aTurnInfo.push({
       Uid: this.iPlayerId,
       Action: 'drawCard',
       CardPlayed: [aCard[0].iCardId],
@@ -248,12 +249,13 @@ class Player extends Service {
     await Promise.all([
       ...aPromise,
       oTable.updateDrawPile(),
+      oTable.update({ aTurnInfo: oTable.toJSON().aTurnInfo }),
       this.update({
         nDrawNormal: this.nDrawNormal,
         bSpecialMeterFull: this.bSpecialMeterFull,
         aHand: [...this.aHand, ...aCard],
         aDrawnCards: this.aDrawnCards,
-        aTurnData: this.aTurnData,
+        // aTurnData: this.aTurnData,
       }),
       //
     ]);

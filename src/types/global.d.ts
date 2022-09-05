@@ -112,6 +112,7 @@ export declare interface ITable {
   iSkippedPLayer: string;
   iDrawPenltyPlayerId: string;
   aPlayerId: string[];
+  aTurnInfo: IPlayer['aTurnData'];
   aDrawPile: ICard[];
   aDiscardPile: ICard[];
   bToSkip: boolean;
