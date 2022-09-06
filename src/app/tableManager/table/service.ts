@@ -338,8 +338,8 @@ class Service {
     log.verbose(`this.nTablePlayer ${this.nTablePlayer}`);
     if (this.aPlayer.length === 1) this.setSchedular('matchMakingExpired', '', this.oSettings.nMatchMakingTime);
     // if (this.aPlayerId.length === this.oSettings.nTotalPlayerCount) {
-    // if (this.aPlayerId.length === this.nTablePlayer) {
-    if (this.aPlayerId.length === this.nMinTablePlayer) {
+    if (this.aPlayerId.length === this.nTablePlayer) {
+      // if (this.aPlayerId.length === this.nMinTablePlayer) {
       this.deleteScheduler('matchMakingExpired', '');
       this.initializeGame();
     }
