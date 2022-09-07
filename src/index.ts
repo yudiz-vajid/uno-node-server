@@ -1,5 +1,5 @@
 import { cpus } from 'os';
-// import 'dotenv/config';
+import 'dotenv/config';
 import './globals';
 import server from './server';
 import socket from './app/sockets';
