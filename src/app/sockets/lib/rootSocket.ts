@@ -54,6 +54,7 @@ class RootSocket {
       let bIsValid = false;
       log.debug('4.1. Authenticating player');
       if (process.env.NODE_ENV !== 'dev') {
+        log.verbose(`sAuthToken --> ${sAuthToken}`);
         const authResult = await rpc.authenticate(sAuthToken);
         log.verbose(`4.2. gRPC auth res:: ${_.stringify(authResult)}`);
         if (!authResult || authResult.error || !authResult.isAuthentic) bIsValid = false;
