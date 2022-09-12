@@ -128,7 +128,7 @@ function stopPm2(reason: string, key?: string) {
       Logger.error(`Server configuration Mismatch. Please validate redis and server configuration`);
   }
 
-  shell.exec('pm2 stop -s callbreak || :', function (code, output) {
+  shell.exec('pm2 stop -s uno || :', function (code, output) {
     Logger.debug('Exit code and Program output:', code, output);
   });
   process.exit(0);
