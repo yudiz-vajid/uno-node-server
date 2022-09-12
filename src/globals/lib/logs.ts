@@ -1,21 +1,22 @@
-import * as winston from 'winston';
+/* eslint-disable camelcase */
+/* eslint-disable no-shadow */
+import { createLogger, format, transports } from 'winston';
 
-const { combine } = winston.format;
+const { combine, timestamp, printf } = format;
+const myFormat = printf(({ level, message, timestamp }) => `${timestamp} [${level}] ${message}`);
 
-const logger = winston.createLogger({
-  level: 'silly', // process.env.LOG_LEVEL ||
-  // format: winston.format.cli(), // winston.format.json()
-  // format: combine(label({ label: 'right meow!' }), timestamp(), prettyPrint()),
-  // format: combine(splat(), simple()),
-  format: combine(winston.format.colorize({ all: true }), winston.format.simple()),
-  transports: [new winston.transports.Console()],
+const logger = createLogger({
+  level: process.env.LOG_LEVEL || 'silly',
+  format: combine(timestamp({ format: 'YY-MM-DD HH:mm:ss:SSS' }), myFormat),
 });
 
-// logger.error('error');
-// logger.warn('warn');
-// logger.info('info');
-// logger.verbose('verbose');
-// logger.debug('debug');
-// logger.silly('silly');
+const console_transport = new transports.Console();
+const file_transport_error = new transports.File({ filename: '/var/log/mpl/info.log', level: 'error', maxsize: 100e6, maxFiles: 5 }); // sudo chmod a+w /var/log/mpl
+const file_transport_info = new transports.File({ filename: '/var/log/mpl/error.log', level: process.env.LOG_LEVEL_FILE || 'silly', maxsize: 100e6, maxFiles: 5 }); // sudo chmod a+w /var/log/mpl
+
+// adding transports
+logger.add(console_transport);
+logger.add(file_transport_error);
+logger.add(file_transport_info);
 
 export default logger;

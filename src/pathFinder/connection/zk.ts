@@ -1,19 +1,15 @@
+/* eslint-disable no-unused-expressions */
 /* eslint-disable no-param-reassign */
+/* eslint-disable no-unused-vars */
 /* eslint-disable prefer-destructuring */
 /* eslint-disable no-restricted-syntax */
-/* eslint-disable no-unused-vars */
 import os from 'os';
 import * as shell from 'shelljs';
 import { readFile } from 'fs/promises';
 import { Logger } from 'lib-pathfinder-node';
 import zookeeper from 'node-zookeeper-client';
-import { currentIndexForServicesOfGRPC } from '../modules';
-import { ZOOKEEPER, MESSAGES, CONFIG_FILE_PATH, SERVICE_NAME, GENERAL_CLUSTER, PM2_ERRORS } from '../constants';
+import { ZOOKEEPER, MESSAGES, CONFIG_FILE_PATH, SERVICE_NAME, PM2_ERRORS } from '../constants';
 
-type IzkClient = zookeeper.Client;
-
-const hostObj: any = {};
-let counter = 50;
 let zkClient: any = null;
 let configData: any = null;
 
@@ -77,7 +73,7 @@ const getNodeData = async (path: any) => {
 
 /**
  * Config change event listener
- * @param {Objecr} event
+ * @param {Object} event
  */
 async function onZKConfigChange(event: any) {
   Logger.info(MESSAGES.ZOOKEEPER.NEW_EVENT);
@@ -157,7 +153,7 @@ async function verifyConfig(serverConfigData: any) {
 
     // if cluster is not general, check redis urls from config else ignore
     serverConfig = await readFile(CONFIG_FILE_PATH).catch(e => {
-      // error in retirving file
+      // error in retrieving file
       stopPm2(PM2_ERRORS.FILE_NOT_FOUND);
     });
 
@@ -220,76 +216,31 @@ async function verifyConfig(serverConfigData: any) {
 async function init() {
   const zkIps = ZOOKEEPER.IPs;
   const serverConfigPath = ZOOKEEPER.SERVER_CONFIG_PATH;
-  // const serverConfigPath = ZOOKEEPER.DB_CONFIG_PATH;
-  // const productConfigPath = ZOOKEEPER.GAME_CONFIG_PATH;
-  // const messageConfigPath = ZOOKEEPER.MSG_CONFIG_PATH;
-
-  // TODO: remove
-  // Logger.debug('zkIps:', zkIps);
-  // Logger.debug('serverConfigPath:', serverConfigPath);
-  // Logger.debug('productConfigPath:', productConfigPath);
-  // Logger.debug('messageConfigPath:', messageConfigPath);
-  // TODO: remove
 
   zkClient = zookeeper.createClient(zkIps);
-  // zkClient = zookeeper.createClient('https://zookeeper-qa.mpl.live/node');
-  // zkClient = zookeeper.createClient('https://zookeeper-qa.mpl.live/node?path=%2Fmpl%2Fmpl-draw4');
   zkClient.connect();
 
   function promiseCB(resolve: any, reject: any) {
     async function onConnectCB() {
       Logger.info(MESSAGES.ZOOKEEPER.CONNECTION_ESTABLISHED);
 
-      /* check existence of node */
+      / check existence of node /;
       const paths = await Promise.all([doesPathExists(serverConfigPath)]).catch(reject);
-      // const paths = await Promise.all([doesPathExists(serverConfigPath), doesPathExists(productConfigPath), doesPathExists(messageConfigPath)]).catch(reject);
-
       let serverConfigData: any = null;
-      const productConfigData: any = null;
-      const messageConfigData: any = null;
 
       if (paths[0]) {
-        /* retrieve data from node */
+        / retrieve data from node /;
         serverConfigData = await getNodeData(serverConfigPath).catch(reject);
         serverConfigData = serverConfigData || {};
       }
-      // if (paths[1]) {
-      //   /* retrieve data from node */
-      //   productConfigData = await getNodeData(productConfigPath).catch(reject);
-      //   productConfigData = productConfigData || {};
-      // }
-      // if (paths[2]) {
-      //   /* retrieve data from node */
-      //   messageConfigData = await getNodeData(messageConfigPath).catch(reject);
-      //   messageConfigData = messageConfigData || {};
-      // }
 
-      // TODO: remove
-      // Logger.debug('paths:', paths);
-      // Logger.debug('serverConfigData:', serverConfigData, '\n');
-      // Logger.debug('\nproductConfigData:', productConfigData, '\n');
-      // Logger.debug('\nmessageConfigData:', messageConfigData, '\n');
-      // TODO: remove
-
+      // const updatedServerConfigData = serverConfigData; // for testing
       // TODO: remove & uncomment
-      const updatedServerConfigData = serverConfigData;
-      // const updatedServerConfigData = await verifyConfig(serverConfigData);
-      // TODO: remove & uncomment
+      const updatedServerConfigData = await verifyConfig(serverConfigData);
 
-      // TODO: remove
-      // Logger.debug('updatedServerConfigData:', updatedServerConfigData, '\n');
-      // TODO: remove
-
-      // TODO: add joi validation check here
       configData = Object.freeze({
         ...updatedServerConfigData,
-        // ...productConfigData,
-        // ...messageConfigData,
       });
-
-      // TODO: remove
-      // Logger.debug('configData:', configData, '\n');
-      // TODO: remove
 
       resolve(configData);
     }
@@ -297,85 +248,12 @@ async function init() {
     return zkClient.once(MESSAGES.ZOOKEEPER.CONNECTED, onConnectCB);
   }
 
-  // TODO: remove
-  // Logger.debug('zkClient:', zkClient);
-  // Logger.debug('returning connection listener (promisified)');
-  // TODO: remove
-  // connection listener promisify
   return new Promise(promiseCB);
 }
-
-// TO BE CHANGED IN FUTURE
-const getNewIndexValue = (currentIndex: any, hosts: any) => {
-  let newIndex = currentIndex + 1;
-  if (newIndex >= hosts.length) {
-    newIndex = 0;
-  }
-  return newIndex;
-};
-
-// TO BE CHANGED IN FUTURE
-const getHostName: any = async (currentIndex: any, hosts: any, servicePath: any) => {
-  const newIndex = await getNewIndexValue(currentIndex, hosts);
-  if (hosts[newIndex].status !== 'ONLINE') {
-    counter -= 1;
-    if (counter === 0) {
-      Logger.error(`All the servers are offline ${JSON.stringify(hosts)}`);
-      return false;
-    }
-
-    return getHostName(newIndex, hosts, servicePath);
-  }
-
-  counter = 50;
-  currentIndexForServicesOfGRPC[servicePath] = newIndex;
-  return hosts[newIndex].hostname;
-};
-
-// TO BE CHANGED IN FUTURE
-const getCurrentIndex = (servicePath: any) => {
-  if (currentIndexForServicesOfGRPC[servicePath] || currentIndexForServicesOfGRPC[servicePath] === 0) {
-    return currentIndexForServicesOfGRPC[servicePath];
-  }
-
-  currentIndexForServicesOfGRPC[servicePath] = 0;
-  return 0;
-};
-
-// TO BE CHANGED IN FUTURE
-const getHostWithPortOnly = async (servicePath: any) => {
-  const currentIndex = await getCurrentIndex(servicePath);
-  const newHostName = await getHostName(currentIndex, hostObj.hosts, servicePath);
-  const port = hostObj.defaultPort;
-  return `${newHostName}:${port}`;
-};
-
-// TO BE CHANGED IN FUTURE
-const getHostWithPort = (servicePath: any) => {
-  zkClient.getData(
-    `/service-registry/${servicePath}`,
-    async (event: any) => {
-      Logger.info('servicePath data updated event >> ', event, event.path); // Got event: /service-registry/service-tournament-1v1.
-      await getHostWithPort(servicePath);
-    },
-    async (error: any, data: any, stat: any) => {
-      if (error) {
-        Logger.error('get servicePath error: ', error.stack);
-        return false;
-      }
-
-      // hostObj = JSON.parse(data.toString());
-      const url = await getHostWithPortOnly(servicePath);
-      return url;
-    }
-  );
-};
 
 const exportObject = {
   init,
   getConfig,
-  getHostWithPort,
-  getHostWithPortOnly,
 };
 
 export = exportObject;
