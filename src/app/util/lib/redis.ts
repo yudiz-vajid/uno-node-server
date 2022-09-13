@@ -23,38 +23,32 @@ class RedisClient {
 
   constructor() {
     this.pubSubOptions = {
-      // url: `redis://${process.env.PUBSUB_REDIS_HOST}:${process.env.PUBSUB_REDIS_PORT}`,
-      // username: process.env.PUBSUB_REDIS_USERNAME,
-      // password: process.env.PUBSUB_REDIS_PASSWORD,
-      url: `redis://redis-14966.c264.ap-south-1-1.ec2.cloud.redislabs.com:14966`,
-      username: 'default',
-      password: 'YYF9EYtDplvfU1RB8icxtGTYooswpTyr',
+      url: `redis://${process.env.PUBSUB_REDIS_HOST}:${process.env.PUBSUB_REDIS_PORT}`,
+      username: process.env.PUBSUB_REDIS_USERNAME,
+      password: process.env.PUBSUB_REDIS_PASSWORD,
       legacyMode: false,
     };
 
     this.schedularOptions = {
-      // url: `redis://${process.env.SCHEDULER_REDIS_HOST}:${process.env.SCHEDULER_REDIS_PORT}`,
-      // username: process.env.SCHEDULER_REDIS_USERNAME,
-      // password: process.env.SCHEDULER_REDIS_PASSWORD,
-      // legacyMode: false,
+      url: `redis://${process.env.SCHEDULER_REDIS_HOST}:${process.env.SCHEDULER_REDIS_PORT}`,
+      username: process.env.SCHEDULER_REDIS_USERNAME,
+      password: process.env.SCHEDULER_REDIS_PASSWORD,
+      legacyMode: false,
 
-      url: `redis://redis-14966.c264.ap-south-1-1.ec2.cloud.redislabs.com:14966`,
-      username: 'default',
-      password: 'YYF9EYtDplvfU1RB8icxtGTYooswpTyr',
+      // url: `redis://redis-14966.c264.ap-south-1-1.ec2.cloud.redislabs.com:14966`,
+      // username: 'default',
+      // password: 'YYF9EYtDplvfU1RB8icxtGTYooswpTyr',
     };
 
     this.gameplayOptions = {
-      // url: `redis://${process.env.GAMEPLAY_REDIS_HOST}:${process.env.GAMEPLAY_REDIS_PORT}`,
-      // username: process.env.GAMEPLAY_REDIS_USERNAME,
-      // password: process.env.GAMEPLAY_REDIS_PASSWORD,
-      url: `redis://redis-14966.c264.ap-south-1-1.ec2.cloud.redislabs.com:14966`,
-      username: 'default',
-      password: 'YYF9EYtDplvfU1RB8icxtGTYooswpTyr',
+      url: `redis://${process.env.GAMEPLAY_REDIS_HOST}:${process.env.GAMEPLAY_REDIS_PORT}`,
+      username: process.env.GAMEPLAY_REDIS_USERNAME,
+      password: process.env.GAMEPLAY_REDIS_PASSWORD,
       legacyMode: false,
     };
     console.log(`pubSubOptions: ${JSON.stringify(this.pubSubOptions)}`);
     console.log(`schedularOptions: ${JSON.stringify(this.schedularOptions)}`);
-    console.log(`gameplayOptions: ${JSON.stringify(this.gameplayOptions)}`); // sir ye logs aa rhe hain correct ? pubSubOptions schedularOptions gameplayOptions
+    console.log(`gameplayOptions: ${JSON.stringify(this.gameplayOptions)}`);
   }
 
   async initialize() {
