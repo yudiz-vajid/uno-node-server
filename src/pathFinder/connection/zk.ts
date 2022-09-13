@@ -234,9 +234,9 @@ async function init() {
         serverConfigData = serverConfigData || {};
       }
 
-      // const updatedServerConfigData = serverConfigData; // for testing
+      const updatedServerConfigData = serverConfigData; // for testing
       // TODO: remove & uncomment
-      const updatedServerConfigData = await verifyConfig(serverConfigData);
+      // const updatedServerConfigData = await verifyConfig(serverConfigData);
 
       configData = Object.freeze({
         ...updatedServerConfigData,

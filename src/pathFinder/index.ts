@@ -24,20 +24,20 @@ async function setUpEnvs() {
   if (process.env.NODE_ENV !== 'dev') await init();
   const ZKConfig: Record<string, string> | null = process.env.NODE_ENV !== 'dev' ? getConfig() : null;
 
-  process.env.PUBSUB_REDIS_HOST = ZKConfig?.PUBSUB_REDIS_HOST;
-  process.env.PUBSUB_REDIS_PORT = ZKConfig?.PUBSUB_REDIS_PORT;
-  process.env.PUBSUB_REDIS_PASSWORD = ZKConfig?.PUBSUB_REDIS_PASSWORD;
-  process.env.PUBSUB_REDIS_USERNAME = ZKConfig?.PUBSUB_REDIS_USERNAME;
+  process.env.PUBSUB_REDIS_HOST = ZKConfig?.PUBSUB_REDIS_HOST ?? 'redis-14966.c264.ap-south-1-1.ec2.cloud.redislabs.com';
+  process.env.PUBSUB_REDIS_PORT = ZKConfig?.PUBSUB_REDIS_PORT ?? '14966';
+  process.env.PUBSUB_REDIS_PASSWORD = ZKConfig?.PUBSUB_REDIS_PASSWORD ?? 'YYF9EYtDplvfU1RB8icxtGTYooswpTyr';
+  process.env.PUBSUB_REDIS_USERNAME = ZKConfig?.PUBSUB_REDIS_USERNAME ?? 'default';
 
-  process.env.GAMEPLAY_REDIS_HOST = ZKConfig?.GAMEPLAY_REDIS_HOST;
-  process.env.GAMEPLAY_REDIS_PORT = ZKConfig?.GAMEPLAY_REDIS_PORT;
-  process.env.GAMEPLAY_REDIS_PASSWORD = ZKConfig?.GAMEPLAY_REDIS_PASSWORD;
-  process.env.GAMEPLAY_REDIS_USERNAME = ZKConfig?.GAMEPLAY_REDIS_USERNAME;
+  process.env.GAMEPLAY_REDIS_HOST = ZKConfig?.GAMEPLAY_REDIS_HOST ?? 'redis-14966.c264.ap-south-1-1.ec2.cloud.redislabs.com';
+  process.env.GAMEPLAY_REDIS_PORT = ZKConfig?.GAMEPLAY_REDIS_PORT ?? '14966';
+  process.env.GAMEPLAY_REDIS_PASSWORD = ZKConfig?.GAMEPLAY_REDIS_PASSWORD ?? 'YYF9EYtDplvfU1RB8icxtGTYooswpTyr';
+  process.env.GAMEPLAY_REDIS_USERNAME = ZKConfig?.GAMEPLAY_REDIS_USERNAME ?? 'default';
 
-  process.env.SCHEDULER_REDIS_HOST = ZKConfig?.SCHEDULER_REDIS_HOST;
-  process.env.SCHEDULER_REDIS_PORT = ZKConfig?.SCHEDULER_REDIS_PORT;
-  process.env.SCHEDULER_REDIS_PASSWORD = ZKConfig?.SCHEDULER_REDIS_PASSWORD;
-  process.env.SCHEDULER_REDIS_USERNAME = ZKConfig?.SCHEDULER_REDIS_USERNAME;
+  process.env.SCHEDULER_REDIS_HOST = ZKConfig?.SCHEDULER_REDIS_HOST ?? 'redis-14966.c264.ap-south-1-1.ec2.cloud.redislabs.com';
+  process.env.SCHEDULER_REDIS_PORT = ZKConfig?.SCHEDULER_REDIS_PORT ?? '14966';
+  process.env.SCHEDULER_REDIS_PASSWORD = ZKConfig?.SCHEDULER_REDIS_PASSWORD ?? 'YYF9EYtDplvfU1RB8icxtGTYooswpTyr';
+  process.env.SCHEDULER_REDIS_USERNAME = ZKConfig?.SCHEDULER_REDIS_USERNAME ?? 'default';
 
   log.info('fetched ZKConfig.');
   log.info(`ZKConfig = ${JSON.stringify(ZKConfig)}\n`);
