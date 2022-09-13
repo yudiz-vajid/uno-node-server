@@ -21,8 +21,10 @@ async function setUpEnvs() {
   process.env.LOG_LEVEL ??= 'silly';
 
   log.info('fetching ZKConfig ...');
-  if (process.env.NODE_ENV !== 'dev') await init();
-  const ZKConfig: Record<string, string> | null = process.env.NODE_ENV !== 'dev' ? getConfig() : null;
+  // if (process.env.NODE_ENV !== 'dev') await init();
+  // const ZKConfig: Record<string, string> | null = process.env.NODE_ENV !== 'dev' ? getConfig() : null;
+  await init(); // for US server issue
+  const ZKConfig: Record<string, string> | null = getConfig(); // for US server issue
 
   process.env.PUBSUB_REDIS_HOST = ZKConfig?.PUBSUB_REDIS_HOST ?? 'redis-14966.c264.ap-south-1-1.ec2.cloud.redislabs.com';
   process.env.PUBSUB_REDIS_PORT = ZKConfig?.PUBSUB_REDIS_PORT ?? '14966';
