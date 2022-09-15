@@ -575,6 +575,7 @@ class Service {
   public async takeTurn(oTable: Table) {
     log.debug(`take turn called for ${this.iPlayerId}`)
     await oTable.update({ iPlayerTurn: this.iPlayerId,dTurnAssignedAt:new Date() });
+    oTable.setSchedular('assignTurnTimerExpired', this.iPlayerId, oTable.toJSON().oSettings.nTurnTime+600); // for reconnection issue
     await _.delay(600)
     let aStackingCardId:any=[]
     if(oTable.toJSON().aDiscardPile.slice(-1)[0].nLabel===12 || oTable.toJSON().aDiscardPile.slice(-1)[0].nLabel===14){
@@ -593,7 +594,7 @@ class Service {
     log.debug(`${_.now()} playable cards for player ${this.iPlayerId}:: ${aPlayableCardId}`);
     this.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nTurnTime-500, timestamp: Date.now(), aPlayableCards: aPlayableCardId, bDrawPileEmpty:oTable.toJSON().aDrawPile.length===0 });
     oTable.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nTurnTime-500, timestamp: Date.now(), aPlayableCards: [],bDrawPileEmpty:oTable.toJSON().aDrawPile.length===0 }, [this.iPlayerId]);
-    oTable.setSchedular('assignTurnTimerExpired', this.iPlayerId, oTable.toJSON().oSettings.nTurnTime);
+    // oTable.setSchedular('assignTurnTimerExpired', this.iPlayerId, oTable.toJSON().oSettings.nTurnTime);
     return true
   }
 
