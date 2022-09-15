@@ -324,9 +324,8 @@ class Service {
       .map(card => card.iCardId);
   }
 
-  public async getGameState(table: Table) {
-    const oTable = await TableManager.getTable(this.iBattleId);
-    const iUserTurn = oTable?.toJSON().iPlayerTurn;
+  public async getGameState(oTable: Table) {
+    const iUserTurn = oTable?.toJSON().iPlayerTurn || oTable.toJSON().aPlayerId.length === 2 ? this.iPlayerId : '';
     log.verbose('getGameState called...');
     log.verbose('oTable --> ', _.stringify(oTable));
     log.verbose('oTable.toJSON() --> ', _.stringify(oTable?.toJSON()));
