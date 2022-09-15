@@ -574,8 +574,8 @@ class Service {
   // prettier-ignore
   public async takeTurn(oTable: Table) {
     log.debug(`take turn called for ${this.iPlayerId}`)
-    await _.delay(600)
     await oTable.update({ iPlayerTurn: this.iPlayerId,dTurnAssignedAt:new Date() });
+    await _.delay(600)
     let aStackingCardId:any=[]
     if(oTable.toJSON().aDiscardPile.slice(-1)[0].nLabel===12 || oTable.toJSON().aDiscardPile.slice(-1)[0].nLabel===14){
       if(oTable.toJSON().oSettings.bStackingDrawCards && oTable.toJSON().iDrawPenltyPlayerId===this.iPlayerId){
