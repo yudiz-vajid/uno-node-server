@@ -275,6 +275,7 @@ class Service {
   public async reconnect(sSocketId: string, oTable: Table) {
     const stateMapper = { waiting: 'waiting', initialized: 'waiting', running: 'playing', finished: 'left' };
     await this.update({ sSocketId, eState: stateMapper[oTable.toJSON().eState] as IPlayer['eState'] });
+    log.info(`oTable in reconnect --> ${_.stringify(oTable)}`);
     await this.getGameState(oTable);
     log.debug(`${_.now()} client: ${this.iPlayerId} reconnected to table : ${this.iBattleId} with socketId : ${sSocketId}`);
     return true;
@@ -324,7 +325,8 @@ class Service {
   public async getGameState(oTable: Table) {
     const iUserTurn = oTable.toJSON().iPlayerTurn;
     log.verbose('getGameState called...');
-    log.verbose('oTable.toJSON() --> ', oTable.toJSON());
+    log.verbose('oTable --> ', _.stringify(oTable));
+    log.verbose('oTable.toJSON() --> ', _.stringify(oTable.toJSON()));
     const nRemainingGraceTime = await oTable.getTTL('assignGraceTimerExpired', iUserTurn); // - in ms
     const ttl = nRemainingGraceTime || (await oTable.getTTL('assignTurnTimerExpired', iUserTurn));
     const nRemainingMasterTime = await oTable.getTTL('masterTimerExpired');
