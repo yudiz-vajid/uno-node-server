@@ -350,6 +350,7 @@ class Service {
         aPlayableCards: iUserTurn === this.iPlayerId ? await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor) : [],
       },
     };
+    log.verbose(`oTurnInfo in game state --> ${_.stringify(oData.oTurnInfo)}`);
     await this.emit('resGameState', oData);
   }
 
@@ -487,7 +488,7 @@ class Service {
   async assignSkipCard(oTable: Table) {
     if (oTable.toJSON().eState !== 'running') return log.error('table is not in running state.');
     const { aPlayer } = oTable.toJSON();
-    const aPlayingPlayer = aPlayer.filter(p => p.eState === 'playing');
+    const aPlayingPlayer = aPlayer.filter(p => p.eState !== 'left');
     if (!aPlayingPlayer.length) return (log.error('no playing participant') && null) ?? false;
     const oNextPlayer = await oTable.getNextPlayer(this.nSeat);
     if (!oNextPlayer) return (log.error('No playing player found...') && null) ?? false;
@@ -645,7 +646,7 @@ class Service {
     await _.delay(600);
     await this.update({ eState: 'left' });
     oTable.emit('resPlayerLeft', { iPlayerId: this.iPlayerId });
-    const aPlayingPlayer = oTable.toJSON().aPlayer.filter(p => p.eState === 'playing');
+    const aPlayingPlayer = oTable.toJSON().aPlayer.filter(p => p.eState !== 'left');
     if (aPlayingPlayer.length <= 1) {
       await oTable.update({ sGameEndReasons: 'User Disconnected' });
       return oTable.gameOver(aPlayingPlayer[0], 'playerLeft');
@@ -659,7 +660,7 @@ class Service {
     if (!this.aHand.length) {
       if (oTable.toJSON().iDrawPenltyPlayerId) {
         const penaltyPlayer = oTable.getPlayer(oTable.toJSON().iDrawPenltyPlayerId);
-        if (penaltyPlayer?.eState === 'playing') await penaltyPlayer.assignDrawPenalty(oTable);
+        if (penaltyPlayer && penaltyPlayer?.eState !== 'left') await penaltyPlayer.assignDrawPenalty(oTable);
       }
       const winner: any = await oTable.getPlayer(this.iPlayerId);
       await oTable.update({ oWinningCard: oTable.getDiscardPileTopCard(), sGameEndReasons: 'All Levels Completed' });
