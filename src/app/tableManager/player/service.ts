@@ -1,6 +1,8 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-unused-vars */
+// eslint-disable-next-line import/no-cycle
+import TableManager from '../index';
 import { ICard, IPlayer, ITable, RedisJSON } from '../../../types/global';
 import type Table from '../table';
 
@@ -322,15 +324,16 @@ class Service {
       .map(card => card.iCardId);
   }
 
-  public async getGameState(oTable: Table) {
-    const iUserTurn = oTable.toJSON().iPlayerTurn;
+  public async getGameState(table: Table) {
+    const oTable = await TableManager.getTable(this.iBattleId);
+    const iUserTurn = oTable?.toJSON().iPlayerTurn;
     log.verbose('getGameState called...');
     log.verbose('oTable --> ', _.stringify(oTable));
-    log.verbose('oTable.toJSON() --> ', _.stringify(oTable.toJSON()));
-    const nRemainingGraceTime = await oTable.getTTL('assignGraceTimerExpired', iUserTurn); // - in ms
-    const ttl = nRemainingGraceTime || (await oTable.getTTL('assignTurnTimerExpired', iUserTurn));
-    const nRemainingMasterTime = await oTable.getTTL('masterTimerExpired');
-    const aPlayer = oTable.toJSON().aPlayer.map((p: any) => ({
+    log.verbose('oTable.toJSON() --> ', _.stringify(oTable?.toJSON()));
+    const nRemainingGraceTime = await oTable?.getTTL('assignGraceTimerExpired', iUserTurn); // - in ms
+    const ttl = nRemainingGraceTime || (await oTable?.getTTL('assignTurnTimerExpired', iUserTurn));
+    const nRemainingMasterTime = await oTable?.getTTL('masterTimerExpired');
+    const aPlayer = oTable?.toJSON().aPlayer.map((p: any) => ({
       iPlayerId: p.iPlayerId,
       sPlayerName: p.sPlayerName,
       sSocketId: p.sSocketId,
@@ -348,9 +351,9 @@ class Service {
       oTurnInfo: {
         iUserTurn,
         ttl,
-        nTotalTurnTime: nRemainingGraceTime ? oTable.toJSON().oSettings.nGraceTime : oTable.toJSON().oSettings.nTurnTime,
+        nTotalTurnTime: nRemainingGraceTime ? oTable?.toJSON().oSettings.nGraceTime : oTable?.toJSON().oSettings.nTurnTime,
         bIsGraceTimer: !!nRemainingGraceTime,
-        aPlayableCards: iUserTurn === this.iPlayerId ? await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor) : [],
+        aPlayableCards: iUserTurn === this.iPlayerId ? await this.getPlayableCardIds(oTable?.getDiscardPileTopCard(), oTable?.toJSON().eNextCardColor) : [],
       },
     };
     log.verbose(`oTurnInfo in game state --> ${_.stringify(oData.oTurnInfo)}`);
