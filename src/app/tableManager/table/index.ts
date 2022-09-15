@@ -120,7 +120,7 @@ class Table extends Service {
   public hasValidTurn(iPlayerId: string) {
     const oPlayer = this.aPlayer.find(p => p.toJSON().iPlayerId === iPlayerId);
     if (!oPlayer) return false;
-    return this.iPlayerTurn === iPlayerId && oPlayer.toJSON().eState === 'playing';
+    return this.iPlayerTurn === iPlayerId && oPlayer.toJSON().eState !== 'left';
   }
 }
 
