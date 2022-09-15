@@ -324,6 +324,7 @@ class Service {
   public async getGameState(oTable: Table) {
     const iUserTurn = oTable.toJSON().iPlayerTurn;
     log.verbose('getGameState called...');
+    log.verbose('oTable.toJSON() --> ', oTable.toJSON());
     const nRemainingGraceTime = await oTable.getTTL('assignGraceTimerExpired', iUserTurn); // - in ms
     const ttl = nRemainingGraceTime || (await oTable.getTTL('assignTurnTimerExpired', iUserTurn));
     const nRemainingMasterTime = await oTable.getTTL('masterTimerExpired');
