@@ -424,9 +424,9 @@ class Service {
       }
     }
     const payload = {
-      players: rpcTableScore.playersData,
+      players: rpcTableScore?.playersData || [],
       battleAgainDisabled: false,
-      battleStatus: rpcTableScore.battleStatus,
+      battleStatus: rpcTableScore?.battleStatus || '',
     };
     log.verbose(`payload for resMplFinishBattle --> ${_.stringify(payload)}`);
     this.emit('resMplFinishBattle', { payload });
