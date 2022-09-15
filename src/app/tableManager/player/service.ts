@@ -328,8 +328,6 @@ class Service {
     // const iUserTurn = oTable?.toJSON().iPlayerTurn || oTable.toJSON().aPlayerId.length === 2 ? this.iPlayerId : '';
     const iUserTurn = oTable?.toJSON().iPlayerTurn;
     log.verbose('getGameState called...');
-    log.verbose('oTable --> ', _.stringify(oTable));
-    log.verbose('oTable.toJSON() --> ', _.stringify(oTable?.toJSON()));
     const nRemainingGraceTime = await oTable?.getTTL('assignGraceTimerExpired', iUserTurn); // - in ms
     const ttl = nRemainingGraceTime || (await oTable?.getTTL('assignTurnTimerExpired', iUserTurn));
     const nRemainingMasterTime = await oTable?.getTTL('masterTimerExpired');
