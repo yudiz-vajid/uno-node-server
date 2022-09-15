@@ -325,7 +325,8 @@ class Service {
   }
 
   public async getGameState(oTable: Table) {
-    const iUserTurn = oTable?.toJSON().iPlayerTurn || oTable.toJSON().aPlayerId.length === 2 ? this.iPlayerId : '';
+    // const iUserTurn = oTable?.toJSON().iPlayerTurn || oTable.toJSON().aPlayerId.length === 2 ? this.iPlayerId : '';
+    const iUserTurn = oTable?.toJSON().iPlayerTurn;
     log.verbose('getGameState called...');
     log.verbose('oTable --> ', _.stringify(oTable));
     log.verbose('oTable.toJSON() --> ', _.stringify(oTable?.toJSON()));
