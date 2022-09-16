@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { ICallback, ICard, IPlayer, ISettings, ITable, RedisJSON } from '../../types/global';
 import { Deck, response } from '../util';
+// eslint-disable-next-line import/no-cycle
 import Player from './player';
 import Table from './table';
 import rpc from '../../pathFinder/service/rpc';
