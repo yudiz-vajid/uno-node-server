@@ -718,7 +718,7 @@ class Service {
       Draw_Choice: this.nOptionalDraw,
     };
     // log.verbose(`GameStatistics --> ${data}`);
-    this.emit('resGameStatistics', { data });
+    this.emit('resGameStatistics', { ...data });
   }
 
   public async wildCardColorTimer(oTable: Table) {
