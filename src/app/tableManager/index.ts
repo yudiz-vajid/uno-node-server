@@ -180,7 +180,7 @@ class TableManager {
         bIsReverseNow: false,
         eNextCardColor: '',
         nDrawCount: 0,
-        sGameName: oLobby.lobbyDetails.name ?? '',
+        sGameName: oLobby.lobbyDetails.gameName ?? '',
         sGameEndReasons: '',
         nEntryFee: oLobby.lobbyDetails.entryFee ?? 0,
         dTurnAssignedAt: new Date(),
