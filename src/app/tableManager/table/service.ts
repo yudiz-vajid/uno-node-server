@@ -424,9 +424,9 @@ class Service {
       }
     }
     const payload = {
-      players: rpcTableScore?.playersData || [],
+      players: rpcTableScore.playersData,
       battleAgainDisabled: false,
-      battleStatus: rpcTableScore?.battleStatus || '',
+      battleStatus: rpcTableScore.battleStatus,
     };
     log.verbose(`payload for resMplFinishBattle --> ${_.stringify(payload)}`);
     this.emit('resMplFinishBattle', { payload });
@@ -473,7 +473,9 @@ class Service {
       if (!sTaskName) return false;
       if (!nTimeMS) return false;
       console.log(sTaskName, this.iBattleId, iPlayerId, nTimeMS, sTaskName);
-      await redis.sch.pSetEx(_.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId), nTimeMS, sTaskName);
+      const schKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
+      log.verbose(`schKey --> ${schKey}`);
+      await redis.sch.pSetEx(schKey, nTimeMS, sTaskName);
       return true;
     } catch (err: any) {
       console.log('err.message :: ', _.stringify(err.message));
@@ -485,8 +487,12 @@ class Service {
 
   public async deleteScheduler(sTaskName = '', iPlayerId = '*') {
     try {
-      const sKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
+      // const sKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
+      const sKey = _.getSchedulerKeyWithoutIP(sTaskName, this.iBattleId, iPlayerId);
       const schedularKeys = await redis.sch.keys(sKey);
+      log.verbose(`deleteScheduler !!!!!!!!!!`);
+      log.verbose(`deleteSch --> ${sKey}`);
+      log.verbose(`schedularKeys --> ${schedularKeys}`);
       if (!schedularKeys.length) throw new Error(`schedular doesn't exists`);
 
       const deletionCount = await redis.sch.del(schedularKeys);

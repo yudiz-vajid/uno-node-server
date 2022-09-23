@@ -19,6 +19,7 @@ interface IHeader {
   iLobbyId: string;
   nTablePlayer: number;
   nMinTablePlayer: number;
+  isNewMatchMakingFlowEnabled: boolean;
 }
 
 const Schema = Joi.object().keys({
@@ -29,6 +30,7 @@ const Schema = Joi.object().keys({
   isReconnect: Joi.boolean().required().default(false),
   nTablePlayer: Joi.number().required().default(2),
   nMinTablePlayer: Joi.number().default(2),
+  isNewMatchMakingFlowEnabled: Joi.boolean().default(false),
 });
 
 async function isValidRequest(data: any) {
@@ -36,6 +38,7 @@ async function isValidRequest(data: any) {
     const _result = await Schema.validateAsync(data, options);
     const result: IHeader = {
       iPlayerId: _result.i_player_id,
+      isNewMatchMakingFlowEnabled: _result.isNewMatchMakingFlowEnabled,
       sPlayerName: _result.s_player_name,
       sAuthToken: _result.s_auth_token,
       iBattleId: _result.i_battle_id,

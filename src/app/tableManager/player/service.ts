@@ -1,8 +1,6 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-unused-vars */
-// eslint-disable-next-line import/no-cycle
-import TableManager from '../index';
 import { ICard, IPlayer, ITable, RedisJSON } from '../../../types/global';
 import type Table from '../table';
 
@@ -226,6 +224,26 @@ class Service {
             this.nOptionalDraw = v as IPlayer['nOptionalDraw'];
             aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
             break;
+          case 'nSkipUsed':
+            this.nSkipUsed = v as IPlayer['nSkipUsed'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'nReverseUsed':
+            this.nReverseUsed = v as IPlayer['nReverseUsed'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'nDraw2Used':
+            this.nDraw2Used = v as IPlayer['nDraw2Used'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'nDraw4Used':
+            this.nDraw4Used = v as IPlayer['nDraw4Used'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
+          case 'nWildUsed':
+            this.nWildUsed = v as IPlayer['nWildUsed'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;          
           case 'bSpecialMeterFull':
             this.bSpecialMeterFull = v as IPlayer['bSpecialMeterFull'];
             aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
@@ -277,7 +295,7 @@ class Service {
   public async reconnect(sSocketId: string, oTable: Table) {
     const stateMapper = { waiting: 'waiting', initialized: 'waiting', running: 'playing', finished: 'left' };
     await this.update({ sSocketId, eState: stateMapper[oTable.toJSON().eState] as IPlayer['eState'] });
-    log.info(`oTable in reconnect --> ${_.stringify(oTable)}`);
+    // log.info(`oTable in reconnect --> ${_.stringify(oTable)}`);
     await this.getGameState(oTable);
     log.debug(`${_.now()} client: ${this.iPlayerId} reconnected to table : ${this.iBattleId} with socketId : ${sSocketId}`);
     return true;
@@ -574,7 +592,7 @@ class Service {
   public async takeTurn(oTable: Table) {
     log.debug(`take turn called for ${this.iPlayerId}`)
     await oTable.update({ iPlayerTurn: this.iPlayerId,dTurnAssignedAt:new Date() });
-    oTable.setSchedular('assignTurnTimerExpired', this.iPlayerId, oTable.toJSON().oSettings.nTurnTime+600); // for reconnection issue
+    // oTable.setSchedular('assignTurnTimerExpired', this.iPlayerId, oTable.toJSON().oSettings.nTurnTime+600); // for reconnection issue
     await _.delay(600)
     let aStackingCardId:any=[]
     if(oTable.toJSON().aDiscardPile.slice(-1)[0].nLabel===12 || oTable.toJSON().aDiscardPile.slice(-1)[0].nLabel===14){
@@ -593,7 +611,7 @@ class Service {
     log.debug(`${_.now()} playable cards for player ${this.iPlayerId}:: ${aPlayableCardId}`);
     this.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nTurnTime-500, timestamp: Date.now(), aPlayableCards: aPlayableCardId, bDrawPileEmpty:oTable.toJSON().aDrawPile.length===0 });
     oTable.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nTurnTime-500, timestamp: Date.now(), aPlayableCards: [],bDrawPileEmpty:oTable.toJSON().aDrawPile.length===0 }, [this.iPlayerId]);
-    // oTable.setSchedular('assignTurnTimerExpired', this.iPlayerId, oTable.toJSON().oSettings.nTurnTime);
+    oTable.setSchedular('assignTurnTimerExpired', this.iPlayerId, oTable.toJSON().oSettings.nTurnTime);
     return true
   }
 
@@ -718,7 +736,7 @@ class Service {
       Times_Draw4: this.nDrawn4,
       Draw_Choice: this.nOptionalDraw,
     };
-    // log.verbose(`GameStatistics --> ${data}`);
+    log.verbose(`GameStatistics for ${this.iPlayerId} --> ${_.stringify(data)}`);
     this.emit('resGameStatistics', { ...data });
   }
 

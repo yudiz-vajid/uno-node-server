@@ -329,7 +329,7 @@ class Player extends Service {
     const playableCards = await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
     if (eligibleUno && playableCards.length && oTable.toJSON().iPlayerTurn === this.iPlayerId) {
       oTable.emit('resUnoPressed', { iPlayerId: this.iPlayerId }, [this.iPlayerId]);
-      await this.update({ bUnoDeclared: true, nUnoPressed: this.nUnoPressed });
+      await this.update({ bUnoDeclared: true, nUnoPressed: this.nUnoPressed + 1 });
       callback({ oData: {}, status: response.SUCCESS });
     } else {
       callback({ oData: {}, status: response.WRONG_UNO });

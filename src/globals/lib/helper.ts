@@ -219,7 +219,7 @@ const helper = {
   getPlayerCountKey: (iBattleId: string) => `t:${iBattleId}:playerCount`,
   getTableKey: (iBattleId: string) => `t:${iBattleId}`,
   getSchedulerKey: (sTaskName: string, iBattleId = '', iPlayerId = '', host = process.env.HOST) => `sch:${iBattleId}:${sTaskName}:${iPlayerId}:${host}`,
-
+  getSchedulerKeyWithoutIP: (sTaskName: string, iBattleId = '', iPlayerId = '') => `sch:${iBattleId}:${sTaskName}:${iPlayerId}:*`,
   genAckCB: () => {
     return (msg: string) => {
       log.debug(`client:ack -> ${msg}`);
