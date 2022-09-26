@@ -478,8 +478,6 @@ class Service {
       await redis.sch.pSetEx(schKey, nTimeMS, sTaskName);
       return true;
     } catch (err: any) {
-      console.log('err.message :: ', _.stringify(err.message));
-      console.log('err :: ', _.stringify(err));
       log.error(`table.setSchedular() failed.${{ reason: err.message, stack: err.stack }}`);
       return false;
     }
@@ -490,7 +488,6 @@ class Service {
       // const sKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
       const sKey = _.getSchedulerKeyWithoutIP(sTaskName, this.iBattleId, iPlayerId);
       const schedularKeys = await redis.sch.keys(sKey);
-      log.verbose(`deleteScheduler !!!!!!!!!!`);
       log.verbose(`deleteSch --> ${sKey}`);
       log.verbose(`schedularKeys --> ${schedularKeys}`);
       if (!schedularKeys.length) throw new Error(`schedular doesn't exists`);

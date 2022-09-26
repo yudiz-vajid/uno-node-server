@@ -686,7 +686,16 @@ class Service {
         if (penaltyPlayer && penaltyPlayer?.eState !== 'left') await penaltyPlayer.assignDrawPenalty(oTable);
       }
       const winner: any = await oTable.getPlayer(this.iPlayerId);
-      await oTable.update({ oWinningCard: oTable.getDiscardPileTopCard(), sGameEndReasons: 'All Levels Completed' });
+      const getDiscardPileTopCard = oTable.getDiscardPileTopCard();
+      await oTable.update({
+        oWinningCard: {
+          Game_Winning_Card_iCardId: getDiscardPileTopCard.iCardId,
+          Game_Winning_Card_eColor: getDiscardPileTopCard.eColor,
+          Game_Winning_Card_nLabel: getDiscardPileTopCard.nLabel,
+          Game_Winning_Card_nScore: getDiscardPileTopCard.nScore,
+        },
+        sGameEndReasons: 'All Levels Completed',
+      });
       return oTable.gameOver(winner, 'playerWin');
     }
     const { aPlayer } = oTable.toJSON();
