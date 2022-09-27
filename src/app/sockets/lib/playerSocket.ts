@@ -67,7 +67,7 @@ class PlayerSocket {
       log.debug(`6. joinTable started: pid -> ${this.iPlayerId}`);
       let oTable = await TableManager.getTable(this.iBattleId);
       console.log('this.isReconnect --> ', this.isReconnect);
-      // log.debug(`body in joinTable --> ${_.stringify(body)}`);
+      log.debug(`body in joinTable --> ${_.stringify(body)}`);
       this.iBattleId = body.i_battle_id;
       this.nTablePlayer = body.nTablePlayer;
       if (!oTable && this.isReconnect) return _ack({ oData: {}, status: response.TABLE_NOT_FOUND });
