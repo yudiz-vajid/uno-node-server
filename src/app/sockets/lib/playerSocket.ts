@@ -64,13 +64,13 @@ class PlayerSocket {
   private async joinTable(body: { i_battle_id: string; nTablePlayer: number }, _ack: ICallback) {
     if (typeof _ack !== 'function') return false;
     try {
+      this.iBattleId = body.i_battle_id;
+      this.nTablePlayer = body.nTablePlayer;
       log.debug(`6. joinTable started: pid -> ${this.iPlayerId}`);
       let oTable = await TableManager.getTable(this.iBattleId);
       console.log('this.isReconnect --> ', this.isReconnect);
       log.debug(`body in joinTable --> ${body}`);
       log.debug(`body in joinTable --> ${_.stringify(body)}`);
-      this.iBattleId = body.i_battle_id;
-      this.nTablePlayer = body.nTablePlayer;
       if (!oTable && this.isReconnect) return _ack({ oData: {}, status: response.TABLE_NOT_FOUND });
       if (!oTable)
         oTable = await TableManager.createTable({
