@@ -25,17 +25,24 @@ class PlayerSocket {
 
   private nMinTablePlayer: number;
 
+  private isNewMatchMakingFlowEnabled: boolean;
+
   constructor(socket: Socket) {
     this.socket = socket; // - socket = {id: <socketId>, ...other}
     this.iPlayerId = socket.data.iPlayerId;
-    this.iBattleId = socket.data.iBattleId;
+    this.iBattleId = !socket.data.isNewMatchMakingFlowEnabled ? socket.data.iBattleId : '';
+    this.nTablePlayer = !socket.data.isNewMatchMakingFlowEnabled ? socket.data.nTablePlayer : 0;
     this.iLobbyId = socket.data.iLobbyId;
     this.isReconnect = socket.data.isReconnect;
     this.sPlayerName = socket.data.sPlayerName;
     this.sAuthToken = socket.data.sAuthToken;
-    this.nTablePlayer = socket.data.nTablePlayer;
     this.nMinTablePlayer = socket.data.nMinTablePlayer;
     this.oSetting = socket.data.oSettings;
+    this.isNewMatchMakingFlowEnabled = socket.data.isNewMatchMakingFlowEnabled;
+    if (this.isNewMatchMakingFlowEnabled) {
+      this.iBattleId = socket.data.iBattleId;
+      this.nTablePlayer = socket.data.nTablePlayer;
+    }
 
     this.socket.data = {}; // - clean up socket payload
     this.setEventListeners(); // - register listeners
@@ -54,15 +61,15 @@ class PlayerSocket {
    * if player is not in a battle, create new player, table, and set startGameScheduled time
    * when all player joined emit 'resTableState'
    */
-  private async joinTable(body: unknown, _ack: ICallback) {
+  private async joinTable(body: { i_battle_id: string; nTablePlayer: number }, _ack: ICallback) {
     if (typeof _ack !== 'function') return false;
     try {
       log.debug(`6. joinTable started: pid -> ${this.iPlayerId}`);
       let oTable = await TableManager.getTable(this.iBattleId);
       console.log('this.isReconnect --> ', this.isReconnect);
       // log.debug(`body in joinTable --> ${_.stringify(body)}`);
-      // this.iBattleId = body.i_battle_id;
-      // this.nTablePlayer = body.nTablePlayer;
+      this.iBattleId = body.i_battle_id;
+      this.nTablePlayer = body.nTablePlayer;
       if (!oTable && this.isReconnect) return _ack({ oData: {}, status: response.TABLE_NOT_FOUND });
       if (!oTable)
         oTable = await TableManager.createTable({

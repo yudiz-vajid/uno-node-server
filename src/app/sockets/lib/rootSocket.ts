@@ -25,7 +25,7 @@ class RootSocket {
       log.debug('1. connection request recieved');
       // prettier-ignore
       const { error: authError, info: authInfo, value: authValue } = await verifyAuthHeader({
-        // isNewMatchMakingFlowEnabled: socket.handshake.auth.isNewMatchMakingFlowEnabled ?? <unknown>socket.handshake.headers.isNewMatchMakingFlowEnabled,
+        isNewMatchMakingFlowEnabled: socket.handshake.auth.isNewMatchMakingFlowEnabled ?? <unknown>socket.handshake.headers.isNewMatchMakingFlowEnabled,
         i_battle_id: socket.handshake.auth.i_battle_id ?? <unknown>socket.handshake.headers.i_battle_id,
         i_lobby_id: socket.handshake.auth.i_lobby_id ?? <unknown>socket.handshake.headers.i_lobby_id,
         i_player_id: socket.handshake.auth.i_player_id ?? <unknown>socket.handshake.headers.i_player_id,
@@ -41,10 +41,9 @@ class RootSocket {
       if (settingsError || !settingsValue) throw new Error(settingsInfo);
       log.debug('3. payload verified');
 
-      const { iBattleId, iPlayerId, sPlayerName, sAuthToken, iLobbyId, isReconnect, nTablePlayer, nMinTablePlayer } = authValue;
+      const { isNewMatchMakingFlowEnabled, iBattleId, iPlayerId, sPlayerName, sAuthToken, iLobbyId, isReconnect, nTablePlayer, nMinTablePlayer } = authValue;
 
-      // socket.data.isNewMatchMakingFlowEnabled = isNewMatchMakingFlowEnabled;
-      socket.data.iBattleId = iBattleId;
+      socket.data.isNewMatchMakingFlowEnabled = isNewMatchMakingFlowEnabled;
       socket.data.isReconnect = isReconnect;
       socket.data.iLobbyId = iLobbyId;
       socket.data.iPlayerId = iPlayerId;
@@ -52,12 +51,13 @@ class RootSocket {
       socket.data.sAuthToken = sAuthToken;
       socket.data.oSettings = settingsValue;
       socket.data.nMinTablePlayer = nMinTablePlayer;
-      socket.data.nTablePlayer = nTablePlayer;
+      // socket.data.iBattleId = iBattleId;
+      // socket.data.nTablePlayer = nTablePlayer;
 
-      // if (!isNewMatchMakingFlowEnabled) {
-      //   socket.data.iBattleId = iBattleId;
-      //   socket.data.nTablePlayer = nTablePlayer;
-      // }
+      if (isNewMatchMakingFlowEnabled) {
+        socket.data.iBattleId = iBattleId;
+        socket.data.nTablePlayer = nTablePlayer;
+      }
       let bIsValid = false;
       log.debug('4.1. Authenticating player');
       if (process.env.NODE_ENV !== 'dev') {
