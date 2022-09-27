@@ -83,6 +83,7 @@ class PlayerSocket {
         });
       if (!oTable) throw new Error('Table not created');
       let oPlayer = oTable.getPlayer(this.iPlayerId);
+      log.verbose(`oPlayer --> ${oPlayer}`);
       if (!oPlayer) {
         oPlayer = await TableManager.createPlayer({
           iPlayerId: this.iPlayerId,
@@ -127,6 +128,7 @@ class PlayerSocket {
         _ack({ oData: { iBattleId: this.iBattleId, iPlayerId: this.iPlayerId }, status: response.SUCCESS });
         if (!(await oTable.addPlayer(oPlayer))) throw new Error('Player not added to table');
       } else {
+        log.verbose(`else called`);
         _ack({ oData: { iBattleId: this.iBattleId, iPlayerId: this.iPlayerId }, status: response.SUCCESS });
         await oPlayer.reconnect(this.socket.id, oTable);
       }
