@@ -26,9 +26,9 @@ const Schema = Joi.object().keys({
   i_player_id: Joi.string().min(1).max(500).required(),
   s_player_name: Joi.string().min(1).max(500).optional().default(''),
   s_auth_token: Joi.string().min(1).max(500).required(),
-  i_battle_id: Joi.string().min(1).max(500).required(),
+  i_battle_id: Joi.string().min(1).max(500),
   isReconnect: Joi.boolean().required().default(false),
-  nTablePlayer: Joi.number().required().default(2),
+  nTablePlayer: Joi.number(),
   nMinTablePlayer: Joi.number().default(2),
   isNewMatchMakingFlowEnabled: Joi.boolean().default(false),
 });
