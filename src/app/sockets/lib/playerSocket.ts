@@ -39,10 +39,10 @@ class PlayerSocket {
     this.nMinTablePlayer = socket.data.nMinTablePlayer;
     this.oSetting = socket.data.oSettings;
     this.isNewMatchMakingFlowEnabled = socket.data.isNewMatchMakingFlowEnabled;
-    if (this.isNewMatchMakingFlowEnabled) {
-      this.iBattleId = socket.data.iBattleId;
-      this.nTablePlayer = socket.data.nTablePlayer;
-    }
+    // if (this.isNewMatchMakingFlowEnabled) {
+    //   this.iBattleId = socket.data.iBattleId;
+    //   this.nTablePlayer = socket.data.nTablePlayer;
+    // }
 
     this.socket.data = {}; // - clean up socket payload
     this.setEventListeners(); // - register listeners
