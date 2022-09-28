@@ -66,13 +66,15 @@ class PlayerSocket {
     try {
       this.iBattleId = body.i_battle_id;
       this.nTablePlayer = body.nTablePlayer;
-      log.debug(`6. joinTable started: pid -> ${this.iPlayerId}`);
+      log.debug(`6. joinTable started: pid -> ${this.iPlayerId} BId --> ${this.iBattleId}`);
       let oTable = await TableManager.getTable(this.iBattleId);
+      log.verbose(`oTable --> ${_.stringify(oTable)}`);
       console.log('this.isReconnect --> ', this.isReconnect);
       log.debug(`body in joinTable --> ${body}`);
       // log.debug(`body in joinTable --> ${_.stringify(body)}`);
       if (!oTable && this.isReconnect) return _ack({ oData: {}, status: response.TABLE_NOT_FOUND });
-      if (!oTable)
+      if (!oTable) {
+        log.verbose(`Creating table in table Join`);
         oTable = await TableManager.createTable({
           iBattleId: this.iBattleId,
           oSettings: this.oSetting,
@@ -81,6 +83,7 @@ class PlayerSocket {
           nTablePlayer: this.nTablePlayer,
           nMinTablePlayer: this.nMinTablePlayer,
         });
+      }
       if (!oTable) throw new Error('Table not created');
       let oPlayer = oTable.getPlayer(this.iPlayerId);
       log.verbose(`oPlayer --> ${_.stringify(oPlayer)}`);
