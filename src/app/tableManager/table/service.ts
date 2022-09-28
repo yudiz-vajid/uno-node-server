@@ -511,7 +511,8 @@ class Service {
 
   public async getTTL(sTaskName = '', iPlayerId = '*') {
     try {
-      const sKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
+      // const sKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
+      const sKey = _.getSchedulerKeyWithoutIP(sTaskName, this.iBattleId, iPlayerId);
       const schedularKeys = await redis.sch.keys(sKey);
       if (!schedularKeys.length) return null; // - throw new Error(`schedular doesn't exists`);
 
