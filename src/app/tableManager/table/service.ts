@@ -421,6 +421,7 @@ class Service {
         rpcTableScore.playersData[index].nextLobbyConfig = '';
         rpcTableScore.playersData[index].isCashReward = true;
         rpcTableScore.playersData[index].extReward = '';
+        rpcTableScore.playersData[index].cashWinnings = rpcTableScore.playersData[index].cashWinningsDecimal;
       }
     }
     const payload = {
