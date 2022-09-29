@@ -91,7 +91,8 @@ class Table extends Service {
    * assign turn to random player
    */
   public async assignRandomTurn() {
-    const oRandomPlayer = _.randomizeArray(this.aPlayer)[0];
+    const oRandomPlayer = await _.randomizeArray(this.aPlayer)[0];
+    log.verbose(`oRandomPlayer --> ${oRandomPlayer}`);
     oRandomPlayer.takeTurn(this);
   }
 
