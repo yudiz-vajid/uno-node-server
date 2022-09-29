@@ -94,7 +94,7 @@ class PlayerSocket {
       if (!oPlayer || oPlayer === null) {
         oPlayer = await TableManager.createPlayer({
           iPlayerId: this.iPlayerId,
-          iBattleId: debugBody.iBattleId,
+          iBattleId: this.iBattleId,
           sPlayerName: this.sPlayerName,
           sSocketId: this.socket.id,
           nSeat: oTable.toJSON().aPlayer.length,
