@@ -65,7 +65,7 @@ class PlayerSocket {
     if (typeof _ack !== 'function') return false;
     try {
       // TODO :- need to manage empty battle id table creation.
-      const debugBody = _.parse(body);
+      const debugBody = _.parse(body).oData;
       this.iBattleId = debugBody.i_battle_id;
       this.nTablePlayer = debugBody.nTablePlayer;
       log.debug(`body.i_battle_id --> ${debugBody}`);
