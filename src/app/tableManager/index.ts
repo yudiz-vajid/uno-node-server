@@ -221,6 +221,8 @@ class TableManager {
       if (!oTableData) return null;
 
       const aPromise: Array<Promise<unknown>> = []; // - To add participant in table
+      log.verbose(`oTableData --> ${oTableData}`);
+      log.verbose(`iBattleId --> ${iBattleId}`);
       oTableData.aPlayerId.forEach(iPlayerId => aPromise.push(redis.client.json.GET(_.getPlayerKey(iBattleId, iPlayerId))));
 
       const aPlayer = (await Promise.all(aPromise)) as unknown as Array<IPlayer | null>;
