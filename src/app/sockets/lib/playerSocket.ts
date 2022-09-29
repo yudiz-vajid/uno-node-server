@@ -65,13 +65,13 @@ class PlayerSocket {
     if (typeof _ack !== 'function') return false;
     try {
       // TODO :- need to manage empty battle id table creation.
-      this.iBattleId = body.i_battle_id;
-      this.nTablePlayer = body.nTablePlayer;
       const debugBody = _.parse(body);
+      this.iBattleId = debugBody.i_battle_id;
+      this.nTablePlayer = debugBody.nTablePlayer;
       log.debug(`body.i_battle_id --> ${debugBody}`);
       log.debug(`debugBody--> ${debugBody.i_battle_id}`);
       log.debug(`6. joinTable started: pid -> ${this.iPlayerId} BId --> ${this.iBattleId}`);
-      let oTable = await TableManager.getTable(body.i_battle_id);
+      let oTable = await TableManager.getTable(debugBody.i_battle_id);
       log.verbose(`oTable --> ${_.stringify(oTable)}`);
       console.log('this.isReconnect --> ', this.isReconnect);
       log.debug(`body in joinTable --> ${body}`);
@@ -80,7 +80,7 @@ class PlayerSocket {
       if (!oTable) {
         log.verbose(`Creating table in table Join`);
         oTable = await TableManager.createTable({
-          iBattleId: this.iBattleId,
+          iBattleId: debugBody.i_battle_id,
           oSettings: this.oSetting,
           iPlayerId: this.iPlayerId,
           iLobbyId: this.iLobbyId,
@@ -94,7 +94,7 @@ class PlayerSocket {
       if (!oPlayer || oPlayer === null) {
         oPlayer = await TableManager.createPlayer({
           iPlayerId: this.iPlayerId,
-          iBattleId: this.iBattleId,
+          iBattleId: debugBody.iBattleId,
           sPlayerName: this.sPlayerName,
           sSocketId: this.socket.id,
           nSeat: oTable.toJSON().aPlayer.length,
