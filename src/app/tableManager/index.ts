@@ -206,7 +206,9 @@ class TableManager {
   public static async createPlayer(oPlayer: IPlayer) {
     try {
       log.verbose(`oPlayer.iPlayerId in create player --> ${oPlayer.iPlayerId}`);
+      log.verbose(`oPlayer.iPlayerId in create player --> ${oPlayer.iBattleId}`);
       const sRedisSetResponse = await redis.client.json.SET(_.getPlayerKey(oPlayer.iBattleId, oPlayer.iPlayerId), '.', oPlayer as unknown as RedisJSON);
+      log.verbose(`sRedisSetResponse --> ${sRedisSetResponse}`);
       if (!sRedisSetResponse) return null;
       return new Player(oPlayer);
     } catch (err: any) {
