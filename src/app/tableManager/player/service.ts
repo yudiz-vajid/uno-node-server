@@ -372,7 +372,7 @@ class Service {
         aPlayableCards: iUserTurn === this.iPlayerId ? await this.getPlayableCardIds(oTable?.getDiscardPileTopCard(), oTable?.toJSON().eNextCardColor) : [],
       },
     };
-    log.verbose(`oTurnInfo in game state --> ${_.stringify(oData.oTurnInfo)}`);
+    log.verbose(`resGameState --> ${_.stringify(oData)}`);
     await this.emit('resGameState', oData);
   }
 
