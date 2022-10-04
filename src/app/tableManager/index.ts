@@ -220,12 +220,12 @@ class TableManager {
 
   public static async getTable(iBattleId: string) {
     try {
+      log.verbose(`getTable called for --> ${iBattleId}`);
       const oTableData = (await redis.client.json.GET(_.getTableKey(iBattleId))) as unknown as ITable | null;
       if (!oTableData) return null;
 
       const aPromise: Array<Promise<unknown>> = []; // - To add participant in table
-      log.verbose(`oTableData --> ${_.stringify(oTableData)}`);
-      log.verbose(`iBattleId --> ${iBattleId}`);
+      // log.verbose(`oTableData --> ${_.stringify(oTableData)}`);
       oTableData.aPlayerId.forEach(iPlayerId => aPromise.push(redis.client.json.GET(_.getPlayerKey(iBattleId, iPlayerId))));
 
       const aPlayer = (await Promise.all(aPromise)) as unknown as Array<IPlayer | null>;

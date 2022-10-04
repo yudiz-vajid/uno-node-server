@@ -68,16 +68,13 @@ class PlayerSocket {
       const debugBody = _.parse(body).oData;
       this.iBattleId = debugBody.i_battle_id;
       this.nTablePlayer = debugBody.nTablePlayer;
-      log.debug(`body.i_battle_id --> ${debugBody}`);
-      log.debug(`debugBody--> ${debugBody.i_battle_id}`);
+      log.debug(`debugBody --> ${debugBody}`);
       log.debug(`6. joinTable started: pid -> ${this.iPlayerId} BId --> ${this.iBattleId}`);
       let oTable = await TableManager.getTable(debugBody.i_battle_id);
-      log.verbose(`oTable --> ${_.stringify(oTable)}`);
       console.log('this.isReconnect --> ', this.isReconnect);
-      log.debug(`body in joinTable --> ${body}`);
       // log.debug(`body in joinTable --> ${_.stringify(body)}`);
       if (!oTable && this.isReconnect) return _ack({ oData: {}, status: response.TABLE_NOT_FOUND });
-      if (!oTable) {
+      if (!oTable && debugBody.i_battle_id) {
         log.verbose(`Creating table in table Join`);
         oTable = await TableManager.createTable({
           iBattleId: debugBody.i_battle_id,
@@ -90,7 +87,6 @@ class PlayerSocket {
       }
       if (!oTable) throw new Error('Table not created');
       let oPlayer = oTable.getPlayer(this.iPlayerId);
-      log.verbose(`oPlayer --> ${_.stringify(oPlayer)}`);
       if (!oPlayer || oPlayer === null) {
         oPlayer = await TableManager.createPlayer({
           iPlayerId: this.iPlayerId,
@@ -135,7 +131,7 @@ class PlayerSocket {
         _ack({ oData: { iBattleId: this.iBattleId, iPlayerId: this.iPlayerId }, status: response.SUCCESS });
         if (!(await oTable.addPlayer(oPlayer))) throw new Error('Player not added to table');
       } else {
-        log.verbose(`else called`);
+        log.verbose(`Player comes for reconnection P-ID ${this.iPlayerId} ,T-ID ${this.iBattleId}`);
         _ack({ oData: { iBattleId: this.iBattleId, iPlayerId: this.iPlayerId }, status: response.SUCCESS });
         await oPlayer.reconnect(this.socket.id, oTable);
       }
