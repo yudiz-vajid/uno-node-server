@@ -68,7 +68,7 @@ class PlayerSocket {
       const debugBody = _.parse(body).oData;
       this.iBattleId = debugBody.i_battle_id;
       this.nTablePlayer = debugBody.nTablePlayer;
-      log.debug(`debugBody --> ${debugBody}`);
+      log.debug(`debugBody --> ${_.stringify(debugBody)}`);
       log.debug(`6. joinTable started: pid -> ${this.iPlayerId} BId --> ${this.iBattleId}`);
       let oTable = await TableManager.getTable(debugBody.i_battle_id);
       console.log('this.isReconnect --> ', this.isReconnect);
