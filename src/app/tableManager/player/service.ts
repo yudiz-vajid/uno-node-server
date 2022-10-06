@@ -316,6 +316,7 @@ class Service {
       this.emit('resPlayerLeft', { iPlayerId: this.iPlayerId });
     }
     // log.info(`oTable in reconnect --> ${_.stringify(oTable)}`);
+    _.delay(600);
     await this.getGameState(oTable);
     log.debug(`${_.now()} client: ${this.iPlayerId} reconnected to table : ${this.iBattleId} with socketId : ${sSocketId}`);
     return true;
@@ -368,6 +369,7 @@ class Service {
     log.verbose('getGameState called...');
     log.verbose(`iUserTurn is --> ${iUserTurn}`);
     const nRemainingGraceTime = await oTable?.getTTL('assignGraceTimerExpired', iUserTurn); // - in ms
+    // const ttl = nRemainingGraceTime || (await oTable?.getTTL('assignTurnTimerExpired', iUserTurn));
     const ttl = nRemainingGraceTime || (await oTable?.getTTL('assignTurnTimerExpired', iUserTurn));
     const nRemainingMasterTime = await oTable?.getTTL('masterTimerExpired');
     const aPlayer = oTable?.toJSON().aPlayer.map((p: any) => ({

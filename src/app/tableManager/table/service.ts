@@ -432,7 +432,7 @@ class Service {
       battleAgainDisabled: false,
       battleStatus: rpcTableScore.battleStatus,
     };
-    await _.delay(350); // For last card stuck issue.
+    await _.delay(500); // For last card stuck issue.
     log.verbose(`payload for resMplFinishBattle --> ${_.stringify(payload)}`);
     this.emit('resMplFinishBattle', { payload });
     const keys = await redis.client.KEYS(`t:${this.iBattleId}:*`);
