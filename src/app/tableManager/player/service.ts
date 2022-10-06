@@ -294,7 +294,10 @@ class Service {
 
   public async reconnect(sSocketId: string, oTable: Table) {
     const stateMapper = { waiting: 'waiting', initialized: 'waiting', running: 'playing', finished: 'left' };
+    const playerOldState = this.eState;
+    log.verbose(`this.eState in reconnect --> ${this.eState}`);
     await this.update({ sSocketId, eState: stateMapper[oTable.toJSON().eState] as IPlayer['eState'] });
+    if (playerOldState === 'left') this.update({ eState: 'left' });
     // log.info(`oTable in reconnect --> ${_.stringify(oTable)}`);
     await this.getGameState(oTable);
     log.debug(`${_.now()} client: ${this.iPlayerId} reconnected to table : ${this.iBattleId} with socketId : ${sSocketId}`);
