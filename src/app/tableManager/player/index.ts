@@ -343,7 +343,7 @@ class Player extends Service {
     await this.update({ eState: 'left' });
     callback({ oData: {}, status: response.SUCCESS });
     oTable.emit('resPlayerLeft', { iPlayerId: this.iPlayerId });
-    const aPlayingPlayer = oTable.toJSON().aPlayer.filter(p => p.eState === 'playing');
+    const aPlayingPlayer = oTable.toJSON().aPlayer.filter(p => p.eState !== 'left');
     if (aPlayingPlayer.length <= 1) {
       await oTable.update({ sGameEndReasons: 'User Quit' });
       return oTable.gameOver(aPlayingPlayer[0], 'playerLeft');
