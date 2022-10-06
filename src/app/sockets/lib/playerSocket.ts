@@ -120,6 +120,7 @@ class PlayerSocket {
           bNextTurnSkip: false,
           bUnoDeclared: false,
           bSkipSpecialMeterProcess: false,
+          bIsCardTaken: false,
           aHand: [],
           aTurnData: [],
           aDrawnCards: [''],

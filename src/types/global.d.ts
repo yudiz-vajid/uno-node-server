@@ -97,6 +97,7 @@ export declare interface IPlayer {
   bUnoDeclared: boolean;
   bNextTurnSkip: boolean;
   bSkipSpecialMeterProcess: boolean;
+  bIsCardTaken: boolean;
   aHand: ICard[];
   aDrawnCards: [string];
   aTurnData: ITurnData[];

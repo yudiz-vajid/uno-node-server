@@ -251,6 +251,7 @@ class Player extends Service {
       oTable.updateDrawPile(),
       oTable.update({ aTurnInfo: oTable.toJSON().aTurnInfo }),
       this.update({
+        bIsCardTaken: true,
         nDrawNormal: this.nDrawNormal,
         bSpecialMeterFull: this.bSpecialMeterFull,
         aHand: [...this.aHand, ...aCard],

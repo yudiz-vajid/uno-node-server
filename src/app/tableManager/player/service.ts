@@ -79,6 +79,8 @@ class Service {
 
   protected aDrawnCards: IPlayer['aDrawnCards'];
 
+  protected bIsCardTaken: IPlayer['bIsCardTaken'];
+
   constructor(oData: IPlayer) {
     this.iPlayerId = oData.iPlayerId;
     this.iBattleId = oData.iBattleId;
@@ -113,6 +115,7 @@ class Service {
     this.bNextTurnSkip = oData.bNextTurnSkip;
     this.bSkipSpecialMeterProcess = oData.bSkipSpecialMeterProcess;
     this.aHand = oData.aHand;
+    this.bIsCardTaken = oData.bIsCardTaken;
     // this.aTurnData = oData.aTurnData; // TODO :- Need to remomve this fron entire player service.
     this.aDrawnCards = oData.aDrawnCards;
     this.eState = oData.eState;
@@ -147,6 +150,7 @@ class Service {
     | 'bNextTurnSkip' 
     | 'bUnoDeclared'
     | 'bSkipSpecialMeterProcess' 
+    | 'bIsCardTaken' 
     | 'aHand' 
     | 'aDrawnCards' 
     // | 'aTurnData' 
@@ -260,6 +264,10 @@ class Service {
             this.bSkipSpecialMeterProcess = v as IPlayer['bSkipSpecialMeterProcess'];
             aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
             break;
+          case 'bIsCardTaken':
+            this.bIsCardTaken = v as IPlayer['bIsCardTaken'];
+            aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
+            break;
           case 'aHand':
             this.aHand = v as IPlayer['aHand'];
             aPromise.push(redis.client.json.SET(sPlayerKey, `.${k}`, v as RedisJSON));
@@ -297,6 +305,12 @@ class Service {
     const playerOldState = this.eState;
     log.verbose(`this.eState in reconnect --> ${this.eState}`);
     await this.update({ sSocketId, eState: stateMapper[oTable.toJSON().eState] as IPlayer['eState'] });
+    if (this.bIsCardTaken) {
+      // need to handle color timer
+      // await oTable.deleteScheduler(`assignGraceTimerExpired`, this.iPlayerId); // To complete color scheduler if user set color timer
+      // await this.assignWildCardColorTimerExpired(oTable);
+      return this.passTurn(oTable);
+    }
     if (playerOldState === 'left') {
       await this.update({ eState: 'left' });
       this.emit('resPlayerLeft', { iPlayerId: this.iPlayerId });
@@ -716,6 +730,7 @@ class Service {
       oNextPlayer = await oTable.getNextPlayer(this.nSeat); // For reverse card flow
     }
     if (!oNextPlayer) return (log.error('No playing player found...') && null) ?? false;
+    await oNextPlayer.update({ bIsCardTaken: false });
     oNextPlayer.takeTurn(oTable);
     return true;
   }
@@ -796,6 +811,7 @@ class Service {
 
       bSpecialMeterFull: this.bSpecialMeterFull,
       bSkipSpecialMeterProcess: this.bSkipSpecialMeterProcess,
+      bIsCardTaken: this.bIsCardTaken,
       aHand: this.aHand,
       aDrawnCards: this.aDrawnCards,
       // aTurnData: this.aTurnData,
