@@ -316,6 +316,7 @@ class Service {
       this.emit('resPlayerLeft', { iPlayerId: this.iPlayerId });
     }
     // log.info(`oTable in reconnect --> ${_.stringify(oTable)}`);
+    await _.delay(500);
     await this.getGameState(oTable);
     log.debug(`${_.now()} client: ${this.iPlayerId} reconnected to table : ${this.iBattleId} with socketId : ${sSocketId}`);
     return true;
