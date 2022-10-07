@@ -397,7 +397,10 @@ class Service {
     };
     log.verbose(`resGameState --> ${_.stringify(oData)}`);
     await this.emit('resGameState', oData);
-    if (oData.oTurnInfo.ttl === null) this.passTurn(oTable);
+    if (oData.oTurnInfo.ttl === null) {
+      const playerTurn = await oTable.getPlayer(iUserTurn);
+      playerTurn?.passTurn(oTable);
+    }
   }
 
   // eslint-disable-next-line consistent-return
