@@ -401,9 +401,11 @@ class Service {
     await this.emit('resGameState', oData);
     if (oData.oTurnInfo.ttl === null) {
       const updatedTable: any = await TableManager.getTable(this.iBattleId);
-      if (updatedTable.iPlayerId === this.iPlayerId) {
+      if (updatedTable.iUserTurn === this.iPlayerId) {
+        log.verbose(`comes in if for pass turn`);
         this.passTurn(updatedTable);
       } else {
+        log.verbose(`comes in else for pass turn`);
         const playerTurn = await oTable?.getPlayer(updatedTable?.toJSON().iPlayerTurn);
         playerTurn?.passTurn(updatedTable);
       }
