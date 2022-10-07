@@ -403,11 +403,11 @@ class Service {
       // const updatedTable: any = await TableManager.getTable(this.iBattleId);
       if (oTable.toJSON().iPlayerTurn === this.iPlayerId) {
         log.verbose(`comes in if for pass turn`);
-        this.passTurn(oTable);
-      } else {
-        log.verbose(`comes in else for pass turn`);
         const playerTurn = await oTable?.getPlayer(oTable?.toJSON().iPlayerTurn);
         playerTurn?.passTurn(oTable);
+      } else {
+        log.verbose(`comes in else for pass turn`);
+        this.passTurn(oTable);
       }
     }
   }
@@ -714,7 +714,7 @@ class Service {
   }
 
   public async passTurn(oTable: Table) {
-    log.debug('turn pass to next player');
+    log.debug(`turn pass to next player from ${this.iPlayerId}`);
     if (oTable.toJSON().eState !== 'running') return log.error('table is not in running state.');
     if (!this.aHand.length) {
       if (oTable.toJSON().iDrawPenltyPlayerId) {
@@ -746,6 +746,7 @@ class Service {
       oNextPlayer = await oTable.getNextPlayer(this.nSeat); // For reverse card flow
     }
     if (!oNextPlayer) return (log.error('No playing player found...') && null) ?? false;
+    log.verbose(`oNextPlayer in pass turn is --> ${oNextPlayer.iPlayerId}`);
     await oNextPlayer.update({ bIsCardTaken: false });
     oNextPlayer.takeTurn(oTable);
     return true;
