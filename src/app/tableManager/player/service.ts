@@ -306,9 +306,6 @@ class Service {
     log.verbose(`this.eState in reconnect --> ${this.eState}`);
     await this.update({ sSocketId, eState: stateMapper[oTable.toJSON().eState] as IPlayer['eState'] });
     if (this.bIsCardTaken) {
-      // need to handle color timer
-      // await oTable.deleteScheduler(`assignGraceTimerExpired`, this.iPlayerId); // To complete color scheduler if user set color timer
-      // await this.assignWildCardColorTimerExpired(oTable);
       return this.passTurn(oTable);
     }
     if (playerOldState === 'left') {
@@ -316,7 +313,7 @@ class Service {
       this.emit('resPlayerLeft', { iPlayerId: this.iPlayerId });
     }
     // log.info(`oTable in reconnect --> ${_.stringify(oTable)}`);
-    _.delay(600);
+    // _.delay(600);
     await this.getGameState(oTable);
     log.debug(`${_.now()} client: ${this.iPlayerId} reconnected to table : ${this.iBattleId} with socketId : ${sSocketId}`);
     return true;
@@ -369,8 +366,10 @@ class Service {
     log.verbose('getGameState called...');
     log.verbose(`iUserTurn is --> ${iUserTurn}`);
     const nRemainingGraceTime = await oTable?.getTTL('assignGraceTimerExpired', iUserTurn); // - in ms
+    log.verbose(`nRemainingGraceTime --> ${nRemainingGraceTime}`);
     // const ttl = nRemainingGraceTime || (await oTable?.getTTL('assignTurnTimerExpired', iUserTurn));
     const ttl = nRemainingGraceTime || (await oTable?.getTTL('assignTurnTimerExpired', iUserTurn));
+    log.verbose(`ttl --> ${ttl}`);
     const nRemainingMasterTime = await oTable?.getTTL('masterTimerExpired');
     const aPlayer = oTable?.toJSON().aPlayer.map((p: any) => ({
       iPlayerId: p.iPlayerId,
