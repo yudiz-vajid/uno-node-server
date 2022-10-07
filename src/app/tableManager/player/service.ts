@@ -401,8 +401,12 @@ class Service {
     await this.emit('resGameState', oData);
     if (oData.oTurnInfo.ttl === null) {
       const updatedTable: any = await TableManager.getTable(this.iBattleId);
-      const playerTurn = await oTable?.getPlayer(updatedTable?.toJSON().iPlayerTurn);
-      playerTurn?.passTurn(oTable);
+      if (updatedTable.iPlayerId === this.iPlayerId) {
+        this.passTurn(updatedTable);
+      } else {
+        const playerTurn = await oTable?.getPlayer(updatedTable?.toJSON().iPlayerTurn);
+        playerTurn?.passTurn(updatedTable);
+      }
     }
   }
 
