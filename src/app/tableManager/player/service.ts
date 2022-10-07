@@ -397,6 +397,7 @@ class Service {
     };
     log.verbose(`resGameState --> ${_.stringify(oData)}`);
     await this.emit('resGameState', oData);
+    if (oData.oTurnInfo.ttl === null) this.passTurn(oTable);
   }
 
   // eslint-disable-next-line consistent-return
