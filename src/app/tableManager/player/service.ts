@@ -316,7 +316,7 @@ class Service {
       this.emit('resPlayerLeft', { iPlayerId: this.iPlayerId });
     }
     // log.info(`oTable in reconnect --> ${_.stringify(oTable)}`);
-    _.delay(1200);
+    // _.delay(1200);
     await this.getGameState(oTable);
     log.debug(`${_.now()} client: ${this.iPlayerId} reconnected to table : ${this.iBattleId} with socketId : ${sSocketId}`);
     return true;
@@ -363,9 +363,8 @@ class Service {
       .map(card => card.iCardId);
   }
 
-  public async getGameState(oTableData: Table) {
+  public async getGameState(oTable: Table) {
     // const iUserTurn = oTable?.toJSON().iPlayerTurn || oTable.toJSON().aPlayerId.length === 2 ? this.iPlayerId : '';
-    const oTable: any = await TableManager.getTable(this.iBattleId);
     const iUserTurn: any = oTable?.toJSON().iPlayerTurn;
     log.verbose('getGameState called...');
     log.verbose(`iUserTurn is --> ${iUserTurn}`);
@@ -401,7 +400,8 @@ class Service {
     log.verbose(`resGameState --> ${_.stringify(oData)}`);
     await this.emit('resGameState', oData);
     if (oData.oTurnInfo.ttl === null) {
-      const playerTurn = await oTable?.getPlayer(iUserTurn);
+      const updatedTable: any = await TableManager.getTable(this.iBattleId);
+      const playerTurn = await oTable?.getPlayer(updatedTable?.toJSON().iPlayerTurn);
       playerTurn?.passTurn(oTable);
     }
   }
