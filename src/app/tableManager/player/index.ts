@@ -43,6 +43,7 @@ class Player extends Service {
       return (log.error(`no card found for iCardId: ${oData.iCardId}`) && null) ?? false;
     }
     callback({ oData: { nHandScore: await this.handCardCounts(this.aHand) }, status: response.SUCCESS });
+    await oTable.update({ iPlayerTurn: '' });
     const aPromises = [];
 
     let iSkipPlayer;
@@ -89,7 +90,7 @@ class Player extends Service {
       );
     }
 
-    aPromises.push(oTable.update({ iPlayerTurn: '' }));
+    // aPromises.push(oTable.update({ iPlayerTurn: '' })); // Already set
     aPromises.push(oTable.addToDiscardPile(oCardToDiscard));
 
     const nRemainingGraceTime = await oTable.getTTL('assignGraceTimerExpired', this.iPlayerId); // - in ms

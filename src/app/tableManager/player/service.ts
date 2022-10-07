@@ -1,6 +1,8 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-unused-vars */
+// eslint-disable-next-line import/no-cycle
+import TableManager from '..';
 import { ICard, IPlayer, ITable, RedisJSON } from '../../../types/global';
 import type Table from '../table';
 
@@ -361,9 +363,10 @@ class Service {
       .map(card => card.iCardId);
   }
 
-  public async getGameState(oTable: Table) {
+  public async getGameState(oTableData: Table) {
     // const iUserTurn = oTable?.toJSON().iPlayerTurn || oTable.toJSON().aPlayerId.length === 2 ? this.iPlayerId : '';
-    const iUserTurn = oTable?.toJSON().iPlayerTurn;
+    const oTable: any = await TableManager.getTable(this.iBattleId);
+    const iUserTurn: any = oTable?.toJSON().iPlayerTurn;
     log.verbose('getGameState called...');
     log.verbose(`iUserTurn is --> ${iUserTurn}`);
     const nRemainingGraceTime = await oTable?.getTTL('assignGraceTimerExpired', iUserTurn); // - in ms
@@ -398,7 +401,7 @@ class Service {
     log.verbose(`resGameState --> ${_.stringify(oData)}`);
     await this.emit('resGameState', oData);
     if (oData.oTurnInfo.ttl === null) {
-      const playerTurn = await oTable.getPlayer(iUserTurn);
+      const playerTurn = await oTable?.getPlayer(iUserTurn);
       playerTurn?.passTurn(oTable);
     }
   }
