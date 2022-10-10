@@ -368,11 +368,18 @@ class Service {
     const iUserTurn: any = oTable?.toJSON().iPlayerTurn;
     log.verbose('getGameState called...');
     log.verbose(`iUserTurn is --> ${iUserTurn}`);
-    const nRemainingGraceTime = await oTable?.getTTL('assignGraceTimerExpired', iUserTurn); // - in ms
+    let nRemainingGraceTime = await oTable?.getTTL('assignGraceTimerExpired', iUserTurn); // - in ms
     log.verbose(`nRemainingGraceTime --> ${nRemainingGraceTime}`);
     // const ttl = nRemainingGraceTime || (await oTable?.getTTL('assignTurnTimerExpired', iUserTurn));
-    const ttl = nRemainingGraceTime || (await oTable?.getTTL('assignTurnTimerExpired', iUserTurn));
+    let ttl = nRemainingGraceTime || (await oTable?.getTTL('assignTurnTimerExpired', iUserTurn));
     log.verbose(`ttl --> ${ttl}`);
+    if (ttl === null) {
+      _.delay(2000);
+      nRemainingGraceTime = await oTable?.getTTL('assignGraceTimerExpired', iUserTurn); // - in ms
+      log.verbose(`timer after delay --> ${nRemainingGraceTime} for user ${iUserTurn}`);
+      ttl = nRemainingGraceTime || (await oTable?.getTTL('assignTurnTimerExpired', iUserTurn));
+      log.verbose(`ttl after delay --> ${ttl} for user ${iUserTurn}`);
+    }
     const nRemainingMasterTime = await oTable?.getTTL('masterTimerExpired');
     const aPlayer = oTable?.toJSON().aPlayer.map((p: any) => ({
       iPlayerId: p.iPlayerId,
@@ -399,17 +406,17 @@ class Service {
     };
     log.verbose(`resGameState --> ${_.stringify(oData)}`);
     await this.emit('resGameState', oData);
-    if (oData.oTurnInfo.ttl === null) {
-      // const updatedTable: any = await TableManager.getTable(this.iBattleId);
-      if (oTable.toJSON().iPlayerTurn === this.iPlayerId) {
-        log.verbose(`comes in if for pass turn`);
-        const playerTurn = await oTable?.getPlayer(oTable?.toJSON().iPlayerTurn);
-        playerTurn?.passTurn(oTable);
-      } else {
-        log.verbose(`comes in else for pass turn`);
-        this.passTurn(oTable);
-      }
-    }
+    // if (oData.oTurnInfo.ttl === null) {
+    //   // const updatedTable: any = await TableManager.getTable(this.iBattleId);
+    //   // if (oTable.toJSON().iPlayerTurn === this.iPlayerId) {
+    //   //   log.verbose(`comes in if for pass turn`);
+    //   //   const playerTurn = await oTable?.getPlayer(oTable?.toJSON().iPlayerTurn);
+    //   //   playerTurn?.passTurn(oTable);
+    //   // } else {
+    //   //   log.verbose(`comes in else for pass turn`);
+    //   //   this.passTurn(oTable);
+    //   // }
+    // }
   }
 
   // eslint-disable-next-line consistent-return
@@ -647,10 +654,6 @@ class Service {
     log.debug(`${_.now()} playable cards for player ${this.iPlayerId}:: ${aPlayableCardId}`);
     this.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nTurnTime-500, timestamp: Date.now(), aPlayableCards: aPlayableCardId, bDrawPileEmpty:oTable.toJSON().aDrawPile.length===0 });
     oTable.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nTurnTime-500, timestamp: Date.now(), aPlayableCards: [],bDrawPileEmpty:oTable.toJSON().aDrawPile.length===0 }, [this.iPlayerId]);
-    // delete old turn timer
-    log.verbose(`removing old timers..`)
-    await oTable.deleteScheduler(`assignTurnTimerExpired`); 
-    await oTable.deleteScheduler(`assignGraceTimerExpired`); 
     oTable.setSchedular('assignTurnTimerExpired', this.iPlayerId, oTable.toJSON().oSettings.nTurnTime);
     return true
   }
