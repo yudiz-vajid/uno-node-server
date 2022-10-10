@@ -368,11 +368,11 @@ class Service {
     const iUserTurn: any = oTable?.toJSON().iPlayerTurn;
     log.verbose('getGameState called...');
     log.verbose(`iUserTurn is --> ${iUserTurn}`);
-    const nRemainingGraceTime = await oTable?.getTTL('assignGraceTimerExpired', iUserTurn); // - in ms
-    log.verbose(`nRemainingGraceTime --> ${nRemainingGraceTime}`);
+    const nRemainingTurnTime = await oTable?.getTTL('assignTurnTimerExpired', iUserTurn);
+    log.verbose(`nRemainingTurnTime --> ${nRemainingTurnTime}`);
     // const ttl = nRemainingGraceTime || (await oTable?.getTTL('assignTurnTimerExpired', iUserTurn));
-    let ttl = nRemainingGraceTime;
-    if (!ttl || ttl === null) ttl = await oTable?.getTTL('assignTurnTimerExpired', iUserTurn);
+    let ttl = nRemainingTurnTime;
+    if (!ttl || ttl === null) ttl = await oTable?.getTTL('assignGraceTimerExpired', iUserTurn); // - in ms
     // || (await oTable?.getTTL('assignTurnTimerExpired', iUserTurn));
     log.verbose(`ttl --> ${ttl}`);
     if (ttl === null) ttl = oTable.toJSON().oSettings.nTurnTime;
@@ -395,8 +395,8 @@ class Service {
       oTurnInfo: {
         iUserTurn,
         ttl,
-        nTotalTurnTime: nRemainingGraceTime ? oTable?.toJSON().oSettings.nGraceTime : oTable?.toJSON().oSettings.nTurnTime,
-        bIsGraceTimer: !!nRemainingGraceTime,
+        nTotalTurnTime: nRemainingTurnTime ? oTable?.toJSON().oSettings.nGraceTime : oTable?.toJSON().oSettings.nTurnTime,
+        bIsGraceTimer: !nRemainingTurnTime,
         aPlayableCards: iUserTurn === this.iPlayerId ? await this.getPlayableCardIds(oTable?.getDiscardPileTopCard(), oTable?.toJSON().eNextCardColor) : [],
       },
     };

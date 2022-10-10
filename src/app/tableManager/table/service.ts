@@ -413,6 +413,7 @@ class Service {
       const player = await this.getPlayer(aPlayer[index].iPlayerId);
       await player?.sendGameEndData(this.toJSON(), oPlayer);
     }
+    log.verbose(`scoreArray for finishBattle --> ${_.stringify(scoreArray)}`);
     const rpcTableScore = await rpc.finishBattleWithScores(this.iGameId, scoreArray);
     log.verbose(`rpcTableScore --> ${_.stringify(rpcTableScore)}`);
     this.emit('resGameOver', { aPlayer: sortedPlayer, oWinner: oPlayer, eReason });
