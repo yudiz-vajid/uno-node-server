@@ -647,6 +647,10 @@ class Service {
     log.debug(`${_.now()} playable cards for player ${this.iPlayerId}:: ${aPlayableCardId}`);
     this.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nTurnTime-500, timestamp: Date.now(), aPlayableCards: aPlayableCardId, bDrawPileEmpty:oTable.toJSON().aDrawPile.length===0 });
     oTable.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nTurnTime-500, timestamp: Date.now(), aPlayableCards: [],bDrawPileEmpty:oTable.toJSON().aDrawPile.length===0 }, [this.iPlayerId]);
+    // delete old turn timer
+    log.verbose(`removing old timers..`)
+    await oTable.deleteScheduler(`assignTurnTimerExpired`); 
+    await oTable.deleteScheduler(`assignGraceTimerExpired`); 
     oTable.setSchedular('assignTurnTimerExpired', this.iPlayerId, oTable.toJSON().oSettings.nTurnTime);
     return true
   }
