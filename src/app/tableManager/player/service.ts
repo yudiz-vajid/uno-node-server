@@ -402,17 +402,6 @@ class Service {
     };
     log.verbose(`resGameState --> ${_.stringify(oData)}`);
     await this.emit('resGameState', oData);
-    // if (oData.oTurnInfo.ttl === null) {
-    //   // const updatedTable: any = await TableManager.getTable(this.iBattleId);
-    //   // if (oTable.toJSON().iPlayerTurn === this.iPlayerId) {
-    //   //   log.verbose(`comes in if for pass turn`);
-    //   //   const playerTurn = await oTable?.getPlayer(oTable?.toJSON().iPlayerTurn);
-    //   //   playerTurn?.passTurn(oTable);
-    //   // } else {
-    //   //   log.verbose(`comes in else for pass turn`);
-    //   //   this.passTurn(oTable);
-    //   // }
-    // }
   }
 
   // eslint-disable-next-line consistent-return
