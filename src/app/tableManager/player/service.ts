@@ -368,18 +368,13 @@ class Service {
     const iUserTurn: any = oTable?.toJSON().iPlayerTurn;
     log.verbose('getGameState called...');
     log.verbose(`iUserTurn is --> ${iUserTurn}`);
-    let nRemainingGraceTime = await oTable?.getTTL('assignGraceTimerExpired', iUserTurn); // - in ms
+    const nRemainingGraceTime = await oTable?.getTTL('assignGraceTimerExpired', iUserTurn); // - in ms
     log.verbose(`nRemainingGraceTime --> ${nRemainingGraceTime}`);
     // const ttl = nRemainingGraceTime || (await oTable?.getTTL('assignTurnTimerExpired', iUserTurn));
-    let ttl = nRemainingGraceTime || (await oTable?.getTTL('assignTurnTimerExpired', iUserTurn));
+    let ttl = nRemainingGraceTime;
+    if (!ttl || ttl === null) ttl = await oTable?.getTTL('assignTurnTimerExpired', iUserTurn);
+    // || (await oTable?.getTTL('assignTurnTimerExpired', iUserTurn));
     log.verbose(`ttl --> ${ttl}`);
-    if (ttl === null) {
-      _.delay(2000);
-      nRemainingGraceTime = await oTable?.getTTL('assignGraceTimerExpired', iUserTurn); // - in ms
-      log.verbose(`timer after delay --> ${nRemainingGraceTime} for user ${iUserTurn}`);
-      ttl = nRemainingGraceTime || (await oTable?.getTTL('assignTurnTimerExpired', iUserTurn));
-      log.verbose(`ttl after delay --> ${ttl} for user ${iUserTurn}`);
-    }
     const nRemainingMasterTime = await oTable?.getTTL('masterTimerExpired');
     const aPlayer = oTable?.toJSON().aPlayer.map((p: any) => ({
       iPlayerId: p.iPlayerId,
