@@ -375,6 +375,7 @@ class Service {
     if (!ttl || ttl === null) ttl = await oTable?.getTTL('assignTurnTimerExpired', iUserTurn);
     // || (await oTable?.getTTL('assignTurnTimerExpired', iUserTurn));
     log.verbose(`ttl --> ${ttl}`);
+    if (ttl === null) ttl = oTable.toJSON().oSettings.nTurnTime;
     const nRemainingMasterTime = await oTable?.getTTL('masterTimerExpired');
     const aPlayer = oTable?.toJSON().aPlayer.map((p: any) => ({
       iPlayerId: p.iPlayerId,
