@@ -364,20 +364,16 @@ class Service {
   }
 
   public async getGameState(oTable: Table) {
-    // const iUserTurn = oTable?.toJSON().iPlayerTurn || oTable.toJSON().aPlayerId.length === 2 ? this.iPlayerId : '';
     const iUserTurn: any = oTable?.toJSON().iPlayerTurn;
     log.verbose('getGameState called...');
     log.verbose(`iUserTurn is --> ${iUserTurn}`);
-    let nRemainingTurnTime = await oTable?.getTTL('assignTurnTimerExpired', iUserTurn);
-    log.verbose(`nRemainingTurnTime --> ${nRemainingTurnTime}`);
-    // const ttl = nRemainingGraceTime || (await oTable?.getTTL('assignTurnTimerExpired', iUserTurn));
-    let ttl = nRemainingTurnTime;
-    if (!ttl || ttl === null) ttl = await oTable?.getTTL('assignGraceTimerExpired', iUserTurn); // - in ms
-    // || (await oTable?.getTTL('assignTurnTimerExpired', iUserTurn));
+    let nRemainingGraceTime = await oTable?.getTTL('assignTurnTimerExpired', iUserTurn);
+    log.verbose(`nRemainingGraceTime --> ${nRemainingGraceTime}`);
+    let ttl = nRemainingGraceTime || (await oTable?.getTTL('assignTurnTimerExpired', iUserTurn));
     log.verbose(`ttl --> ${ttl}`);
     if (ttl === null) {
       ttl = oTable.toJSON().oSettings.nTurnTime;
-      nRemainingTurnTime = ttl;
+      nRemainingGraceTime = ttl;
     }
     const nRemainingMasterTime = await oTable?.getTTL('masterTimerExpired');
     const aPlayer = oTable?.toJSON().aPlayer.map((p: any) => ({
@@ -398,8 +394,8 @@ class Service {
       oTurnInfo: {
         iUserTurn,
         ttl,
-        nTotalTurnTime: nRemainingTurnTime ? oTable?.toJSON().oSettings.nGraceTime : oTable?.toJSON().oSettings.nTurnTime,
-        bIsGraceTimer: !nRemainingTurnTime,
+        nTotalTurnTime: nRemainingGraceTime ? oTable?.toJSON().oSettings.nGraceTime : oTable?.toJSON().oSettings.nTurnTime,
+        bIsGraceTimer: !!nRemainingGraceTime,
         aPlayableCards: iUserTurn === this.iPlayerId ? await this.getPlayableCardIds(oTable?.getDiscardPileTopCard(), oTable?.toJSON().eNextCardColor) : [],
       },
     };
@@ -409,7 +405,6 @@ class Service {
 
   // eslint-disable-next-line consistent-return
   public async getStackingCardIds(oDiscardPileTopCard: ICard) {
-    // if (oDiscardPileTopCard.nLabel === 12) return this.aHand.filter(card => card.nLabel === 12&&oDiscardPileTopCard.eColor=== card.eColor).map(card => card.iCardId);
     if (oDiscardPileTopCard.nLabel === 12) return this.aHand.filter(card => card.nLabel === 12).map(card => card.iCardId);
     if (oDiscardPileTopCard.nLabel === 14) return this.aHand.filter(card => card.nLabel === 14).map(card => card.iCardId);
   }
