@@ -367,7 +367,7 @@ class Service {
     const iUserTurn: any = oTable?.toJSON().iPlayerTurn;
     log.verbose('getGameState called...');
     log.verbose(`iUserTurn is --> ${iUserTurn}`);
-    let nRemainingGraceTime = await oTable?.getTTL('assignTurnTimerExpired', iUserTurn);
+    let nRemainingGraceTime = await oTable?.getTTL('assignGraceTimerExpired', iUserTurn);
     log.verbose(`nRemainingGraceTime --> ${nRemainingGraceTime}`);
     let ttl = nRemainingGraceTime || (await oTable?.getTTL('assignTurnTimerExpired', iUserTurn));
     log.verbose(`ttl --> ${ttl}`);
