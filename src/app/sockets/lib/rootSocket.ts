@@ -60,12 +60,19 @@ class RootSocket {
         socket.data.nTablePlayer = nTablePlayer;
       }
       // /* AUTH-SERVICE for path finder*/
-      log.verbose(`Authenticatin path finder... sAuthToken -->${sAuthToken}`);
+      // log.verbose(`Authenticatin path finder... sAuthToken -->${sAuthToken}`);
       const authClient = await PathFinder.getInstance().getClient({ serviceName: 'service-auth', serviceNameInProto: 'AuthService' });
-      console.log('req authenticate', authClient);
+      console.log('req authenticate ...');
       const resAuth = await authClient.authenticate().sendMessage({ requestId: '1', authToken: sAuthToken });
-      console.log('res authenticate ', resAuth);
+      console.log('res authenticate ');
+      if (!resAuth.isAuthentic) {
+        // need to disconnect socket
+        next('PathFinder authentication fail.');
+        socket.disconnect();
+        return false;
+      }
 
+      log.debug('player is PF authenticated');
       let bIsValid = false;
       log.debug('4.1. Authenticating player');
       if (process.env.NODE_ENV !== 'dev') {
