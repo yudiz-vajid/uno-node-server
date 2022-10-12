@@ -7,15 +7,6 @@ import { verifyAuthHeader, verifySettings } from '../../validator';
 import { ICallback } from '../../../types/global';
 // eslint-disable-next-line no-unused-vars
 import rpc from '../../../pathFinder/service/rpc';
-import protos from '../../../pathFinder/protos';
-
-const loadOpts = {
-  keepCase: true,
-  longs: String,
-  enums: String,
-  defaults: true,
-  oneofs: true,
-};
 
 class RootSocket {
   async initialize() {
@@ -69,13 +60,11 @@ class RootSocket {
         socket.data.nTablePlayer = nTablePlayer;
       }
       // /* AUTH-SERVICE for path finder*/
-      PathFinder.initialize({ appName: 'service-uno', protosToLoad: protos, loadOpts, promisify: true });
-      log.info('PathFinder initialize seq completed.');
-      log.verbose(`Authenticatin path finder... sAuthToken -->${sAuthToken}`);
-      const authClient = await PathFinder.getInstance().getClient({ serviceName: 'service-auth', serviceNameInProto: sAuthToken });
-      console.log('req authenticate');
-      const resAuth = await authClient.authenticate().sendMessage({ requestId: '1', authToken: 'admin' });
-      console.log('res authenticate ', resAuth);
+      // log.verbose(`Authenticatin path finder... sAuthToken -->${sAuthToken}`);
+      // const authClient = await PathFinder.getInstance().getClient({ serviceName: 'service-auth', serviceNameInProto: sAuthToken });
+      // console.log('req authenticate');
+      // const resAuth = await authClient.authenticate().sendMessage({ requestId: '1', authToken: 'admin' });
+      // console.log('res authenticate ', resAuth);
 
       let bIsValid = false;
       log.debug('4.1. Authenticating player');
