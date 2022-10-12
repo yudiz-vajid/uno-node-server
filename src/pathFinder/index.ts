@@ -60,8 +60,8 @@ export async function initializePathFinder() {
     setUpEnvs();
     if (process.env.NODE_ENV === 'dev') return true;
 
-    PathFinder.initialize({ appName: 'service-uno', protosToLoad: protos, loadOpts, promisify: true });
-    log.info('PathFinder initialize seq completed.');
+    // PathFinder.initialize({ appName: 'service-uno', protosToLoad: protos, loadOpts, promisify: true });
+    // log.info('PathFinder initialize seq completed.');
 
     /*
     log.info('gRPC initialize seq started ... ');
