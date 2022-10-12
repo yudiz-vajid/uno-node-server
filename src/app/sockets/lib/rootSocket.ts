@@ -61,9 +61,9 @@ class RootSocket {
       }
       // /* AUTH-SERVICE for path finder*/
       log.verbose(`Authenticatin path finder... sAuthToken -->${sAuthToken}`);
-      const authClient = await PathFinder.getInstance().getClient({ serviceName: 'service-auth', serviceNameInProto: sAuthToken });
+      const authClient = await PathFinder.getInstance().getClient({ serviceName: 'service-auth', serviceNameInProto: 'AuthService' });
       console.log('req authenticate', authClient);
-      const resAuth = await authClient.authenticate().sendMessage({ requestId: '1', authToken: 'admin' });
+      const resAuth = await authClient.authenticate().sendMessage({ requestId: '1', authToken: sAuthToken });
       console.log('res authenticate ', resAuth);
 
       let bIsValid = false;
