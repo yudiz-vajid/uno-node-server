@@ -7,7 +7,7 @@ import { verifyAuthHeader, verifySettings } from '../../validator';
 import { ICallback } from '../../../types/global';
 // eslint-disable-next-line no-unused-vars
 import rpc from '../../../pathFinder/service/rpc';
-import protos from './protos';
+import protos from '../../../pathFinder/protos';
 
 const loadOpts = {
   keepCase: true,
