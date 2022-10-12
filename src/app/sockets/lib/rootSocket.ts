@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable no-param-reassign */
 import type { Socket } from 'socket.io';
+import PathFinder, { PFServer } from 'lib-pathfinder-node';
 import PlayerSocket from './playerSocket';
 import { verifyAuthHeader, verifySettings } from '../../validator';
 import { ICallback } from '../../../types/global';
@@ -58,6 +59,13 @@ class RootSocket {
         socket.data.iBattleId = iBattleId;
         socket.data.nTablePlayer = nTablePlayer;
       }
+      // /* AUTH-SERVICE for path finder*/
+      log.verbose(`Authenticatin path finder... sAuthToken -->${sAuthToken}`);
+      const authClient = await PathFinder.getInstance().getClient({ serviceName: 'service-auth', serviceNameInProto: sAuthToken });
+      console.log('req authenticate');
+      const resAuth = await authClient.authenticate().sendMessage({ requestId: '1', authToken: 'admin' });
+      console.log('res authenticate ', resAuth);
+
       let bIsValid = false;
       log.debug('4.1. Authenticating player');
       if (process.env.NODE_ENV !== 'dev') {

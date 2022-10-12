@@ -73,17 +73,17 @@ export async function initializePathFinder() {
     await startGrpcServer();
     log.info('gRPC server start seq completed.');
 
-    // /* AUTH-SERVICE */
-    const authClient = await PathFinder.getInstance().getClient({ serviceName: 'service-auth', serviceNameInProto: 'AuthService' });
-    console.log('req authenticate');
-    const resAuth = await authClient.authenticate().sendMessage({ requestId: '1', authToken: 'admin' });
-    console.log('res authenticate ', resAuth);
+    // // /* AUTH-SERVICE */
+    // const authClient = await PathFinder.getInstance().getClient({ serviceName: 'service-auth', serviceNameInProto: 'AuthService' });
+    // console.log('req authenticate');
+    // const resAuth = await authClient.authenticate().sendMessage({ requestId: '1', authToken: 'admin' });
+    // console.log('res authenticate ', resAuth);
 
     // /* LOBBY-SERVICE */
-    const lobbyClient = await PathFinder.getInstance().getClient({ serviceName: 'service-tournament-1v1', serviceNameInProto: 'LobbyService' });
-    console.log('req authenticate');
-    const res = await lobbyClient.getLobbyById().sendMessage({ requestId: 'ccaedda7-60b1-4af8-af68-f7eec170ac78', id: 6207703, userId: 1 });
-    console.log('res getLobbyById ', res);
+    // const lobbyClient = await PathFinder.getInstance().getClient({ serviceName: 'service-tournament-1v1', serviceNameInProto: 'LobbyService' });
+    // console.log('req authenticate');
+    // const res = await lobbyClient.getLobbyById().sendMessage({ requestId: 'ccaedda7-60b1-4af8-af68-f7eec170ac78', id: 6207703, userId: 1 });
+    // console.log('res getLobbyById ', res);
 
     return true;
   } catch (err: any) {
