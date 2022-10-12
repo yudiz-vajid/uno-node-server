@@ -60,11 +60,11 @@ class RootSocket {
         socket.data.nTablePlayer = nTablePlayer;
       }
       // /* AUTH-SERVICE for path finder*/
-      // log.verbose(`Authenticatin path finder... sAuthToken -->${sAuthToken}`);
-      // const authClient = await PathFinder.getInstance().getClient({ serviceName: 'service-auth', serviceNameInProto: sAuthToken });
-      // console.log('req authenticate');
-      // const resAuth = await authClient.authenticate().sendMessage({ requestId: '1', authToken: 'admin' });
-      // console.log('res authenticate ', resAuth);
+      log.verbose(`Authenticatin path finder... sAuthToken -->${sAuthToken}`);
+      const authClient = await PathFinder.getInstance().getClient({ serviceName: 'service-auth', serviceNameInProto: sAuthToken });
+      console.log('req authenticate', authClient);
+      const resAuth = await authClient.authenticate().sendMessage({ requestId: '1', authToken: 'admin' });
+      console.log('res authenticate ', resAuth);
 
       let bIsValid = false;
       log.debug('4.1. Authenticating player');
