@@ -429,9 +429,9 @@ class Service {
       }
     }
     const payload = {
-      players: rpcTableScore.playersData,
+      players: rpcTableScore ? rpcTableScore.playersData : [],
       battleAgainDisabled: false,
-      battleStatus: rpcTableScore.battleStatus,
+      battleStatus: rpcTableScore ? rpcTableScore.battleStatus : '',
     };
     await _.delay(500); // For last card stuck issue.
     log.verbose(`payload for resMplFinishBattle --> ${_.stringify(payload)}`);

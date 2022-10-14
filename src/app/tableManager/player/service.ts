@@ -308,7 +308,9 @@ class Service {
     log.verbose(`this.eState in reconnect --> ${this.eState}`);
     await this.update({ sSocketId, eState: stateMapper[oTable.toJSON().eState] as IPlayer['eState'] });
     if (this.bIsCardTaken) {
+      log.verbose(`bIsCardTaken by user and reconnect...`);
       await this.getGameState(oTable);
+      log.verbose(`getGameState shared and now passing turn...`);
       return this.passTurn(oTable);
     }
     if (playerOldState === 'left') {
