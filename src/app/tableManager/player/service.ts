@@ -396,7 +396,7 @@ class Service {
       aHand: this.aHand,
       nDrawNormal: this.nDrawNormal,
       nScore: await this.handCardCounts(this.aHand),
-      nRemainingMasterTime: nRemainingMasterTime || oTable.toJSON().oSettings.nTotalGameTime,
+      nRemainingMasterTime: nRemainingMasterTime || (oTable?.toJSON().eState !== 'finished' ? oTable.toJSON().oSettings.nTotalGameTime : 0),
       oTurnInfo: {
         iUserTurn,
         ttl,
