@@ -165,7 +165,7 @@ class PlayerSocket {
       if (!player) return;
 
       if (player.eState !== 'left') await player.update({ eState: 'disconnected' });
-      table?.emit('playerDisconnected', { iPlayerId: this.iPlayerId });
+      // table?.emit('playerDisconnected', { iPlayerId: this.iPlayerId }); // TODO :- Need to uncomment once build is updated from unity.
     } catch (err: any) {
       log.debug(`${_.now()} client: '${this.iPlayerId}' disconnect event failed. reason: ${err.message}`);
     }
