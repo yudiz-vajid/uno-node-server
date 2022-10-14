@@ -367,6 +367,7 @@ class Service {
 
   public async getGameState(oTable: Table) {
     const iUserTurn: any = oTable?.toJSON().iPlayerTurn;
+    if (!iUserTurn) await _.delay(1500); // for scheduling time.
     log.verbose('getGameState called...');
     log.verbose(`iUserTurn is --> ${iUserTurn}`);
     const nRemainingGraceTime = await oTable?.getTTL('assignGraceTimerExpired', iUserTurn);
