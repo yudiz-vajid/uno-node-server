@@ -37,12 +37,13 @@ class Table extends Service {
       //
     ]);
 
+    this.assignRandomTurn(); // assign turn to random player
     await _.delay(this.aPlayerId.length * 250 * (1 + this.oSettings.nStartingNormalCardCount + this.oSettings.nStartingSpecialCardCount));
     this.emit('resDiscardPileTopCard', { oDiscardPileTopCard: this.getDiscardPileTopCard() });
     this.emit('resInitMasterTimer', { ttl: this.oSettings.nTotalGameTime, timestamp: Date.now() });
     this.setSchedular('masterTimerExpired', '', this.oSettings.nTotalGameTime); // -  game lifetime second
     this.setSchedular('masterTimerWillExpire', '', this.oSettings.nTotalGameTime - this.oSettings.nFastTimerAt); // -  game last time (60-10)
-    this.assignRandomTurn(); // assign turn to random player
+    // this.assignRandomTurn(); // assign turn to random player // commented here to handle reconnection issue
     return true;
   }
 
@@ -92,6 +93,8 @@ class Table extends Service {
    */
   public async assignRandomTurn() {
     const oRandomPlayer = _.randomizeArray(this.aPlayer)[0];
+    await this.update({ iPlayerTurn: oRandomPlayer.iPlayerId, dTurnAssignedAt: new Date() });
+    await _.delay(this.aPlayerId.length * 250 * (1 + this.oSettings.nStartingNormalCardCount + this.oSettings.nStartingSpecialCardCount));
     log.verbose(`this.aPlayer --> ${this.aPlayer}`);
     log.verbose(`oRandomPlayer --> ${oRandomPlayer}`);
     oRandomPlayer.takeTurn(this);
