@@ -42,6 +42,7 @@ class Table extends Service {
     this.emit('resInitMasterTimer', { ttl: this.oSettings.nTotalGameTime, timestamp: Date.now() });
     this.setSchedular('masterTimerExpired', '', this.oSettings.nTotalGameTime); // -  game lifetime second
     this.setSchedular('masterTimerWillExpire', '', this.oSettings.nTotalGameTime - this.oSettings.nFastTimerAt); // -  game last time (60-10)
+    _.delay(1200);
     this.assignRandomTurn(); // assign turn to random player
     return true;
   }
