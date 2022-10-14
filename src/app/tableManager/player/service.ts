@@ -366,8 +366,14 @@ class Service {
   }
 
   public async getGameState(oTable: Table) {
-    const iUserTurn: any = oTable?.toJSON().iPlayerTurn;
-    if (!iUserTurn) await _.delay(1500); // for scheduling time.
+    let iUserTurn: any = oTable?.toJSON().iPlayerTurn;
+    if (!iUserTurn) {
+      // await _.delay(1500); // for scheduling time.
+      log.verbose(`table player not found...`);
+      const updatedTable = await TableManager.getTable(this.iBattleId);
+      log.verbose(`updatedTable player turn is ...${updatedTable?.toJSON().iPlayerTurn}`);
+      iUserTurn = updatedTable?.toJSON().iPlayerTurn;
+    }
     log.verbose('getGameState called...');
     log.verbose(`iUserTurn is --> ${iUserTurn}`);
     const nRemainingGraceTime = await oTable?.getTTL('assignGraceTimerExpired', iUserTurn);
