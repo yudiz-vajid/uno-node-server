@@ -370,6 +370,7 @@ class Service {
     if (!iUserTurn) {
       // await _.delay(1500); // for scheduling time.
       log.verbose(`table player not found...`);
+      _.delay(2500);
       const updatedTable = await TableManager.getTable(this.iBattleId);
       log.verbose(`updatedTable player turn is ...${updatedTable?.toJSON().iPlayerTurn}`);
       iUserTurn = updatedTable?.toJSON().iPlayerTurn;
