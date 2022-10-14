@@ -92,6 +92,7 @@ class Table extends Service {
    */
   public async assignRandomTurn() {
     const oRandomPlayer = _.randomizeArray(this.aPlayer)[0];
+    await this.update({ iPlayerTurn: oRandomPlayer.iPlayerId });
     log.verbose(`this.aPlayer --> ${this.aPlayer}`);
     log.verbose(`oRandomPlayer --> ${oRandomPlayer}`);
     oRandomPlayer.takeTurn(this);
