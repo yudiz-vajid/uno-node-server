@@ -327,7 +327,7 @@ class Service {
   public async emit(sEventName: string, oData: Record<string, unknown> = {}) {
     if (sEventName === 'resTurnTimer') {
       log.verbose(`emit called for ${sEventName}`);
-      log.verbose(`emit called for socket ID ${this.sSocketId}`);
+      log.verbose(`emit called for PlayerId-socket ID ${this.iPlayerId} -- ${this.sSocketId}`);
     }
     const updatedTable = await TableManager.getTable(this.iBattleId);
     const updatedPlayer = await updatedTable?.getPlayer(this.iPlayerId);
@@ -671,8 +671,9 @@ class Service {
     }
     // end stacking 
 
-    const aPlayableCardId =aStackingCardId.length ? aStackingCardId : await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
-    this.emit('resTurnTimer', { bIsGraceTimer: true, iPlayerId: this.iPlayerId, ttl: this.nGraceTime-500, timestamp: Date.now(), aPlayableCards: aPlayableCardId,bDrawPileEmpty: oTable.toJSON().aDrawPile.length === 0, });
+    const aPlayableCardId = aStackingCardId.length ? aStackingCardId : await this.getPlayableCardIds(oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
+    log.verbose(`emmiting data for resTurnTimer to ${this.iPlayerId} -- ${this.sSocketId}`)
+    await this.emit('resTurnTimer', { bIsGraceTimer: true, iPlayerId: this.iPlayerId, ttl: this.nGraceTime-500, timestamp: Date.now(), aPlayableCards: aPlayableCardId,bDrawPileEmpty: oTable.toJSON().aDrawPile.length === 0, });
     oTable.emit('resTurnTimer', { bIsGraceTimer: true, iPlayerId: this.iPlayerId, ttl: this.nGraceTime-500, timestamp: Date.now(), aPlayableCards: [],bDrawPileEmpty: oTable.toJSON().aDrawPile.length === 0,  }, [this.iPlayerId]);
     oTable.setSchedular('assignGraceTimerExpired', this.iPlayerId, this.toJSON().nGraceTime);
     return true;
