@@ -325,7 +325,7 @@ class Service {
   }
 
   public async emit(sEventName: string, oData: Record<string, unknown> = {}) {
-    if (sEventName === 'resTurnTimer') {
+    if (sEventName === 'resTurnTimer' || sEventName === 'resTestEmit') {
       log.verbose(`emit called for ${sEventName}`);
       log.verbose(`emit called for PlayerId-socket ID ${this.iPlayerId} -- ${this.sSocketId}`);
     }
@@ -650,7 +650,8 @@ class Service {
     log.debug(`${_.now()} discard pile top card:: ${oTable.getDiscardPileTopCard().iCardId}`);
     log.debug(`${_.now()} playable cards for player ${this.iPlayerId}:: ${aPlayableCardId}`);
     await oTable.setSchedular('assignTurnTimerExpired', this.iPlayerId, oTable.toJSON().oSettings.nTurnTime);
-    this.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nTurnTime-500, timestamp: Date.now(), aPlayableCards: aPlayableCardId, bDrawPileEmpty:oTable.toJSON().aDrawPile.length===0 });
+    await this.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nTurnTime-500, timestamp: Date.now(), aPlayableCards: aPlayableCardId, bDrawPileEmpty:oTable.toJSON().aDrawPile.length===0 });
+    await this.emit('resTestEmit', {});
     oTable.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nTurnTime-500, timestamp: Date.now(), aPlayableCards: [],bDrawPileEmpty:oTable.toJSON().aDrawPile.length===0 }, [this.iPlayerId]);
     return true
   }
