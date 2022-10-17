@@ -325,6 +325,10 @@ class Service {
   }
 
   public async emit(sEventName: string, oData: Record<string, unknown> = {}) {
+    if (sEventName === 'resTurnTimer') {
+      log.verbose(`emit called for ${sEventName}`);
+      log.verbose(`emit called for socket ID ${this.sSocketId}`);
+    }
     if (!sEventName) return false;
     if (this.sSocketId) global.io.to(this.sSocketId).emit(this.iBattleId, _.stringify({ sTaskName: sEventName, oData })); // cb not supported while broadcasting
     if (process.env.NODE_ENV !== 'prod') global.io.to(this.sSocketId).emit('postman', { sTaskName: sEventName, oData });
