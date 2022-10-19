@@ -390,6 +390,7 @@ class Service {
     log.verbose(`ttl --> ${ttl}`);
     if (ttl === null) ttl = oTable.toJSON().oSettings.nTurnTime;
     const nRemainingMasterTime = await oTable?.getTTL('masterTimerExpired');
+    const nFastMasterTimer = await oTable?.getTTL('masterTimerWillExpire');
     const aPlayer = oTable?.toJSON().aPlayer.map((p: any) => ({
       iPlayerId: p.iPlayerId,
       sPlayerName: p.sPlayerName,
@@ -404,6 +405,8 @@ class Service {
       aHand: this.aHand,
       nDrawNormal: this.nDrawNormal,
       nScore: await this.handCardCounts(this.aHand),
+      bUnoDeclared: this.bUnoDeclared,
+      bFastTimerActive: !!nFastMasterTimer,
       nRemainingMasterTime: nRemainingMasterTime || (oTable?.toJSON().eState !== 'finished' ? oTable.toJSON().oSettings.nTotalGameTime : 0),
       oTurnInfo: {
         iUserTurn,
@@ -651,7 +654,6 @@ class Service {
     log.debug(`${_.now()} playable cards for player ${this.iPlayerId}:: ${aPlayableCardId}`);
     await oTable.setSchedular('assignTurnTimerExpired', this.iPlayerId, oTable.toJSON().oSettings.nTurnTime);
     await this.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nTurnTime-500, timestamp: Date.now(), aPlayableCards: aPlayableCardId, bDrawPileEmpty:oTable.toJSON().aDrawPile.length===0 });
-    await this.emit('resTestEmit', {});
     oTable.emit('resTurnTimer', { bIsGraceTimer: false, iPlayerId: this.iPlayerId, ttl: oTable.toJSON().oSettings.nTurnTime-500, timestamp: Date.now(), aPlayableCards: [],bDrawPileEmpty:oTable.toJSON().aDrawPile.length===0 }, [this.iPlayerId]);
     return true
   }
