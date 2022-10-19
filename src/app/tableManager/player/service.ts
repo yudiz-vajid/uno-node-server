@@ -412,7 +412,7 @@ class Service {
         iUserTurn,
         ttl,
         nTotalTurnTime: nRemainingGraceTime ? oTable?.toJSON().oSettings.nGraceTime : oTable?.toJSON().oSettings.nTurnTime,
-        bIsGraceTimer: !!nRemainingGraceTime,
+        bIsGraceTimer: !nRemainingGraceTime,
         aPlayableCards: iUserTurn === this.iPlayerId ? await this.getPlayableCardIds(oTable?.getDiscardPileTopCard(), oTable?.toJSON().eNextCardColor) : [],
       },
     };
