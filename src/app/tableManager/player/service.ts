@@ -409,7 +409,7 @@ class Service {
       nDrawNormal: this.nDrawNormal,
       nScore: await this.handCardCounts(this.aHand),
       bUnoDeclared: this.bUnoDeclared,
-      bFastTimerActive: !!nFastMasterTimer,
+      bFastTimerActive: !nFastMasterTimer,
       nRemainingMasterTime: nRemainingMasterTime || (oTable?.toJSON().eState !== 'finished' ? oTable.toJSON().oSettings.nTotalGameTime : 0),
       oTurnInfo: {
         iUserTurn,
