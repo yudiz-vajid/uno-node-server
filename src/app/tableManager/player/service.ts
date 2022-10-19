@@ -400,6 +400,9 @@ class Service {
       eState: p.eState,
       nMissedTurn: p.nMissedTurn,
     }));
+    log.verbose(`nFastMasterTimer :: ${nFastMasterTimer}`);
+    log.verbose(`!nRemainingGraceTime :: ${nRemainingGraceTime} ${!nRemainingGraceTime}`);
+    log.verbose(`!!nRemainingGraceTime :: ${nRemainingGraceTime} ${!!nRemainingGraceTime}`);
     const oData = {
       oTable: { ...oTable, aPlayer, aDrawPile: [] },
       aHand: this.aHand,
@@ -412,7 +415,7 @@ class Service {
         iUserTurn,
         ttl,
         nTotalTurnTime: nRemainingGraceTime ? oTable?.toJSON().oSettings.nGraceTime : oTable?.toJSON().oSettings.nTurnTime,
-        bIsGraceTimer: !nRemainingGraceTime,
+        bIsGraceTimer: !!nRemainingGraceTime,
         aPlayableCards: iUserTurn === this.iPlayerId ? await this.getPlayableCardIds(oTable?.getDiscardPileTopCard(), oTable?.toJSON().eNextCardColor) : [],
       },
     };
