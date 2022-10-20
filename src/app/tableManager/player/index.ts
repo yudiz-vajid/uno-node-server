@@ -343,6 +343,7 @@ class Player extends Service {
 
   public async leaveMatch(oData: any, oTable: Table, callback: ICallback) {
     log.debug(`${_.now()} event: leaveMatch, player: ${this.iPlayerId}, tableID: ${this.iBattleId}`);
+    if (oTable.toJSON().eState === 'finished') return callback({ oData: {}, status: response.SUCCESS });
     await this.update({ eState: 'left' });
     callback({ oData: {}, status: response.SUCCESS });
     oTable.emit('resPlayerLeft', { iPlayerId: this.iPlayerId });
