@@ -309,9 +309,10 @@ class Service {
     await this.update({ sSocketId, eState: stateMapper[oTable.toJSON().eState] as IPlayer['eState'] });
     if (this.bIsCardTaken && oTable.toJSON().iPlayerTurn === this.iPlayerId) {
       log.verbose(`bIsCardTaken by user and reconnect...`);
-      await this.getGameState(oTable);
-      log.verbose(`getGameState shared and now passing turn...`);
-      return this.passTurn(oTable);
+      // Flow updated for keep&play scenario
+      // await this.getGameState(oTable);
+      // log.verbose(`getGameState shared and now passing turn...`);
+      // return this.passTurn(oTable);
     }
     if (playerOldState === 'left') {
       await this.update({ eState: 'left' });
@@ -411,6 +412,8 @@ class Service {
       bUnoDeclared: this.bUnoDeclared,
       bFastTimerActive: !nFastMasterTimer,
       nRemainingMasterTime: nRemainingMasterTime || (oTable?.toJSON().eState !== 'finished' ? oTable.toJSON().oSettings.nTotalGameTime : 0),
+      bKeepCard: this.bIsCardTaken,
+      oKeepCardData: this.aHand[this.aHand.length - 1],
       oTurnInfo: {
         iUserTurn,
         ttl,
