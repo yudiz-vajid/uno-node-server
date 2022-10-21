@@ -410,7 +410,7 @@ class Service {
       nDrawNormal: this.nDrawNormal,
       nScore: await this.handCardCounts(this.aHand),
       bUnoDeclared: this.bUnoDeclared,
-      bFastTimerActive: !nFastMasterTimer,
+      bFastTimerActive: this.eState !== 'playing' ? false : !nFastMasterTimer,
       nRemainingMasterTime: nRemainingMasterTime || (oTable?.toJSON().eState !== 'finished' ? oTable.toJSON().oSettings.nTotalGameTime : 0),
       bKeepCard: this.bIsCardTaken,
       oKeepCardData: this.aHand[this.aHand.length - 1],
