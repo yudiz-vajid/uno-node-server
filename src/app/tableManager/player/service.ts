@@ -412,6 +412,7 @@ class Service {
       bUnoDeclared: this.bUnoDeclared,
       bFastTimerActive: this.eState !== 'playing' ? false : !nFastMasterTimer,
       nRemainingMasterTime: nRemainingMasterTime || (oTable?.toJSON().eState !== 'finished' ? oTable.toJSON().oSettings.nTotalGameTime : 0),
+      bIsMasterTimerAvailable: !!nRemainingMasterTime,
       bKeepCard: this.bIsCardTaken,
       oKeepCardData: this.aHand[this.aHand.length - 1],
       oTurnInfo: {
