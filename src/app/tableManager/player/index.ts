@@ -120,7 +120,7 @@ class Player extends Service {
       CardsRemaining: this.aHand.length,
       LastOne: !this.aHand.length,
     });
-    aPromises.push(this.update({ aHand: this.aHand, nGraceTime: this.nGraceTime, [usedCard]: usedCardCount + 1 }));
+    aPromises.push(this.update({ aHand: this.aHand, nGraceTime: this.nGraceTime, [usedCard]: usedCardCount + 1, bIsCardTaken: false }));
     aPromises.push(oTable.update({ aTurnInfo: oTable.toJSON().aTurnInfo }));
     await Promise.all(aPromises);
 
