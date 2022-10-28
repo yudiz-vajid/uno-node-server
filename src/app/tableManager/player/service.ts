@@ -366,8 +366,14 @@ class Service {
       }
       return this.aHand.filter(card => card.nLabel > 12 || card.nLabel === 12 || oDiscardPileTopCard.eColor === card.eColor).map(card => card.iCardId);
     }
-    if (oDiscardPileTopCard.nLabel === 14)
+    if (oDiscardPileTopCard.nLabel === 14) {
+      const oTable = await TableManager.getTable(this.iBattleId);
+      if (oTable?.toJSON().oSettings.bStackingDrawCards && oTable.toJSON().iDrawPenltyPlayerId === this.iPlayerId) {
+        const aStackingCardId = await this.getStackingCardIds(oTable.getDiscardPileTopCard());
+        return aStackingCardId?.length ? aStackingCardId : [];
+      }
       return this.aHand.filter(card => card.nLabel > 12 || card.nLabel === 14 || oDiscardPileTopCard.eColor === card.eColor).map(card => card.iCardId);
+    }
     if (oDiscardPileTopCard.nLabel === 13) return this.aHand.filter(card => card.nLabel > 12 || card.eColor === oDiscardPileTopCard.eColor).map(card => card.iCardId);
     return this.aHand
       .filter(card => oDiscardPileTopCard.eColor === card.eColor || oDiscardPileTopCard.nLabel === card.nLabel || card.nLabel === 13 || card.nLabel === 14)
