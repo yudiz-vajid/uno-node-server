@@ -642,7 +642,8 @@ class Service {
   // prettier-ignore
   public async takeTurn(oTable: Table) {
     log.debug(`take turn called for ${this.iPlayerId}`)
-    await oTable.update({ iPlayerTurn: this.iPlayerId,dTurnAssignedAt:new Date() });
+    await oTable.update({ iPlayerTurn: this.iPlayerId, dTurnAssignedAt: new Date() });
+    await this.update({bIsCardTaken:false})
     // oTable.setSchedular('assignTurnTimerExpired', this.iPlayerId, oTable.toJSON().oSettings.nTurnTime+600); // for reconnection issue
     await _.delay(600)
     let aStackingCardId:any=[]
