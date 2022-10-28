@@ -373,7 +373,8 @@ class Service {
       .map(card => card.iCardId);
   }
 
-  public async getGameState(oTable: Table) {
+  public async getGameState(oPreviousTable: Table) {
+    const oTable = await TableManager.getTable(oPreviousTable.toJSON().iBattleId); // Updated table.
     let iUserTurn: any = oTable?.toJSON().iPlayerTurn;
     if (!iUserTurn) {
       // await _.delay(1500); // for scheduling time.
@@ -388,7 +389,7 @@ class Service {
     log.verbose(`nRemainingGraceTime --> ${nRemainingGraceTime}`);
     let ttl = nRemainingGraceTime || (await oTable?.getTTL('assignTurnTimerExpired', iUserTurn));
     log.verbose(`ttl --> ${ttl}`);
-    if (ttl === null) ttl = oTable.toJSON().oSettings.nTurnTime;
+    if (ttl === null) ttl = oTable?.toJSON().oSettings.nTurnTime;
     const nRemainingMasterTime = await oTable?.getTTL('masterTimerExpired');
     const nFastMasterTimer = !nRemainingMasterTime ? 1 : await oTable?.getTTL('masterTimerWillExpire');
     const aPlayer = oTable?.toJSON().aPlayer.map((p: any) => ({
@@ -411,7 +412,7 @@ class Service {
       nScore: await this.handCardCounts(this.aHand),
       bUnoDeclared: this.bUnoDeclared,
       bFastTimerActive: this.eState !== 'playing' ? false : !nFastMasterTimer,
-      nRemainingMasterTime: nRemainingMasterTime || (oTable?.toJSON().eState !== 'finished' ? oTable.toJSON().oSettings.nTotalGameTime : 0),
+      nRemainingMasterTime: nRemainingMasterTime || (oTable?.toJSON().eState !== 'finished' ? oTable?.toJSON().oSettings.nTotalGameTime : 0),
       bIsMasterTimerAvailable: !!nRemainingMasterTime,
       bKeepCard: this.bIsCardTaken,
       oKeepCardData: this.aHand[this.aHand.length - 1],
