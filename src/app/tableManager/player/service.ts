@@ -400,9 +400,10 @@ class Service {
       eState: p.eState,
       nMissedTurn: p.nMissedTurn,
     }));
-    log.verbose(`nFastMasterTimer :: ${nFastMasterTimer}`);
-    log.verbose(`!nRemainingGraceTime :: ${nRemainingGraceTime} ${!nRemainingGraceTime}`);
-    log.verbose(`!!nRemainingGraceTime :: ${nRemainingGraceTime} ${!!nRemainingGraceTime}`);
+    // log.verbose(`nFastMasterTimer :: ${nFastMasterTimer}`);
+    // log.verbose(`!nRemainingGraceTime :: ${nRemainingGraceTime} ${!nRemainingGraceTime}`);
+    // log.verbose(`!!nRemainingGraceTime :: ${nRemainingGraceTime} ${!!nRemainingGraceTime}`);
+    log.verbose(`IsCardTaken :: ${this.bIsCardTaken}`);
     const oData = {
       oTable: { ...oTable, aPlayer, aDrawPile: [] },
       aHand: this.aHand,
