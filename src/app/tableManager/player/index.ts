@@ -319,9 +319,10 @@ class Player extends Service {
 
     const updatedDiscardPile = [...oTable.toJSON().aDiscardPile];
     updatedDiscardPile[updatedDiscardPile.length - 1].eColor = oData.eColor;
+    await oTable.update({ eNextCardColor: oData.eColor, aDiscardPile: updatedDiscardPile });
     oTable.emit('resWildCardColor', { iPlayerId: this.iPlayerId, eColor: oData.eColor });
     /* used when user discard his card in grace time. */
-    aPromises.push(oTable.update({ eNextCardColor: oData.eColor, aDiscardPile: updatedDiscardPile }));
+    // aPromises.push(oTable.update({ eNextCardColor: oData.eColor, aDiscardPile: updatedDiscardPile }));
     await Promise.all(aPromises);
     this.passTurn(oTable);
     return true;
