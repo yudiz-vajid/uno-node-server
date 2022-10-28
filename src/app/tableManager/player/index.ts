@@ -300,7 +300,7 @@ class Player extends Service {
       aPromises.push(this.update({ bUnoDeclared: false }));
       aPromises.push(oTable.update({ iDrawPenltyPlayerId: '' }));
     }
-    aPromises.push(this.update({ nGraceTime: this.nGraceTime }));
+    aPromises.push(this.update({ nGraceTime: this.nGraceTime, bIsCardTaken: false }));
     await Promise.all(aPromises);
     this.passTurn(oTable);
     callback({ oData: {}, status: response.SUCCESS });
