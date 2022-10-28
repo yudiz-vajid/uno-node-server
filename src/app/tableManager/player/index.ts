@@ -344,7 +344,7 @@ class Player extends Service {
   public async leaveMatch(oData: any, oTable: Table, callback: ICallback) {
     const remainingMasterTime = await oTable.getTTL('masterTimerExpired');
     log.debug(`${_.now()} event: leaveMatch, player: ${this.iPlayerId}, tableID: ${this.iBattleId}, tableState: ${this.eState}, masterTimer ${remainingMasterTime}`);
-    if (oTable.toJSON().eState === 'finished' || remainingMasterTime) return callback({ oData: {}, status: response.SUCCESS });
+    if (oTable.toJSON().eState === 'finished' || !remainingMasterTime) return callback({ oData: {}, status: response.SUCCESS });
     await this.update({ eState: 'left' });
     callback({ oData: {}, status: response.SUCCESS });
     oTable.emit('resPlayerLeft', { iPlayerId: this.iPlayerId });
