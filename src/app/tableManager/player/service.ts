@@ -409,7 +409,7 @@ class Service {
       bFastTimerActive: this.eState !== 'playing' ? false : !nFastMasterTimer,
       nRemainingMasterTime: nRemainingMasterTime || (oTable?.toJSON().eState !== 'finished' ? oTable?.toJSON().oSettings.nTotalGameTime : 0),
       bIsMasterTimerAvailable: !!nRemainingMasterTime,
-      bKeepCard: this.bIsCardTaken,
+      bKeepCard: this.bIsCardTaken && oTable?.toJSON().iPlayerTurn === this.iPlayerId,
       oKeepCardData: this.aHand[this.aHand.length - 1],
       oTurnInfo: {
         iUserTurn,
