@@ -325,14 +325,9 @@ class Service {
   }
 
   public async emit(sEventName: string, oData: Record<string, unknown> = {}) {
-    if (sEventName === 'resTurnTimer' || sEventName === 'resTestEmit') {
-      log.verbose(`emit called for ${sEventName}`);
-      log.verbose(`emit called for PlayerId-socket ID ${this.iPlayerId} -- ${this.sSocketId}`);
-    }
     const updatedTable = await TableManager.getTable(this.iBattleId);
     const updatedPlayer = await updatedTable?.getPlayer(this.iPlayerId);
     if (updatedPlayer) this.sSocketId = updatedPlayer?.sSocketId;
-    log.verbose(`updatedPlayer socket ID --> ${updatedPlayer?.sSocketId}`);
     if (!sEventName) return false;
     if (this.sSocketId) global.io.to(this.sSocketId).emit(this.iBattleId, _.stringify({ sTaskName: sEventName, oData })); // cb not supported while broadcasting
     if (process.env.NODE_ENV !== 'prod') global.io.to(this.sSocketId).emit('postman', { sTaskName: sEventName, oData });
