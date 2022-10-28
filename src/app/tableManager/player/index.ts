@@ -43,6 +43,7 @@ class Player extends Service {
       callback({ oData: {}, status: response.SERVER_ERROR });
       return (log.error(`no card found for iCardId: ${oData.iCardId}`) && null) ?? false;
     }
+    await this.update({ bIsCardTaken: false });
     callback({ oData: { nHandScore: await this.handCardCounts(this.aHand) }, status: response.SUCCESS });
     await oTable.update({ iPlayerTurn: '' });
     const aPromises = [];
@@ -120,7 +121,7 @@ class Player extends Service {
       CardsRemaining: this.aHand.length,
       LastOne: !this.aHand.length,
     });
-    aPromises.push(this.update({ aHand: this.aHand, nGraceTime: this.nGraceTime, [usedCard]: usedCardCount + 1, bIsCardTaken: false }));
+    aPromises.push(this.update({ aHand: this.aHand, nGraceTime: this.nGraceTime, [usedCard]: usedCardCount + 1 }));
     aPromises.push(oTable.update({ aTurnInfo: oTable.toJSON().aTurnInfo }));
     await Promise.all(aPromises);
 
