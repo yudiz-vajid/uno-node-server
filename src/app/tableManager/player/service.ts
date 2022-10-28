@@ -358,8 +358,14 @@ class Service {
    */
   public async getPlayableCardIds(oDiscardPileTopCard: any, eNextCardColor?: Table['eNextCardColor']) {
     if (!oDiscardPileTopCard || oDiscardPileTopCard === undefined) return this.aHand;
-    if (oDiscardPileTopCard.nLabel === 12)
+    if (oDiscardPileTopCard.nLabel === 12) {
+      const oTable = await TableManager.getTable(this.iBattleId);
+      if (oTable?.toJSON().oSettings.bStackingDrawCards && oTable.toJSON().iDrawPenltyPlayerId === this.iPlayerId) {
+        const aStackingCardId = await this.getStackingCardIds(oTable.getDiscardPileTopCard());
+        return aStackingCardId?.length ? aStackingCardId : [];
+      }
       return this.aHand.filter(card => card.nLabel > 12 || card.nLabel === 12 || oDiscardPileTopCard.eColor === card.eColor).map(card => card.iCardId);
+    }
     if (oDiscardPileTopCard.nLabel === 14)
       return this.aHand.filter(card => card.nLabel > 12 || card.nLabel === 14 || oDiscardPileTopCard.eColor === card.eColor).map(card => card.iCardId);
     if (oDiscardPileTopCard.nLabel === 13) return this.aHand.filter(card => card.nLabel > 12 || card.eColor === oDiscardPileTopCard.eColor).map(card => card.iCardId);
