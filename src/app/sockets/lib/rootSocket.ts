@@ -55,7 +55,7 @@ class RootSocket {
       // socket.data.iBattleId = iBattleId;
       // socket.data.nTablePlayer = nTablePlayer;
 
-      if (isNewMatchMakingFlowEnabled) {
+      if (!isNewMatchMakingFlowEnabled) {
         socket.data.iBattleId = iBattleId;
         socket.data.nTablePlayer = nTablePlayer;
       }
