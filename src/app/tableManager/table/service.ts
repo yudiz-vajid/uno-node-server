@@ -319,7 +319,18 @@ class Service {
       this.aPlayerId.map(p => Number(p))
     );
     log.debug(`rpcTable in initializeGameTimer ${_.stringify(rpcTable)}`);
-    if (!rpcTable || rpcTable.error || !rpcTable.success) return false;
+    if (!rpcTable || rpcTable.error || !rpcTable.success) {
+      this.emit('resRpcFail', { message: 'Something went wrong please try again.' });
+      // Need to remove all data.
+      const keys = await redis.client.KEYS(`t:${this.iBattleId}:*`);
+      const tbl_keys: any = await redis.client.KEYS(`t:${this.iBattleId}`);
+      keys.push(...tbl_keys);
+      log.verbose('Table removed due to RPC error');
+      if (keys.length) await redis.client.del(keys);
+      const schedularKey = await redis.sch.KEYS(`sch:${this.iBattleId}:`);
+      if (schedularKey.length) await redis.sch.del(schedularKey);
+      return false;
+    } // Need to manage rapc fails case.
     // // const nBeginCountdown = this.aPlayerId.length === this.oSettings.nTotalPlayerCount ? this.oSettings.nGameInitializeTime / 2 : this.oSettings.nGameInitializeTime;
     const nBeginCountdownCounter = this.oSettings.nGameInitializeTime;
     this.emit('resGameInitializeTimer', { ttl: nBeginCountdownCounter, timestamp: Date.now() });

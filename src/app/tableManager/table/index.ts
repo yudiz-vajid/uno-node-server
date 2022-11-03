@@ -2,6 +2,8 @@
 /* eslint-disable no-restricted-syntax */
 import Service from './service';
 import type Player from '../player';
+// eslint-disable-next-line import/no-cycle
+import TableManager from '..';
 
 class Table extends Service {
   public async distributeCard() {
@@ -68,7 +70,10 @@ class Table extends Service {
 
   public async matchMakingExpired() {
     log.debug(`${_.now()} event: server match Making Expired, tableID: ${this.iBattleId},player count ${this.aPlayerId.length}`);
-    if (this.aPlayerId.length < this.nMinTablePlayer) return this.refundOnLongWait();
+    const oTable: any = await TableManager.getTable(this.iBattleId);
+    log.verbose('oTable.aPlayerId at matchMakingExpired :: ', oTable.aPlayerId);
+    if (oTable?.aPlayerId.length < this.nMinTablePlayer) return this.refundOnLongWait();
+    // if (this.aPlayerId.length < this.nMinTablePlayer) return this.refundOnLongWait();
     log.verbose('Game start with MinTablePlayer');
     return this.initializeGame();
   }

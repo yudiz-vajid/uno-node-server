@@ -14,8 +14,10 @@ class Channel {
   // { sTaskName: 'reqDiscardCard' | 'reqDrawCard'; oData: Record<string, unknown> }
   public async onEvent(body: any, ack: ICallback) {
     if (process.env.NODE_ENV === 'dev' && typeof body === 'object') body = _.stringify(body); // For postman use
-    const parseBody: { sTaskName: 'reqDiscardCard' | 'reqDrawCard' | 'reqKeepCard' | 'reqSetWildCardColor' | 'reqUno' | 'reqLeave'; oData: Record<string, unknown> } =
-      JSON.parse(body);
+    const parseBody: {
+      sTaskName: 'reqDiscardCard' | 'reqDrawCard' | 'reqKeepCard' | 'reqSetWildCardColor' | 'reqUno' | 'reqCurrentCardColor' | 'reqLeave';
+      oData: Record<string, unknown>;
+    } = JSON.parse(body);
     try {
       if (typeof ack !== 'function') return false;
       const { sTaskName, oData } = parseBody;
@@ -42,6 +44,10 @@ class Channel {
 
         case 'reqLeave':
           emitter.emit('channelEvent', { sTaskName: 'leaveMatch', iBattleId: this.iBattleId, iPlayerId: this.iPlayerId ?? '', oData }, ack);
+          break;
+
+        case 'reqCurrentCardColor':
+          emitter.emit('channelEvent', { sTaskName: 'currentCardColor', iBattleId: this.iBattleId, iPlayerId: this.iPlayerId ?? '', oData }, ack);
           break;
 
         default:

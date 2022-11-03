@@ -98,6 +98,10 @@ class TableManager {
         oPlayer?.declareUno(oData, oTable, callback);
         return true;
 
+      case 'currentCardColor':
+        oPlayer?.currentCardColor(oData, oTable, callback);
+        return true;
+
       case 'leaveMatch':
         oPlayer?.leaveMatch(oData, oTable, callback);
         return true;
