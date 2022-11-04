@@ -504,7 +504,7 @@ class Service {
   public async deleteScheduler(sTaskName = '', iPlayerId = '*') {
     try {
       let sKey;
-      if (sTaskName) {
+      if (sTaskName === 'matchMakingExpired') {
         sKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
       } else {
         sKey = _.getSchedulerKeyWithoutIP(sTaskName, this.iBattleId, iPlayerId);
