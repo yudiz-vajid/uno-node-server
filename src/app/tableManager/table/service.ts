@@ -472,6 +472,12 @@ class Service {
     log.verbose('Table removed on refundOnLongWait');
     if (keys.length) await redis.client.del(keys);
     const schedularKey = await redis.sch.KEYS(`sch:${this.iBattleId}:`);
+    // restrict only refund on long wait sch for new game issue.
+    if (schedularKey.length) {
+      // remove refund on long wait sch key
+      const refundSch = _.getSchedulerKey('matchMakingExpired', this.iBattleId, '');
+      log.verbose(`refund sch --> ${_.stringify(refundSch)}`);
+    }
     if (schedularKey.length) await redis.sch.del(schedularKey);
   }
 
