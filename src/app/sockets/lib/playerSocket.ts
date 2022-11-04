@@ -75,15 +75,19 @@ class PlayerSocket {
       // log.debug(`body in joinTable --> ${_.stringify(body)}`);
       if (!oTable && this.isReconnect) return _ack({ oData: {}, status: response.TABLE_NOT_FOUND });
       if (!oTable && debugBody.i_battle_id) {
+        await _.delay(2000); // For rejoin match flow
+        oTable = await TableManager.getTable(debugBody.i_battle_id);
         log.verbose(`Creating table in table Join`);
-        oTable = await TableManager.createTable({
-          iBattleId: debugBody.i_battle_id,
-          oSettings: this.oSetting,
-          iPlayerId: this.iPlayerId,
-          iLobbyId: this.iLobbyId,
-          nTablePlayer: this.nTablePlayer,
-          nMinTablePlayer: this.nMinTablePlayer,
-        });
+        if (!oTable) {
+          oTable = await TableManager.createTable({
+            iBattleId: debugBody.i_battle_id,
+            oSettings: this.oSetting,
+            iPlayerId: this.iPlayerId,
+            iLobbyId: this.iLobbyId,
+            nTablePlayer: this.nTablePlayer,
+            nMinTablePlayer: this.nMinTablePlayer,
+          });
+        }
       }
       if (!oTable) throw new Error('Table not created');
       let oPlayer = oTable.getPlayer(this.iPlayerId);

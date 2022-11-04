@@ -307,13 +307,13 @@ class Service {
     const playerOldState = this.eState;
     log.verbose(`this.eState in reconnect --> ${this.eState}`);
     await this.update({ sSocketId, eState: stateMapper[oTable.toJSON().eState] as IPlayer['eState'] });
-    if (this.bIsCardTaken && oTable.toJSON().iPlayerTurn === this.iPlayerId) {
-      log.verbose(`bIsCardTaken by user and reconnect...`);
-      // Flow updated for keep&play scenario
-      // await this.getGameState(oTable);
-      // log.verbose(`getGameState shared and now passing turn...`);
-      // return this.passTurn(oTable);
-    }
+    // if (this.bIsCardTaken && oTable.toJSON().iPlayerTurn === this.iPlayerId) {
+    //   log.verbose(`bIsCardTaken by user and reconnect...`);
+    //   // Flow updated for keep&play scenario
+    //   // await this.getGameState(oTable);
+    //   // log.verbose(`getGameState shared and now passing turn...`);
+    //   // return this.passTurn(oTable);
+    // }
     if (playerOldState === 'left') {
       await this.update({ eState: 'left' });
       this.emit('resPlayerLeft', { iPlayerId: this.iPlayerId });
