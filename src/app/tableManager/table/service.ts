@@ -475,9 +475,9 @@ class Service {
     // restrict only refund on long wait sch for new game issue.
     if (schedularKey.length) {
       // remove refund on long wait sch key
+      log.verbose(`all sch --> ${schedularKey}`);
       const refundSch = _.getSchedulerKey('matchMakingExpired', this.iBattleId, '');
-      log.verbose(`all sch --> ${_.stringify(schedularKey)}`);
-      log.verbose(`refund sch --> ${_.stringify(refundSch)}`);
+      log.verbose(`refund sch --> ${refundSch}`);
     }
     if (schedularKey.length) await redis.sch.del(schedularKey);
   }
