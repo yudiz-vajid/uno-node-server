@@ -490,8 +490,8 @@ class Service {
       if (!sTaskName) return false;
       if (!nTimeMS) return false;
       console.log(sTaskName, this.iBattleId, iPlayerId, nTimeMS, sTaskName);
-      // const schKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
-      const schKey = _.getSchedulerKeyWithoutIP(sTaskName, this.iBattleId, iPlayerId);
+      const schKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
+      // const schKey = _.getSchedulerKeyWithoutIP(sTaskName, this.iBattleId, iPlayerId);
       log.verbose(`schKey --> ${schKey}`);
       await redis.sch.pSetEx(schKey, nTimeMS, sTaskName);
       return true;
