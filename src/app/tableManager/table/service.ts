@@ -344,7 +344,7 @@ class Service {
     const oUpdateTable = await this.update({ aPlayerId: tablePlayerId });
     if (!oUpdateTable) return false;
     this.aPlayer.push(oPlayer);
-    log.verbose(`this.aPlayer.length in add player ${this.aPlayer.length}`);
+    log.verbose(`this.aPlayer.length in add player ${this.aPlayer}`);
     log.verbose(`this.oSettings.nMatchMakingTime ${_.stringify(this.oSettings.nMatchMakingTime)}`);
     log.verbose(`this.nTablePlayer ${this.nTablePlayer}`);
     if (this.aPlayer.length === 1) {
@@ -490,7 +490,8 @@ class Service {
       if (!sTaskName) return false;
       if (!nTimeMS) return false;
       console.log(sTaskName, this.iBattleId, iPlayerId, nTimeMS, sTaskName);
-      const schKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
+      // const schKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
+      const schKey = _.getSchedulerKeyWithoutIP(sTaskName, this.iBattleId, iPlayerId);
       log.verbose(`schKey --> ${schKey}`);
       await redis.sch.pSetEx(schKey, nTimeMS, sTaskName);
       return true;

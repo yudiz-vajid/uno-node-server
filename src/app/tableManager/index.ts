@@ -198,6 +198,7 @@ class TableManager {
       };
       log.debug(`7.3. table creation finished`);
       const sRedisSetResponse = await redis.client.json.SET(_.getTableKey(oTableWithParticipant.iBattleId), '.', oTableWithParticipant as unknown as RedisJSON);
+      log.verbose(`New table save in redis for table ID :: ${oTableWithParticipant.iBattleId}`);
       if (!sRedisSetResponse) return null;
       return new Table(oTableWithParticipant);
     } catch (err: any) {
@@ -224,7 +225,7 @@ class TableManager {
 
   public static async getTable(iBattleId: string) {
     try {
-      log.verbose(`getTable called for --> ${iBattleId}`);
+      // log.verbose(`getTable called for --> ${iBattleId}`);
       const oTableData = (await redis.client.json.GET(_.getTableKey(iBattleId))) as unknown as ITable | null;
       if (!oTableData) return null;
 

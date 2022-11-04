@@ -71,7 +71,8 @@ class Table extends Service {
   public async matchMakingExpired() {
     log.debug(`${_.now()} event: server match Making Expired, tableID: ${this.iBattleId},player count ${this.aPlayerId.length}`);
     const oTable: any = await TableManager.getTable(this.iBattleId);
-    log.verbose('oTable.aPlayerId at matchMakingExpired :: ', oTable.aPlayerId);
+    log.verbose(`oTable.aPlayerId at matchMakingExpired :: ${oTable.aPlayerId}`);
+    log.verbose(`oTable.aPlayerId at matchMakingExpired ::  ${this.nMinTablePlayer}`);
     if (oTable?.aPlayerId.length < this.nMinTablePlayer) return this.refundOnLongWait();
     // if (this.aPlayerId.length < this.nMinTablePlayer) return this.refundOnLongWait();
     log.verbose('Game start with MinTablePlayer');
