@@ -503,8 +503,12 @@ class Service {
 
   public async deleteScheduler(sTaskName = '', iPlayerId = '*') {
     try {
-      // const sKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
-      const sKey = _.getSchedulerKeyWithoutIP(sTaskName, this.iBattleId, iPlayerId);
+      let sKey;
+      if (sTaskName) {
+        sKey = _.getSchedulerKey(sTaskName, this.iBattleId, iPlayerId);
+      } else {
+        sKey = _.getSchedulerKeyWithoutIP(sTaskName, this.iBattleId, iPlayerId);
+      }
       const schedularKeys = await redis.sch.keys(sKey);
       log.verbose(`deleteSch --> ${sKey}`);
       log.verbose(`schedularKeys --> ${schedularKeys}`);
