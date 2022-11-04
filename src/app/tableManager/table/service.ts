@@ -476,6 +476,7 @@ class Service {
     if (schedularKey.length) {
       // remove refund on long wait sch key
       const refundSch = _.getSchedulerKey('matchMakingExpired', this.iBattleId, '');
+      log.verbose(`all sch --> ${_.stringify(schedularKey)}`);
       log.verbose(`refund sch --> ${_.stringify(refundSch)}`);
     }
     if (schedularKey.length) await redis.sch.del(schedularKey);
