@@ -173,11 +173,12 @@ class Player extends Service {
     log.debug(`${_.now()} event: drawCard, player: ${this.iPlayerId}, tableID: ${this.iBattleId}`);
     const aPromise: any = [];
     if (!oTable.toJSON().aDrawPile.length) await oTable.reshuffleClosedDeck();
-    const nRemainingTime = await oTable.getTTL('assignGraceTimerExpired', this.iPlayerId); // - in ms
-    if (!nRemainingTime) await oTable.getTTL('assignTurnTimerExpired', this.iPlayerId); // - in ms
+    let nRemainingTime = await oTable.getTTL('assignGraceTimerExpired', this.iPlayerId); // - in ms
+    if (!nRemainingTime) nRemainingTime = await oTable.getTTL('assignTurnTimerExpired', this.iPlayerId); // - in ms
+    log.verbose(`nRemainingTime at grab card ---> ${nRemainingTime}`);
     if (!nRemainingTime || nRemainingTime == null || nRemainingTime <= 1) {
       log.verbose(`last second card grab request... ${nRemainingTime}`);
-      return false;
+      return false; // for last second grab-card
     }
 
     const alreadyHavePlayableCard = await this.getPlayableCardIds(await oTable.getDiscardPileTopCard(), oTable.toJSON().eNextCardColor);
