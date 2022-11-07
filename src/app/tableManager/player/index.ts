@@ -176,7 +176,7 @@ class Player extends Service {
     let nRemainingTime = await oTable.getTTL('assignGraceTimerExpired', this.iPlayerId); // - in ms
     if (!nRemainingTime) nRemainingTime = await oTable.getTTL('assignTurnTimerExpired', this.iPlayerId); // - in ms
     log.verbose(`nRemainingTime at grab card ---> ${nRemainingTime}`);
-    if (!nRemainingTime || nRemainingTime == null || nRemainingTime <= 1) {
+    if (!nRemainingTime || nRemainingTime == null || nRemainingTime <= 1000) {
       log.verbose(`last second card grab request... ${nRemainingTime}`);
       return false; // for last second grab-card
     }
