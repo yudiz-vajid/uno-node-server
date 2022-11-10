@@ -76,6 +76,12 @@ class PlayerSocket {
       console.log('this.isReconnect --> ', this.isReconnect);
       // log.debug(`body in joinTable --> ${_.stringify(body)}`);
       if (!oTable && this.isReconnect) return _ack({ oData: {}, status: response.TABLE_NOT_FOUND });
+      // const getTableWithDelay = async (i: number) => {
+      //   const randomDel = _.randomBetween(1200, 2500);
+      //   await _.delay(randomDel);
+      //   oTable = await TableManager.getTable(debugBody.i_battle_id);
+      //   if (!oTable && i < 5) getTableWithDelay(i + 1);
+      // };
       if (!oTable && debugBody.i_battle_id && tableKey) {
         log.verbose(`table key is there but table not found,player'll wait :: tableKey : ${tableKey}`);
         const randomDel = _.randomBetween(1200, 2500);
@@ -93,6 +99,18 @@ class PlayerSocket {
           nTablePlayer: this.nTablePlayer,
           nMinTablePlayer: this.nMinTablePlayer,
         });
+        if (!oTable) {
+          log.verbose(`table not created due to RPC error battleID :: ${debugBody.iBattleId}`);
+          _ack({ oData: {}, status: response.TABLE_NOT_CREATED_RPC });
+          await redis.client.del(`${_.getTableKey(debugBody.iBattleId)}:initiate`);
+          const keys = await redis.client.KEYS(`t:${debugBody.iBattleId}:*`);
+          const tblKeys: any = await redis.client.KEYS(`t:${debugBody.iBattleId}`);
+          keys.push(...tblKeys);
+          log.verbose('Table removed due to RPC error');
+          if (keys.length) await redis.client.del(keys);
+          const schedularKey = await redis.sch.KEYS(`sch:${debugBody.iBattleId}:`);
+          if (schedularKey.length) await redis.sch.del(schedularKey);
+        }
       }
       if (!oTable) throw new Error('Table not created');
       let oPlayer = oTable.getPlayer(this.iPlayerId);

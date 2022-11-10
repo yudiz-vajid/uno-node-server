@@ -8,6 +8,7 @@ const response = Object.freeze({
   TABLE_NOT_CREATED: { code: 4, message: 'table not created' },
   TABLE_NOT_UPDATED: { code: 5, message: 'table not updated' },
   TABLE_NOT_FOUND: { code: 6, message: 'table not found' },
+  TABLE_NOT_CREATED_RPC: { code: 18, message: 'table not created due to rpc fail.' },
   TABLE_NOT_RUNNING: { code: 7, message: 'table is not in running state' },
   PLAYER_NOT_CREATED: { code: 8, message: 'player not created' },
   PLAYER_NOT_UPDATED: { code: 9, message: 'player not updated' },

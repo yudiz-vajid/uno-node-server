@@ -150,8 +150,21 @@ class TableManager {
       log.debug(`createTable() payload: ${_.stringify(oData)}`);
       const oLobbyDataRes = await rpc.getLobbyById(Number(oData.iLobbyId), Number(oData.iPlayerId));
       const oLobby = _.parse(oLobbyDataRes);
-      if (!oLobby) throw new Error('Lobby data not found');
-      if (oLobby.error) throw new Error('Error on rpc call getLobbyById');
+      // if (!oLobby) throw new Error('Lobby data not found');
+      // if (oLobby.error) throw new Error('Error on rpc call getLobbyById');
+      if (!oLobby || oLobby.error) {
+        // this.emit('resRpcFail', { message: 'Something went wrong please try again.' });
+        // Need to remove all data.
+        // const keys = await redis.client.KEYS(`t:${oData.iBattleId}:*`);
+        // const tblKeys: any = await redis.client.KEYS(`t:${oData.iBattleId}`);
+        // keys.push(...tblKeys);
+        // log.verbose('Table removed due to RPC error');
+        // if (keys.length) await redis.client.del(keys);
+        // const schedularKey = await redis.sch.KEYS(`sch:${oData.iBattleId}:`);
+        // if (schedularKey.length) await redis.sch.del(schedularKey);
+        return null;
+        // throw new Error('Error on rpc call getLobbyById');
+      }
 
       log.debug(`oLobby :: ${_.stringify(oLobby)}`);
       const gameConfig = _.parse(oLobby?.lobbyDetails?.gameConfig);
