@@ -78,7 +78,7 @@ class PlayerSocket {
       if (!oTable && this.isReconnect) return _ack({ oData: {}, status: response.TABLE_NOT_FOUND });
       if (!oTable && debugBody.i_battle_id && tableKey) {
         log.verbose(`table key is there but table not found,player'll wait :: tableKey : ${tableKey}`);
-        const randomDel = _.randomBetween(500, 1700);
+        const randomDel = _.randomBetween(1200, 2500);
         await _.delay(randomDel);
         oTable = await TableManager.getTable(debugBody.i_battle_id);
       }
