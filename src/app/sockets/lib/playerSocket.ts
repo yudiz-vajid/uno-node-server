@@ -68,7 +68,7 @@ class PlayerSocket {
       const debugBody = _.parse(body).oData;
       this.iBattleId = debugBody.i_battle_id;
       this.nTablePlayer = debugBody.nTablePlayer;
-      const tableKey = (await redis.client.GET(_.getTableKey(this.iBattleId))) as unknown as string | null;
+      const tableKey = (await redis.client.GET(`${_.getTableKey(debugBody.i_battle_id)}:initiate`)) as unknown as string | null;
       log.debug(`tableKey --> ${_.stringify(tableKey)}`);
       log.debug(`debugBody --> ${_.stringify(debugBody)}`);
       log.debug(`6. joinTable started: pid -> ${this.iPlayerId} BId --> ${this.iBattleId}`);
@@ -83,7 +83,7 @@ class PlayerSocket {
         oTable = await TableManager.getTable(debugBody.i_battle_id);
       }
       if (!oTable && debugBody.i_battle_id && !tableKey) {
-        const newTableKey = await redis.client.SET(_.getTableKey(debugBody.i_battle_id), 'present' as string);
+        const newTableKey = await redis.client.SET(`${_.getTableKey(debugBody.i_battle_id)}:initiate`, 'present' as string);
         log.verbose(`new tableKey created ${newTableKey}`);
         oTable = await TableManager.createTable({
           iBattleId: debugBody.i_battle_id,
