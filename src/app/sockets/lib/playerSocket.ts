@@ -102,7 +102,7 @@ class PlayerSocket {
         if (!oTable) {
           log.verbose(`table not created due to RPC error battleID :: ${debugBody.iBattleId}`);
           _ack({ oData: {}, status: response.TABLE_NOT_CREATED_RPC });
-          await redis.client.del(`${_.getTableKey(debugBody.iBattleId)}:initiate`);
+          // await redis.client.del(`${_.getTableKey(debugBody.iBattleId)}:initiate`);
           const keys = await redis.client.KEYS(`t:${debugBody.iBattleId}:*`);
           const tblKeys: any = await redis.client.KEYS(`t:${debugBody.iBattleId}`);
           keys.push(...tblKeys);

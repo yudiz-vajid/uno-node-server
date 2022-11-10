@@ -162,6 +162,8 @@ class TableManager {
         // if (keys.length) await redis.client.del(keys);
         // const schedularKey = await redis.sch.KEYS(`sch:${oData.iBattleId}:`);
         // if (schedularKey.length) await redis.sch.del(schedularKey);
+
+        await redis.client.del(`${_.getTableKey(oData.iBattleId)}:initiate`);
         return null;
         // throw new Error('Error on rpc call getLobbyById');
       }
