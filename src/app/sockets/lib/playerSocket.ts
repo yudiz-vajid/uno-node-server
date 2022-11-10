@@ -68,13 +68,23 @@ class PlayerSocket {
       const debugBody = _.parse(body).oData;
       this.iBattleId = debugBody.i_battle_id;
       this.nTablePlayer = debugBody.nTablePlayer;
+      const tableKey = (await redis.client.GET(_.getTableKey(this.iBattleId))) as unknown as string | null;
+      log.debug(`tableKey --> ${_.stringify(tableKey)}`);
       log.debug(`debugBody --> ${_.stringify(debugBody)}`);
       log.debug(`6. joinTable started: pid -> ${this.iPlayerId} BId --> ${this.iBattleId}`);
       let oTable = await TableManager.getTable(debugBody.i_battle_id);
       console.log('this.isReconnect --> ', this.isReconnect);
       // log.debug(`body in joinTable --> ${_.stringify(body)}`);
       if (!oTable && this.isReconnect) return _ack({ oData: {}, status: response.TABLE_NOT_FOUND });
-      if (!oTable && debugBody.i_battle_id) {
+      if (!oTable && debugBody.i_battle_id && tableKey) {
+        log.verbose(`table key is there but table not found,player'll wait :: tableKey : ${tableKey}`);
+        const randomDel = _.randomBetween(500, 1700);
+        await _.delay(randomDel);
+        oTable = await TableManager.getTable(debugBody.i_battle_id);
+      }
+      if (!oTable && debugBody.i_battle_id && !tableKey) {
+        const newTableKey = await redis.client.SET(_.getTableKey(debugBody.i_battle_id), 'present' as string);
+        log.verbose(`new tableKey created ${newTableKey}`);
         oTable = await TableManager.createTable({
           iBattleId: debugBody.i_battle_id,
           oSettings: this.oSetting,

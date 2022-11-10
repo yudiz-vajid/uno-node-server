@@ -104,6 +104,9 @@ const helper = {
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min;
   },
+  randomBetween: (min = 0, max = 10000) => {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  },
 
   clone: (data: any = {}) => {
     const originalData = data.toObject ? data.toObject() : data; // for mongoose result operations
