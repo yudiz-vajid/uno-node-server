@@ -5,33 +5,6 @@ import { response } from '../../util';
 import TableManager from '../../tableManager';
 import { ICallback, ISettings } from '../../../types/global';
 
-const redlock = new Redlock(
-  // You should have one client for each independent redis node
-  // or cluster.
-  [redis.redLock],
-  {
-    // The expected clock drift; for more details see:
-    // http://redis.io/topics/distlock
-    driftFactor: 0.01, // multiplied by lock ttl to determine drift time
-
-    // The max number of times Redlock will attempt to lock a resource
-    // before erroring.
-    retryCount: 10,
-
-    // the time in ms between attempts
-    retryDelay: 200, // time in ms
-
-    // the max time in ms randomly added to retries
-    // to improve performance under high contention
-    // see https://www.awsarchitectureblog.com/2015/03/backoff.html
-    retryJitter: 200, // time in ms
-
-    // The minimum remaining time on a lock before an extension is automatically
-    // attempted with the `using` API.
-    automaticExtensionThreshold: 500, // time in ms
-  }
-);
-
 class PlayerSocket {
   private socket: Socket;
 
@@ -91,7 +64,34 @@ class PlayerSocket {
    */
   private async joinTable(body: { i_battle_id: string; nTablePlayer: number }, _ack: ICallback) {
     if (typeof _ack !== 'function') return false;
+
     try {
+      const redlock = new Redlock(
+        // You should have one client for each independent redis node
+        // or cluster.
+        [redis.redLock],
+        {
+          // The expected clock drift; for more details see:
+          // http://redis.io/topics/distlock
+          driftFactor: 0.01, // multiplied by lock ttl to determine drift time
+
+          // The max number of times Redlock will attempt to lock a resource
+          // before erroring.
+          retryCount: 10,
+
+          // the time in ms between attempts
+          retryDelay: 200, // time in ms
+
+          // the max time in ms randomly added to retries
+          // to improve performance under high contention
+          // see https://www.awsarchitectureblog.com/2015/03/backoff.html
+          retryJitter: 200, // time in ms
+
+          // The minimum remaining time on a lock before an extension is automatically
+          // attempted with the `using` API.
+          automaticExtensionThreshold: 500, // time in ms
+        }
+      );
       const debugBody = _.parse(body).oData;
       this.iBattleId = debugBody.i_battle_id;
       this.nTablePlayer = debugBody.nTablePlayer;
