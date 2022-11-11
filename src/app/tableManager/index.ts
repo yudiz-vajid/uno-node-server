@@ -261,6 +261,28 @@ class TableManager {
     }
   }
 
+  public static async getTablePlayers(iBattleId: string) {
+    try {
+      log.verbose(`getTablePlayers called `);
+      const oTableData = (await redis.client.json.GET(_.getTableKey(iBattleId))) as unknown as ITable | null;
+      if (!oTableData) return null;
+
+      const aPromise: Array<Promise<unknown>> = []; // - To add participant in table
+      // log.verbose(`oTableData --> ${_.stringify(oTableData)}`);
+      aPromise.push(redis.client.json.GET(_.getPlayerKey(iBattleId, '*')));
+      const aPlayer = (await Promise.all(aPromise)) as unknown as Array<IPlayer | null>;
+      log.verbose(`aPlayer in getTablePlayers ---> ${aPlayer}`);
+      if (aPlayer.some(p => !p)) log.error('error');
+      const aPlayerClassified = aPlayer.map(p => (p ? new Player(p) : null));
+
+      return aPlayerClassified;
+    } catch (err: any) {
+      log.error(`${_.now()} Error Occurred on TableManager.getTable(). reason :${err.message}`);
+      log.silly(`${_.now()} iBattleId : ${iBattleId}`);
+      return null;
+    }
+  }
+
   // - not needed nas it is already their in table
   // public static async getPlayer(iBattleId: string, iPlayerId: string) {
   //   try {
