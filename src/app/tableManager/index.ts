@@ -3,6 +3,7 @@ import { ICallback, ICard, IPlayer, ISettings, ITable, RedisJSON } from '../../t
 import { Deck, response } from '../util';
 // eslint-disable-next-line import/no-cycle
 import Player from './player';
+// eslint-disable-next-line import/no-cycle
 import Table from './table';
 import rpc from '../../pathFinder/service/rpc';
 

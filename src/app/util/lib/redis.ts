@@ -11,7 +11,7 @@ class RedisClient {
 
   public gameplayOptions: RedisClientOptions;
 
-  public redLockOptions: RedisClientOptions;
+  // public redLockOptions: RedisClientOptions;
 
   public client!: RedisClientType;
 
@@ -23,7 +23,7 @@ class RedisClient {
 
   public schSubs!: RedisClientType;
 
-  public redLock!: RedisClientType;
+  // public redLock!: RedisClientType;
 
   constructor() {
     this.pubSubOptions = {
@@ -51,12 +51,12 @@ class RedisClient {
       legacyMode: false,
     };
 
-    this.redLockOptions = {
-      url: `redis://${process.env.GAMEPLAY_REDIS_HOST}:${process.env.GAMEPLAY_REDIS_PORT}`,
-      username: process.env.GAMEPLAY_REDIS_USERNAME,
-      password: process.env.GAMEPLAY_REDIS_PASSWORD,
-      legacyMode: false,
-    };
+    // this.redLockOptions = {
+    //   url: `redis://${process.env.GAMEPLAY_REDIS_HOST}:${process.env.GAMEPLAY_REDIS_PORT}`,
+    //   username: process.env.GAMEPLAY_REDIS_USERNAME,
+    //   password: process.env.GAMEPLAY_REDIS_PASSWORD,
+    //   legacyMode: false,
+    // };
     console.log(`pubSubOptions: ${JSON.stringify(this.pubSubOptions)}`);
     console.log(`schedularOptions: ${JSON.stringify(this.schedularOptions)}`);
     console.log(`gameplayOptions: ${JSON.stringify(this.gameplayOptions)}`);
@@ -69,7 +69,7 @@ class RedisClient {
       (this.subscriber as unknown) = createClient(this.pubSubOptions);
       (this.sch as unknown) = createClient(this.schedularOptions);
       (this.schSubs as unknown) = createClient(this.schedularOptions);
-      (this.redLock as unknown) = createClient(this.schedularOptions);
+      // (this.redLock as unknown) = createClient(this.schedularOptions);
 
       await Promise.all([this.client.connect(), this.publisher.connect(), this.subscriber.connect(), this.sch.connect(), this.schSubs.connect()]);
       try {
@@ -85,7 +85,7 @@ class RedisClient {
       this.subscriber.on('error', log.error);
       this.sch.on('error', log.error);
       this.schSubs.on('error', log.error);
-      this.redLock.on('error', log.error);
+      // this.redLock.on('error', log.error);
     } catch (error) {
       log.error(error);
     }

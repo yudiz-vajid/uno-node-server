@@ -6,8 +6,6 @@ import type Player from '../player';
 import { ICard, IPlayer, ITable, ITableWithPlayer, RedisJSON } from '../../../types/global';
 // eslint-disable-next-line no-unused-vars
 import rpc from '../../../pathFinder/service/rpc';
-// eslint-disable-next-line import/no-cycle
-import TableManager from '..';
 
 class Service {
   protected readonly iBattleId: ITableWithPlayer['iBattleId'];
@@ -466,8 +464,8 @@ class Service {
 
   public async refundOnLongWait() {
     // Need to send emit to connected players and remove table.
-    // const { aPlayer } = this.toJSON();
-    const aPlayer = await TableManager.getTablePlayers(this.iBattleId);
+    const { aPlayer } = this.toJSON();
+    // const aPlayer = await TableManager.getTablePlayers(this.iBattleId);
     log.verbose(`aPlayer in refund on long wait --> ${aPlayer}`);
     await aPlayer?.map(player => player?.emit('resRefundOnLongWait', {}));
     const keys = await redis.client.KEYS(`t:${this.iBattleId}:*`);
