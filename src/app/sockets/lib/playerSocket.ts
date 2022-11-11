@@ -1,8 +1,36 @@
 import type { Socket } from 'socket.io';
+import Redlock from 'redlock';
 import Channel from './channel';
 import { response } from '../../util';
 import TableManager from '../../tableManager';
 import { ICallback, ISettings } from '../../../types/global';
+
+const redlock = new Redlock(
+  // You should have one client for each independent redis node
+  // or cluster.
+  [redis.redLock],
+  {
+    // The expected clock drift; for more details see:
+    // http://redis.io/topics/distlock
+    driftFactor: 0.01, // multiplied by lock ttl to determine drift time
+
+    // The max number of times Redlock will attempt to lock a resource
+    // before erroring.
+    retryCount: 10,
+
+    // the time in ms between attempts
+    retryDelay: 200, // time in ms
+
+    // the max time in ms randomly added to retries
+    // to improve performance under high contention
+    // see https://www.awsarchitectureblog.com/2015/03/backoff.html
+    retryJitter: 200, // time in ms
+
+    // The minimum remaining time on a lock before an extension is automatically
+    // attempted with the `using` API.
+    automaticExtensionThreshold: 500, // time in ms
+  }
+);
 
 class PlayerSocket {
   private socket: Socket;
@@ -64,7 +92,6 @@ class PlayerSocket {
   private async joinTable(body: { i_battle_id: string; nTablePlayer: number }, _ack: ICallback) {
     if (typeof _ack !== 'function') return false;
     try {
-      // TODO :- need to manage empty battle id table creation.
       const debugBody = _.parse(body).oData;
       this.iBattleId = debugBody.i_battle_id;
       this.nTablePlayer = debugBody.nTablePlayer;
@@ -89,8 +116,15 @@ class PlayerSocket {
         oTable = await TableManager.getTable(debugBody.i_battle_id);
       }
       if (!oTable && debugBody.i_battle_id && !tableKey) {
-        const newTableKey = await redis.client.SET(`${_.getTableKey(debugBody.i_battle_id)}:initiate`, 'present' as string);
-        log.verbose(`new tableKey created ${newTableKey}`);
+        const lock = await redlock.acquire([`${_.getTableKey(debugBody.i_battle_id)}:initiate`], 5000);
+        let newTableKey;
+        try {
+          newTableKey = await redis.client.SET(`${_.getTableKey(debugBody.i_battle_id)}:initiate`, 'present' as string);
+          log.verbose(`new tableKey created with redLock --> ${newTableKey}`);
+        } finally {
+          // Release the lock.
+          await lock.release();
+        }
         oTable = await TableManager.createTable({
           iBattleId: debugBody.i_battle_id,
           oSettings: this.oSetting,
