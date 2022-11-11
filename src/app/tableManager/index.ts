@@ -269,7 +269,10 @@ class TableManager {
 
       const aPromise: Array<Promise<unknown>> = []; // - To add participant in table
       // log.verbose(`oTableData --> ${_.stringify(oTableData)}`);
-      aPromise.push(redis.client.json.GET(_.getPlayerKey(iBattleId, '*')));
+      const aKeys = await redis.client.KEYS(`t:${iBattleId}:p:*`);
+      console.log(`aKeys :: ${aKeys}`);
+      aKeys.forEach(key => aPromise.push(redis.client.json.GET(_.getPlayerKey(iBattleId, key))));
+      // aPromise.push(redis.client.json.GET(_.getPlayerKey(iBattleId, '*')));
       const aPlayer = (await Promise.all(aPromise)) as unknown as Array<IPlayer | null>;
       log.verbose(`aPlayer in getTablePlayers ---> ${aPlayer}`);
       if (aPlayer.some(p => !p)) log.error('error');
